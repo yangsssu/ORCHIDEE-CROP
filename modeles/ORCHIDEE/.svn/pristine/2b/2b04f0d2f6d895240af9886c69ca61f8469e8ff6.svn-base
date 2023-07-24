@@ -1,0 +1,9 @@
+\begin{equation}
+\left\{
+  \begin{array}{lcll}
+	C_{active}&=&C_{active}&+\sum_{pool}(f_{pool\rightarrow active}\times Flux_{pool})\\
+	C_{slow}   &=&C_{slow}&+\sum_{pool}(f_{pool\rightarrow slow}\times Flux_{pool})\\
+	C_{passive}&=&C_{passive}&+\sum_{pool}(f_{pool\rightarrow passive}\times Flux_{pool})
+  \end{array}
+\right.
+\end{equation}

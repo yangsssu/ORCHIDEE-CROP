@@ -1,0 +1,50 @@
+#- $Id$
+all_lib : libioipsl libparallel libparameters liborglob libstomate libsechiba
+
+libioipsl:
+	(cd ../IOIPSL/src; $(M_K) -f Makefile)
+
+libparameters :
+	(cd src_parameters ; $(M_K) -f Makefile)
+
+libparallel :
+	(cd ../../modeles/ORCHIDEE/src_parallel ; $(M_K) -f Makefile)
+
+liborglob :
+	(cd src_global ; $(M_K) -f Makefile)
+
+libstomate :
+	(cd src_stomate ; $(M_K) -f Makefile)
+
+libsechiba :
+	(cd src_sechiba ; $(M_K) -f Makefile)
+
+driver : all_lib
+	(cd src_driver ; $(M_K) -f Makefile)
+
+config : 
+	(cd src_parameters; $(M_K) -f Makefile config)
+	(cd src_sechiba; $(M_K) -f Makefile config)
+	(cd src_stomate; $(M_K) -f Makefile config)
+
+clean : 
+	(cd src_parameters; $(M_K) -f Makefile clean)
+	(cd src_parallel; $(M_K) -f Makefile clean)
+	(cd src_global; $(M_K) -f Makefile clean)
+	(cd src_sechiba; $(M_K) -f Makefile clean)
+	(cd src_stomate; $(M_K) -f Makefile clean)
+	(cd src_driver; $(M_K) -f Makefile clean)
+
+doc:
+	doxygen Doxyfile_ORCHIDEE
+	export TEXINPUTS="${TEXINPUTS}:${PWD}/DOC//"; export BIBINPUTS="${BIBINPUTS}:${PWD}/DOC/BIB//"; cd docs/latex ; latex refman.tex 
+
+bib:
+	export TEXINPUTS="${TEXINPUTS}:${PWD}/DOC//"; export BIBINPUTS="${BIBINPUTS}:${PWD}/DOC/BIB//"; cd docs/latex ; bibtex refman 
+
+index:
+	export TEXINPUTS="${TEXINPUTS}:${PWD}/DOC//"; export BIBINPUTS="${BIBINPUTS}:${PWD}/DOC/BIB//"; cd docs/latex ; makeindex refman 
+
+toc:
+	export TEXINPUTS="${TEXINPUTS}:${PWD}/DOC//"; export BIBINPUTS="${BIBINPUTS}:${PWD}/DOC/BIB//"; cd docs/latex ; latex refman.tex 
+

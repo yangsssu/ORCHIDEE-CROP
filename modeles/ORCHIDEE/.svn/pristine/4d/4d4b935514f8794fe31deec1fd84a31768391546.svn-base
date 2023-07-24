@@ -1,0 +1,3 @@
+\begin{equation}
+\mathit{t\_root}=\sum_{l=1}^\mathit{nbdl} (\mathit{stempdiag} \cdot \mathit{rpc} \cdot \left(e^{-{\frac{\mathit{z\_soil}\left(l-1\right)}{\mathit{rprof}}}}-e^{-{\frac{\mathit{z\_soil}(l)}{\mathit{rprof}}}}\right))
+\end{equation}

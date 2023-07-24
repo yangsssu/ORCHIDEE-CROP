@@ -1,0 +1,5 @@
+\begin{equation}
+herbivore = \frac{Tres_{green} \times NPPleaf_{long}}{consumption} 
+\end{equation}
+
+\noindent where Tres_{green} is the mean residence time of the green tissue.

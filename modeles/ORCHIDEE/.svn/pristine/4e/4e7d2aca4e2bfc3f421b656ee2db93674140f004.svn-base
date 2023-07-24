@@ -1,0 +1,3 @@
+\begin{equation}
+d\_age\_nobio=\frac{d\_age}{1+(\frac{tp\_00-T}{7.})^4}
+\end{equation}

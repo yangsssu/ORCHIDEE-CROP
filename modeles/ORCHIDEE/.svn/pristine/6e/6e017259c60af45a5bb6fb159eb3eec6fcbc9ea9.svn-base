@@ -1,0 +1,9 @@
+The SLA is calculated in Reich et al. 97 by :
+\begin{equation} 
+SLA = \exp (5.615 - 0.46 \cdot \ln (a_{leaf}))
+\end{equation}
+where : \\
+\begin{itemize}
+ \item  $a_{leaf}$ is a PFT-specific value for leaf longevity in months.
+\end{itemize}
+
