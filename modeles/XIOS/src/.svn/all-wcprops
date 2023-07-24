@@ -1,0 +1,707 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/ioserver/svn/!svn/ver/589/XIOS/branchs/xios-1.0/src
+END
+indent_xml.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/indent_xml.cpp
+END
+xmlioserver_spl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xmlioserver_spl.hpp
+END
+object_factory.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_factory.hpp
+END
+attribute.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute.cpp
+END
+exception.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/exception.hpp
+END
+buffer_server.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_server.hpp
+END
+xml_node.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_node.cpp
+END
+generate_fortran_interface.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/generate_fortran_interface.cpp
+END
+buffer_out.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_out.hpp
+END
+attribute_array.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_array.hpp
+END
+event_server.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_server.cpp
+END
+memory.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/memory.cpp
+END
+buffer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer.cpp
+END
+server.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/server.hpp
+END
+calendar_util.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/calendar_util.hpp
+END
+cxios_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/cxios_decl.cpp
+END
+xml_parser.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_parser.cpp
+END
+attribute_enum_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/580/XIOS/branchs/xios-1.0/src/attribute_enum_impl.hpp
+END
+generate_interface.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/generate_interface.hpp
+END
+event_scheduler.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_scheduler.cpp
+END
+functor.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor.cpp
+END
+wait.f90
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/wait.f90
+END
+indent.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/indent.cpp
+END
+log.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/log.cpp
+END
+date.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/ioserver/svn/!svn/ver/544/XIOS/branchs/xios-1.0/src/date.hpp
+END
+context_client.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/context_client.cpp
+END
+object_factory_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_factory_decl.cpp
+END
+timer.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/timer.hpp
+END
+object_template_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_template_impl.hpp
+END
+group_factory.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_factory.hpp
+END
+attribute_array_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_array_decl.cpp
+END
+attribute_template_specialisation.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_template_specialisation.hpp
+END
+array_new.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/array_new.hpp
+END
+data_output.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/data_output.hpp
+END
+attribute_map.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_map.cpp
+END
+generate_interface_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/generate_interface_impl.hpp
+END
+xml_parser_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_parser_impl.hpp
+END
+attribute_template.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_template.hpp
+END
+buffer_in.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_in.hpp
+END
+object.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object.cpp
+END
+object_template.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_template.hpp
+END
+buffer_client.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_client.cpp
+END
+memtrack.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/memtrack.hpp
+END
+test_enum.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test_enum.hpp
+END
+context_server.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/context_server.cpp
+END
+group_template_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_template_impl.hpp
+END
+group_parser.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_parser.hpp
+END
+calendar.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/calendar.hpp
+END
+client.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/client.cpp
+END
+declare_group.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/declare_group.hpp
+END
+tracer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/tracer.cpp
+END
+configure.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/configure.cpp
+END
+array.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/array.hpp
+END
+event_client.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_client.hpp
+END
+attribute_template_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_template_impl.hpp
+END
+cxios.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/cxios.cpp
+END
+object_template_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_template_decl.cpp
+END
+duration.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/duration.hpp
+END
+mpi.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/mpi.hpp
+END
+object_factory.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_factory.cpp
+END
+exception.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/exception.cpp
+END
+buffer_server.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_server.cpp
+END
+buffer_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_impl.hpp
+END
+buffer_out.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_out.cpp
+END
+generate_interface_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/generate_interface_decl.cpp
+END
+array_mac.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/array_mac.hpp
+END
+xml_parser_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_parser_decl.cpp
+END
+parameters.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/parameters.cpp
+END
+server.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/server.cpp
+END
+indent_xml.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/indent_xml.hpp
+END
+calendar_util.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/calendar_util.cpp
+END
+attribute.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute.hpp
+END
+group_factory_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_factory_impl.hpp
+END
+xml_node.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_node.hpp
+END
+event_server.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_server.hpp
+END
+date.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/ioserver/svn/!svn/ver/544/XIOS/branchs/xios-1.0/src/date.cpp
+END
+memory.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/memory.hpp
+END
+buffer.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer.hpp
+END
+group_template_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_template_decl.cpp
+END
+timer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/timer.cpp
+END
+xml_parser.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xml_parser.hpp
+END
+group_factory.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_factory.cpp
+END
+xios_server.f90
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xios_server.f90
+END
+event_scheduler.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_scheduler.hpp
+END
+functor.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor.hpp
+END
+attribute_template_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_template_decl.cpp
+END
+buffer_in_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_in_impl.hpp
+END
+log.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/log.hpp
+END
+buffer_out_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_out_impl.hpp
+END
+indent.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/indent.hpp
+END
+context_client.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/context_client.hpp
+END
+data_output.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/data_output.cpp
+END
+attribute_enum.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_enum.hpp
+END
+buffer_in.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_in.cpp
+END
+buffer_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_decl.cpp
+END
+memtrack.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/memtrack.cpp
+END
+attribute_map.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_map.hpp
+END
+calendar.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/calendar.cpp
+END
+group_factory_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_factory_decl.cpp
+END
+cxios_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/cxios_impl.hpp
+END
+object.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object.hpp
+END
+buffer_client.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_client.hpp
+END
+event_client.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/event_client.cpp
+END
+context_server.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/context_server.hpp
+END
+object_factory_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/object_factory_impl.hpp
+END
+client.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/client.hpp
+END
+xmlioserver.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/xmlioserver.hpp
+END
+duration.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ioserver/svn/!svn/ver/579/XIOS/branchs/xios-1.0/src/duration.cpp
+END
+tracer.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/tracer.hpp
+END
+configure.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/configure.hpp
+END
+buffer_in_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_in_decl.cpp
+END
+buffer_out_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/buffer_out_decl.cpp
+END
+declare_attribute.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/522/XIOS/branchs/xios-1.0/src/declare_attribute.hpp
+END
+attribute_array_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/attribute_array_impl.hpp
+END
+globalScopeData.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/globalScopeData.hpp
+END
+cxios.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ioserver/svn/!svn/ver/548/XIOS/branchs/xios-1.0/src/cxios.hpp
+END
+group_template.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/group_template.hpp
+END
