@@ -1,0 +1,7 @@
+INC $HERE/orglob
+INC $HERE/parallel
+INC $HERE/stomate
+INC $HERE/parameters
+INC $HERE/sticslai
+INC $HERE/orchidee_ol
+INC $HERE/sechiba

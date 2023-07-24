@@ -1,0 +1,17 @@
+EXCL_DEP OBJ::mod_orchidee_para
+EXCL_DEP H::src_parallel.h
+EXCL_DEP OBJ::orch_write_field
+EXCL_DEP OBJ::mod_orchidee_omp_transfert
+EXCL_DEP OBJ::mod_orchidee_mpi_transfert
+EXCL_DEP OBJ::xios_orchidee
+EXCL_DEP OBJ::write_field_p
+EXCL_DEP H::mpi_dummy.h
+EXCL_DEP OBJ::write_field
+EXCL_DEP OBJ::mod_orchidee_mpi_data
+EXCL_DEP OBJ::orch_write_field_p
+EXCL_DEP OBJ::ioipsl_para
+EXCL_DEP OBJ::tools_para
+EXCL_DEP OBJ::mod_orchidee_transfert_para
+EXCL_DEP OBJ::mod_orchidee_para_var
+EXCL_DEP OBJ::timer
+EXCL_DEP OBJ::mod_orchidee_omp_data

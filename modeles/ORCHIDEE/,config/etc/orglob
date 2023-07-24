@@ -1,0 +1,4 @@
+EXCL_DEP OBJ::solar
+EXCL_DEP OBJ::gauss_jordan_method
+EXCL_DEP OBJ::interpol_help
+EXCL_DEP OBJ::grid

@@ -1,0 +1,17 @@
+EXCL_DEP OBJ::Stics
+EXCL_DEP OBJ::crop_alloc
+EXCL_DEP OBJ::gel
+EXCL_DEP OBJ::Stics_Recolte
+EXCL_DEP OBJ::reprac_calc
+EXCL_DEP OBJ::Stics_Calcul_LAI
+EXCL_DEP OBJ::Stics_Develop
+EXCL_DEP OBJ::Divers_develop
+EXCL_DEP OBJ::Besoins_en_froid
+EXCL_DEP OBJ::CalculNombreDeFeuilles
+EXCL_DEP OBJ::F_humirac
+EXCL_DEP OBJ::senescen
+EXCL_DEP OBJ::Stics_Levee
+EXCL_DEP OBJ::Stics_Lai_Developpement
+EXCL_DEP OBJ::stress
+EXCL_DEP OBJ::Stics_init
+EXCL_DEP OBJ::grain
