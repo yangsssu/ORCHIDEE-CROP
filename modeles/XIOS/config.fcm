@@ -1,0 +1,6 @@
+%COMPIL_CFLAGS %PROD_CFLAGS
+%COMPIL_FFLAGS %PROD_FFLAGS
+%CPP_KEY        USING_NETCDF_PAR
+%CBASE_INC     -I /usr/local/install/netcdf-4.3.2p/include -I /usr/local/install/hdf5-1.8.9p/include 
+%FBASE_INC      
+%ARCH_LD        -L/usr/local/install/netcdf-4.3.2p/lib -L/usr/local/install/hdf5-1.8.9p/lib  -lnetcdf -lhdf5_hl -lhdf5 -lhdf5 -lz -lcurl 
