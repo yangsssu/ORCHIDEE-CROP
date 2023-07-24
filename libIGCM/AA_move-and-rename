@@ -1,0 +1,530 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision:: 1206                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2015-06-05 17:28:35 +0200 (Fri, 05 Jun 2015) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+# Change SpaceName/ExperimentName/JobName names and path for a simulation during the run.
+# !! Be careful that the job is suspended before using this script !!
+# You may call this script with those four variables already defined, or modify directly
+# default values under here :
+
+# New Name Space of this experience
+NEW_SpaceName=${NEW_SpaceName:=DEVT}
+
+# New Expericence class of the run
+NEW_ExperimentName=${NEW_ExperimentName:=NEWExperimentName}
+
+# New JobName of the run
+NEW_JobName=${NEW_JobName:=NEWJobName}
+
+SUBMIT_DIR=${SUBMIT_DIR:=my_path_to_my_SUBMIT_DIR}
+
+# verbosity
+Verbosity=3
+
+########################################################################
+
+# Path to modipsl
+MODIPSL=${MODIPSL:=::modipsl::}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ulam and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+DEBUG_sys=false
+DEBUG_debug=false
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+# define local functions
+
+# Function to replace OLD JobName in file
+
+function REPLACE_sed
+{
+  IGCM_debug_PushStack "REPLACE_sed"
+  typeset RET
+
+  FILEIN=${1}
+  FILEOUT=$( basename ${FILEIN} )
+
+  sed -e "s&${R_SAVE}&${NEW_R_SAVE}&g" -e "s/${config_UserChoices_JobName}/${NEW_JobName}/g" \
+  ${1} > ${RUN_DIR_PATH}/${FILEOUT}
+  RET=$?
+
+  touch --reference=${1} ${RUN_DIR_PATH}/${FILEOUT}
+  IGCM_sys_Mv ${RUN_DIR_PATH}/${FILEOUT} ${2}
+  chmod --reference=${1} ${2}/${FILEOUT}
+
+  IGCM_sys_Rm -f ${1}
+
+  IGCM_debug_Print 3 "REPLACE_sed : ${1} ${2}"
+
+  IGCM_debug_PopStack "REPLACE_sed"
+  return $RET
+}
+
+function MOVE_and_RENAME_files
+{
+  IGCM_debug_PushStack "MOVE_and_RENAME_files"
+
+  typeset VAR_files FILE_OUT file i RET
+
+  VAR_files=${1}
+  eval VAR1=\${${VAR_files[0]}}
+
+  if [ X$( echo ${NEW_R_SAVE} | grep ${config_UserChoices_JobName} ) != X ]; then
+    set +A FILE_OUT -- $( eval echo \${${VAR_files}[*]} | sed -e "s&${R_SAVE}&${NEW_R_SAVE}&g" )
+    ((i=0))
+    for file in ${FILE_OUT[@]} ; do
+      FILE_OUT[$i]=$( dirname $file )/$( echo $( basename $file ) | sed -e "s/${config_UserChoices_JobName}/${NEW_JobName}/g" )
+      (( i = i + 1 ))
+    done
+  else
+    set +A FILE_OUT -- $( eval echo \${${VAR_files}[*]} | sed -e "s&${R_SAVE}&${NEW_R_SAVE}&g" -e "s/${config_UserChoices_JobName}/${NEW_JobName}/g" )
+  fi
+  IGCM_debug_Print 3 "MOVE_and_RENAME_files all : ${VAR1}"
+  IGCM_debug_Print 3 "    to     ${FILE_OUT}."
+
+  (( ifile = 0 ))
+  for file_o in ${FILE_OUT[@]} ; do
+    eval IGCM_sys_Mv \${${VAR_files}[${ifile}]} ${file_o}
+    RET=$?
+    (( ifile = ifile + 1 ))
+  done
+
+  IGCM_debug_PopStack "MOVE_and_RENAME_files"
+  return $RET
+}
+
+function MY_DODS_Cp
+{
+  IGCM_debug_PushStack "MY_DODS_Cp"
+
+  typeset old_JobName old_R_DODS
+  IGCM_sys_Cd ${NEW_R_SAVE}
+  old_JobName=${config_UserChoices_JobName}
+  old_R_DODS=${R_DODS}
+  old_R_SAVE=${R_SAVE}
+
+  config_UserChoices_JobName=${NEW_JobName}
+  R_DODS=${NEW_R_DODS}
+  R_SAVE=${NEW_R_SAVE}
+
+  IGCM_sys_Dods_Cp ${1}
+  IGCM_debug_Print 3 "MY_DODS_Cp : ${config_UserChoices_JobName}/${1}"
+  IGCM_sys_Cd ${RUN_DIR_PATH}
+
+  config_UserChoices_JobName=${old_JobName}
+  R_DODS=${old_R_DODS}
+  R_SAVE=${old_R_SAVE}
+
+  IGCM_debug_PopStack "MY_DODS_Cp"
+}
+
+function MY_DODS_Rm
+{
+  IGCM_debug_PushStack "MY_DODS_Rm"
+  DEBUG_debug=false
+
+  IGCM_sys_Cd ${R_SAVE}
+  IGCM_sys_Dods_Rm ${1}
+  IGCM_debug_Print 3 "MY_DODS_Rm : ${config_UserChoices_JobName}/${1}"
+  IGCM_sys_Cd ${RUN_DIR_PATH}
+
+  IGCM_debug_PopStack "MY_DODS_Rm"
+}
+########################################################################
+
+if [ ! -d ${SUBMIT_DIR} ]; then
+  IGCM_debug_Print 1 "No ${SUBMIT_DIR}, we stop here"
+  exit 1
+fi
+
+# We temporary change ${run_Configuration_PeriodState} to
+if [ -f ${SUBMIT_DIR}/run.card ] ; then
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodState
+  if ( [ ${run_Configuration_PeriodState} != "Start" ] && [ ${run_Configuration_PeriodState} != "Running" ] && [ ${run_Configuration_PeriodState} != "OnQueue" ] && [ ${run_Configuration_PeriodState} != "Continue" ] ) ; then
+    old_run_Configuration_PeriodState=${run_Configuration_PeriodState}
+    IGCM_debug_PrintVariables 2 old_run_Configuration_PeriodState
+    IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState "OnQueue"
+  fi
+fi
+
+IGCM_config_Initialize
+
+if [ -f ${SUBMIT_DIR}/run.card ] ; then
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodDateBegin
+  IGCM_debug_PrintVariables 2 run_Configuration_PeriodDateBegin
+  if [ X${old_run_Configuration_PeriodState} != X"Completed" ] ; then
+    DateEnd=$( IGCM_date_AddDaysToGregorianDate $( IGCM_date_ConvertFormatToGregorian ${PeriodDateBegin} ) -1 )
+  else
+    DateEnd=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )
+  fi
+else
+  DateEnd=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )
+fi
+
+IGCM_debug_Print 1 ""
+IGCM_debug_Print 1 "DateEnd for MoveJob_Checker : " ${DateEnd}
+IGCM_date_GetYearMonth ${DateEnd}   YearEnd   MonthEnd
+IGCM_debug_Print 1 "YearEnd MonthEnd for TimeSeries_Checker : " ${YearEnd} ${MonthEnd}
+IGCM_debug_Print 1 ""
+
+#set -vx
+
+#====================================================
+#DEFINE NEW_R_SAVE
+if [ X${config_UserChoices_SpaceName} != X ] ; then
+  NEW_SAVE=${config_UserChoices_TagName}/${NEW_SpaceName}
+else
+  NEW_SAVE=${config_UserChoices_TagName}
+fi
+if [ X${config_UserChoices_ExperimentName} != X ] ; then
+  NEW_SAVE=${NEW_SAVE}/${NEW_ExperimentName}
+fi
+
+NEW_R_SAVE=${R_OUT}/${NEW_SAVE}/${NEW_JobName}
+
+IGCM_debug_Print 1 "Move ${R_SAVE} to ${NEW_R_SAVE}"
+if [ -d ${NEW_R_SAVE} ] ; then
+  IGCM_debug_Print 1 "ERROR : ${NEW_R_SAVE} directory already exist !"
+  IGCM_debug_Print 1 "We won't try to  We stop here."
+  exit 1
+fi
+IGCM_sys_MkdirArchive ${NEW_R_SAVE}
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+#DEFINE NEW_R_DODS
+NEW_R_DODS=${NEW_SAVE}/${NEW_JobName}
+
+# Define NEW_REBUILD_DIR
+if [ -d ${REBUILD_DIR} ] ; then  
+  NEW_REBUILD_DIR=${BIG_DIR}/${config_UserChoices_TagName}/${NEW_JobName}
+  IGCM_sys_MkdirWork ${NEW_REBUILD_DIR}
+fi
+
+#====================================================
+# SAVE LOCAL WORKING DIR
+IGCM_sys_Cd ${RUN_DIR_PATH}
+
+#====================================================
+#Exe
+IGCM_debug_Print 1 "Move Exe"
+set +A listfiles -- $( find ${R_SAVE}/Exe -type f )
+
+IGCM_sys_MkdirArchive ${NEW_R_SAVE}/Exe
+MOVE_and_RENAME_files "listfiles"
+
+#====================================================
+#Out
+IGCM_debug_Print 1 "Move Out"
+OutinDir=${R_SAVE}/Out
+OutNEWDir=${NEW_R_SAVE}/Out
+IGCM_sys_MkdirArchive ${OutNEWDir}
+
+# Change JobName and copy run.card
+if [ -f ${OutinDir}/run.card ] ; then
+  sed -e "s/OldPrefix=\ *${config_UserChoices_JobName}/OldPrefix= ${NEW_JobName}/g" \
+    ${OutinDir}/run.card > ${RUN_DIR_PATH}/run.card
+  RET=$?
+  if [ ${RET} = 0 ] ; then
+    IGCM_sys_Mv -f ${RUN_DIR_PATH}/run.card ${OutNEWDir}
+    IGCM_sys_Rm -f ${OutinDir}/run.card
+  fi
+fi
+
+# Just copy historical run.card
+unset listfiles
+set +A listfiles -- $( find ${OutinDir} -type f -name "run.card\.[0-9]*\.[0-9]*" )
+if [ ${#listfiles[*]} -gt 0 ] ; then
+  IGCM_sys_Cp ${listfiles[*]} ${OutNEWDir}
+  RET=$?
+  if [ ${RET} = 0 ] ; then
+    IGCM_sys_Rm -f ${listfiles[*]}
+  fi
+fi
+
+# Move and Rename OLD Script_Output
+unset listfiles
+set +A listfiles -- $( find ${OutinDir} -type f -name "Script_Output_*\.[0-9]*\.[0-9]*" )
+MOVE_and_RENAME_files "listfiles"
+
+# Move and Rename OLD Executable Output
+unset listfiles
+set +A listfiles -- $( find ${OutinDir} -type f -name "*_out_execution" )
+MOVE_and_RENAME_files "listfiles"
+
+#====================================================
+IGCM_debug_Print 1 "For components"
+IGCM_debug_Print 1 "=============="
+
+#====================================================
+#Output
+# loop over components and frequencies
+IGCM_debug_Print 1 "Move Output"
+for comp in ${config_ListOfComponents[*]} ; do
+  IGCM_debug_Print 2 "------------------"
+  IGCM_debug_Print 2 "for component ${comp}"
+
+  unset FREQDIR
+  set +A FREQDIR -- $( find ${R_SAVE}/${comp}/Output -type d -not -name "*Output" )
+
+  IGCM_debug_Print 3 "List of WriteFrequencies : ${FREQDIR[*]}"
+
+  for ThisfreqDir in ${FREQDIR[*]} ; do
+    freq=$( basename ${ThisfreqDir} )
+    IGCM_debug_Print 2 "${freq}."
+
+    NEW_freqDir=${NEW_R_SAVE}/${comp}/Output/${freq}
+    IGCM_sys_MkdirArchive ${NEW_freqDir}
+
+    unset listfiles
+    set +A listfiles -- $( find ${ThisfreqDir} -type f )
+
+    MOVE_and_RENAME_files "listfiles"
+  done
+
+  unset COMPFILES
+  set +A COMPFILES -- $( find ${R_SAVE}/${comp}/Output -type f )
+
+  if [ ${#COMPFILES[*]} -gt 0 ] ; then
+    IGCM_debug_Print 2 "simple Output FILES : ${COMPFILES[*]}."
+
+    MOVE_and_RENAME_files "COMPFILES"
+  fi
+done
+
+#====================================================
+#Restart
+# loop over components
+IGCM_debug_Print 1 "Move Restart"
+for comp in ${config_ListOfComponents[*]} ; do
+  IGCM_debug_Print 2 "------------------"
+  IGCM_debug_Print 2 "for component ${comp}"
+
+  ThisRestDir=${R_SAVE}/${comp}/Restart
+  NEW_RestDir=${NEW_R_SAVE}/${comp}/Restart
+  IGCM_sys_MkdirArchive ${NEW_RestDir}
+
+  unset listfiles
+  set +A listfiles -- $( find ${ThisRestDir} -type f )
+
+  MOVE_and_RENAME_files "listfiles"
+done
+
+#====================================================
+#DEBUG
+# Move and Rename OLD Executable Output
+# loop over components
+IGCM_debug_Print 1 "Move Debug"
+for comp in ${config_ListOfComponents[*]} ; do
+  IGCM_debug_Print 2 "------------------"
+  IGCM_debug_Print 2 "for component ${comp}"
+
+  ThisDebugDir=${R_SAVE}/${comp}/Debug
+  NEW_DebugDir=${NEW_R_SAVE}/${comp}/Debug
+  IGCM_sys_MkdirArchive ${NEW_DebugDir}
+
+  unset listfiles
+  set +A listfiles -- $( find ${ThisDebugDir} -type f )
+
+  MOVE_and_RENAME_files "listfiles"
+done
+
+#====================================================
+#POST
+# loop over components and frequencies
+IGCM_debug_Print 1 "Move Analyse"
+for comp in ${config_ListOfComponents[*]} ; do
+  IGCM_debug_Print 2 "------------------"
+  IGCM_debug_Print 2 "for component ${comp}"
+
+  if [ -d ${R_SAVE}/${comp}/Analyse ] ; then
+    unset TSDIR
+    set +A TSDIR -- $( find ${R_SAVE}/${comp}/Analyse -name "TS_*" -type d )
+
+    for ThisTSDir in ${TSDIR[*]} ; do
+      TS_Dir=$( basename ${ThisTSDir} )
+      IGCM_debug_Print 2 "${TS_Dir}."
+
+      NEW_TSDir=${NEW_R_SAVE}/${comp}/Analyse/${TS_Dir}
+      IGCM_sys_MkdirArchive ${NEW_TSDir}
+
+      MY_DODS_Rm ${comp}/Analyse/${TS_Dir}
+
+      unset listfiles
+      set +A listfiles -- $( find ${ThisTSDir} -type f )
+
+      MOVE_and_RENAME_files "listfiles"
+
+      MY_DODS_Cp ${comp}/Analyse/${TS_Dir}
+    done
+
+    ThisSEDir=${R_SAVE}/${comp}/Analyse/SE
+    IGCM_sys_TestDirArchive ${ThisSEDir}
+    if [ $? = 0 ] ; then
+      IGCM_debug_Print 2 "SE."
+      NEW_SEDir=${NEW_R_SAVE}/${comp}/Analyse/SE
+      IGCM_sys_MkdirArchive ${NEW_SEDir}
+
+      MY_DODS_Rm ${comp}/Analyse/SE
+
+      unset listfiles
+      set +A listfiles -- $( find ${ThisSEDir} -type f )
+
+      MOVE_and_RENAME_files "listfiles"
+
+      MY_DODS_Cp ${comp}/Analyse/SE
+    fi
+
+    MY_DODS_Rm ${comp}/Analyse
+    MY_DODS_Rm ${comp}
+  else
+    IGCM_debug_Print 2 "nothing to do without Analyse."
+  fi
+
+done
+
+#====================================================
+#GRAPHS
+IGCM_debug_Print 1 "Move ATLAS"
+R_ATLAS=ATLAS
+IGCM_sys_TestDirArchive ${R_SAVE}/${R_ATLAS}
+if [ $? = 0 ] ; then
+  # REPLACE_sed ${NEW_R_SAVE}/${R_ATLAS}/*/*/index.html ${NEW_R_SAVE}/${R_ATLAS}
+
+  MY_DODS_Rm ${R_ATLAS}
+
+  IGCM_sys_Mv ${R_SAVE}/${R_ATLAS} ${NEW_R_SAVE}/${R_ATLAS}
+
+  MY_DODS_Cp ${R_ATLAS}
+fi
+
+IGCM_debug_Print 1 "Move MONITORING"
+R_MONITORING=MONITORING
+IGCM_sys_TestDirArchive ${R_SAVE}/${R_MONITORING}
+if [ $? = 0 ] ; then
+  IGCM_sys_MkdirArchive ${NEW_R_SAVE}/${R_MONITORING}
+  REPLACE_sed ${R_SAVE}/${R_MONITORING}/index.html ${NEW_R_SAVE}/${R_MONITORING}
+  sed -e "s/OldPrefix=\ *${config_UserChoices_JobName}/OldPrefix= ${NEW_JobName}/g" \
+  ${R_SAVE}/${R_MONITORING}/run.card > ${RUN_DIR_PATH}/run.card
+  IGCM_sys_Mv -f ${RUN_DIR_PATH}/run.card ${NEW_R_SAVE}/${R_MONITORING}
+  RET=$?
+  if [ ${RET} = 0 ] ; then
+    IGCM_sys_Rm -f ${R_SAVE}/${R_MONITORING}/run.card
+  fi
+  REPLACE_sed ${R_SAVE}/${R_MONITORING}/config.card ${NEW_R_SAVE}/${R_MONITORING}
+  IGCM_sys_Cp -rp ${R_SAVE}/${R_MONITORING} ${NEW_R_SAVE}
+
+  MY_DODS_Rm ${R_MONITORING}
+  IGCM_sys_Rm -rf ${R_SAVE}/${R_MONITORING}
+
+  MY_DODS_Cp ${R_MONITORING}
+fi
+
+
+#====================================================
+#REBUILD
+
+if [ -d ${REBUILD_DIR} ] ; then
+
+  IGCM_debug_Print 1 "Move REBUILD"
+  set +A LISTREBUILDS -- $( find ${REBUILD_DIR} -type d  -not -name "*${config_UserChoices_JobName}" -a -not -name "*TMP" )
+
+  for ThisREBDir in ${LISTREBUILDS[*]} ; do
+    rebdir=$( basename ${ThisREBDir} )
+    IGCM_debug_Print 2 "${rebdir}."
+    IGCM_sys_MkdirWork ${NEW_REBUILD_DIR}/${rebdir}
+    REPLACE_sed ${REBUILD_DIR}/${rebdir}/rebuild.ksh ${NEW_REBUILD_DIR}/${rebdir}
+    IGCM_sys_Mv -f ${REBUILD_DIR}/${rebdir}/* ${NEW_REBUILD_DIR}/${rebdir}/
+  done
+fi
+
+#====================================================
+#List OLD R_SAVE and Ask for erase it !
+
+IGCM_debug_Print 1 "ls of SAVE DIR :"
+ls --color -lR ${R_SAVE}
+
+echo "\033[1;31mPlease verify that ALL OLD DIRECTORY LISTED IS COMPLETLY EMPTY !"
+echo "\033[1;32mIf It is NOT EMPTY, you can TRY AGAIN this script."
+echo "\033[1;31mDo you REALLY want to erase all this directory ?"
+echo -n " Your answer (y/n) : \033[m"
+if [ X${reponse} = X ] ; then
+  read reponse
+fi
+case ${reponse} in
+
+  oui|OUI|o|y|yes|YES)
+    echo "OK. It will be erased."
+    IGCM_sys_Rm -Rf ${R_SAVE}
+    echo "done."
+    ;;
+  non|NON|n|no|NO)
+    echo "Nothing to do !"
+    ;;
+esac
+
+
+#############################################################################################################
+# Edit config.card, run.card and Job_${NewJobName}
+
+IGCM_debug_Print 1 "edit config.card"
+if [ X${config_UserChoices_SpaceName} != X ] ; then
+  IGCM_card_WriteOption ${SUBMIT_DIR}/config.card UserChoices SpaceName ${NEW_SpaceName}
+fi
+if [ X${config_UserChoices_ExperimentName} != X ] ; then
+  IGCM_card_WriteOption ${SUBMIT_DIR}/config.card UserChoices ExperimentName ${NEW_ExperimentName}
+fi
+IGCM_card_WriteOption ${SUBMIT_DIR}/config.card UserChoices JobName ${NEW_JobName}
+
+if [ -f ${SUBMIT_DIR}/run.card ] ; then
+  IGCM_debug_Print 1 "edit run.card"
+  sed -e "s/OldPrefix=\ *${config_UserChoices_JobName}/OldPrefix= ${NEW_JobName}/g" \
+  ${SUBMIT_DIR}/run.card > ${RUN_DIR_PATH}/run.card
+  IGCM_sys_Mv -f ${RUN_DIR_PATH}/run.card ${SUBMIT_DIR}/run.card
+
+  if [ X${old_run_Configuration_PeriodState} != X ] ; then
+    IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState ${old_run_Configuration_PeriodState}
+  fi
+fi
+
+if [ -f ${SUBMIT_DIR}/Job_${config_UserChoices_JobName} ] ; then
+  IGCM_debug_Print 1 "edit Job_${NEW_JobName}"
+  sed -e "s&${R_SAVE}&${NEW_R_SAVE}&g" -e "s/${config_UserChoices_JobName}/${NEW_JobName}/g" \
+  ${SUBMIT_DIR}/Job_${config_UserChoices_JobName} > ${SUBMIT_DIR}/Job_${NEW_JobName}
+  chmod --reference=${SUBMIT_DIR}/Job_${config_UserChoices_JobName} ${SUBMIT_DIR}/Job_${NEW_JobName}
+  ls -la ${SUBMIT_DIR}/Job_${NEW_JobName}
+fi

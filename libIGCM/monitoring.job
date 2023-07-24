@@ -1,0 +1,213 @@
+######################
+## OBELIX      LSCE ##
+######################
+#PBS -N MONITORING
+#PBS -m n
+#PBS -j oe
+#PBS -q medium
+#PBS -o MONITORING.$$
+#PBS -S /bin/ksh
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1328                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-04-17 17:11:00 +0200 (Sun, 17 Apr 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+#D- Flag to determine if this job in a standalone mode
+#D- Default : value from AA_job if any
+StandAlone=${StandAlone:=true}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ada and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=/home/orchidee03/xhwang/ORC_cropPerso/libIGCM}
+
+#D- Increased verbosity (1, 2, 3)
+#D- Default : value from AA_job if any
+Verbosity=${Verbosity:=3}
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default : value from AA_job if any
+DEBUG_debug=${DEBUG_debug:=false}
+
+#D- TEMPORARY Flag to determine atmospheric resolution
+#D- Default : value from atmospheric driver if any
+RESOL_ATM=${RESOL_ATM:=ALL}
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SRF=${RESOL_SRF:=ALL}
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SBG=${RESOL_SBG:=ALL}
+
+#D- TEMPORARY Flag to determine ocean resolution
+#D- Default : value from ocean driver if any
+RESOL_OCE=${RESOL_OCE:=ORCA2}
+
+#D- TEMPORARY Flag to determine ice resolution
+#D- Default : value from ice driver if any
+RESOL_ICE=${RESOL_ICE:=ORCA2}
+
+#D- TEMPORARY Flag to determine marine biogeochemistry resolution
+#D- Default : value from ice driver if any
+RESOL_MBG=${RESOL_MBG:=ORCA2}
+
+######################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+RUN_DIR=${RUN_DIR_PATH}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+######################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+  CARD_DIR=${SUBMIT_DIR}
+else
+  CARD_DIR=${RUN_DIR}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Read ListOfComponents section:
+IGCM_card_DefineArrayFromSection ${CARD_DIR}/config.card ListOfComponents
+
+# Create R_FIGR that has been defined by IGCM_config_CommonConfiguration
+IGCM_sys_MkdirArchive ${R_FIGR}
+#
+IGCM_sys_TestDirArchive ${R_FIGR}/MONITORING
+if [ $? = 0 ] ; then
+  IGCM_debug_Print 1 "Get MONITORING directory from archive"
+  IGCM_sys_Get_Dir ${R_FIGR}/MONITORING ${RUN_DIR}
+else
+  IGCM_debug_Print 1 "MONITORING first pass. Nothing has been done before"
+fi
+# --------------------------------------------
+# Insert your commands between III...III lines
+# and precise produced directories to save
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+for comp in ${config_ListOfComponents[*]} ; do
+  IGCM_debug_Print 1 "################## Component: ${comp} ######################"
+  liste_file_monitoring=""
+  IGCM_card_DefineArrayFromOption ${CARD_DIR}/config.card ListOfComponents ${comp}
+  eval compname=\${config_ListOfComponents_${comp}[0]}                > /dev/null 2>&1
+
+  PATH_monitoring_file=""
+  eval monitoring_file=monitoring01_${compname}_\${RESOL_${comp}}.cfg > /dev/null 2>&1
+  if [[ -d ${CARD_DIR}/POST && -f ${CARD_DIR}/POST/${monitoring_file} ]] ; then
+    PATH_monitoring_file=${CARD_DIR}/POST/${monitoring_file}
+  elif [[ -d ${CARD_DIR}/POST && -f ${CARD_DIR}/POST/monitoring01_${compname}.cfg ]] ; then
+    PATH_monitoring_file=${CARD_DIR}/POST/monitoring01_${compname}.cfg
+  elif [ -f ${FER_ATLAS}/${monitoring_file} ] ; then
+    PATH_monitoring_file=${FER_ATLAS}/${monitoring_file}
+  else
+    IGCM_debug_Print 1 "No monitoring file found for this component. Was expecting ${monitoring_file}"
+    IGCM_debug_Print 1 "Step to next component"
+    continue
+  fi
+  #
+  if [ X${PATH_monitoring_file} != X"" ] ; then
+    IGCM_debug_Print 1 "Monitoring file used : ${PATH_monitoring_file}"
+    IGCM_debug_Print 1 "Determine which frequency of time series to be used."
+
+    FreqTS=$( grep FreqTS ${PATH_monitoring_file} | grep -v \# | awk -F "=" '{print $2}' )
+    if [ X${FreqTS} = X ] ; then
+      # Default frequency is MO
+      FreqTS=MO
+    fi
+
+    IGCM_debug_Print 1 "Times series frequency to be used is ${FreqTS}"
+    IGCM_debug_Print 1 "Determine which files we need."
+    . monitoring01 -l2 --listcommand 'IGCM_sys_RshArchive_NoError ls' ${PATH_monitoring_file} ${R_SAVE}/${comp}/Analyse/TS_${FreqTS}
+    liste_file_monitoring=$( . monitoring01 -q -l2 --listcommand 'IGCM_sys_RshArchive_NoError ls' ${PATH_monitoring_file} ${R_SAVE}/${comp}/Analyse/TS_${FreqTS} )
+  fi
+  #
+  if [ ! "X${liste_file_monitoring}" = X ] ; then
+    IGCM_sys_Get /l liste_file_monitoring ${RUN_DIR}
+    IGCM_debug_Print 1 "monitoring01 -c ${CARD_DIR} -p ${comp} --time -t \"${config_UserChoices_JobName} monitoring\" -o ${RUN_DIR}/MONITORING ${PATH_monitoring_file} ."
+    IGCM_debug_Print 1 "monitoring01 starts ................................................."
+    monitoring01 -c ${CARD_DIR} -p ${comp} --time -t "${config_UserChoices_JobName} monitoring" -o ${RUN_DIR}/MONITORING ${PATH_monitoring_file} .
+  else
+    IGCM_debug_Print 1 "No time series detected by this command :"
+    IGCM_debug_Print 1 "monitoring01 -l2 --listcommand 'IGCM_sys_RshArchive_NoError ls' ${PATH_monitoring_file} ${R_SAVE}/${comp}/Analyse/TS_${FreqTS}"
+    . monitoring01 -l2 --listcommand 'IGCM_sys_RshArchive_NoError ls' ${PATH_monitoring_file} ${R_SAVE}/${comp}/Analyse/TS_${FreqTS}
+  fi
+  #
+done
+
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+# Save files
+IGCM_sys_Put_Dir MONITORING ${R_FIGR}
+
+# Dods copy
+if [ X${config_Post_DodsCopy} = XTRUE ]  ; then
+  IGCM_sys_Put_Dods MONITORING
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize

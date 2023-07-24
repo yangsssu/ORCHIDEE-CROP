@@ -1,0 +1,132 @@
+######################
+## OBELIX      LSCE ##
+######################
+#PBS -N ATL_ADD
+#PBS -m n
+#PBS -j oe
+#PBS -q test
+#PBS -o ATL_ADD.$$
+#PBS -S /bin/ksh
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1290                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-03-07 17:00:30 +0100 (Mon, 07 Mar 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+#########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+#######################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+    CARD_DIR=${SUBMIT_DIR}
+else
+    CARD_DIR=${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Then set up several directories
+#==================================
+R_ATLAS=ATLAS/SE_${YEARS}
+R_OUT_OCE=${R_SAVE}/OCE
+DIR_OUT=${DIR_OUT:=SE}
+RUN_DIR=${RUN_DIR_PATH}/ATLAS_ADD_${YEARS}
+IGCM_sys_MkdirArchive ${R_FIGR}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+
+# --------------------------------------------
+# Insert your commands between III...III lines
+# and precise produced directories to save
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+IGCM_sys_Get ${R_OUT_OCE}/Analyse/SE/${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc ${RUN_DIR}/SE_grid_T.nc
+IGCM_sys_Get ${R_OUT_OCE}/Analyse/SE/${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_U.nc ${RUN_DIR}/SE_grid_U.nc
+IGCM_sys_Get ${R_OUT_OCE}/Analyse/SE/${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_V.nc ${RUN_DIR}/SE_grid_V.nc
+IGCM_sys_Get ${R_OUT_OCE}/Analyse/SE/${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_W.nc ${RUN_DIR}/SE_grid_W.nc
+
+IGCM_sys_atlas -o ${RUN_DIR}/${R_ATLAS}/ADD -p landscape=true,angle=-90,nup=1x1 ${FER_ATLAS}/atlas_p_ORCA2_add_*.cfg ${config_UserChoices_JobName}
+
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+# Put ferret journal files together
+for file in $( ls ${R_ATLAS}/ADD/*/*jnl ) ; do
+    echo -e "\n\n################################" ;
+    echo -e "$file\n" ; cat $file ;
+done  > ${R_ATLAS}/ADD/allferretscript.txt
+
+# Clear some files
+find . \( -name "*.stdout" -o -name "*.jnl" \) -print -exec rm -f {} \;
+
+# Save files
+IGCM_sys_Put_Dir ATLAS ${R_FIGR}
+IGCM_sys_Rm -Rf ATLAS
+IGCM_sys_Rm -f SE_grid_?.nc
+
+# DODS copy
+if [ X${config_Post_DodsCopy} = XTRUE ]  ; then
+  IGCM_sys_TestDirArchive ${R_FIGR}/${R_ATLAS}
+  [ $? = 0 ] && IGCM_sys_Put_Dods ${R_ATLAS}
+fi
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize

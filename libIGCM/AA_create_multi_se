@@ -1,0 +1,482 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r MULTISE        # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1              # Reservation du processus
+#-Q- curie #MSUB -T 36000          # Limite de temps elapsed du job
+#-Q- curie #MSUB -q ::default_node::
+#-Q- curie #MSUB -c ::default_core::
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada ## ADA         IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 1:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = MULTISE
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $DEBUG_debug ; $BigBrother ; $MODIPSL ; $libIGCM ; $libIGCM_SX ; $SUBMIT_DIR ; $POST_DIR ; $Script_Post_Output ; $MASTER ; $DateBegin ; $PeriodDateEnd ; $StandAlone ; $RESOL_ATM ; $RESOL_OCE ; $RESOL_ICE ; $RESOL_MBG ; $RESOL_SRF ; $RESOL_SBG ; wall_clock_limit=$(wall_clock_limit)
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N MULTISE
+#-Q- lxiv8 #PBS -m a
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q medium
+#-Q- lxiv8 #PBS -o MULTISE.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N MULTISE
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD ###PBS -q h12       # Queue for 12 hours at ciclad only
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Marie-Alice Foujols
+# Contact: Marie-Alice.Foujols__at__ipsl.jussieu.fr
+# $Revision:: 1314                                     $ Revision of last commit
+# $Author:: jgipsl                                     $ Author of last commit
+# $Date:: 2016-04-05 16:05:18 +0200 (Tue, 05 Apr 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#-Q- ada export OMP_NUM_THREADS=1
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+#D- Flag to determine if this job in a standalone mode
+#D- Default : value from AA_job if any
+StandAlone=${StandAlone:=true}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+#D- Flag to determine atlas job's output directory
+#D- Default : value from libIGCM_post.ksh if any
+POST_DIR=${POST_DIR:=${PBS_O_WORKDIR:=$(pwd)}}
+
+#D- Increased verbosity (1, 2, 3)
+#D- Default : value from AA_job if any
+Verbosity=${Verbosity:=3}
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default : value from AA_job if any
+DEBUG_debug=${DEBUG_debug:=false}
+
+#D- TEMPORARY Flag to determine atmospheric resolution
+#D- Default : value from atmospheric driver if any
+RESOL_ATM=${RESOL_ATM:=ALL}
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SRF=ALL
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SBG=ALL
+
+#D- TEMPORARY Flag to determine ocean resolution
+#D- Default : value from ocean driver if any
+RESOL_OCE=${RESOL_OCE:=ORCA2}
+
+#D- TEMPORARY Flag to determine ice resolution
+#D- Default : value from ice driver if any
+RESOL_ICE=${RESOL_ICE:=ORCA2}
+
+#D- TEMPORARY Flag to determine marine biogeochemistry resolution
+#D- Default : value from ice driver if any
+RESOL_MBG=${RESOL_MBG:=ORCA2}
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+  CARD_DIR=${SUBMIT_DIR}
+else
+  CARD_DIR=${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Read ListOfComponents section:
+IGCM_card_DefineArrayFromSection   ${CARD_DIR}/config.card ListOfComponents
+
+#==================================
+# Read SeasonalFrequency:
+IGCM_card_DefineArrayFromSection   ${CARD_DIR}/config.card Post
+
+#
+# If option MultiSeasonalFrequency is not found (optionnal) put MultiSeasonalFrequency=50Y
+#
+FoundMultiSeasonal=false
+for option in ${config_Post[*]} ; do
+  if [ ${option} = MultiSeasonalFrequency ] ; then
+    FoundMultiSeasonal=true
+    IGCM_card_DefineVariableFromOption ${CARD_DIR}/config.card Post MultiSeasonalFrequency
+  fi
+done
+if [ ! X${FoundMultiSeasonal} = Xtrue ] ; then
+  config_Post_MultiSeasonalFrequency=50Y
+fi
+#
+IGCM_card_DefineVariableFromOption ${CARD_DIR}/config.card Post SeasonalFrequency
+#
+# Determine period for seasonnal average. Default : value from AA_job if any
+#
+DateBegin=${DateBegin:=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )}
+#
+PeriodDateEnd=${PeriodDateEnd:=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )}
+#
+IGCM_debug_Print 1 "DefineVariableFromOption : Post "
+IGCM_debug_PrintVariables 3 config_Post_SeasonalFrequency
+IGCM_debug_PrintVariables 3 config_Post_MultiSeasonalFrequency
+echo
+
+#
+freq=$( echo ${config_Post_SeasonalFrequency} |  sed -e "s/[yY]//" )
+#
+multifreq=$( echo ${config_Post_MultiSeasonalFrequency} |  sed -e "s/[yY]//" )
+#
+DIR_OUT=SE_${multifreq}Y
+#
+an_multi_fin=$(( $( IGCM_date_ConvertGregorianDateToJulian ${PeriodDateEnd} ) / 1000 ))
+an_multi_deb=$( IGCM_date_YearDigit $(( an_multi_fin - multifreq + 1 )) )
+an_multi_fin=$( IGCM_date_YearDigit ${an_multi_fin} )
+#
+# For each component selected determine which files need post-processing
+#
+for comp in ${config_ListOfComponents[*]} ; do
+  #
+  IGCM_card_DefineArrayFromOption ${CARD_DIR}/config.card ListOfComponents ${comp}
+  eval compname=\${config_ListOfComponents_${comp}[0]} > /dev/null 2>&1
+  #
+  card=${CARD_DIR}/COMP/${compname}.card
+  IGCM_card_DefineArrayFromOption ${card} OutputFiles List
+  #
+  ListFilesName=${compname}_OutputFiles_List
+  eval FileName0=\${${ListFilesName}[0]} > /dev/null 2>&1
+  #
+  if [ X${FileName0} != X${NULL_STR} ] ; then
+    #
+    # INITIALISATION
+    #
+    eval NbFiles=\${#${ListFilesName}[@]} > /dev/null 2>&1
+    typeset i=2
+    #
+    until [ $i -gt $NbFiles ]; do
+      #
+      eval flag_post=\${${ListFilesName}[$i]} > /dev/null 2>&1
+      #
+      if [ X${flag_post} != XNONE ] ; then
+        #
+        # Check if seasonal is required for this file
+        #
+        IGCM_card_DefineArrayFromSection ${card} ${flag_post}
+        #
+        # Seasonal case : If option Seasonal is not found (old cards) put SEASONAL ON by default
+        #
+        # variable option allready typeset above
+        for option in $( eval echo \${${compname}_${flag_post}[*]} ) ; do
+          if [ ${option} = Seasonal ] ; then
+            FoundSeasonal=true
+            IGCM_card_DefineVariableFromOption ${card} ${flag_post} Seasonal
+          fi
+        done
+        #
+        if [ ! X${FoundSeasonal} = Xtrue ] ; then
+          eval ${compname}_${flag_post}_Seasonal=ON
+        fi
+        #
+        if [ ! X$( eval echo \${${compname}_${flag_post}_Seasonal} ) = XON ] ; then
+          (( i=i+3 ))
+          continue
+        fi
+        #
+        # CREATE LIST
+        #
+        FILE=$( echo ${flag_post} | awk "-FPost_" '{print $2}' )
+        #
+        DIRECTORY=${R_SAVE}/${comp}/Analyse/SE
+        #
+        MULTI_DIRECTORY=${R_SAVE}/${comp}/Analyse/${DIR_OUT}
+        #
+        TestedFile=${config_UserChoices_JobName}_SE_${an_multi_deb}_${an_multi_fin}_${FILE}.nc
+        #
+        IGCM_sys_TestFileArchive ${MULTI_DIRECTORY}/${TestedFile}
+        if [ ! $? = 0 ] ; then
+          eval set +A LISTE_FILE_${comp} \$\{LISTE_FILE_${comp}[*]} ${FILE}
+        fi
+      fi
+      (( i=i+3 ))
+    done # until [ $i -eq $NbFiles ]
+  fi
+done         # for comp
+
+for comp in ${config_ListOfComponents[*]} ; do
+  #
+  eval R_OUT_${comp}=${R_SAVE}/${comp}
+  #
+  i=0
+  for file in $( eval echo \${LISTE_FILE_${comp}[*]} ); do
+    #
+    RESULT_MULTI_SE=${config_UserChoices_JobName}_SE_${an_multi_deb}_${an_multi_fin}_${file}.nc
+    # Do not redo an existing SE
+    IGCM_sys_TestFileArchive ${R_SAVE}/${comp}/Analyse/${DIR_OUT}/${RESULT_MULTI_SE}
+    if [ $? = 0 ] ; then
+      continue
+    fi
+    #
+    eval file_path=\${R_OUT_${comp}}/Analyse/SE/
+    #
+    (( an = an_multi_deb ))
+    # Initialize array
+    unset liste_file_se
+    unset liste_file_se_tmp
+    while [ ${an} -le ${an_multi_fin} ] ; do
+      #
+      an_deb=$(printf "%04i\n" ${an} )
+      #
+      (( an_fin = an_deb + freq - 1 ))
+      date=${an_deb}_${an_fin}
+      #
+      liste_file_se[${#liste_file_se[*]}]=${file_path}${config_UserChoices_JobName}_SE_${date}_${file}.nc
+      liste_file_se_tmp[${#liste_file_se_tmp[*]}]=${config_UserChoices_JobName}_SE_${date}_${file}.nc
+      (( an = an + freq ))
+    done
+    #
+    IGCM_sys_Get /l liste_file_se[*] ${RUN_DIR_PATH}
+    IGCM_debug_Verif_Exit
+    # Search of common list of variables to be treated
+    nbfile=0
+    for file_common_var in ${liste_file_se_tmp[*]} ; do
+      ncdump -h ${file_common_var} | grep -E 'float|double' | cut -f 1 -d '(' | cut -f 2 -d ' ' >> tmpfile_ncra
+      (( nbfile = nbfile + 1 ))
+    done
+    list_var_final_ncra=`cat tmpfile_ncra | sort | uniq -c | awk -v nbfile=$nbfile '{if ($1 == nbfile) {print $2}}' | paste -s -d ','`
+    IGCM_sys_Rm tmpfile_ncra
+
+    # detect time counter : time or time_counter ie unlimited variable
+    var_unlim=$(ncdump -h ${liste_file_se_tmp[1]}|grep UNLIMITED|awk '{print $1}')
+
+    for mois in  01 02 03 04 05 06 07 08 09 10 11 12 ; do
+      #
+      (( nb = ${mois} - 1 ))
+      #
+      OUT_SE[${nb}]=${config_UserChoices_JobName}_SE${mois}_${an_deb}_${an_fin}_${file}.nc
+      IGCM_sys_ncra -O -v ${list_var_final_ncra} -d ${var_unlim},${nb},,12 ${liste_file_se_tmp[*]} ${OUT_SE[${nb}]}
+    done
+    IGCM_sys_Rm ${liste_file_se_tmp[*]}
+    #
+
+    # Search of common list of variables to be treated
+    nbfile=0
+    for file_common_var in ${OUT_SE[*]} ; do
+      ncdump -h ${file_common_var} | grep -E 'float|double' | cut -f 1 -d '(' | cut -f 2 -d ' ' >> tmpfile_ncrcat
+      (( nbfile = nbfile + 1 ))
+    done
+    list_var_final_ncrcat=`cat tmpfile_ncrcat | sort | uniq -c | awk -v nbfile=$nbfile '{if ($1 == nbfile) {print $2}}' | paste -s -d ','`
+    IGCM_sys_Rm tmpfile_ncrcat
+
+    IGCM_sys_ncrcat -O -v ${list_var_final_ncrcat} ${OUT_SE[*]} ${RESULT_MULTI_SE}
+    #
+    IGCM_sys_Rm ${OUT_SE[*]}
+
+    # Put correct climatological axis following calendar
+    case ${config_UserChoices_CalendarType} in
+      360d|360_day)
+      # 360 days
+        ncap2cmd="'defdim(\"tbnds\",2) ; ${var_unlim}[${var_unlim}]={15, 45, 75, 105, 135, 165, 195, 225, 255, 285, 315, 345.} ; ${var_unlim}_bnds[${var_unlim},tbnds]={0, 30, 30, 60, 60, 90, 90, 120, 120, 150, 150, 180, 180, 210, 210, 240, 240, 270, 270, 300, 300, 330, 330, 360.} ; ${var_unlim}@units=\"days since 0000-01-01 00:00:00\" ; ${var_unlim}@time_origin=\"01-JAN-0000 00:00:00\" ; ${var_unlim}@calendar=\"360_day\" ; ${var_unlim}@bounds=\"${var_unlim}_bnds\"'"
+        ;;
+      noleap|365_day)
+      # 365 days
+        ncap2cmd="'defdim(\"tbnds\",2) ; ${var_unlim}[${var_unlim}]={15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5} ; ${var_unlim}_bnds[${var_unlim},tbnds]={0, 31, 31, 59, 59, 90, 90, 120, 120, 151, 151, 181, 181, 212, 212, 243, 243, 273, 273, 304, 304, 334, 334, 365.} ; ${var_unlim}@units=\"days since 0000-01-01 00:00:00\" ; ${var_unlim}@time_origin=\"01-JAN-0000 00:00:00\" ; ${var_unlim}@calendar=\"365_day\" ; ${var_unlim}@bounds=\"${var_unlim}_bnds\"'"
+        ;;
+      all_leap|366_day)
+      # 366 days
+        ncap2cmd="'defdim(\"tbnds\",2) ; ${var_unlim}[${var_unlim}]={15.5, 45.5, 75.5, 106, 136.5, 167, 197.5, 228.5, 259, 289.5, 320, 350.5} ; ${var_unlim}_bnds[${var_unlim},tbnds]={0, 31, 31, 60, 60, 91, 91, 121, 121, 152, 152, 182, 182, 213, 213, 244, 244, 274, 274, 305, 305, 335, 335, 366.} ; ${var_unlim}@units=\"days since 0000-01-01 00:00:00\" ; ${var_unlim}@time_origin=\"01-JAN-0000 00:00:00\" ; ${var_unlim}@calendar=\"366_day\" ; ${var_unlim}@bounds=\"${var_unlim}_bnds\"'"
+        ;;
+      leap|gregorian|standard)
+      # 365.2425 days
+        ncap2cmd="'defdim(\"tbnds\",2) ; ${var_unlim}[${var_unlim}]={15.5, 45.12125, 74.7425, 105.2425, 135.7425, 166.2425, 196.7425, 227.7425, 258.2425, 288.7425, 319.2425, 349.7425} ; ${var_unlim}_bnds[${var_unlim},tbnds]={0, 31, 31, 59.2425, 59.2425, 90.2425, 90.2425, 120.2425, 120.2425, 151.2425, 151.2425, 181.2425, 181.2425, 212.2425, 212.2425, 243.2425, 243.2425, 273.2425, 273.2425, 304.2425, 304.2425, 334.2425, 334.2425, 365.2425} ; ${var_unlim}@units=\"days since 0000-01-01 00:00:00\" ; ${var_unlim}@time_origin=\"01-JAN-0000 00:00:00\" ; ${var_unlim}@calendar=\"gregorian\" ; ${var_unlim}@bounds=\"${var_unlim}_bnds\"'"
+        ;;
+    esac
+    eval IGCM_sys_ncap2 -Oh -s $ncap2cmd ${RESULT_MULTI_SE} tmp.nc
+    IGCM_sys_Rm ${RESULT_MULTI_SE}
+    IGCM_sys_Mv tmp.nc ${RESULT_MULTI_SE}
+    #
+    eval IGCM_sys_Put_Out ${RESULT_MULTI_SE} \${R_OUT_${comp}}/Analyse/${DIR_OUT}/${RESULT_MULTI_SE}
+    IGCM_sys_Rm ${RESULT_MULTI_SE}
+    #
+  done
+done
+
+# DODS copy
+if [ X${config_Post_DodsCopy} = XTRUE ]  ; then
+  for comp in ${config_ListOfComponents[*]} ; do
+    IGCM_sys_TestDirArchive ${R_SAVE}/${comp}/Analyse/${DIR_OUT}
+    [ $? = 0 ] && IGCM_sys_Put_Dods ${comp}/Analyse/${DIR_OUT}
+  done
+fi
+
+# Temporal coverage id for atlas
+YEARS=${an_multi_deb}_${an_multi_fin}
+
+export DEBUG_debug; export BigBrother ; export libIGCM; export SUBMIT_DIR; export POST_DIR; export Script_Output ;
+export StandAlone ; export RESOL_ATM; export RESOL_OCE ; export RESOL_ICE ; export RESOL_MBG ; export RESOL_SRF ;
+export RESOL_SBG ; export YEARS; export DIR_OUT
+listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,StandAlone,RESOL_ATM,RESOL_OCE,RESOL_ICE,RESOL_MBG,RESOL_SRF,RESOL_SBG,YEARS,DIR_OUT"
+export listVarEnv;
+
+#D-
+# --------------------------------------------------------------------
+#D- Test if all was right before ATLAS
+# --------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${config_UserChoices_TagName} = "IPSLCM4_v1_OASIS3" ] || \
+   [ ${config_UserChoices_TagName} = "IPSLCM4_v2" ]        || \
+   [ ${config_UserChoices_TagName} = "IPSL_ESM_V1" ] ; then
+  #
+  export Script_Post_Output=atlas_ORCHIDEE.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCHIDEE                          ;
+  export Script_Post_Output=atlas_LDMZ.${PeriodDateEnd}     ;
+  IGCM_sys_QsubPost atlas_LMDZ                              ;
+  export Script_Post_Output=atlas_ORCA_LIM.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCA_LIM                          ;
+  export Script_Post_Output=additionnal.${PeriodDateEnd}    ;
+  IGCM_sys_QsubPost additionnal                             ;
+  #
+elif [ ${config_UserChoices_TagName} = "IPSLCM5" ]         || \
+     [ ${config_UserChoices_TagName} = "IPSLCM5A" ]        || \
+     [ ${config_UserChoices_TagName} = "IPSLCM5B" ]        || \
+     [ ${config_UserChoices_TagName} = "IPSLCM5A-MR" ]     || \
+     [ ${config_UserChoices_TagName} = "IPSLCM6" ] ; then
+  export Script_Post_Output=atlas_ORCHIDEE.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCHIDEE                          ;
+  export Script_Post_Output=atlas_LDMZ.${PeriodDateEnd}     ;
+  IGCM_sys_QsubPost atlas_LMDZ                              ;
+  export Script_Post_Output=atlas_ORCA_LIM.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCA_LIM                          ;
+  export Script_Post_Output=atlas_PISCES.${PeriodDateEnd}   ;
+  IGCM_sys_QsubPost atlas_PISCES                            ;
+  #
+elif [ ${config_UserChoices_TagName} = "LMDZ4OR" ]         || \
+     [ ${config_UserChoices_TagName} = "LMDZOR" ]          || \
+     [ ${config_UserChoices_TagName} = "LMDZ4OR_v2" ] ; then
+  #
+  export Script_Post_Output=atlas_LDMZ.${PeriodDateEnd}     ;
+  IGCM_sys_QsubPost atlas_LMDZ                              ;
+  export Script_Post_Output=atlas_ORCHIDEE.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCHIDEE                          ;
+  #
+elif [ ${config_UserChoices_TagName} = "LMDZ" ] ; then
+  #
+  export Script_Post_Output=atlas_LDMZ.${PeriodDateEnd}     ;
+  IGCM_sys_QsubPost atlas_LMDZ                              ;
+  #
+elif [ ${config_UserChoices_TagName} = "OL" ]              || \
+     [ ${config_UserChoices_TagName} = "OL2" ] ; then
+  #
+  export Script_Post_Output=atlas_ORCHIDEE.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCHIDEE                          ;
+  #
+elif [ ${config_UserChoices_TagName} = "ORCA2_LIM" ]       || \
+     [ ${config_UserChoices_TagName} = "ORCA2_LIM2" ]      || \
+     [ ${config_UserChoices_TagName} = "ORCA2_LIM3" ] ; then
+  #
+  export Script_Post_Output=atlas_ORCA_LIM.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCA_LIM                          ;
+  #
+elif [ ${config_UserChoices_TagName} = "ORCA2_LIM2_PISCES" ] || \
+     [ ${config_UserChoices_TagName} = "ORCA2_LIM3_PISCES" ] ; then
+  #
+  export Script_Post_Output=atlas_ORCA_LIM.${PeriodDateEnd} ;
+  IGCM_sys_QsubPost atlas_ORCA_LIM                          ;
+  export Script_Post_Output=atlas_PISCES.${PeriodDateEnd}   ;
+  IGCM_sys_QsubPost atlas_PISCES                            ;
+  #
+elif [ ${config_UserChoices_TagName} = "ORCA2_OFF_PISCES" ] ; then
+  #
+  export Script_Post_Output=atlas_PISCES.${PeriodDateEnd}   ;
+  IGCM_sys_QsubPost atlas_PISCES                            ;
+  #
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize

@@ -1,0 +1,789 @@
+######################
+## OBELIX      LSCE ##
+######################
+#PBS -N TS
+#PBS -m n
+#PBS -j oe
+#PBS -q medium
+#PBS -o TS.$$
+#PBS -S /bin/ksh
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1314                                     $ Revision of last commit
+# $Author:: jgipsl                                     $ Author of last commit
+# $Date:: 2016-04-05 16:05:18 +0200 (Tue, 05 Apr 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+#D- Flag to determine if this job in a standalone mode
+#D- Default : value from AA_job if any
+StandAlone=${StandAlone:=true}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+libIGCM=${libIGCM:=/home/orchidee03/xhwang/ORC_cropPerso/libIGCM}
+
+#D- Flag to determine allready produced time series. Empty if you start from the beginning
+#D- Default : Value from AA_job if any. Usefull in StandAlone case if you want to continue a time series
+CompletedFlag=${CompletedFlag:=}
+
+#D- Flag to determine task type this script will perform.
+#D- Possible Value : 2D, 3D, Chunck2D, Chunck3D
+#D- Default : Value from AA_job if any. Usefull in StandAlone case.
+TsTask=${TsTask:=2D}
+if [ X${TsTask} = Xempty ] ; then
+  TsTask=""
+fi
+
+#D- Flag to determine if rebuild process has been performed asynchronously
+#D- Possible value true or false.
+#D- If true raw files has allready been patched by rebuild job
+#D- If false create_ts will patch the raw files
+#D- Default : Value from AA_job if any. Usefull in StandAlone case.
+RebuildFrequency=${RebuildFrequency:=true}
+
+#D- Flag to determine job's output directory
+#D- Default : value from libIGCM_post.ksh if any
+POST_DIR=${POST_DIR:=${PBS_O_WORKDIR:=$(pwd)}}
+
+#D- Increased verbosity (1, 2, 3)
+#D- Default : value from AA_job if any
+Verbosity=${Verbosity:=3}
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default : value from AA_job if any
+DEBUG_debug=${DEBUG_debug:=false}
+
+#D- TEMPORARY Flag to determine atmospheric resolution
+#D- Default : value from atmospheric driver if any
+RESOL_ATM=ALL
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SRF=ALL
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SBG=ALL
+
+#D- TEMPORARY Flag to determine ocean resolution
+#D- Default : value from ocean driver if any
+RESOL_OCE=${RESOL_OCE:=ORCA2}
+
+#D- TEMPORARY Flag to determine ice resolution
+#D- Default : value from ice driver if any
+RESOL_ICE=${RESOL_ICE:=ORCA2}
+
+#D- TEMPORARY Flag to determine marine biogeochemistry resolution
+#D- Default : value from ice driver if any
+RESOL_MBG=${RESOL_MBG:=ORCA2}
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+# Useful cleaning function
+MENAGE ()
+{
+  typeset ExistFlag
+  ExistFlag=$( IGCM_sys_RshArchive "[ -f $1/$3 ] && echo 0 || echo 1" )
+  [ ${ExistFlag} -eq 0 ] && ( IGCM_sys_RshArchive rm -f $1/$2 ;)
+}
+
+########################################################################
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+  CARD_DIR=${SUBMIT_DIR}
+else
+  CARD_DIR=${RUN_DIR_PATH}
+
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Define default value to keep compatibility with previous card: means before changes due to TGCC
+if [ X${PackDefault} = Xtrue ] ; then
+  [ X${config_Post_PackFrequency} = X ] && config_Post_PackFrequency=${config_Post_RebuildFrequency}
+else
+  config_Post_PackFrequency=NONE
+fi
+
+#==================================
+# If pack is active then PackFrequency overule the config_UserChoices_PeriodLength
+if ( [ ! X${config_Post_PackFrequency} = X${NULL_STR} ] && [ ! X${config_Post_PackFrequency} = XNONE ] ) ; then
+  config_UserChoices_PeriodLength=${config_Post_PackFrequency}
+fi
+
+#
+# Determine component to take care of depending on kind of task create_ts will perform
+#
+[ ${CompToRead} ] && set -A config_ListOfComponents ${CompToRead} || IGCM_card_DefineArrayFromSection ${CARD_DIR}/config.card ListOfComponents
+#
+# Determine period for time series. Default : value from AA_job or from launch_TS if any
+#
+[ X${CompletedFlag} = X ] || CompletedFlag=$( IGCM_date_ConvertFormatToGregorian ${CompletedFlag} )
+
+DateBegin=${DateBegin:=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )}
+#
+PeriodDateEnd=${PeriodDateEnd:=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )}
+#
+# Determine Dimension of the produced time series : 2D or 3D
+if (   [ X${TsTask} = XChunck2D ] || [ X${TsTask} = X2D ] ) ; then
+  Dimension=2D
+elif ( [ X${TsTask} = XChunck3D ] || [ X${TsTask} = X3D ] ) ; then
+  Dimension=3D
+else
+  Dimension=""
+fi
+
+# ------------------------------------------------------------------
+#D- Test if all was right before entering the loop
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+########################################################################
+#      Depending on requested time series fill following variables :
+#
+#                           - LISTE_FILE_${comp}[*]
+#                           - LISTE_VARS_${file}[*]
+#                           - LISTE_AXIS_${file}[*]
+#                           - LISTE_PATCH_${file}[*]
+########################################################################
+
+#
+# For each selected component determine which files need post-processing
+#
+DoJob=false
+for comp in ${config_ListOfComponents[*]} ; do
+  #
+  ActiveComp=false
+  #
+  IGCM_card_DefineArrayFromOption ${CARD_DIR}/config.card ListOfComponents ${comp}
+  eval compname=\${config_ListOfComponents_${comp}[0]} > /dev/null 2>&1
+  #
+  card=${CARD_DIR}/COMP/${compname}.card
+
+  IGCM_card_DefineArrayFromOption ${card} OutputFiles List
+  #
+  ListFilesName=${compname}_OutputFiles_List
+  eval FileName0=\${${ListFilesName}[0]} > /dev/null 2>&1
+  #
+  if [ X${FileName0} != X${NULL_STR} ] ; then
+    #
+    #IGCM_debug_Print 1 "Component      : ${compname}"
+    #
+    # INITIALISATION
+    #
+    typeset i
+    if [ ${FlagToRead} ] ; then
+      ((NbFiles=${FlagToRead}))
+      ((i=${NbFiles}))
+    else
+      eval NbFiles=\${#${ListFilesName}[@]} > /dev/null 2>&1
+      i=2
+    fi
+    #
+    until [ $i -gt $NbFiles ]; do
+      #
+      eval flag_post=\${${ListFilesName}[$i]} > /dev/null 2>&1
+      #
+      if [ X${flag_post} != XNONE ] ; then
+        #
+        # For each comp and each file who needs post-processing
+        # determine which variables need time series.
+        #
+        FILE=$( echo ${flag_post} | awk "-FPost_" '{print $2}' )
+        IGCM_card_DefineArrayFromOption ${card}    Post_${FILE} TimeSeriesVars${Dimension}
+        IGCM_card_DefineVariableFromOption ${card} Post_${FILE} ChunckJob${Dimension}
+        #
+        # If TimeSeriesVars list is empty we skip
+        #
+        if [ $( eval echo \${${compname}_Post_${FILE}_TimeSeriesVars${Dimension}} ) = ${NULL_STR} ] ; then
+          #
+          IGCM_debug_Print 3 "Nothing to do for ${FILE} according to ${card}"
+          IGCM_debug_Print 3 "TimeSeriesVars${Dimension} for ${FILE} is empty"
+          (( i=i+3 ))
+          continue
+          #
+        fi
+        #
+        # If files/variables has been switch off by ChunckJob${Dimension}=0 we skip
+        #
+        if [ X$( eval echo \${${compname}_Post_${FILE}_ChunckJob${Dimension}} ) = XOFF ] ; then
+          IGCM_debug_Print 3 "Nothing to do for ${FILE} according to ${card}"
+          IGCM_debug_Print 3 "ChunckJob${Dimension}=OFF for ${FILE} so it has been switched off"
+          (( i=i+3 ))
+          continue
+        fi
+        #
+          # If we are not a Chunck type task, we skip files/variables handled by chunck task
+          #
+        if ( [ ! X${TsTask} = XChunck${Dimension} ] && [ ! X${TsTask} = X ] && [ ! XChunck${Dimension} = XChunck ] ) ; then
+          if [ ! $( eval echo \${${compname}_Post_${FILE}_ChunckJob${Dimension}} ) = NONE ] ; then
+            IGCM_debug_Print 3 "Nothing to do for ${FILE} TimeSeriesVars${Dimension} according to ${card}"
+            IGCM_debug_Print 3 "Let another chunck task do the job $( eval echo \${${compname}_Post_${FILE}_ChunckJob${Dimension}} )"
+            (( i=i+3 ))
+            continue
+          fi
+        fi
+        #
+        # Now on we know we have things to do
+        #
+
+        #
+        #  We need coordinates axis to properly fill produced time series
+        #
+        IGCM_card_DefineArrayFromOption ${card} Post_${FILE} GatherWithInternal
+        #
+        if [ $( eval echo \${${compname}_Post_${FILE}_GatherWithInternal} ) = ${NULL_STR} ] ; then
+          #
+          IGCM_debug_Print 1 "ERROR !! We miss coordinate axis for ${FILE} according to ${card}"
+          IGCM_debug_Print 1 "So no time series will be produced for ${FILE} !!"
+          (( i=i+3 ))
+          continue
+          #
+        fi
+        #
+        # We need LIST of variables not allready produced (useful for standalone mode)
+        #
+        FlagDir=$( echo ${FILE} | awk -F "_" '{print $1}' )
+        case ${FlagDir} in
+          *Y)  TS_Dir=TS_YE  ;;
+          *M)  TS_Dir=TS_MO  ;;
+          *D)  TS_Dir=TS_DA  ;;
+          HF)  TS_Dir=TS_HF  ;;
+          3H)  TS_Dir=TS_HF  ;;
+          INS) TS_Dir=TS_INS ;;
+        esac
+        #
+        count=0
+        for var in $( eval echo \${${compname}_Post_${FILE}_TimeSeriesVars${Dimension}[*]} ) ; do
+          #
+          DIRECTORY=${R_SAVE}/${comp}/Analyse/${TS_Dir}
+          TestedFile=${config_UserChoices_JobName}_${DateBegin}_${PeriodDateEnd}_${FlagDir}_${var}.nc
+          #
+          IGCM_sys_TestFileArchive ${DIRECTORY}/${TestedFile}
+          if [ ! $? = 0 ] ; then
+            eval set +A LISTE_VARS_${FILE} \${LISTE_VARS_${FILE}[*]} ${var}
+            ActiveComp=true
+            (( count = count + 1 ))
+          fi
+        done
+        #
+        if [ ${count} -gt 0 ] ; then
+          #
+          eval set +A LISTE_FILE_${comp} \${LISTE_FILE_${comp}[*]} ${FILE}
+          eval set +A LISTE_AXIS_${FILE} \${${compname}_Post_${FILE}_GatherWithInternal[*]}
+          #
+          if [ ! X${RebuildFrequency} = Xtrue ] ; then
+            IGCM_card_DefineArrayFromOption ${card} Post_${FILE} Patches
+            eval set +A LISTE_PATCHES_${FILE} \${${compname}_Post_${FILE}_Patches[*]}
+            if [ X$( eval echo \${LISTE_PATCHES_${FILE}[0]} ) !=  X${NULL_STR} ]; then
+              for Patch in $( eval echo \${LISTE_PATCHES_${FILE}[*]} ); do
+                if [ Xload${Patch} != X ] ; then
+                  . ${libIGCM}/libIGCM_post/IGCM_${Patch}.ksh
+                  eval load${Patch}=loaded
+                fi
+              done
+            fi
+          fi
+        fi
+      fi
+      (( i=i+3 ))
+    done
+  fi
+  #
+  if [ ${ActiveComp} = true ] ; then
+    set +A ActiveListOfComponents ${ActiveListOfComponents[*]} ${comp}
+  fi
+done
+
+set -A config_ListOfComponents ${ActiveListOfComponents[*]}
+[ ! -z "${ActiveListOfComponents}" ] && DoJob=true
+
+########################################################################
+#
+#               IS THERE SOME ALLREADY PRODUCED TIME SERIES ?
+#                 IF SO BRING THEM IN THE WORKING DIRECTORY
+#
+# PS : Keep in mind that IGCM_sys_Get here is a weak link :
+#      - especially for IDRiS
+#      - no special protection against "command too long" !
+#      - libIGCM_sys should handle that or modify following code part
+#
+########################################################################
+
+if [ ${StandAlone} != true ] ; then
+  Running_Flag=$( IGCM_sys_RshMaster "IGCM_card_DefineVariableFromOption \
+  ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesRunning ; \
+  echo \${run_PostProcessing_TimeSeriesRunning}" )
+
+  #if [ X${Running_Flag} = Xy ] ; then
+  #  # Time Series Job allready running
+  #  IGCM_debug_Print 1 "Time Series Job allready running exit"
+  #  exit
+  #fi
+  # Now run.card know we are running
+
+
+
+
+  IGCM_sys_RshMaster IGCM_card_WriteOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesRunning "y"
+
+
+
+
+
+  # Get information from last execution
+  #CompletedFlag=$( IGCM_sys_RshMaster \
+  # "IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesCompleted ;\
+  #        echo \${run_PostProcessing_TimeSeriesCompleted}" )
+fi
+
+# Is it the first submission or not ?
+
+if ( [ X${CompletedFlag} = X ] || [ X${CompletedFlag} = X$( IGCM_date_AddDaysToGregorianDate ${DateBegin} -1 ) ] ) ; then
+  # First Time Series Submission
+  FIRST_PASS=TRUE
+  Length=$( IGCM_date_DaysInPreviousPeriod ${DateBegin} ${config_UserChoices_PeriodLength} begin)
+  DATE_FIN_JOB_B=$( IGCM_date_AddDaysToGregorianDate ${DateBegin} $(( Length - 1 )) )
+else
+  # Last Completed Time Series
+  FIRST_PASS=FALSE
+  DATE_FIN_JOB_B=${CompletedFlag}
+  date=${DateBegin}_${DATE_FIN_JOB_B}
+  #
+  for comp in ${config_ListOfComponents[*]} ; do
+    #
+    IGCM_sys_Mkdir ${RUN_DIR_PATH}/${comp}
+    #
+    IGCM_sys_Cd ${RUN_DIR_PATH}/${comp}
+    #
+    unset liste_file
+    #
+    file_path=${R_SAVE}/${comp}/Analyse
+    #
+    i=0
+    file=${NULL_STR}
+    #
+    for file in $( eval echo \${LISTE_FILE_${comp}[*]} ); do
+      #
+      # Determine in which output can we find file
+      # IE : Analyse/TS or Analyse/DA2TS or ...
+      #
+      FlagDir=$( echo ${file} | awk -F "_" '{print $1}' )
+      case ${FlagDir} in
+        *Y)  TS_Dir=TS_YE  ;;
+        *M)  TS_Dir=TS_MO  ;;
+        *D)  TS_Dir=TS_DA  ;;
+        HF)  TS_Dir=TS_HF  ;;
+        3H)  TS_Dir=TS_HF  ;;
+        INS) TS_Dir=TS_INS ;;
+      esac
+      for var in $( eval echo \${LISTE_VARS_${file}[*]} ) ; do
+        #
+        IGCM_sys_TestFileArchive ${file_path}/${TS_Dir}/${config_UserChoices_JobName}_${date}_${FlagDir}_${var}.nc
+        if [ $? = 0 ] ; then
+          liste_file[${#liste_file[*]}]=${file_path}/${TS_Dir}/${config_UserChoices_JobName}_${date}_${FlagDir}_${var}.nc
+        else
+          IGCM_debug_Print 1 "WARNING ${file_path}/${TS_Dir}/${config_UserChoices_JobName}_${date}_${FlagDir}_${var}.nc dont exist"
+        fi
+        #
+      done
+    done
+    if [ X${file} != X${NULL_STR} ] ; then
+      IGCM_sys_Get /l liste_file[*] ${RUN_DIR_PATH}/${comp}
+      IGCM_debug_Verif_Exit
+    fi
+  done
+  #
+  LEVEL=0
+  #
+fi
+
+########################################################################
+#
+#                          DEFINE LOOP PARAMETERS
+#
+########################################################################
+
+DATE_COUNT=${DATE_FIN_JOB_B}
+DATE_FIN_JOB_B_LOOP=${DATE_FIN_JOB_B}
+
+( [ -n "${LEVEL}" ] && [ ${LEVEL} -eq 0 ] ) && NBRE_FILE_TOT=0 || NBRE_FILE_TOT=1
+
+if [ ${DoJob} = true ] ; then
+  while [ ${DATE_COUNT} -lt ${PeriodDateEnd} ] ; do
+    (( NBRE_FILE_TOT = NBRE_FILE_TOT + 1 ))
+    Length=$( IGCM_date_DaysInNextPeriod ${DATE_COUNT} ${config_UserChoices_PeriodLength} )
+    DATE_COUNT=$( IGCM_date_AddDaysToGregorianDate ${DATE_COUNT} ${Length} )
+  done
+else
+  NBRE_FILE_TOT=0
+fi
+
+if [ ${NBRE_FILE_TOT} -le ${UNIX_MAX_LIMIT} ] ; then
+  NBRE_TOUR=1
+elif [ ${NBRE_FILE_TOT}%${UNIX_MAX_LIMIT} -eq 0 ] ; then
+  let NBRE_TOUR=${NBRE_FILE_TOT}/${UNIX_MAX_LIMIT}
+else
+  let NBRE_TOUR=${NBRE_FILE_TOT}/${UNIX_MAX_LIMIT}+1
+fi
+
+CURRENT_LOOP=1
+# THIS LOOP GIVES PARAMETERS FOR THE DATE'S LOOP ie : DATE_COURANTE, DATE_FIN.
+# WE HAVE 3 LEVELS
+#    - LEVEL 1 : JUST ONE LOOP TO COMPLETE
+#    - LEVEL 2 : WE ARE IN THE "DEEP" LOOP
+#    - LEVEL 3 : WE ARE IN THE LAST LOOP
+
+while [ ${CURRENT_LOOP} -le  ${NBRE_TOUR} ] ; do
+
+  if [ ${NBRE_FILE_TOT} -le ${UNIX_MAX_LIMIT} ] ; then
+    # - LEVEL 1 : JUST ONE LOOP TO COMPLETE
+    NBRE_FILE_LOOP=${NBRE_FILE_TOT}
+
+    if [ ${FIRST_PASS} = TRUE ] ; then
+      DATE_COURANTE=${DATE_FIN_JOB_B_LOOP}
+    else
+      Length=$( IGCM_date_DaysInNextPeriod ${DATE_FIN_JOB_B_LOOP} ${config_UserChoices_PeriodLength} )
+      DATE_COURANTE=$( IGCM_date_AddDaysToGregorianDate ${DATE_FIN_JOB_B_LOOP} ${Length} )
+    fi
+
+    DATE_FIN=${PeriodDateEnd}
+    DATE_FIN_JOB_B_LOOP_PREC=${DATE_FIN_JOB_B_LOOP}
+
+    [ -n "${DATE_LOOP}" ] && DATE_FIN_JOB_B_LOOP=${DATE_LOOP}
+    [ -n "${LEVEL}" ] && FLAG_B="TRUE" || FLAG_B="FALSE"
+
+    LEVEL=1
+    DEPOT="TRUE"
+  elif [ ${CURRENT_LOOP} -ne  ${NBRE_TOUR} ] ; then
+    # - LEVEL 2 : WE ARE IN THE "DEEP" LOOP
+    NBRE_FILE_LOOP=${UNIX_MAX_LIMIT}
+
+    if [ ! ${FIRST_PASS} = TRUE ] && [ ${CURRENT_LOOP} -eq 1 ] ; then
+      Length=$( IGCM_date_DaysInNextPeriod ${DATE_FIN_JOB_B_LOOP} ${config_UserChoices_PeriodLength} )
+      DATE_COURANTE=$( IGCM_date_AddDaysToGregorianDate ${DATE_FIN_JOB_B_LOOP} ${Length} )
+    elif [ -z "${DATE_COURANTE}" ] ; then
+      DATE_COURANTE=${DATE_FIN_JOB_B}
+    else
+      Length=$( IGCM_date_DaysInNextPeriod ${DATE_FIN} ${config_UserChoices_PeriodLength} )
+      DATE_COURANTE=$( IGCM_date_AddDaysToGregorianDate ${DATE_FIN} ${Length} )
+    fi
+
+    (( TotLength = 0 ))
+    COMPTEUR=1
+    DATE_LOOP=${DATE_COURANTE}
+
+    while [ ${COMPTEUR} -lt ${NBRE_FILE_LOOP} ] ; do
+      #
+      Length=$( IGCM_date_DaysInNextPeriod ${DATE_LOOP} ${config_UserChoices_PeriodLength} )
+      DATE_LOOP=$( IGCM_date_AddDaysToGregorianDate ${DATE_LOOP} ${Length} )
+      (( TotLength = TotLength + Length ))
+      (( COMPTEUR = COMPTEUR + 1 ))
+      #
+    done # while [ ${COMPTEUR} -le ${NBRE_FILE_LOOP} ] done
+    DATE_FIN=$( IGCM_date_AddDaysToGregorianDate ${DATE_COURANTE} ${TotLength} )
+
+    [ -n "${DATE_LOOP}" ] && DATE_FIN_JOB_B_LOOP_PREC=${DATE_FIN_JOB_B_LOOP} ; DATE_FIN_JOB_B_LOOP=${DATE_LOOP}
+    [ -n "${LEVEL}" ] && [ ${LEVEL} -eq 0 ] && FLAG_B="TRUE" || [ ${CURRENT_LOOP} -gt 1 ] && FLAG_B="TRUE" || FLAG_B="FALSE"
+    DEPOT="FALSE"
+    LEVEL=2
+  else
+    # - LEVEL 3 : WE ARE IN THE LAST LOOP
+    NBRE_FILE_LOOP=$(( ${NBRE_FILE_TOT} % ( ${UNIX_MAX_LIMIT} * ( ${CURRENT_LOOP} - 1 ) ) ))
+    [ ${NBRE_FILE_LOOP} -eq 0 ] && NBRE_FILE_LOOP=${UNIX_MAX_LIMIT}
+
+    Length=$( IGCM_date_DaysInNextPeriod ${DATE_FIN} ${config_UserChoices_PeriodLength} )
+    DATE_COURANTE=$(IGCM_date_AddDaysToGregorianDate ${DATE_FIN} ${Length} )
+    DATE_FIN=${PeriodDateEnd}
+    [ -n "${DATE_LOOP}" ] && DATE_FIN_JOB_B_LOOP_PREC=${DATE_FIN_JOB_B_LOOP} ; DATE_FIN_JOB_B_LOOP=${DATE_LOOP}
+
+    LEVEL=3
+    DEPOT="TRUE"
+    FLAG_B="TRUE"
+  fi
+
+  # THEN FOR EACH FILE TYPE WE LOOP BETWEEN DATE_COURANTE AND DATE_FIN.
+  for comp in ${config_ListOfComponents[*]} ; do
+    #
+    IGCM_sys_Mkdir ${RUN_DIR_PATH}/${comp}
+      #
+    IGCM_sys_Cd ${RUN_DIR_PATH}/${comp}
+    #
+    eval R_OUT_${comp}=${R_SAVE}/${comp}
+    #
+    i=0
+    #
+    for file in $( eval echo \${LISTE_FILE_${comp}[*]} ); do
+      #
+      # Determine in which output we can find file
+      # IE : Output/MO or Output/DA or ...
+      #
+      FlagDir=$( echo ${file} | awk -F "_" '{print $1}' )
+      case ${FlagDir} in
+        *Y)    TS_Dir=TS_YE  ; FreqDir=YE  ;;
+        *M)    TS_Dir=TS_MO  ; FreqDir=MO  ;;
+        *D)    TS_Dir=TS_DA  ; FreqDir=DA  ;;
+        HF)    TS_Dir=TS_HF  ; FreqDir=HF  ;;
+        3H)    TS_Dir=TS_HF  ; FreqDir=HF  ;;
+        INS)   TS_Dir=TS_INS ; FreqDir=INS ;;
+        *)     IGCM_debug_Print 1 "Error in FlagDir=${FlagDir} for file ${file}."
+               IGCM_debug_Exit "Job create_ts" ;;
+      esac
+
+      # Initialize array
+      unset liste_file
+      unset liste_file_tmp
+      eval file_path=\${R_OUT_${comp}}/Output/${FreqDir}/
+
+      COMPTEUR=1
+      MissingFile=FALSE
+      DATE_LOOP=${DATE_COURANTE}
+
+      while [ ${COMPTEUR} -le ${NBRE_FILE_LOOP} ] ; do
+        #
+        Length1=$( IGCM_date_DaysInPreviousPeriod ${DATE_LOOP} ${config_UserChoices_PeriodLength} end)
+        DATE_TAB=$(  IGCM_date_AddDaysToGregorianDate ${DATE_LOOP} $(( 1 - Length1 )) )_${DATE_LOOP}
+
+        Length2=$( IGCM_date_DaysInNextPeriod ${DATE_LOOP} ${config_UserChoices_PeriodLength} )
+        DATE_LOOP=$( IGCM_date_AddDaysToGregorianDate ${DATE_LOOP} ${Length2} )
+
+        IGCM_sys_TestFileArchive ${file_path}${config_UserChoices_JobName}_${DATE_TAB}_${file}.nc
+        if [ $? = 0 ] ; then
+          liste_file[${#liste_file[*]}]=${file_path}${config_UserChoices_JobName}_${DATE_TAB}_${file}.nc
+          liste_file_tmp[${#liste_file_tmp[*]}]=${config_UserChoices_JobName}_${DATE_TAB}_${file}.nc
+        else
+          IGCM_debug_Print 1 "WARNING ${file_path}${config_UserChoices_JobName}_${DATE_TAB}_${file}.nc dont exist"
+          MissingFile=TRUE
+        fi
+        (( COMPTEUR = COMPTEUR + 1 ))
+        #
+      done # while [ ${COMPTEUR} -le ${NBRE_FILE_LOOP} ] done
+
+      # We skip this file type if one of them is missing.
+      if [ "${MissingFile}" = "TRUE" ] ; then
+        IGCM_debug_Print 1 "WARNING We skip ${file} type processing"
+        continue
+      fi
+
+      DATE_LOOP=$( IGCM_date_AddDaysToGregorianDate ${DATE_LOOP} -${Length2} )
+
+      # Get selected files
+      IGCM_sys_Get /l liste_file[*] ${RUN_DIR_PATH}/${comp}
+      IGCM_debug_Verif_Exit
+
+      # Apply IGCM_Patch if needed
+      if [ ! X${RebuildFrequency} = Xtrue ] ; then
+        if [ X$( eval echo \${LISTE_PATCHES_${file}[0]} ) !=  X${NULL_STR} ]; then
+          for file_t in $( eval echo ${liste_file_tmp[*]} ); do
+            for Patch in $( eval echo \${LISTE_PATCHES_${file}[*]} ); do
+              IGCM_${Patch} ${file_t}
+              IGCM_debug_Verif_Exit
+            done
+          done
+        fi
+      fi
+
+      # WE CAN CONCATENATE FILES AT THIS POINT
+      [ "${FLAG_B}" = "TRUE" ] && DATE_BUILD_B=${DateBegin}_${DATE_FIN_JOB_B_LOOP_PREC}
+      Length=$( IGCM_date_DaysInPreviousPeriod ${DATE_COURANTE} ${config_UserChoices_PeriodLength} end)
+      DATE_BUILD1=$( IGCM_date_AddDaysToGregorianDate ${DATE_COURANTE} -$(( Length - 1 )) )
+      DATE_BUILD=${DATE_BUILD1}_${DATE_FIN}
+      DATE_BUILD_END=${DateBegin}_${DATE_FIN}
+
+      liste_coord=" "
+      for axis in $( eval echo \${LISTE_AXIS_${file}[*]} ); do
+        liste_coord=${liste_coord}${axis}","
+      done
+
+      # Time axis must be the last dimension
+      time_axis=${axis}
+
+      # SWITCH BETWEEN MODEL TO FIT PARTICULAR CASE
+      for var in $( eval echo \${LISTE_VARS_${file}[*]} ) ; do
+        #
+        # We skip variables not in the first file of the list.
+        # Seems overkill to test thel all... but will do if needed
+        ncdump -hv ${var} ${liste_file_tmp[0]} > /dev/null 2>&1
+        if [ ! $? = 0 ] ; then
+          IGCM_debug_Print 1 "WARNING We skip ${var}, not present within ${liste_file_tmp[0]}"
+          continue
+        fi
+        #
+        if [ "${FLAG_B}" = "TRUE" ] ; then
+          # WE CONCATENATE WITH EXISTING FILES
+          file1=${config_UserChoices_JobName}_${DATE_BUILD_B}_${FlagDir}_${var}.nc
+          file_out=${config_UserChoices_JobName}_${DATE_BUILD_END}_${FlagDir}_${var}.nc
+          IGCM_sys_ncrcat --hst -v ${liste_coord}${var} ${file1} ${liste_file_tmp[*]} ${file_out}
+          IGCM_debug_Verif_Exit
+          #
+          IGCM_sys_Rm ${file1}
+          if [ ! "${DEPOT}" = "TRUE" ] ; then
+            eval IGCM_sys_Put_Out ${file_out} \${R_OUT_${comp}}/Analyse/${TS_Dir}/${file_out}
+            # "${file1} = file_before ?
+            [ ! "${file1}" = "${config_UserChoices_JobName}_${DateBegin}_${DATE_FIN_JOB_B}_${FlagDir}_${var}.nc" ] && eval MENAGE \${R_OUT_${comp}}/Analyse/${TS_Dir} ${file1} ${file_out}
+          fi
+        else
+          # OR NOT
+          file_out=${config_UserChoices_JobName}_${DATE_BUILD}_${FlagDir}_${var}.nc
+          IGCM_sys_ncrcat --hst -v ${liste_coord}${var} ${liste_file_tmp[*]} ${file_out}
+          IGCM_debug_Verif_Exit
+        fi
+
+        #
+        if [ "${DEPOT}" = "TRUE" ] ; then
+          # YEARLY AVERAGE DERIVED FROM MONTHLY MEAN
+          if ( [ ${FlagDir} = "1M" ] && [ -f ${file_out} ] ) ; then
+            file_before_YE=${config_UserChoices_JobName}_${DateBegin}_${DATE_FIN_JOB_B}_1Y_${var}.nc
+            file_out_YE=${config_UserChoices_JobName}_${DATE_BUILD_END}_1Y_${var}.nc
+            #
+            # Compute yearly average considering calendar
+            IGCM_sys_cdo yearmonmean -selvar,${var} ${file_out} ${file_out_YE}
+            # Extract all ancillary variables except $var, they will be appended after the cdo command
+            # Needed because cdo applies calculs on all variables
+            IGCM_sys_ncks -Oh -x -v ${var} ${file_out} ${file_out_YE%%.nc}_tmp1.nc
+            # This will remove the time axis because cdo rewrites severely with only considered useful variables
+            IGCM_sys_cdo -mulc,1 ${file_out_YE%%.nc}_tmp1.nc ${file_out_YE%%.nc}_tmp2.nc 2>/dev/null
+            if [ $? -eq 0 ] ; then
+              # Now append all ancillary variables if previous cdo operator ok
+              IGCM_sys_ncks -h -A ${file_out_YE%%.nc}_tmp2.nc ${file_out_YE}
+            fi
+
+            # Put global history attribut
+            IGCM_sys_ncatted -Oh -a history,global,o,c,"build by libIGCM/create_ts" ${file_out_YE}
+            IGCM_debug_Verif_Exit
+            #
+            eval IGCM_sys_Put_Out ${file_out_YE} \${R_OUT_${comp}}/Analyse/TS_MO_YE/${file_out_YE}
+            [ "${FLAG_B}" = "TRUE" ] && eval MENAGE \${R_OUT_${comp}}/Analyse/TS_MO_YE/ ${file_before_YE} ${file_out_YE}
+            IGCM_sys_Rm ${file_out_YE%%.nc}_tmp*.nc
+          fi
+          # WE PUT FINAL FILE ON FILE SYSTEM
+          [ "${FLAG_B}" = "FALSE" ] && file_out=${config_UserChoices_JobName}_${DATE_BUILD}_${FlagDir}_${var}.nc
+          file_before=${config_UserChoices_JobName}_${DateBegin}_${DATE_FIN_JOB_B}_${FlagDir}_${var}.nc
+          #
+          eval IGCM_sys_Put_Out ${file_out} \${R_OUT_${comp}}/Analyse/${TS_Dir}/${file_out}
+          [ "${FLAG_B}" = "TRUE" ] && eval MENAGE \${R_OUT_${comp}}/Analyse/${TS_Dir} ${file_before} ${file_out}
+          if [ ! "X${file1}" = "X" ] ; then
+            [ ! "${file1}" = "${config_UserChoices_JobName}_${DateBegin}_${DATE_FIN_JOB_B}_${FlagDir}_${var}.nc" ] && eval MENAGE \${R_OUT_${comp}}/Analyse/${TS_Dir} ${file1} ${file_out}
+          fi
+          #
+          [ -f ${file_out} ] && IGCM_sys_Rm ${file_out}
+          #
+        fi
+        #
+      done                              # for var in ${liste_var} ; do
+      IGCM_sys_Rm ${liste_file_tmp[*]}
+    done                                # for file in ${liste_file_brut} do
+  done                                  # for comp in ${config_ListOfComponents[*]} ; do
+  # GO AHEAD IN DEEPEST LOOP
+  (( CURRENT_LOOP = CURRENT_LOOP + 1 ))
+done                                    # while [ ${CURRENT_LOOP} -le  ${NBRE_TOUR} ] do
+# FINISH
+
+# DODS copy
+for comp in ${config_ListOfComponents[*]} ; do
+  for TS_Dir in TS_YE TS_MO TS_MO_YE TS_DA TS_HF TS_INS ; do
+    IGCM_sys_TestDirArchive ${R_SAVE}/${comp}/Analyse/${TS_Dir}
+    [ $? = 0 ] && IGCM_sys_Put_Dods ${comp}/Analyse/${TS_Dir}
+  done
+done
+
+export DEBUG_debug; export BigBrother ; export libIGCM; export SUBMIT_DIR; export POST_DIR; export Script_Output ;
+export StandAlone ; export RESOL_ATM; export RESOL_OCE ; export RESOL_ICE ; export RESOL_MBG ; export RESOL_SRF ;
+export RESOL_SBG
+listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,StandAlone,RESOL_ATM,RESOL_OCE,RESOL_ICE,RESOL_MBG,RESOL_SRF,RESOL_SBG"
+export listVarEnv
+
+#D-
+# --------------------------------------------------------------------
+#D- Test if all was right
+# --------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+# --------------------------------------------------------------------
+#D- Submit MONITORING
+# --------------------------------------------------------------------
+if ( [ X${TsTask} = X2D ] || [ X${TsTask} = X3D ] || [ X${TsTask} = X ] ) ; then
+  Script_Post_Output=monitoring.${PeriodDateEnd}
+  IGCM_sys_QsubPost monitoring
+fi
+
+#D-
+# --------------------------------------------------------------------
+#D- Update the run.card
+# --------------------------------------------------------------------
+if [ ${StandAlone} != true ] ; then
+  # Put in run.card end period of time series
+  [ X"${DATE_FIN}" = X ] || IGCM_sys_RshMaster IGCM_card_WriteOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesCompleted "${DATE_FIN}"
+  # We have finish the job !
+  IGCM_sys_RshMaster IGCM_card_WriteOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesRunning "n"
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize
+
+date

@@ -1,0 +1,237 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r METRICS_NEMO       # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1              # Reservation du processus
+#-Q- curie #MSUB -T 14400          # Limite de temps elapsed du job
+#-Q- curie #MSUB -q ::default_node::
+#-Q- curie #MSUB -c ::default_core::
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada ## ADA         IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 4:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = METRICS_NEMO
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $POST_DIR ; $Script_Post_Output ; $SUBMIT_DIR ; $libIGCM ; $DEBUG_debug ; $BigBrother ; $postProcessingStopLevel ; $R_INIT ; $R_BC ; $StandAlone ; $RESOL_ATM ; $RESOL_OCE ; $RESOL_ICE ; $RESOL_MBG ; $RESOL_SRF ; $RESOL_SBG ; $YEARS ; $DIR_OUT ; $MASTER ; $libIGCM_SX ; wall_clock_limit=$(wall_clock_limit)
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N METRICS_NEMO
+#-Q- lxiv8 #PBS -m a
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q test
+#-Q- lxiv8 #PBS -o METRICS_NEMO.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N METRICS_NEMO
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD #PBS -q std
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1311                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-03-30 14:47:45 +0200 (Wed, 30 Mar 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#-Q- ada export OMP_NUM_THREADS=1
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+######################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+. ${libIGCM}/libIGCM_comp/libIGCM_comp.ksh
+#-------
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+######################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+    CARD_DIR=${SUBMIT_DIR}
+else
+    CARD_DIR=${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Then set up several directories
+#==================================
+R_OUT_OCE=${R_SAVE}/OCE
+DIR_OUT=${DIR_OUT:=SE}
+RUN_DIR=${RUN_DIR_PATH}
+IGCM_sys_MkdirArchive ${R_FIGR}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+IGCM_sys_MkdirWork METRICS/SE_${YEARS}
+
+#==================================
+# Get the file
+#==================================
+IGCM_sys_Get ${R_OUT_OCE}/Analyse/${DIR_OUT}/${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc ${RUN_DIR}
+
+#==================================
+# Rename variables
+#==================================
+IGCM_sys_ncrename -v .votemper,t -v .thetao,to -v .vosaline,so -v .somxl010,mldpt -v .mldr10_1,mldpt -v .sosstsst,tos -v .sossheig,zos -v .sosaline,sos -v .sowaflup,wfo ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc
+
+#==================================
+# Interpolate vertical levels
+#==================================
+IGCM_sys_cdo intlevel,50,100,250,500,1000 -selvar,to,so ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc ${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc
+
+#==================================
+# Identify grid label from opa9.card
+#==================================
+IGCM_card_DefineVariableFromOption ${CARD_DIR}/COMP/opa9.card UserChoices ORCA_version
+IGCM_debug_Print 3 "ORCA_VERSION=${opa9_UserChoices_ORCA_version}"
+
+#==================================
+# To be found soon from the synchronized igcmg repository instead
+#==================================
+orca_grid=${DB}/grids/${opa9_UserChoices_ORCA_version}_grid.nc
+
+IGCM_sys_ncks --append -v bounds_lat,bounds_lon ${orca_grid} ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc
+IGCM_sys_ncatted -O -a bounds,nav_lat,o,c,bounds_lat ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc
+IGCM_sys_ncatted -O -a bounds,nav_lon,o,c,bounds_lon ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc
+
+IGCM_sys_ncks --append -v bounds_lat,bounds_lon ${orca_grid} ${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc
+IGCM_sys_ncatted -O -a bounds,nav_lat,o,c,bounds_lat ${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc
+IGCM_sys_ncatted -O -a bounds,nav_lon,o,c,bounds_lon ${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc
+
+#==================================
+# SET UP THE PATH (will be done in libIGCM_sys later)
+#==================================
+export PATH=${PCMDI_MP}/work_install_v2/PCMDI_METRICS/bin:${PATH}
+
+#==================================
+# Group of metrics we will compute
+#==================================
+GroupsOfMetrics='NEMO_PCMDI NEMO_LatBandsAndRegions NEMO_VertLevels'
+MP_Version=v3
+
+for metricsGroupName in ${GroupsOfMetrics} ; do
+
+  #==================================
+  # Appropriate configuration template
+  #==================================
+  IGCM_sys_Cp ${PCMDI_MP}/work_install_${MP_Version}/PCMDI_METRICS/doc/parameter_files/input_parameters_${metricsGroupName}_template.py template.py
+
+  #==================================
+  # Configure template for grid_T.nc
+  #==================================
+
+  if [ ${metricsGroupName} != "NEMO_VertLevels" ] ; then
+    IGCM_comp_modifyFile template.py path_and_filename \'./${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc\'
+    IGCM_comp_modifyFile template.py filename \'${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc\'
+  else
+    IGCM_comp_modifyFile template.py path_and_filename \'./${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc\'
+    IGCM_comp_modifyFile template.py filename \'${config_UserChoices_JobName}_SE_${YEARS}_1MVertLevels_grid_T.nc\'
+  fi
+  IGCM_comp_modifyFile template.py attributes_provided \'IPSL_Extended\'
+  IGCM_comp_modifyFile template.py Login  \'${LOGIN}\'
+  IGCM_comp_modifyFile template.py model_versions \[\'${config_UserChoices_TagName}\'\]
+  IGCM_comp_modifyFile template.py experiment  \'${config_UserChoices_ExperimentName}\'
+  IGCM_comp_modifyFile template.py realization \'${config_UserChoices_JobName}\'
+  IGCM_comp_modifyFile template.py project_id \'IPSL\-${config_UserChoices_SpaceName}\'
+  IGCM_comp_modifyFile template.py ModelFreeSpace "\"${config_UserChoices_LongName}\""
+  IGCM_comp_modifyFile template.py case_id \'${metricsGroupName}\'
+  IGCM_comp_modifyFile template.py obs_data_path  \'${PCMDI_MP}/references-for-metrics/obs\'
+  IGCM_comp_modifyFile template.py metrics_output_path \'${RUN_DIR}/METRICS/SE_${YEARS}\'
+  IGCM_comp_modifyFile template.py model_clims_interpolated_output \'${RUN_DIR}\'
+
+  #==================================
+  # Compute metrics
+  #==================================
+  python ${PCMDI_MP}/work_install_${MP_Version}/PCMDI_METRICS/bin/pcmdi_metrics_driver.py -p template.py
+
+  #==================================
+  # Export metrics to mongoDB system
+  #==================================
+  IGCM_debug_sendAMQP_Metrics METRICS/SE_${YEARS}/${metricsGroupName} ${metricsGroupName}
+
+done 
+
+#==================================
+# Save files
+#==================================
+IGCM_sys_Put_Dir METRICS ${R_FIGR}
+IGCM_sys_Rm -Rf METRICS
+IGCM_sys_Rm ${config_UserChoices_JobName}_SE_${YEARS}_1M_grid_T.nc
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize

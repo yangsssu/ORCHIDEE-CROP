@@ -1,0 +1,304 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r PACKOUTPUT     # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1              # Reservation du processus
+#-Q- curie #MSUB -T 36000          # Limite de temps elapsed du job
+#-Q- curie #MSUB -q ::default_node::
+#-Q- curie #MSUB -c ::default_core::
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada ## ADA         IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 10:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = PACKOUTPUT
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $DEBUG_debug ; $BigBrother ; $postProcessingStopLevel ; $MODIPSL ; $libIGCM ; $libIGCM_SX ; $POST_DIR ; $Script_Post_Output ; $SUBMIT_DIR ; $DateBegin ; $DateEnd ; $PeriodPack ; $StandAlone ; $MASTER ; wall_clock_limit=$(wall_clock_limit)
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N PACKOUTPUT
+#-Q- lxiv8 #PBS -m n
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q medium
+#-Q- lxiv8 #PBS -o PACKOUTPUT.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N PACKOUTPUT
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD #PBS -q std
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1290                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-03-07 17:00:30 +0100 (Mon, 07 Mar 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+#D- Flag to determine if this job in a standalone mode
+#D- Default : value from AA_job if any
+StandAlone=${StandAlone:=true}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ulam and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+#-D- $hostname of the MASTER job when SUBMIT_DIR is not visible on postprocessing computer.
+MASTER=${MASTER:=ada|curie}
+
+#D- Flag to determine begin date for restart pack
+#D- Default : value from AA_job if any
+DateBegin=${DateBegin:=20000101}
+
+#D- Flag to determine end date for restart pack
+#D- Default : value from AA_job if any
+DateEnd=${DateEnd:=20691231}
+
+#D- Flag to determine pack period
+#D- Default : value from AA_job if any
+PeriodPack=${PeriodPack:=10Y}
+
+#D- Uncomment to run interactively
+#D- For testing purpose, will be remove
+#SUBMIT_DIR=${PWD}
+#RUN_DIR_PATH=${SCRATCHDIR}/Pack_Test
+
+#D- Increased verbosity (1, 2, 3)
+#D- Default : value from AA_job if any
+Verbosity=${Verbosity:=3}
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default : value from AA_job if any
+DEBUG_debug=${DEBUG_debug:=false}
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+. ${libIGCM}/libIGCM_post/libIGCM_post.ksh
+#-------
+RUN_DIR=${RUN_DIR_PATH}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+    CARD_DIR=${SUBMIT_DIR}
+else
+    CARD_DIR=${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Read ListOfComponents section
+# to drive the loop over find
+IGCM_card_DefineArrayFromSection ${CARD_DIR}/config.card ListOfComponents
+
+#==================================
+# Test and set up directories
+#==================================
+IGCM_sys_TestDirArchive ${R_SAVE}
+[ $? != 0 ] && IGCM_debug_Exit "IGCM_sys_TestDirArchive"
+
+# Where to store used file list /!\ TEMPORARY /!\
+STORE_DEBUG=${R_SAVE}/DEBUG
+
+# Switch to script variables meaning (try to be compatible with ipsl_pack TGCC moving procedure)
+JobName=${config_UserChoices_JobName}
+echo $JobName $DateBegin $DateEnd
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+IGCM_debug_Print 1 "Check coherence between PackFrequency and PeriodLength"
+IGCM_post_CheckModuloFrequency PeriodPack config_UserChoices_PeriodLength NbPeriodPerFrequency
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+IGCM_debug_Print 1 "We must process ${NbPeriodPerFrequency} files for each pack"
+
+# Init loop
+date_begin_pack=${DateBegin}
+date_end_simulation=${DateEnd}
+number_pack=1
+
+IGCM_debug_PrintVariables 3 date_begin_pack
+IGCM_debug_PrintVariables 3 date_end_simulation
+
+while [ ${date_begin_pack} -le ${date_end_simulation} ] ; do
+
+  IGCM_debug_PrintVariables 3 number_pack
+  DaysTemp=$( IGCM_date_DaysInCurrentPeriod ${date_begin_pack} ${PeriodPack} )
+  date_end_pack=$( IGCM_date_AddDaysToGregorianDate ${date_begin_pack} $(( ${DaysTemp} - 1 )) )
+
+  for comp in ${config_ListOfComponents[*]} ; do
+    dirList=$( find ${R_BUFR}/${comp}/Output -maxdepth 1 -mindepth 1 -type d )
+    for dir in ${dirList} ; do
+      # dirID is like ATM.Output.MO
+      dirID=$( echo $dir | sed "s:${R_BUFR}/::" | sed "s:/:.:g" )
+      # Sort what's in the directory
+      find ${dir} -type f -name "${JobName}*.nc" -ls | sort -k 11 > liste_files.${dirID}.txt
+      # How much file type. Example : 1M_histmthCOSP.nc, 1M_histmth.nc, 1M_histmthNMC.nc, 1M_paramLMDZ_phy.nc
+      # /!\ fileType include the .nc extension /!\
+      fileType=$( gawk '{print $11}' liste_files.${dirID}.txt | gawk -F$dir/ '{print $2}' | sed "s:${JobName}_[0-9]\{8,9\}_[0-9]\{8,9\}_::g" | sort | uniq )
+      # Loop over the file type and pack them when in between date_begin_pack and date_end_pack
+      for myType in ${fileType} ; do
+        grep ${myType} liste_files.${dirID}.txt > liste_files.${dirID}.${myType}.txt
+        nbfile=0
+        for file in $( gawk '{print $11}' liste_files.${dirID}.${myType}.txt ); do
+          extract_date_file=$( echo ${file}  | sed -e "s/.*${JobName}_[0-9]*_//" )
+          date_file=$( echo ${extract_date_file} | sed 's/\([0-9]\{8\}\)_.*$/\1/g' )
+          # echo pack n°${number_pack}  ${date_file} ${date_begin_pack} ${date_end_pack}
+          if [ ${date_file} -le ${date_end_pack} ] && [ ${date_file} -ge ${date_begin_pack} ] ; then
+            echo ${file} >> liste_pack_${myType}_${date_begin_pack}_${date_end_pack}.txt
+            ncdump -h ${file} | grep -E 'float|double' | cut -f 1 -d '(' | cut -f 2 -d ' ' >> liste_variables_${myType}_${date_begin_pack}_${date_end_pack}.txt
+            (( nbfile = nbfile + 1 ))
+          fi
+        done
+
+        if [ ${nbfile} = 0 ] ; then
+          IGCM_debug_Print 1 "We found no file to process"
+          IGCM_debug_Print 1 "We should have found ${NbPeriodPerFrequency} files"
+          IGCM_debug_Print 1 "As some files can be produced only for some selected period we consider we can move to the next file type"
+          continue
+        fi
+
+        # Select list of variables to work with
+        list_var=$( cat liste_variables_${myType}_${date_begin_pack}_${date_end_pack}.txt | sort | uniq -c | awk -v nbfile=$nbfile '{if ($1 != nbfile) {print $2}}' | paste -s -d ',' )
+        liste_file_tmp=$( for i in $( cat liste_pack_${myType}_${date_begin_pack}_${date_end_pack}.txt ) ; do basename $i ; done )
+        # Create packed files
+        IGCM_debug_Print 1 "Ncrcat ongoing for ${dir} and ${myType}"
+        if [ ! ${nbfile} = ${NbPeriodPerFrequency} ] ; then
+          IGCM_debug_Print 1 "Number of files to process is not equal to what it should be"
+          IGCM_debug_Print 1 "We found ${nbfile} files and it should have been ${NbPeriodPerFrequency} files"
+          IGCM_debug_Exit "ERROR in number of files to process. STOP HERE INCLUDING THE COMPUTING JOB"
+          IGCM_debug_Verif_Exit
+        fi
+        output=${JobName}_${date_begin_pack}_${date_end_pack}_${myType}
+        #cat liste_pack_${myType}_${date_begin_pack}_${date_end_pack}.txt | xargs ncrcat -v ${list_var} -o ${output}
+        if [ X${list_var} = X ] ; then
+          IGCM_sys_ncrcat -p ${dir} ${liste_file_tmp} --output ${output}
+        else
+          IGCM_sys_ncrcat -x -v ${list_var} -p ${dir} ${liste_file_tmp} --output ${output}
+        fi
+        # ------------------------------------------------------------------
+        # Test if all was right before proceeding further
+        # ------------------------------------------------------------------
+        IGCM_debug_Verif_Exit
+        # Save it
+        IGCM_sys_Put_Out ${output} ${R_SAVE}/$( echo $dir | sed "s:${R_BUFR}/::" )/${output}
+        # Clean file produced by ncrcat
+        IGCM_sys_Rm ${output}
+        # ------------------------------------------------------------------
+        # Test if all was right before proceeding further
+        # ------------------------------------------------------------------
+        IGCM_debug_Verif_Exit
+        # Clean files used by ncrcat
+        cat liste_pack_${myType}_${date_begin_pack}_${date_end_pack}.txt | xargs rm
+        # Save the list of files that has been pack (ncrcat)
+        #mv liste_pack_${myType}_${date_begin_pack}_${date_end_pack}.txt ${STORE_DEBUG}
+        IGCM_debug_Print 1 "Ncrcat and cleaning done for ${dir} and ${myType}"
+        echo
+      done
+    done
+  done
+  (( number_pack = number_pack + 1 ))
+  # Add 1 day to date_end_pack to have the new date_begin_pack
+  date_begin_pack=$( IGCM_date_AddDaysToGregorianDate ${date_end_pack} 1 )
+done
+
+# Flush post-processing submission
+if [ -f ${R_BUFR}/FlushPost_${DateEnd}.ksh ] ; then
+  . ${R_BUFR}/FlushPost_${DateEnd}.ksh
+  IGCM_FlushPost
+  #IGCM_sys_Rm -f ${R_BUFR}/FlushPost_${DateEnd}.ksh
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize
+
+date

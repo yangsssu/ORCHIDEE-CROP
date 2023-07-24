@@ -1,0 +1,53 @@
+
+[Messages]
+Option1= "Hello Earth"
+Option2= "Hello Mars"
+ListVal1= ()
+ListVal2= ()
+ListVal3= ()
+
+# My comments
+[Recipes]
+Cake= "file1.doc"
+Starter= "file2.doc"
+
+[ColorValues]
+Red= 120
+Blue= 230
+Green= 178
+AnotherRed= 234
+
+[Couples]
+List1=   (up, down), \
+         (humid, dry), \
+         (hot, cold), \
+         (far, close)
+List2=   (ice, fire, air, water)
+
+"Hello Earth"
+"Hello Mars"
+120
+230
+178
+Cake Starter
+List1 List2
+Hello Mars
+120
+up down humid dry hot cold far close
+ice fire air water
+Red Blue Green AnotherRed
+one, two, three, four
+4,7c4,7
+< Option2= "Hello Mars"
+< ListVal1= ()
+< ListVal2= ()
+< ListVal3= ()
+---
+> Option2= "Hello Mercure"
+> ListVal1= ( 1, 2, 3 )
+> ListVal2= (Sebastien, Martial, Patrick)
+> ListVal3= ( one, two, three, four )
+15c15
+< Red= 120
+---
+> Red= 888

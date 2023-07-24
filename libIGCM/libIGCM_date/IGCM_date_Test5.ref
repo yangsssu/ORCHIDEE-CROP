@@ -1,0 +1,94 @@
+#=================================#
+IGCM_date_DaysInYear test
+#=================================#
+
+#
+IGCM_date_DaysInYears 1998
+#
+365
+
+#
+IGCM_date_DaysInYears 2000
+#
+366
+#=================================#
+IGCM_date_DaysInMonth test
+#=================================#
+
+#
+IGCM_date_DaysInMonth 1998 02
+#
+28
+
+#
+IGCM_date_DaysInMonth 20000206
+#
+29
+#==========================================#
+IGCM_date_ConvertGregorianDateToJulian test
+#==========================================#
+
+#
+IGCM_date_ConvertGregorianDateToJulian 19980312
+#
+1998071
+
+#
+IGCM_date_ConvertGregorianDateToJulian 19980830
+#
+1998242
+#==========================================#
+IGCM_date_ConvertJulianDateToGregorian test
+#==========================================#
+
+#
+IGCM_date_ConvertJulianDateToGregorian 1998326
+#
+019981122
+
+#
+IGCM_date_ConvertJulianDateToGregorian 2000298
+#
+020001024
+#==================================#
+IGCM_date_AddDaysToJulianDate test
+#==================================#
+
+#
+IGCM_date_AddDaysToJulianDate 1998312 14
+#
+1998326
+
+#
+IGCM_date_AddDaysToJulianDate 2000312 -14
+#
+2000298
+#====================================#
+IGCM_date_AddDaysToGregorianDate test
+#====================================#
+
+#
+IGCM_date_AddDaysToGregorianDate 19980312 44
+#
+019980425
+
+#
+IGCM_date_AddDaysToGregorianDate 20000228 -44
+#
+020000115
+#====================================#
+IGCM_date_DaysBetweenJulianDate test
+#====================================#
+
+#
+IGCM_date_DaysBetweenJulianDate 1860001 1865365
+#
+-2191
+#======================================#
+IGCM_date_DaysBetweenGregorianDate test
+#======================================#
+
+#
+IGCM_date_DaysBetweenGregorianDate 18801231 18750101
+#
+2191

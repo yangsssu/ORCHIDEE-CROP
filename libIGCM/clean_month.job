@@ -1,0 +1,222 @@
+#!/bin/ksh
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision:: 1185                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2015-04-02 15:55:22 +0200 (Thu, 02 Apr 2015) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+libIGCM=/home/orchidee03/xhwang/ORC_cropPerso/libIGCM
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+#D--------------------------------------------------------------------==
+#D-                   -1. User modification place
+#D--------------------------------------------------------------------==
+
+#D- Increased verbosity (1, 2, 3)
+Verbosity=3
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default=true
+DEBUG_debug=false
+
+#D--------------------------------------------------------------------==
+
+echo "clean month script :"
+echo "Script used to clean a month on SAVE directory !"
+echo "This script will erase some files !!! Be careful and read all informations !"
+echo "----"
+echo "It must be called in Experience directory (so-called SUBMIT_DIR)."
+echo "----"
+
+#D--------------------------------------------------------------------==
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+SUBMIT_DIR=$( pwd )
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${SUBMIT_DIR}/config.card
+
+#==================================
+# Define default value to keep compatibility with previous card: means before changes due to TGCC
+if [ X${PackDefault} = Xtrue ] ; then
+  [ X${config_Post_PackFrequency} = X ] && config_Post_PackFrequency=${config_Post_RebuildFrequency}
+else
+  config_Post_PackFrequency=NONE
+fi
+
+#==================================
+# Is the pack active
+if ( [ ! X${config_Post_PackFrequency} = X${NULL_STR} ] && [ ! X${config_Post_PackFrequency} = XNONE ] ) ; then
+  Pack=true
+fi
+
+IGCM_sys_TestDirArchive ${R_SAVE}
+[ $? != 0 ] && IGCM_debug_Exit "IGCM_sys_TestDirArchive"
+
+if [ ! -f ${SUBMIT_DIR}/run.card ]; then
+  echo "You seem NOT to have a run.card in this directory !!"
+  echo "This script will fail because it doesn't know what to do without run.card available."
+  exit 1
+else
+  #===================================#
+  #        Read updated run.card      #
+  #===================================#
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodState
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodDateBegin
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodDateEnd
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration CumulPeriod
+
+  # 
+  if [ X${run_Configuration_CumulPeriod} = X ] ; then
+    echo -e "\033[1;32mCumulPeriod is empty so we want to erase run.card to start properly. Do you want that?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+
+    oui|OUI|o|y|yes|YES)
+      echo "OK. Now you can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+      IGCM_sys_Rm ${SUBMIT_DIR}/run.card
+      ;;
+    non|NON|n|no|NO)
+      echo "Nothing to do !"
+      ;;
+    esac
+    exit 0
+  fi
+
+  PeriodDateEnd=$( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateEnd} )
+  echo "Search files with ${PeriodDateEnd} in ${R_SAVE}"
+  set +A ListFiles -- $( IGCM_sys_RshArchive "find ${R_SAVE} -name \"*${PeriodDateEnd}*\" " )
+  CountListFiles=${#ListFiles[@]}
+
+  if [ X${Pack} = Xtrue ] ; then
+    echo "Search files with ${PeriodDateEnd} in ${R_BUFR}"
+    set +A ListFilesBuf -- $( IGCM_sys_RshMaster "find ${R_BUFR} -name \"*${PeriodDateEnd}*\" " )
+    CountListFilesBuf=${#ListFilesBuf[@]}
+  else
+    CountListFilesBuf=0
+  fi
+
+  # If exist, erase REBUILD DIR
+  PeriodDateBegin=$( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateBegin} )
+  CountRebuildDir=0
+  if [ X${config_Post_RebuildFrequency} != X ] ; then
+    set +A RebuildDir -- $( find ${REBUILD_DIR} -type d -name "*${PeriodDateBegin}*" )
+    CountRebuildDir=${#RebuildDir[@]}
+  fi
+
+  IGCM_debug_Print 1 "Number of files to be erased : ${CountListFiles}."
+  if ( [ ${CountListFiles} -gt 0 ] || [ ${CountListFilesBuf} -gt 0 ] ) ; then
+    for file in ${ListFiles[@]} ; do
+      IGCM_debug_Print 2 -e "\033[1;31m ${file}\033[m"
+    done
+    if [ X${Pack} = Xtrue ] ; then
+      for file in ${ListFilesBuf[@]} ; do
+        IGCM_debug_Print 2 -e "\033[1;31m ${file}\033[m"
+      done
+    fi
+    echo -e "\033[1;32mDo you REALLY want to erase all those files ?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+
+      oui|OUI|o|y|yes|YES)
+        echo "OK. It will be erased."
+        IGCM_sys_RshArchive "find ${R_SAVE} -name \"*${PeriodDateEnd}*\" -exec rm -f '{}' \;"
+        if [ X${Pack} = Xtrue ] ; then
+          IGCM_sys_RshMaster  "find ${R_BUFR} -name \"*${PeriodDateEnd}*\" -exec rm -f '{}' \;"
+        fi
+        echo "done."
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+
+  if [ ${CountRebuildDir} -gt 0 ] ; then
+    IGCM_debug_Print 1 "Number of REBUILD Dirs to be erased : ${CountRebuildDir}."
+    for Dir in ${RebuildDir[@]} ; do
+      IGCM_debug_Print 2 -e "\033[1;31m ${Dir}\033[m"
+    done
+
+    echo -e "\033[1;32mDo you REALLY want to erase all those Directories ?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+
+      oui|OUI|o|y|yes|YES)
+        echo "OK. It will be erased."
+        find ${REBUILD_DIR} -type d -name "*${PeriodDateBegin}*" -exec rm -Rf '{}' \;
+        echo "done."
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodState
+  if ( [ ${run_Configuration_PeriodState} != "Running" ] && [ ${run_Configuration_PeriodState} != "OnQueue" ] && [ ${run_Configuration_PeriodState} != "Continue" ] ) ; then
+
+    echo -e "\033[1;32mNOW do you want to continue the simulation (Set PeriodState=OnQueue into run.card) ?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+
+      oui|OUI|o|y|yes|YES)
+        echo "OK. Now you can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState "OnQueue"
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  else
+    echo "You can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+  fi
+
+  if [ X${run_Configuration_CumulPeriod} = X1 ] ; then
+    echo -e "\033[1;32mCumulPeriod=1 so we want to erase run.card to start properly. Do you want that too?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+
+      oui|OUI|o|y|yes|YES)
+        echo "OK. Now you can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+        IGCM_sys_Rm ${SUBMIT_DIR}/run.card
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+fi
+exit 0
