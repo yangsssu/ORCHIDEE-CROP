@@ -1,0 +1,19 @@
+#-
+#- $Id: AA_make.ldef 1536 2013-10-14 13:38:24Z josefine.ghattas $
+#-
+#---------------------------------------------------------------------
+#- Creation des elements relatifs a ORGLOB
+#---------------------------------------------------------------------
+SHELL = /bin/sh
+#---------------------------------------------------------------------
+LIBDIR = ../../../lib
+BINDIR = ../../../bin
+MODDIR = $(LIBDIR)
+#---------------------------------------------------------------------
+ORCHIDEE_LIB = $(LIBDIR)/liborchidee.a
+MODEL_LIB = $(LIBDIR)/liborglob.a
+SXMODEL_LIB = $(MODEL_LIB)
+#-Q- sxnec  SXMODEL_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx6nec SXMODEL_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- eshpux SXMODEL_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx8brodie SXMODEL_LIB = $(LIBDIR)/libsxorglob.a

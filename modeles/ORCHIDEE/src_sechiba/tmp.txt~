@@ -1,0 +1,17 @@
+vbeta3      = veget_max * cresist
+vbeta3pot   = veget_max * cresist
+
+
+
+
+vbeta3      = veget_max * cresist
+vbeta3pot   = veget_max * cresist
+
+
+vbeta23 = vbeta2*(1-zrapp)
+
+
+rhs(1)/tmat(1,2)
+
+rhs(2) - tmat(2,1)*mcl(1)/bet
+=rhs(2) - tmat(2,1)*mcl(1)/(tmat(2,2)-tmat(2,1)*gam(2))
