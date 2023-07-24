@@ -1,0 +1,139 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r SaveSource   # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1            # Reservation du processus
+#-Q- curie #MSUB -T 7200         # Limite de temps elapsed du job
+#-Q- curie #MSUB -q ::default_node::
+#-Q- curie #MSUB -c ::default_core::
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada # #  ADA       IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 1:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = SaveSource
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $POST_DIR ; $SUBMIT_DIR ; $libIGCM ; $StandAlone ; $MASTER
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N SaveSource
+#-Q- lxiv8 #PBS -m a
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q test
+#-Q- lxiv8 #PBS -o SaveSource.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N SaveSource
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD #PBS -q std
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#-Q- ada export OMP_NUM_THREADS=1
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+MODIPSL=::modipsl::
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ulam and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+
+ExeOutDateMax=${ExeOutDateMax:=$1}
+R_OUT_EXE=${R_OUT_EXE:=$2}
+PREFIX=${PREFIX:=$3}
+SUBMIT_DIR=${SUBMIT_DIR:=$4}
+
+cd ${MODIPSL};
+${MODIPSL}/util/script_diff_model ${SUBMIT_DIR} > ${RUN_DIR_PATH}/out_script_diff_model 2>&1
+echo "script_diff_model return" $? >> ${RUN_DIR_PATH}/out_script_diff_model 2>&1
+cd ${RUN_DIR_PATH}
+
+ERR_script_diff_model=$( cat out_script_diff_model | grep "script_diff_model return [0-9]*" | sed -e "s&script_diff_model return *\([0-9]*\)&\1&" )
+
+if [ ! X${ERR_script_diff_model} = X0 ] ; then
+    echo 'Error in script_diff_model :' ${ERR_script_diff_model}
+    exit ${ERR_script_diff_model}
+fi
+
+MODIPSL_SAVE_NAME=$( cat out_script_diff_model | grep "SAVE directory in" | sed -e "s&SAVE directory in  &&" )
+MODIPSL_SAVE=${MODIPSL}/tmp/${MODIPSL_SAVE_NAME}
+if ( [ X${MODIPSL_SAVE_NAME} = X ] || [ ! -d ${MODIPSL_SAVE} ] ) ; then
+    echo 'Error in SaveSourceModifications: no MODIPSL_SAVE_NAME avaible. We STOP'
+    exit 1
+fi
+
+MaxModifiedDate=$( tail -1 ${MODIPSL_SAVE}/Last_log )
+
+cd ${MODIPSL}/tmp
+IGCM_sys_Tar ${RUN_DIR_PATH}/${MODIPSL_SAVE_NAME}.tar ${MODIPSL_SAVE_NAME}
+cd -
+if ( ! ${DEBUG_debug} ) ; then
+    IGCM_sys_Rm -rf ${MODIPSL_SAVE}
+fi
+
+if [ ${MaxModifiedDate} -lt ${ExeOutDateMax} ] ; then
+    IGCM_sys_Put_Out ${MODIPSL_SAVE_NAME}.tar ${R_OUT_EXE}/${PREFIX}_${MODIPSL_SAVE_NAME}_certified.tar
+else
+    IGCM_sys_Put_Out ${MODIPSL_SAVE_NAME}.tar ${R_OUT_EXE}/${PREFIX}_${MODIPSL_SAVE_NAME}_NOTcertified.tar
+fi
+if ( ! ${DEBUG_debug} ) ; then
+    IGCM_sys_Rm ${MODIPSL_SAVE_NAME}.tar
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+if ( ! ${DEBUG_debug} ) ; then
+    IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+fi

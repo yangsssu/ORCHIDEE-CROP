@@ -1,0 +1,177 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r ATL_ORCH       # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1              # Reservation du processus
+#-Q- curie #MSUB -T 7200          # Limite de temps elapsed du job
+#-Q- curie #MSUB -q ::default_node::
+#-Q- curie #MSUB -c ::default_core::
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada ## ADA         IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 1:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = ATL_ORCH
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $POST_DIR ; $Script_Post_Output ; $SUBMIT_DIR ; $libIGCM ; $DEBUG_debug ; $BigBrother ; $postProcessingStopLevel ; $R_INIT ; $R_BC ; $StandAlone ; $RESOL_ATM ; $RESOL_OCE ; $RESOL_ICE ; $RESOL_MBG ; $RESOL_SRF ; $RESOL_SBG ; $YEARS ; $DIR_OUT ; $MASTER ; $libIGCM_SX ; wall_clock_limit=$(wall_clock_limit)
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N ATL_ORCH
+#-Q- lxiv8 #PBS -m a
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q medium
+#-Q- lxiv8 #PBS -o ATL_ORCH.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N ATL_ORCH
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD #PBS -q std
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#-Q- ada export OMP_NUM_THREADS=1
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+IGCM_sys_MkdirWork ${RUN_DIR_PATH}
+IGCM_sys_Cd ${RUN_DIR_PATH}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+    CARD_DIR=${SUBMIT_DIR}
+else
+    CARD_DIR=${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+    IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#==================================
+# Then set up several directories
+#==================================
+R_ATLAS=ATLAS/SE_${YEARS}
+R_OUT_SRF=${R_SAVE}/SRF
+DIR_OUT=${DIR_OUT:=SE}
+RUN_DIR=${RUN_DIR_PATH}/ATLAS_ORCHIDEE_${YEARS}
+IGCM_sys_MkdirArchive ${R_FIGR}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+
+# --------------------------------------------
+# Insert your commands between III...III lines
+# and precise produced directories to save
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+IGCM_sys_Get ${R_OUT_SRF}/Analyse/${DIR_OUT}/${config_UserChoices_JobName}_SE_${YEARS}_1M_sechiba_history.nc ${RUN_DIR}
+
+ls ${CARD_DIR}/POST/ | egrep "atlas_p_(ORCHIDEE|SECHIBA).*\.cfg" 2>/dev/null 1>&2
+[ ${?} -ne 0 ] && PATH_ATLAS=${FER_ATLAS} || PATH_ATLAS=${CARD_DIR}/POST
+IGCM_sys_atlas -o ${RUN_DIR}/${R_ATLAS}/SRF -l ${PATH_ATLAS}/atlas_p_ORCHIDEE_diag1_*.cfg \
+                                       ${PATH_ATLAS}/atlas_p_SECHIBA_diag1_*.cfg \
+                                       ${PATH_ATLAS}/atlas_p_ORCHIDEE_diag2_a.cfg  ${RUN_DIR}/${config_UserChoices_JobName}_SE_${YEARS}_1M_sechiba_history.nc
+
+# IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+
+# Put ferret journal files together
+for file in $( ls ${R_ATLAS}/SRF/*/*jnl ) ; do
+    echo -e "\n\n################################" ;
+    echo -e "$file\n" ; cat $file ;
+done  > ${R_ATLAS}/SRF/allferretscript.txt
+
+# Clear some files
+find . \( -name "*.stdout" -o -name "*.jnl" \) -print -exec rm -f {} \;
+
+# Save files
+IGCM_sys_Put_Dir ATLAS ${R_FIGR}
+IGCM_sys_Rm -Rf ATLAS
+IGCM_sys_Rm ${config_UserChoices_JobName}_SE_${YEARS}_1M_sechiba_history.nc
+
+# DODS copy
+if [ X${config_Post_DodsCopy} = XTRUE ]  ; then
+  IGCM_sys_TestDirArchive ${R_FIGR}/${R_ATLAS}
+  [ $? = 0 ] && IGCM_sys_Put_Dods ${R_ATLAS}
+fi
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize

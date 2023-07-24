@@ -1,0 +1,464 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Jacques Belier
+# Contact:
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+#---------------------------------------------------------------------
+#- Installation of jobs according to environment
+#---------------------------------------------------------------------
+function ins_job_Usage
+{
+print - "
+ins_job installs the jobs in the directories
+which contain a file config.card
+
+ins_job must be launched on the host
+on which the job will be submitted
+
+Usage :
+  ${b_n} [-h] [-v] [-e] 
+  or on curie/TGCC :
+  ${b_n} [-h] [-v] [-e] [-p project] [-c number of cores]
+  or on ada /IDRIS
+  ${b_n} [-h] [-v] [-e] [-m MPI environment]
+Options :
+  -h                  : help
+  -v                  : verbose mode
+  -e                  : turn on ensemble mode (hindcast/forecast or date restart)
+on curie only : 
+  -p project          : add default project on curie
+  -c number of cores  : add default number of cores for postprocessing on curie 1-16 or 1-128
+on ada only :
+  - m MPI environment : add default MPI environment (Intel MPI or IBM MPI)
+"
+}
+function ins_job_Warning
+{
+   [[ ${x_v} = 'verbose' ]] && print - "\n############### WARNING ###############";
+   [[ ${x_v} = 'verbose' ]] && print - "File ${n_f} already exists\nin directory ${j}";
+   [[ ${x_v} = 'verbose' ]] && print - "You must delete this file to update !";
+}
+
+function ins_job_Check_JobName
+{
+  verif=${JobName##[a-zA-Z]*(?([.\-])[a-zA-Z0-9])}
+
+  if [ ${#verif} -ne 0 ] ; then
+    echo "################ ERROR ################"
+    echo "${JobName} is invalid."
+    echo "- JobName can only contain alphanumeric characters, \".\" and \"-\""
+    echo "- JobName must start with a letter"
+
+    ((NbErr=NbErr+1))
+
+    Status=1
+  else
+    Status=0
+  fi
+
+  return ${Status}
+}
+
+#-
+#     dirname     and      basename
+#-
+d_n=$(dirname ${0}); b_n=$(basename ${0});
+#-
+# Retrieving and validation of the options
+#-
+x_v='silencious';
+x_e=false;
+x_p=false;
+x_c=false;
+x_m=false;
+while getopts :hvec:p:m: V ; do
+  case $V in
+  (h)  ins_job_Usage; exit 0;;
+  (v)  x_v='verbose';;
+  (e)  x_e=true;;
+  (p)  x_p=true
+       ProjectID=${OPTARG} ;;
+  (c)  x_c=true
+       ProjectCore=${OPTARG} ;;
+  (m)  x_m=true
+       MPIEnvironment=${OPTARG} ;;
+  (:)  echo ${b_n}" : -"${OPTARG}" option : missing value" 1>&2;
+       exit 2;;
+  (\?) echo ${b_n}" : -"${OPTARG}" option : not supported" 1>&2;
+       exit 2;;
+  esac
+done
+[ ${x_v} = 'silencious' ] && export DEBUG_sys=false
+shift $(($OPTIND-1));
+#-
+# Define working files
+#-
+F_MOD=$(cd ${d_n}'/..';/bin/pwd;)
+# [[ ${F_MOD##*/} != 'modipsl' ]] && \
+#  { print - "directory 'modipsl' unreachable"; exit 3; }
+W_W=${d_n}'/../libIGCM'
+[[ ! -d ${W_W} ]] && { print - "${W_W} unreachable"; exit 3; }
+libIGCM=$(cd ${W_W};/bin/pwd;)
+F_JOB=${libIGCM}'/AA_job';
+[[ ! -f ${F_JOB} ]] && { print - "${F_JOB} unreachable"; exit 3; }
+F_RCI=${libIGCM}'/run.card.init';
+[[ ! -f ${F_RCI} ]] && { print - "${F_RCI} unreachable"; exit 3; }
+#-
+# Accessing to functions (without stack)
+#-
+# No verbosity (0, 1, 2, 3)
+Verbosity=0
+# No de debug
+DEBUG_debug=false
+# Dont move libIGCM
+MirrorlibIGCM=false
+# Behave like computing job
+TaskType=computing
+# Source libIGCM
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+if [ $x_e = 'true' ] ; then
+  . ${libIGCM}/libIGCM_ensemble/libIGCM_ensemble.ksh
+fi
+
+#-
+[[ ${x_v} = 'verbose' ]] && \
+ {
+  print - "";
+  print - '--- Host        : '${SYSTEM};
+  print - '--- modipsl     : '${F_MOD};
+  print - '--- libIGCM     : '${libIGCM};
+  print - '--- basic job   : '${F_JOB};
+  print - '--- basic card  : '${F_RCI};
+ }
+#-
+[[ ${x_v} = 'verbose' ]] && print - "\nInstallation of jobs for '${SYSTEM}'";
+#-
+
+NbErr=0
+
+#-
+# Define Project parameters to set up jobs header for Curie (TGCC)
+# on curie define ProjectID  and ProjectCore : option or answer
+# on curie ProjectNode forced to standard since 16/3/2016
+#-
+
+if [ X"${SYSTEM}" == "Xcurie" ] ; then
+  if ( ! ${x_p} ) ; then
+    ProjectID=$( ccc_myproject | gawk '{ if ( $3 ~ /^project$/ && $4 !~ /^tgcc/ ) { print $4 } }' | head -n 1 )
+    ProjectID=${ProjectID:="devcmip6"}
+    answer=""
+    print - "Hit Enter or give project ID (default is ${ProjectID}), possible projects are $( echo $( ccc_myproject | gawk '{ if ( $3 ~ /^project$/ && $4 !~ /^tgcc/ ) { print $4 } }' | sort -u ) ) :"
+    read answer
+
+    if [ "X${answer}" != "X" ] ; then
+      ProjectID=${answer}
+    fi
+
+    if [ "X${answer}" = "Xgencmip6" ] ; then
+      ProjectID=devcmip6
+    fi
+  fi # if ( ! ${x_p} )
+
+  #- ProjectNode forced to standard since 16/3/2016
+  ProjectNode="standard"
+
+  echo  ProjectID is ${ProjectID} and ProjectNode for PostProcessing is ${ProjectNode}
+
+  #- ProjectNode is known (standard since 16/3/2016) set ProjectCoreMax
+  ProjectCoreMax="16"
+
+  if ( ! ${x_c} ) ; then
+    #- ProjectNode is known (standard since 16/3/2016), set ProjectCore to default or answer
+    ProjectCore="4"
+    answerOK=false
+
+    while ( ! ${answerOK} ) ; do
+      answer=""
+      print - "Hit Enter or give NUMBER OF CORES required for post-processing (default is \"${ProjectCore}\"), possible numbers of cores are \"1\" to \"${ProjectCoreMax}\" : "
+      read answer
+      [ "X${answer}" == "X" ] || [ ${answer} -ge 1 -a ${answer} -le ${ProjectCoreMax} ] && answerOK=true
+    done
+
+    if [ "X${answer}" != "X" ] ; then
+      ProjectCore=${answer}
+    fi
+
+  fi # if ( ! ${x_c} )
+
+  echo ProjectCore is ${ProjectCore}
+  #- ProjectCore is set (option or answer)
+  # let check minimum/maximum value 1/${ProjectCoreMax}
+
+elif [ X"${SYSTEM}" == "Xada" ] ; then
+  if ( ! ${x_m} ) ; then
+    MPIEnvironment=IBM 
+    # Intel MPI Environment.
+    answerOK=false   	
+    while ( ! ${answerOK} ) ; do
+      answer=""
+      print - "Hit Enter or give MPI Environement (default is ${MPIEnvironment}), possible MPI environments are IBM (MPI IBM) and Intel (MPI Intel) :"
+      read answer
+      [ "X${answer}" == "X" ] || [ "X${answer}" == "XIBM" ] || [ "X${answer}" == "XIntel" ] && answerOK=true
+    done
+
+    if [ "X${answer}" != "X" ] ; then
+      MPIEnvironment=${answer}
+    fi
+  fi # if ( ! ${x_pm} )
+  echo MPIEnvironment is ${MPIEnvironment}
+else
+  echo No option for Header regarding ProjectID, ProjectNode, ProjectCore or MPIEnvironment because we are not on curie or ada
+fi # if [ X"${SYSTEM}" == "Xcurie" ]
+
+#-
+# Define the pattern string to substitute
+#-
+W_P='#-Q- '; W_W=${W_P}${SYSTEM};
+#-
+# Extract list of 'config.card' files
+# and create jobs with AA_job
+#-
+F_CFG='config.card';
+F_CFG_ENS='ensemble.card';
+SUBMIT_DIR_ENS=$( pwd )
+for i in $( pwd )/config.card 
+do
+  if [ ! -f $i ] ; then
+    echo ""
+    echo "################## WARNING ##################"
+    echo "No config.card available in current directory"
+    echo ""
+    continue 
+  fi 
+
+
+  j=$(cd ${i%/*};/bin/pwd;)
+  n_f=${F_RCI##*/};
+
+  if [ ! X$( echo ${j} | grep EXPERIMENTS ) = X ] ; then
+    # Do not treat config.card if it is in sub-directory of EXPERIMENTS
+    # Continue to next config.card
+    continue
+  else
+    [[ ${x_v} = 'verbose' ]] && print - "\nWorking with file ${F_CFG}\nin directory ${j}\nfor ${n_f}";
+  fi
+
+  # Find out if new structure and set .resol filename
+  if [ -d ${j}/EXPERIMENTS ] && [ -d ${j}/GENERAL ] ; then
+    # New Structure
+    [[ ${x_v} = 'verbose' ]] && echo "This is new configuration structure"
+    new_struct=yes
+    resolfile=$j/.resol
+  else
+    # Old Structure
+    new_struct=no
+    resolfile=$j/../.resol
+  fi
+
+  # Get all variables declared in section UserChoices in config.card
+  IGCM_card_DefineArrayFromSection ${j}'/'${F_CFG} UserChoices
+  # Set default values
+  config_UserChoices_ExpType=""
+  RESOL_ATM_3D=this_is_a_test_string
+  RESOL=this_is_another_test_string
+  typeset option
+  for option in ${config_UserChoices[*]} ; do
+    IGCM_card_DefineVariableFromOption ${j}'/'${F_CFG} UserChoices ${option}
+  done
+
+  # Find the JobName : JobName might contain the variable RESOL_ATM_3D that will be replaced by what is in .resol file
+  if [ ! X$( echo ${config_UserChoices_JobName} | grep ${RESOL_ATM_3D} ) = X ] ; then
+    TRUERESOL=$( tail -1 $resolfile | awk "-F=" '{print $2}' )
+    echo TRUERESOL = $TRUERESOL
+    JobName=$( echo ${config_UserChoices_JobName} | sed -e "s/${RESOL_ATM_3D}/${TRUERESOL}/" )
+    IGCM_card_WriteOption ${j}'/'${F_CFG} UserChoices JobName ${JobName}
+  elif [ ! X$( echo ${config_UserChoices_JobName} | grep ${RESOL} ) = X ] ; then
+    TRUERESOL=$( head -1 $resolfile  )
+    JobName=$( echo ${config_UserChoices_JobName} | sed -e "s/${RESOL}/${TRUERESOL}/" )
+    IGCM_card_WriteOption ${j}'/'${F_CFG} UserChoices JobName ${JobName}
+  else
+    JobName=${config_UserChoices_JobName}
+  fi
+
+  # Check JobName validity : only alphanumerical characters, "-" and "." are authorized
+  ins_job_Check_JobName
+  RetCode=$?
+  [[ $RetCode -gt 0 ]] && continue
+
+  [[ ${x_v} = 'verbose' ]] && echo "JobName=${JobName}"
+
+  # Add specific treatment for new type of directory structure
+  if [ ${new_struct} == yes ] ; then
+
+    if [ "X${config_UserChoices_ExpType}" = X ] ; then
+      echo "\nERROR in ${j}/config.card"
+      echo "ins_job stops here"
+      echo "=> The variable ExpType must be added in config.card in section UserChoices"
+      echo "=> ExpType gives the directory for the .card configuration files for the wanted experiement. For exemple ExpType=IPSLCM5/historical"
+      exit 4
+    else
+      [[ ${x_v} = 'verbose' ]] && echo "ExpType= ${config_UserChoices_ExpType}"
+    fi
+
+    if [ -d ${j}/${JobName} ] ; then
+      echo "Directory ${j}/${JobName} exist already, continue next config.card"
+      continue
+    fi
+    echo "=> Submit directory ${JobName} will be created with cards from EXPERIMENTS/${config_UserChoices_ExpType}"
+    cp -r ${j}/EXPERIMENTS/${config_UserChoices_ExpType} ${j}/${JobName}
+    cp -r ${j}/GENERAL/* ${j}/${JobName}/.
+    cp -f ${j}/${F_CFG}  ${j}/${JobName}/.
+    if [ -f ${F_CFG_ENS} ] ; then
+      cp -f ${j}/${F_CFG_ENS}  ${j}/${JobName}/.
+      SUBMIT_DIR_ENS=${j}/${JobName}
+    fi
+    rm -f ${j}/${F_CFG}
+    rm -f ${j}/${F_CFG_ENS}
+    rm -f ${j}/${F_CFG}.bak
+    j=${j}/${JobName}
+    [[ ${x_v} = 'verbose' ]] && echo new j=$j
+  fi
+  # end specific treatment for new type directory structure
+
+  [[ -f ${j}'/'${n_f} ]] && { ins_job_Warning; } || \
+   {
+    [[ ${x_v} = 'verbose' ]] && print - "\nCopying file ${F_RCI}\nin directory ${j}";
+    \cp ${F_RCI} ${j};
+   }
+
+  #==================================
+  # Read ListOfComponents section:
+  #echo
+  #IGCM_debug_Print 1 "DefineArrayFromSection : ListOfComponents"
+
+  IGCM_card_DefineArrayFromSection  ${j}'/'${F_CFG} ListOfComponents
+  for comp in ${config_ListOfComponents[*]} ; do
+    IGCM_card_DefineArrayFromOption  ${j}'/'${F_CFG} ListOfComponents ${comp}
+  done
+  #IGCM_debug_Print 3 ${config_ListOfComponents[*]}
+
+  #==================================
+  # Read Executable section:
+  IGCM_card_DefineArrayFromSection ${j}'/'${F_CFG} Executable
+
+  # Define the execution context (MPMD, SPMD, MPI/OMP ...)
+  IGCM_config_ConfigureExecution ${j}'/'${F_CFG}
+
+  # coreNumber    : TOTAL NUMBER OF CORES
+  # mpiTasks      : TOTAL NUMBER OF MPI TASKS
+  # openMPthreads : NUMBER OF OpenMP THREADS
+
+  # File name for Job
+  n_f='Job_'${JobName};
+  [[ -f ${j}'/'${n_f} ]] && { ins_job_Warning; continue; }
+  [[ ${x_v} = 'verbose' ]] && print - "\nWorking with file ${F_CFG}\nin directory ${j}\nfor ${n_f}";
+  sed -e "/^${W_W} */ s///" \
+      -e "/^${W_P}/d"       \
+      -e "s%::modipsl::%${F_MOD}%" \
+      -e "s/::Jobname::/${JobName}/" \
+      -e "s/::default_project::/${ProjectID}/" \
+      ${F_JOB} > ${j}'/'${n_f}
+  chmod u+x ${j}'/'${n_f}
+
+  # update Headers so that ressources description are accurate (MPMD/SPMD/...)
+  IGCM_sys_updateHeaders ${j}'/'${n_f}
+done
+
+#-
+# Extract list of AA_* files in libIGCM
+# and create jobs (for all except AA_job)
+#-
+for i in $(find ${libIGCM} -maxdepth 1 -name "AA_*" -print)
+do
+  i_f=${i##*/};
+  [[ ${i_f} = 'AA_job' ]] && { continue; }
+  j=${i%/*}; n_f=${i_f#AA_}'.job';
+  [[ -f ${j}'/'${n_f} ]] && { ins_job_Warning; continue; }
+  [[ ${x_v} = 'verbose' ]] && print - "\nIn directory ${j}\n${i_f} -> ${n_f}"
+  sed -e "/^${W_W} */ s///" \
+      -e "s%::modipsl::%${F_MOD}%" \
+      -e "/^${W_P}/d"       \
+      -e "s/::default_node::/${ProjectNode}/" \
+      -e "s/::default_core::/${ProjectCore}/" \
+      -e "s/::default_project::/${ProjectID}/" \
+      ${i} > ${j}'/'${n_f}
+  chmod u+x ${j}'/'${n_f}
+done
+#-
+# set default_project in libIGCM_sys_curie.ksh too.
+#-
+if [ X"${SYSTEM}" == "Xcurie" ] ; then
+  i=${libIGCM}/libIGCM_sys/libIGCM_sys_curie.ksh
+  sed -i -e "s/::default_project::/${ProjectID}/" ${i}
+fi
+#-
+# Limited to hindcast/forecast and date restart Ensemble for the time being
+if [ ${x_e} = 'true' ] ; then
+  #.. Read input data from ensemble.card ..
+  SUBMIT_DIR=${SUBMIT_DIR_ENS}
+  RUN_DIR="${WORKDIR}/ENSEMBLE"
+  #
+  # Copy initial things around and define variables (hindcast/forecast case)
+  IGCM_sys_Cd ${SUBMIT_DIR}
+  IGCM_ensemble_Init
+
+  if [[ ${ensemble_Ens_PARAMETRIC_active} = 'y' ]] ; then
+    echo "WARNING: Parametric Ensemble is not implemented yet..."
+  fi
+
+  if [[ ${ensemble_Ens_DATE_active} = 'y' ]] ; then
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_DateInit
+    # As it says
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_DatePeriodicStarts
+    # As it says
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_DateNonPeriodicStarts
+    # Clean
+    IGCM_sys_Rm -rf ${RUN_DIR}
+  fi
+
+  if [[ ${ensemble_Ens_PERTURB_active} = 'y' ]] ; then
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_CastInit
+    # As it says
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_CastPeriodicStarts
+    # As it says
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_CastNonPeriodicStarts
+    # As it says
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    IGCM_ensemble_CastMemberList
+    # Done
+    IGCM_sys_Cp ${RUN_DIR}/CreatedDir.txt ${SUBMIT_DIR}
+    IGCM_sys_Cd ${SUBMIT_DIR}
+    # Clean
+    IGCM_sys_Rm -rf ${RUN_DIR}
+  fi
+fi
+#-
+[[ ${x_v} = 'verbose' ]] && print - "";
+#-
+# That's all folks
+#-
+
+if [ ${NbErr} -ne 0 ] ; then
+  echo "################ ERROR ################"
+  echo "${NbErr} invalid JobName(s) found, check the log"
+fi
+
+
+exit 0;

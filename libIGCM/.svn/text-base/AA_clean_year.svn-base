@@ -1,0 +1,299 @@
+#!/bin/ksh
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+libIGCM=::modipsl::/libIGCM
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+#D--------------------------------------------------------------------==
+#D-                   -1. User modification place
+#D--------------------------------------------------------------------==
+
+#D- Increased verbosity (1, 2, 3)
+Verbosity=3
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default=true
+DEBUG_debug=false
+
+#D--------------------------------------------------------------------==
+
+echo "clean year script :"
+echo "Script used to clean a year on SAVE directory !"
+echo "This script will erase some files !!! Be careful and read all informations !"
+echo "----"
+echo "It must be called in Experience directory (so-called SUBMIT_DIR)."
+echo "----"
+
+#D--------------------------------------------------------------------==
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+SUBMIT_DIR=$( pwd )
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${SUBMIT_DIR}/config.card
+
+#==================================
+# Define default value to keep compatibility with previous card: means before changes due to TGCC
+if [ X${PackDefault} = Xtrue ] ; then
+  [ X${config_Post_PackFrequency} = X ] && config_Post_PackFrequency=${config_Post_RebuildFrequency}
+else
+  config_Post_PackFrequency=NONE
+fi
+
+#==================================
+# Is the pack active
+if ( [ ! X${config_Post_PackFrequency} = X${NULL_STR} ] && \
+     [ ! X${config_Post_PackFrequency} = XNONE ] ) ; then
+  Pack=true
+fi
+
+IGCM_sys_TestDirArchive ${R_SAVE}
+[ $? != 0 ] && IGCM_debug_Exit "IGCM_sys_TestDirArchive"
+
+if [ ! -f ${SUBMIT_DIR}/run.card ]; then
+    echo "You seem NOT to have a run.card in this directory !!"
+    echo "This script will fail because it doesn't know what to do without run.card available."
+    exit 1
+fi
+
+#===================================#
+#        Read updated run.card      #
+#===================================#
+IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodState
+IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodDateBegin
+IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodDateEnd
+IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration CumulPeriod
+if [ X${run_Configuration_CumulPeriod} == X ] ; then
+  ${run_Configuration_CumulPeriod} = 0
+fi
+
+
+PreviousPeriodDateEnd=$( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateEnd} )
+PreviousPeriodDateBegin=$( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateBegin} )
+
+IGCM_date_GetYearMonth ${PreviousPeriodDateEnd} PreviousPeriodYear PreviousPeriodMonth
+
+if [ $# == 1 ] ; then
+  if [ ${#1} != 4 ] ; then
+    echo "You must give a year (SSAA) as argument."
+    exit 1
+  fi
+  ReferenceYear=$1
+else
+  ReferenceYear=${PreviousPeriodYear}
+fi
+RemovedPeriods=0
+
+# Colors
+Red="\033[1;31m"
+Green="\033[1;32m"
+NoColor="\033[0m"
+
+while [ ${PreviousPeriodYear} -ge ${ReferenceYear} ] ; do
+
+  PeriodDateEnd=${PreviousPeriodDateEnd}
+  PeriodDateBegin=${PreviousPeriodDateBegin}
+  PeriodYear=${PreviousPeriodYear}
+  PeriodMonth=${PreviousPeriodMonth}
+
+  echo "Search files with ${PeriodDateEnd} in ${R_SAVE}"
+  unset ListFiles
+  set +A ListFiles -- $( IGCM_sys_RshArchive "find ${R_SAVE} -name \"*${PeriodDateEnd}*\" " )
+  CountListFiles=${#ListFiles[@]}
+
+  if [ X${Pack} = Xtrue ] ; then
+    echo "Search files with ${PeriodDateEnd} in ${R_BUFR}"
+    unset ListFilesBuf
+    set +A ListFilesBuf -- $( IGCM_sys_RshMaster "find ${R_BUFR} -name \"*${PeriodDateEnd}*\" " )
+    CountListFilesBuf=${#ListFilesBuf[@]}
+  else
+    CountListFilesBuf=0
+  fi
+
+  # If exist, erase REBUILD DIR
+  CountRebuildDir=0
+  if [ X${config_Post_RebuildFrequency} != X ] ; then
+    echo "Search directories with ${PeriodDateBegin} in REBUILD_DIR"
+    unset RebuildDir
+    set +A RebuildDir -- $( find ${REBUILD_DIR} -type d -name  "*${PeriodDateBegin}*" )
+    CountRebuildDir=${#RebuildDir[@]}
+  fi
+
+
+  if ( [ ${CountListFiles} -gt 0 ] || [ ${CountListFilesBuf} -gt 0 ] ) ; then
+    IGCM_debug_Print 1 "Number of files to be erased from ${R_SAVE} : ${CountListFiles}."
+    for file in ${ListFiles[@]} ; do
+      IGCM_debug_Print 2 -e "${Red} ${file}${NoColor}"
+    done
+    if [ X${Pack} = Xtrue ] ; then
+      IGCM_debug_Print 1 "Number of files to be erased from ${R_BUFR} : ${CountListFilesBuf}."
+      for file in ${ListFilesBuf[@]} ; do
+        IGCM_debug_Print 2 -e "${Red} ${file}${NoColor}"
+      done
+    fi
+
+    echo -e "${Green}Do you REALLY want to erase all those files ?"
+    echo -n -e " Your answer (y/n) : ${NoColor}"
+
+    read reponse
+    case ${reponse} in
+      oui|OUI|o|y|yes|YES)
+        echo "OK. It will be erased."
+        IGCM_sys_RshArchive "find ${R_SAVE} -name \"*${PeriodDateEnd}*\" -exec rm -f '{}' \;"
+        if [ X${Pack} = Xtrue ] ; then
+          IGCM_sys_RshMaster  "find ${R_BUFR} -name \"*${PeriodDateEnd}*\" -exec rm -f '{}' \;"
+        fi
+        echo "done."
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+
+  if [ ${CountRebuildDir} -gt 0 ] ; then
+    IGCM_debug_Print 1 "Number of REBUILD Dirs to be erased : ${CountRebuildDir}."
+    for Dir in ${RebuildDir[@]} ; do
+      IGCM_debug_Print 2 -e "${Red} ${Dir}${NoColor}"
+    done
+
+    echo -e "${Green}Do you REALLY want to erase all those Directories ?"
+    echo -n -e " Your answer (y/n) : ${NoColor}"
+
+    read reponse
+    case ${reponse} in
+
+      oui|OUI|o|y|yes|YES)
+        echo "OK. It will be erased."        
+        find ${REBUILD_DIR} -type d -name "*${PeriodDateBegin}*" -exec rm -Rf '{}' \;
+        echo "done."
+        ;;
+      non|NON|n|no|NO)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+
+  (( RemovedPeriods = ${RemovedPeriods} + 1 ))
+
+  # Get previous period begin and end dates
+  PreviousPeriodDateEnd=$( IGCM_date_AddDaysToGregorianDate ${PeriodDateEnd} \
+                               -$( IGCM_date_DaysInMonth ${PeriodYear} ${PeriodMonth} ) )
+  IGCM_date_GetYearMonth ${PreviousPeriodDateEnd} PreviousPeriodYear PreviousPeriodMonth
+
+  PreviousPeriodDateBegin=$( IGCM_date_AddDaysToGregorianDate ${PeriodDateBegin} \
+                         -$( IGCM_date_DaysInMonth ${PreviousPeriodYear} ${PreviousPeriodMonth} ) )
+done
+
+if [ ${RemovedPeriods} == 0 ] ; then
+  echo "Nothing done, exit"
+  exit 0
+fi
+
+IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card Configuration PeriodState
+if ( [ ${run_Configuration_PeriodState} != "Running" ] && \
+     [ ${run_Configuration_PeriodState} != "Continue" ] ) ; then
+
+  (( NewCumulPeriod = ${run_Configuration_CumulPeriod} - ${RemovedPeriods} + 1 ))
+
+  if [ ${NewCumulPeriod} -le 1 ] ; then
+    RemoveRunCard=true
+  else
+    RemoveRunCard=false
+  fi
+
+  Suffix=$( printf '%06i' ${NewCumulPeriod} )
+
+  printf "${Green}Your run.card and Job_${config_UserChoices_JobName} will now be updated\n"
+  printf " - PeriodState = OnQueue ;\n"
+  printf " - PeriodDateBegin, PeriodDateEnd and CumulPeriod ;\n"
+  printf "   %-10s       %-10s          %6i\n" \
+         $( IGCM_date_HumanDigit ${PeriodDateBegin} ) \
+         $( IGCM_date_HumanDigit ${PeriodDateEnd} ) \
+         ${NewCumulPeriod}
+  printf " - ScriptOutput = %s" \
+         "Script_Output_${config_UserChoices_JobName}.${Suffix}"
+  printf " Are you OK ? (y/n) ${NoColor}"
+
+  read reponse
+  case ${reponse} in
+    oui|OUI|o|y|yes|YES)
+      if ( ${RemoveRunCard} ) ; then
+        echo "CumulPeriod=1 so we erase run.card to start properly."
+        IGCM_sys_Rm ${SUBMIT_DIR}/run.card
+      else
+        # Update run.card
+        cp ${SUBMIT_DIR}/run.card ${SUBMIT_DIR}/run.card.old
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState "OnQueue"
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration CumulPeriod ${NewCumulPeriod}
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodDateBegin \
+                              $( IGCM_date_HumanDigit ${PeriodDateBegin} )
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodDateEnd \
+                              $( IGCM_date_HumanDigit ${PeriodDateEnd} )
+        # Update job
+        cp Job_${config_UserChoices_JobName} Job_${config_UserChoices_JobName}.old
+        sed -e "s/\(#.*Script_Output_${config_UserChoices_JobName}\.\)\([0-9]*\)\(.*\)/\1${Suffix}\3/" \
+            Job_${config_UserChoices_JobName} > Job_${config_UserChoices_JobName}.tmp
+        mv Job_${config_UserChoices_JobName}.tmp Job_${config_UserChoices_JobName}
+      fi
+      echo "OK. Now you can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+      ;;
+    non|NON|n|no|NO)
+      echo "Nothing to do !"
+      ;;
+  esac
+
+  IGCM_card_DefineVariableFromOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesCompleted
+  if [ ! X${run_PostProcessing_TimeSeriesCompleted} = X ] ; then
+
+    printf "${Green}TimeSeriesCompleted in run.card : ${run_PostProcessing_TimeSeriesCompleted}. Do we need to change it? (AAAAMMDD) ${NoColor}"
+
+    read reponse
+    case ${reponse} in
+      0*|1*|2*|3*|4*|5*|6*|7*|8*|9*)
+        #Update run.card 
+        cp ${SUBMIT_DIR}/run.card ${SUBMIT_DIR}/run.card.old
+        IGCM_card_WriteOption ${SUBMIT_DIR}/run.card PostProcessing TimeSeriesCompleted "${reponse}"
+        ;;
+      *)
+        echo "Nothing to do !"
+        ;;
+    esac
+  fi
+
+else
+  echo "You can submit the Job : ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}."
+fi
+
+exit 0

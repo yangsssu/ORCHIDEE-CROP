@@ -1,0 +1,234 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+# ID of your genci project. Curie only : post-processing jobs need it to run properly
+#-Q- curie export BRIDGE_MSUB_PROJECT=::default_project:: 
+
+#D- Task type (computing or post-processing)
+TaskType=checking
+
+#D- Low level debug : to perform lib test checks, stack construction and IO functions instrumentation
+DEBUG_debug=false
+
+#D- Messaging : all activities and call stacks will be sent to ipsl servers
+BigBrother=false
+
+# Check that everything went well during seasonal average production
+# Display a short report
+# Launch what's missing when a simulation has been completed PeriodState=Completed
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ulam and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+# répertoire courrant
+CURRENT_DIR=$( pwd )
+
+# Emplacement des cartes
+CARD_DIR=${CARD_DIR:=${CURRENT_DIR}}
+
+# répertoire de stockage des sorties des create_ts
+POST_DIR=${POST_DIR:=${CARD_DIR}/OutScript}
+
+if [ ! -d ${CARD_DIR} ]; then
+  echo "No ${CARD_DIR}, we stop here"
+  exit
+fi
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+#==================================
+# Read ListOfComponents section:
+IGCM_card_DefineArrayFromSection ${CARD_DIR}/config.card ListOfComponents
+
+#==================================
+# Read SeasonalFrequency:
+IGCM_card_DefineVariableFromOption ${CARD_DIR}/config.card Post SeasonalFrequency
+
+#===================================#
+# Read updated run.card :
+IGCM_card_DefineVariableFromOption ${CARD_DIR}/run.card Configuration PeriodDateEnd
+
+#
+DateBegin=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )
+DateEnd=$( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateEnd} )
+
+#
+if ( [ X${config_Post_SeasonalFrequencyOffset} = X${NULL_STR} ] || [ X${config_Post_SeasonalFrequencyOffset} = XNONE ] || [ X${config_Post_SeasonalFrequencyOffset} = X ] ) ; then
+  PeriodOffset=0
+else
+  PeriodOffset=${config_Post_SeasonalFrequencyOffset}
+fi
+
+IGCM_debug_Print 1 "DateBegin for SE_Checker : "${DateBegin}
+IGCM_debug_Print 1 "DateEnd   for SE_Checker : "${DateEnd}
+IGCM_debug_Print 1 "Offset    for SE_Checker : "${PeriodOffset}
+echo
+#
+[ X${config_Post_SeasonalFrequency} = X"NONE" ] && exit
+
+freq=$( echo ${config_Post_SeasonalFrequency} |  sed -e "s/[yY]//" )
+
+an_deb=$( IGCM_date_YearDigit $(( DateBegin / 10000 + PeriodOffset )) )
+an_fin=$( IGCM_date_YearDigit $(( an_deb + freq - 1 )) )
+an_fin_all=$( IGCM_date_YearDigit $(( DateEnd / 10000 )) )
+
+#
+while [ ${an_fin} -le ${an_fin_all} ] ; do
+
+  countTotal=0
+  countGood=0
+  countBad=0
+
+  IGCM_debug_Print 1 " DateBegin/End for SE :  ${an_deb}_${an_fin} "
+
+  for comp in ${config_ListOfComponents[*]} ; do
+    localcountBad=0
+    # Debug Print
+    IGCM_debug_Print 1 ${comp}
+    # Define component
+    IGCM_card_DefineArrayFromOption ${CARD_DIR}/config.card ListOfComponents ${comp}
+    eval compname=\${config_ListOfComponents_${comp}[0]} > /dev/null 2>&1
+
+    # Read libIGCM compatibility version in ${compname}.card
+    card=${CARD_DIR}/COMP/${compname}.card
+
+    # Read and Build Output File stuff
+    #IGCM_debug_Print 1 "DefineArrayFromOption  : ${compname}_OutputFiles ${card}"
+    IGCM_card_DefineArrayFromOption ${card} OutputFiles List
+    ListFilesName=${compname}_OutputFiles_List
+    eval FileName0=\${${ListFilesName}[0]} > /dev/null 2>&1
+    #
+    if [ X${FileName0} != X${NULL_STR} ] ; then
+      #
+      # INITIALISATION
+      #
+      eval NbFiles=\${#${ListFilesName}[@]} > /dev/null 2>&1
+      typeset i=2
+      #
+      until [ $i -gt $NbFiles ]; do
+        #
+        eval flag_post=\${${ListFilesName}[$i]} > /dev/null 2>&1
+        #
+        if [ X${flag_post} != XNONE ] ; then
+          #
+          # Check if seasonal is required for this file
+          #
+          IGCM_card_DefineArrayFromSection ${card} ${flag_post}
+          #
+          # Seasonal case : If option Seasonal is not found (old cards) put SEASONAL ON by default
+          #
+          # variable option allready typeset above
+          for option in $( eval echo \${${compname}_${flag_post}[*]} ) ; do
+            if [ ${option} = Seasonal ] ; then
+              FoundSeasonal=true
+              IGCM_card_DefineVariableFromOption ${card} ${flag_post} Seasonal
+            fi
+          done
+          #
+          if [ ! X${FoundSeasonal} = Xtrue ] ; then
+            eval ${compname}_${flag_post}_Seasonal=ON
+          fi
+          #
+          if [ ! X$( eval echo \${${compname}_${flag_post}_Seasonal} ) = XON ] ; then
+            (( i=i+3 ))
+            continue
+          fi
+          #
+          # CREATE LIST
+          #
+          FILE=$( echo ${flag_post} | awk "-FPost_" '{print $2}' )
+          #
+          DIRECTORY=${R_SAVE}/${comp}/Analyse/SE
+          #
+          TestedFile=${config_UserChoices_JobName}_SE_${an_deb}_${an_fin}_${FILE}.nc
+          #
+          (( countTotal = countTotal + 1 ))
+          IGCM_sys_TestFileArchive ${DIRECTORY}/${TestedFile} >/dev/null 2>&1
+          if [ ! $? = 0 ] ; then
+            eval set +A LISTE_FILE_${comp}_${an_deb} \$\{LISTE_FILE_${comp}_${an_deb}[*]} ${TestedFile}
+            (( countBad = countBad + 1 ))
+            (( localcountBad = localcountBad + 1 ))
+          else
+            (( countGood = countGood + 1 ))
+          fi
+        fi
+        (( i=i+3 )) # to explore file list
+      done            # until [ $i -eq $NbFiles ]
+    fi                  # [ X${FileName0} != X${NULL_STR} ]
+
+    [ $localcountBad = 0 ] || IGCM_debug_Print 1 "$localcountBad file(s) missing for ${comp} : " $( eval echo \${LISTE_FILE_${comp}_${an_deb}[*]} )
+  done
+
+  # create_se submit if files don't exist
+  if [ $countGood != $countTotal ] ; then
+    IGCM_debug_Print 2 -e "\033[1;31mSubmit create_se \033[m for period ${an_deb}-${an_fin}"
+
+    listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,DateBegin,PeriodDateEnd,RebuildFrequency,RESOL_ATM,RESOL_SRF,RESOL_SBG,RESOL_OCE,RESOL_ICE,RESOL_MBG"
+    export DEBUG_debug=${DEBUG_debug}
+    export BigBrother=${BigBrother}
+    export libIGCM=${libIGCM}
+    export SUBMIT_DIR=${CARD_DIR}
+    export POST_DIR=${POST_DIR}
+    export DateBegin=${an_deb}
+    export PeriodDateEnd=${an_fin}1231
+    export RebuildFrequency=${RebuildFrequency}
+    export RESOL_ATM=${RESOL_ATM}
+    export RESOL_SRF=${RESOL_SRF}
+    export RESOL_SBG=${RESOL_SBG}
+    export RESOL_OCE=${RESOL_OCE}
+    export RESOL_ICE=${RESOL_ICE}
+    export RESOL_MBG=${RESOL_MBG}
+    export listVarEnv=${listVarEnv}
+    export Script_Post_Output=create_se.${PeriodDateEnd}
+
+    IGCM_sys_MkdirWork ${POST_DIR}
+    IGCM_debug_Verif_Exit
+    IGCM_sys_QsubPost create_se
+
+    echo
+  fi
+
+  (( an_deb = an_deb + freq ))
+  (( an_fin = an_fin + freq ))
+
+done # while

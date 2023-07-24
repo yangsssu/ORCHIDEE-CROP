@@ -1,0 +1,231 @@
+#-Q- curie ######################
+#-Q- curie ## CURIE   TGCC/CEA ##
+#-Q- curie ######################
+#-Q- curie #MSUB -r REBUILDWRK     # Nom du job
+#-Q- curie #MSUB -eo
+#-Q- curie #MSUB -n 1              # Reservation du processus
+#-Q- curie #MSUB -T 36000          # Limite de temps elapsed du job
+#-Q- curie #MSUB -q standard       # xlarge:fat nodes standard:thin nodes
+#-Q- curie #MSUB -x                # exclusive node (needed to use high speed disk below)
+#-Q- curie #MSUB -Q normal
+#-Q- curie #MSUB -A ::default_project::
+#-Q- curie RUN_DIR_PATH=/tmp/REBUILD_DIR_MR_$$     # RAM high speed disk partition ; 250GB/node. Along with -q standard
+#-Q- curie #RUN_DIR_PATH=/dev/shm/REBUILD_DIR_MR_$$ # SSD high speed disk partition ; 64GB/node.  Along with -q xlarge
+#-Q- curie set +x
+#-Q- ada #!/bin/ksh
+#-Q- ada #######################
+#-Q- ada ## ADA         IDRIS ##
+#-Q- ada #######################
+#-Q- ada # @ job_type = serial
+#-Q- ada # @ requirements = (Feature == "prepost")
+#-Q- ada # Temps Elapsed max. d'une requete hh:mm:ss
+#-Q- ada # @ wall_clock_limit = 10:00:00
+#-Q- ada # Nom du travail LoadLeveler
+#-Q- ada # @ job_name   = REBUILDWRK
+#-Q- ada # Fichier de sortie standard du travail
+#-Q- ada # @ output     = $(job_name).$(jobid)
+#-Q- ada # Fichier de sortie d'erreur du travail
+#-Q- ada # @ error      =  $(job_name).$(jobid)
+#-Q- ada # pour recevoir un mail en cas de depassement du temps Elapsed (ou autre pb.)
+#-Q- ada # @ notification = error
+#-Q- ada # @ environment  = $DEBUG_debug ; $BigBrother ; $postProcessingStopLevel ; $MODIPSL ; $libIGCM ; $libIGCM_SX ; $SUBMIT_DIR ; $REBUILD_DIR ; $POST_DIR ; $Script_Post_Output ; $DateBegin ; $PeriodDateBegin ; $PeriodDateEnd ; $NbRebuildDir ; $StandAlone ; $RESOL_ATM ; $RESOL_OCE ; $RESOL_ICE ; $RESOL_MBG ; $RESOL_SRF ; $RESOL_SBG ; $MASTER ; wall_clock_limit=$(wall_clock_limit)
+#-Q- ada # @ queue
+#-Q- lxiv8 ######################
+#-Q- lxiv8 ## OBELIX      LSCE ##
+#-Q- lxiv8 ######################
+#-Q- lxiv8 #PBS -N REBUILDWRK
+#-Q- lxiv8 #PBS -m a
+#-Q- lxiv8 #PBS -j oe
+#-Q- lxiv8 #PBS -q medium
+#-Q- lxiv8 #PBS -o REBUILDWRK.$$
+#-Q- lxiv8 #PBS -S /bin/ksh
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD ##   CICLAD    IPSL ##
+#-Q- ifort_CICLAD ######################
+#-Q- ifort_CICLAD #PBS -N REBUILDWRK
+#-Q- ifort_CICLAD #PBS -m a
+#-Q- ifort_CICLAD #PBS -j oe
+#-Q- ifort_CICLAD #PBS -q std
+#-Q- ifort_CICLAD #PBS -S /bin/ksh
+#-Q- default #!/bin/ksh
+#-Q- default ##################
+#-Q- default ## DEFAULT HOST ##
+#-Q- default ##################
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+
+#-Q- ada export OMP_NUM_THREADS=1
+
+#D- Task type (computing or post-processing)
+TaskType=post-processing
+
+########################################################################
+
+#D- Flag to determine if this job in a standalone mode
+#D- Default : value from AA_job if any
+StandAlone=${StandAlone:=true}
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+# WARNING For StandAlone use : To run this script on some machine (ulam and cesium)
+# WARNING you must check MirrorlibIGCM variable in sys library.
+# WARNING If this variable is true, you must use libIGCM_POST path instead
+# WARNING of your running libIGCM directory.
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+#-D- $hostname of the MASTER job when SUBMIT_DIR is not visible on postprocessing computer.
+MASTER=${MASTER:=ada|curie}
+
+#D- Directory where files we need to rebuild are store
+#D- Default : value from AA_job if any
+#D- REBUILD_DIR=${BIGDIR}/REBUILD/TagName/JobName/
+#D- example : /scratch/cont003/p86denv/REBUILD/IPSLCM5/SCAL-NEW
+REBUILD_DIR=${REBUILD_DIR:=/path/to/your/TMP/REBUILD/FILES}
+
+#D- How many directory to rebuild we have to consider
+#D- Default : value from AA_job if any
+NbRebuildDir=${NbRebuildDir:=1000}
+
+#D- Suffix date we will use to determine which directory to rebuild
+#D- We will rebuild NbRebuildDir before and including PeriodDateBegin
+#D- Default : value from AA_job if any
+LastPeriodForRebuild=${LastPeriodForRebuild:=${PeriodDateBegin:=18901201}}
+
+#D- Flag to determine atlas job's output directory
+#D- Default : value from libIGCM_post.ksh if any
+POST_DIR=${POST_DIR:=${PBS_O_WORKDIR}}
+
+#-D- libIGCM_SX contains libIGCM on Master computer. Required on some center. Always OK.
+libIGCM_SX=${libIGCM_SX:=::modipsl::/libIGCM}
+
+#D- Increased verbosity (1, 2, 3)
+#D- Default : value from AA_job if any
+Verbosity=${Verbosity:=3}
+
+#D- Low level debug : to bypass lib test checks and stack construction
+#D- Default : value from AA_job if any
+DEBUG_debug=${DEBUG_debug:=false}
+
+#D- TEMPORARY Flag to determine atmospheric resolution
+#D- Default : value from atmospheric driver if any
+RESOL_ATM=${RESOL_ATM:=ALL}
+
+#D- TEMPORARY Flag to determine ocean resolution
+#D- Default : value from ocean driver if any
+RESOL_OCE=${RESOL_OCE:=ORCA2}
+
+#D- TEMPORARY Flag to determine ice resolution
+#D- Default : value from ice driver if any
+RESOL_ICE=${RESOL_ICE:=ORCA2}
+
+#D- TEMPORARY Flag to determine biogeochemistry resolution
+#D- Default : value from ice driver if any
+RESOL_MBG=${RESOL_MBG:=ORCA2}
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SRF=ALL
+
+#D- Flag to determine surface resolution
+#D- Default : value from surface driver if any
+RESOL_SBG=ALL
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+. ${libIGCM}/libIGCM_post/libIGCM_post.ksh
+#-------
+RUN_DIR=${RUN_DIR_PATH}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+if [ ${StandAlone} = true ] ; then
+  CARD_DIR=${SUBMIT_DIR}
+else
+  CARD_DIR=${RUN_DIR}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/config.card ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/run.card    ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/COMP        ${RUN_DIR_PATH}
+  IGCM_sys_Get_Master ${SUBMIT_DIR}/POST        ${RUN_DIR_PATH}
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this job
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+# Directory list to work with
+ListAllRebuildDir=$( IGCM_sys_RshMaster ls -d ${REBUILD_DIR}/REBUILD_* | grep -B $(( ${NbRebuildDir} -1 )) ${LastPeriodForRebuild} )
+
+for directory in ${ListAllRebuildDir} ; do
+  #
+  IGCM_sys_Get_Master ${directory} ${RUN_DIR}
+  #
+  IGCM_sys_Cd ${RUN_DIR}/$( basename ${directory} )
+
+  # --------------------------------------------------------------------
+  # Source function include in the REBUILD ksh and rebuild
+  # --------------------------------------------------------------------
+  . ${RUN_DIR}/$( basename ${directory} )/rebuild.ksh
+  IGCM_FlushRebuild
+  #
+  IGCM_sys_Cd ${RUN_DIR}
+  # Clean Up
+  # local clean up
+  IGCM_sys_Rm -rf $( basename ${directory} )
+  # remote clean up
+  IGCM_sys_RshMaster rm -rf ${directory}
+done
+
+# Clean RUN_DIR_PATH (necessary for cesium and titane only)
+IGCM_sys_RmRunDir -Rf ${RUN_DIR_PATH}
+
+# ------------------------------------------------------------------
+# Finalize BigBrother to inform that the jobs end
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Finalize
+
+date
