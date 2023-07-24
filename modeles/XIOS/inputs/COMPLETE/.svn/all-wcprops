@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/ioserver/svn/!svn/ver/563/XIOS/branchs/xios-1.0/inputs/COMPLETE
+END
+iodef.xml
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/inputs/COMPLETE/iodef.xml
+END
+context_atmosphere.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/ioserver/svn/!svn/ver/563/XIOS/branchs/xios-1.0/inputs/COMPLETE/context_atmosphere.xml
+END
+context_surface.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/562/XIOS/branchs/xios-1.0/inputs/COMPLETE/context_surface.xml
+END
