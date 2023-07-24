@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/ioserver/svn/!svn/ver/578/XIOS/branchs/xios-1.0/src/output
+END
+nc4_data_output.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/nc4_data_output.hpp
+END
+netCdfInterface.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/578/XIOS/branchs/xios-1.0/src/output/netCdfInterface.cpp
+END
+onetcdf4.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/onetcdf4.cpp
+END
+netCdfException.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/netCdfException.hpp
+END
+netcdf.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/524/XIOS/branchs/xios-1.0/src/output/netcdf.hpp
+END
+netCdfInterface.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/524/XIOS/branchs/xios-1.0/src/output/netCdfInterface.hpp
+END
+netCdfInterface_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/netCdfInterface_impl.hpp
+END
+netCdfInterface_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/netCdfInterface_decl.cpp
+END
+onetcdf4.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/onetcdf4.hpp
+END
+onetcdf4_impl.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/onetcdf4_impl.hpp
+END
+nc4_data_output.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/544/XIOS/branchs/xios-1.0/src/output/nc4_data_output.cpp
+END
+netcdf_version.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/netcdf_version.hpp
+END
+onetcdf4_decl.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/output/onetcdf4_decl.cpp
+END
