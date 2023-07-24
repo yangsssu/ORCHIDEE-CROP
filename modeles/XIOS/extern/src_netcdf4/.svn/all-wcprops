@@ -1,0 +1,995 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4
+END
+dapdump.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapdump.h
+END
+dnclog.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dnclog.c
+END
+getvara3.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/getvara3.c
+END
+ddim.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ddim.c
+END
+error4.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/error4.c
+END
+dcopy.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dcopy.c
+END
+nccommon.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nccommon.h
+END
+occurlfunctions.c
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occurlfunctions.c
+END
+ocuri.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocuri.c
+END
+xxdr.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/xxdr.c
+END
+v1hpg.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/v1hpg.c
+END
+occurlfunctions.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occurlfunctions.h
+END
+ocuri.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocuri.h
+END
+ocdump.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdump.c
+END
+xxdr.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/xxdr.h
+END
+occontent.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occontent.c
+END
+ocdump.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdump.h
+END
+dapparse.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapparse.c
+END
+nc.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc.c
+END
+occontent.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occontent.h
+END
+nc.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc.h
+END
+nclog.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nclog.h
+END
+ocnode.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocnode.c
+END
+dim.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dim.c
+END
+ocnode.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocnode.h
+END
+ncaux.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncaux.c
+END
+nc4dim.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4dim.c
+END
+dutf8proc.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dutf8proc.c
+END
+nc_uri.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc_uri.c
+END
+ncaux.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncaux.h
+END
+nc_uri.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc_uri.h
+END
+pstdint.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/pstdint.h
+END
+ocread.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocread.c
+END
+common34.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/common34.c
+END
+dgroup.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dgroup.c
+END
+ocread.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocread.h
+END
+nclistmgr.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nclistmgr.c
+END
+dv2i.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dv2i.c
+END
+dceparselex.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dceparselex.h
+END
+stub.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/stub.c
+END
+dapparselex.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapparselex.h
+END
+nc4attr.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4attr.c
+END
+dfile.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dfile.c
+END
+dapodom.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapodom.c
+END
+ncdispatch.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdispatch.h
+END
+ocrc.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocrc.c
+END
+dapodom.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapodom.h
+END
+ncio.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncio.c
+END
+constraints3.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/constraints3.c
+END
+ocrc.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocrc.h
+END
+dvar.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dvar.c
+END
+oclist.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oclist.c
+END
+ncio.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncio.h
+END
+occonstraints.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occonstraints.h
+END
+ncdaperr.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdaperr.c
+END
+constraints3.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/constraints3.h
+END
+oclist.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oclist.h
+END
+nc3dispatch.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc3dispatch.c
+END
+ncd3dispatch.c
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncd3dispatch.c
+END
+nc3dispatch.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc3dispatch.h
+END
+ncd3dispatch.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncd3dispatch.h
+END
+nctime.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nctime.c
+END
+dcetab.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dcetab.c
+END
+dceconstraints.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dceconstraints.c
+END
+nctime.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nctime.h
+END
+dvarput.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dvarput.c
+END
+dceparse.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dceparse.c
+END
+dcetab.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dcetab.h
+END
+nc_tests.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc_tests.h
+END
+dceconstraints.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dceconstraints.h
+END
+var.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/var.c
+END
+posixio.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/posixio.c
+END
+nclist.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nclist.c
+END
+datt.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/datt.c
+END
+derror.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/derror.c
+END
+nc4var.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4var.c
+END
+nclist.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nclist.h
+END
+oc.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oc.c
+END
+err_macros.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/err_macros.h
+END
+dcelex.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dcelex.c
+END
+dvarinq.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dvarinq.c
+END
+oc.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oc.h
+END
+nc4hdf.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4hdf.c
+END
+ncconfigure.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncconfigure.h
+END
+ocdebug.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdebug.c
+END
+putget.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/putget.c
+END
+dvlen.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dvlen.c
+END
+ncdap3a.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdap3a.c
+END
+config.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/config.h
+END
+nc_logging.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc_logging.h
+END
+ncfunc.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncfunc.c
+END
+ocdebug.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdebug.h
+END
+cdf3.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/cdf3.c
+END
+dsubstrate.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dsubstrate.c
+END
+nc4file.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4file.c
+END
+ceconstraints.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ceconstraints.h
+END
+dattput.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dattput.c
+END
+lookup3.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/lookup3.c
+END
+dopaque.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dopaque.c
+END
+daputil.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/daputil.c
+END
+dattinq.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dattinq.c
+END
+nc4dispatch.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4dispatch.c
+END
+ncdimscale.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdimscale.h
+END
+onstack.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/onstack.h
+END
+daputil.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/daputil.h
+END
+ncbytes.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncbytes.c
+END
+denum.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/denum.c
+END
+utf8proc_data.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/utf8proc_data.h
+END
+ocbytes.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocbytes.c
+END
+nc4dispatch.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4dispatch.h
+END
+netcdf_par.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/netcdf_par.h
+END
+attr.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/attr.c
+END
+dstring.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dstring.c
+END
+ncbytes.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncbytes.h
+END
+netcdf_f.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/netcdf_f.h
+END
+ocbytes.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocbytes.h
+END
+dapattr3.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapattr3.c
+END
+mmapio.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/mmapio.c
+END
+ocdrno.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdrno.c
+END
+dtype.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dtype.c
+END
+ncx.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncx.c
+END
+ocdrno.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdrno.h
+END
+ncx.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncx.h
+END
+ocutil.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocutil.c
+END
+ochttp.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ochttp.c
+END
+ocutil.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocutil.h
+END
+ochttp.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ochttp.h
+END
+ncdap3.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdap3.c
+END
+netcdf.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/netcdf.h
+END
+dapdebug.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapdebug.c
+END
+ncdap3.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ncdap3.h
+END
+utf8proc.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/utf8proc.h
+END
+dapdebug.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapdebug.h
+END
+nc4internal.c
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4internal.c
+END
+dapcvt.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapcvt.c
+END
+ocdatatypes.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdatatypes.h
+END
+nc4internal.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4internal.h
+END
+rnd.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/rnd.h
+END
+daptab.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/daptab.c
+END
+dvarget.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dvarget.c
+END
+nc4grp.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4grp.c
+END
+ocinternal.c
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocinternal.c
+END
+getvara.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/getvara.h
+END
+dparallel.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dparallel.c
+END
+ocdata.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocdata.h
+END
+daptab.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/daptab.h
+END
+nchashmap.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nchashmap.c
+END
+ddispatch.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ddispatch.c
+END
+ocinternal.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/ocinternal.h
+END
+cache.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/cache.c
+END
+oclog.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oclog.c
+END
+occlientparams.c
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occlientparams.c
+END
+memio.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/memio.c
+END
+nchashmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nchashmap.h
+END
+oclog.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/oclog.h
+END
+occlientparams.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/occlientparams.h
+END
+fbits.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/fbits.h
+END
+daplex.c
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/daplex.c
+END
+dapalign.c
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapalign.c
+END
+dapalign.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapalign.h
+END
+nc4type.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/nc4type.c
+END
+dcompound.c
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dcompound.c
+END
+dapdump.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapdump.c
+END
+dapnc.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dapnc.h
+END
+dattget.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/extern/src_netcdf4/dattget.c
+END
