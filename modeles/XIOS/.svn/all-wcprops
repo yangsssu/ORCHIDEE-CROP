@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/ioserver/svn/!svn/ver/604/XIOS/branchs/xios-1.0
+END
+bld.cfg
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/bld.cfg
+END
+make_xios
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/ioserver/svn/!svn/ver/601/XIOS/branchs/xios-1.0/make_xios
+END
+Licence.txt
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/Licence.txt
+END
+Licence_CeCILL_V2-en.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/Licence_CeCILL_V2-en.txt
+END
+Doxyfile
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/Doxyfile
+END
+Licence_CeCILL_V2-fr.txt
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/Licence_CeCILL_V2-fr.txt
+END
+header_licence
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/header_licence
+END
