@@ -1,0 +1,15 @@
+% \documentclass{article}
+% \usepackage[english]{babel}
+% \usepackage{amsmath}
+% \newcommand[1]{{\mathversion{normal}$#1$}}
+% \begin{document}
+The integration at the canopy level is done over nlai=20 fixed levels $l$.
+
+nlai is a local constant of the diffuco module.
+
+laimax is a local constant of the diffuco\_trans\_co2 subroutine independent of the PFT equal to 12. 
+
+\begin{equation}
+{{{LAI}}(l)={{lai}}{max}\frac{e^{{0{.}{15}\cdot (l-1)}}-1}{e^{{0{.}{15}\cdot {{nlai}}}}-1}}\nonumber
+\end{equation}
+% \end{document}

@@ -1,0 +1,15 @@
+digraph test {
+ratio=1.645
+node [style=filled]
+"START diffuco_aero" -> "designation of wind speed"
+"apply minimum drag coefficient to prevent decoupling" -> "END diffuco_aero"
+"designation of wind speed" -> "calculation of geopotential"
+"calculation of geopotential" -> "calculation of the virtual surface temperature"
+"calculation of the virtual surface temperature" -> "calculation of the squared wind shear"
+"calculation of the squared wind shear" -> "calculation of the Richardson Number"
+"calculation of the Richardson Number" -> "calculate neutral drag coefficient"
+"calculate neutral drag coefficient" -> "(zri GE 0)?"
+"(zri GE 0)?" -> "calculate stable drag coefficient"
+"(zri GE 0)?" -> "calculate unstable drag coefficient"
+"calculate unstable drag coefficient" -> "apply minimum drag coefficient to prevent decoupling"
+}

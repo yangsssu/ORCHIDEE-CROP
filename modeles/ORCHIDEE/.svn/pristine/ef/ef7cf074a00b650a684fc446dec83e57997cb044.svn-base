@@ -1,0 +1,4 @@
+\begin{equation}
+gdd_{min} = \frac{603}{\exp(0.0091*NCD(i,j))} - 64. 
+\end{equation}
+where i and j are the grid cell and PFT, respectively. 

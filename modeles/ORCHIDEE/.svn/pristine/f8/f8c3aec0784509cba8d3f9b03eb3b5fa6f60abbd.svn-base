@@ -1,0 +1,7 @@
+NETCDF_LIBDIR="${NETCDF_LDFLAGS:-/smplocal/pub/NetCDF/4.1.3/mpi/lib -lnetcdff -lnetcdf -lstdc++ -L/smplocal/pub/HDF5/1.8.9/par/lib -Bstatic -lhdf5_hl -lhdf5_fortran -lhdf5 -Bdynamic -lz}"
+NETCDF_INCDIR="${NETCDF_FFLAGS:-/smplocal/pub/HDF5/1.8.9/par/include -I/smplocal/pub/NetCDF/4.1.3/mpi/include}"
+IOIPSL_INCDIR=${ORCHDIR}/../../lib
+IOIPSL_LIBDIR=${ORCHDIR}/../../lib
+XIOS_INCDIR=${ORCHDIR}/../XIOS/inc
+XIOS_LIBDIR="${ORCHDIR}/../XIOS/lib -lxios"
+
