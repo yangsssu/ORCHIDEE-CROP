@@ -1,0 +1,481 @@
+#-
+#- $Id: AA_make.gdef 4976 2020-02-25 10:06:58Z aclsce $
+#-
+#- Validate the correlation between the target and the environment
+#-
+UTIL_DIR = '??'
+#-
+#-Q- macport_osx   #- Global definitions for Mac OSX, gfortran
+#-Q- generic gfortran compiler options for OSX installed with macport
+#-Q-
+#-Q- port packages needed:
+#-Q-    sudo port install netcdf +gcc45 +openmpi
+#-Q-    sudo port install p5-uri
+#-Q- add to your PATH /opt/local/lib/openmpi/bin
+#-Q- macport_osx   LIB_MPI = MPI1
+#-Q- macport_osx   LIB_MPI_BIS = MPI1
+#-Q- macport_osx   PRISM_ARCH = OSX
+#-Q- macport_osx   PRISM_NAME = OSX
+#-Q- macport_osx   FCM_ARCH = macport_osx
+#-Q- macport_osx   M_K = make
+#-Q- macport_osx   P_C = cpp
+#-Q- macport_osx   P_O = -P -C -traditional $(P_P)
+#-Q- macport_osx   F_C = mpif90
+#-Q- macport_osx   #-D- MD    F_D = -g -Wall -fbounds-check -pedantic -finit-real=nan
+#-Q- macport_osx   #-D- MN    F_D =
+#-Q- macport_osx   #-P- I4R4  F_P =
+#-Q- macport_osx   #-P- I4R8  F_P = -fdefault-real-8
+#-Q- macport_osx   #-P- I8R8  F_P = -fdefault-integer-8 -fdefault-real-8
+#-Q- macport_osx   w_w = -O3 -funroll-all-loops -fcray-pointer $(F_D) $(F_P) -I$(MODDIR)
+#-Q- macport_osx   F_O = $(w_w) -J$(MODDIR)
+#-Q- macport_osx   F_L = mpif90
+#-Q- macport_osx   M_M = 0
+#-Q- macport_osx   L_X = 0
+#-Q- macport_osx   L_O =
+#-Q- macport_osx   A_C = ar -rs
+#-Q- macport_osx   A_G = ar -x
+#-Q- macport_osx   C_C = cc -c
+#-Q- macport_osx   C_O =
+#-Q- macport_osx   C_L = cc
+#-Q- macport_osx   FC_C = cc -c
+#-Q- macport_osx   FC_O =
+#-Q- macport_osx   FC_L = cc
+#-Q- macport_osx   #-
+#-Q- macport_osx   NCDF_INC = /opt/local/include
+#-Q- macport_osx   NCDF_LIB = -L/opt/local/lib -lnetcdf -lnetcdff
+#-Q- macport_osx   #-
+#-Q- ada      #-
+#-Q- ada      #- Global definitions for Ada at IDRIS
+#-Q- ada      LIB_MPI = MPI1
+#-Q- ada      LIB_MPI_BIS = MPI1
+#-Q- ada      PRISM_ARCH = X64
+#-Q- ada      PRISM_NAME = ada
+#-Q- ada      FCM_ARCH = X64_ADA
+#-Q- ada      M_K = gmake
+#-Q- ada      P_C = cpp
+#-Q- ada      P_O = -P -C $(P_P)
+#-Q- ada      F_C = mpiifort -c -cpp
+#-Q- ada      #-D- MD    F_D = -g
+#-Q- ada      #-D- MN    F_D =
+#-Q- ada      #-P- I4R4  F_P = -i4
+#-Q- ada      #-P- I4R8  F_P = -i4 -r8
+#-Q- ada      #-P- I8R8  F_P = -i8 -r8
+#-Q- ada      F_O = -DCPP_PARA -shared-intel -mcmodel=large -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+######-Q- ada      F_O = -DCPP_PARA -p -g -traceback -fp-stack-check -ftrapuv -check bounds $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- ada      F_L = mpiifort
+#-Q- ada      M_M = 0
+#-Q- ada      L_X = 0
+#-Q- ada      L_O = -shared-intel -mcmodel=large
+#-Q- ada      A_C = ar -r
+#-Q- ada      A_G = ar -x
+#-Q- ada      C_C = cc -c
+#-Q- ada      C_O =
+#-Q- ada      C_L = cc
+#-Q- ada      #-
+#-Q- ada      NCDF_INC = /smplocal/pub/NetCDF/4.1.3/mpi/include
+#-Q- ada      NCDF_LIB = -L/smplocal/pub/NetCDF/4.1.3/mpi/lib -lnetcdff -lnetcdf -lnetcdf_c++ -L/smplocal/pub/HDF5/1.8.9/par/lib -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -Bdynamic -lz  -Wl,-rpath=/smplocal/pub/NetCDF/4.1.3/mpi/lib:/smplocal/pub/HDF5/1.8.9/par/lib
+#-Q- ada      #-
+#-Q- ad_mono  #- Global definitions for Ada in mono at IDRIS used for rebuild
+#-Q- ad_mono  M_K = gmake
+#-Q- ad_mono  P_C = cpp
+#-Q- ad_mono  P_O = -P -C $(P_P)
+#-Q- ad_mono  F_C = ifort -c -cpp
+#-Q- ad_mono  #-D- MD    F_D = -g
+#-Q- ad_mono  #-D- MN    F_D =
+#-Q- ad_mono  #-P- I4R4  F_P = -i4
+#-Q- ad_mono  #-P- I4R8  F_P = -i4 -r8
+#-Q- ad_mono  #-P- I8R8  F_P = -i8 -r8
+#-Q- ad_mono  F_O = -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- ad_mono  F_L = ifort
+#-Q- ad_mono  M_M = 0
+#-Q- ad_mono  L_X = 0
+#-Q- ad_mono  L_O =
+#-Q- ad_mono  A_C = ar -r
+#-Q- ad_mono  A_G = ar -x
+#-Q- ad_mono  C_C = cc -c
+#-Q- ad_mono  C_O =
+#-Q- ad_mono  C_L = cc
+#-Q- ad_mono  #-
+#-Q- ad_mono  NCDF_INC = /smplocal/pub/NetCDF/4.1.3/include
+#-Q- ad_mono  NCDF_LIB = -L/smplocal/pub/NetCDF/4.1.3/lib -Bstatic -lnetcdff -lnetcdf -lnetcdf_c++ -L/smplocal/pub/HDF5/1.8.9/seq/lib -Bstatic -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -Bdynamic -lz
+#-Q- ad_mono    #-
+#-Q- curie  #-
+#-Q- curie  #- Global definitions for Curie at TGCC
+#-Q- curie LIB_MPI = MPI1
+#-Q- curie LIB_MPI_BIS = MPI1
+#-Q- curie PRISM_ARCH = X64
+#-Q- curie PRISM_NAME = curie
+#-Q- curie FCM_ARCH = X64_CURIE
+#-Q- curie  M_K = gmake
+#-Q- curie  P_C = cpp
+#-Q- curie  P_O = -P -C $(P_P)
+#-Q- curie  F_C = mpif90 -c -cpp
+#-Q- curie  #-D- MD    F_D = -g
+#-Q- curie  #-D- MN    F_D =
+#-Q- curie  #-P- I4R4  F_P = -i4
+#-Q- curie  #-P- I4R8  F_P = -i4 -r8
+#-Q- curie  #-P- I8R8  F_P = -i8 -r8
+#-Q- curie  F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+######-Q- curie  F_O = -DCPP_PARA -p -g -traceback -fp-stack-check -ftrapuv -check bounds $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- curie  F_L = mpif90
+#-Q- curie  M_M = 0
+#-Q- curie  L_X = 0
+#-Q- curie  L_O =
+#-Q- curie  A_C = ar -r
+#-Q- curie  A_G = ar -x
+#-Q- curie  C_C = cc -c
+#-Q- curie  C_O =
+#-Q- curie  C_L = cc
+#-Q- curie  #-
+#-Q- curie  NCDF_INC = $(NETCDF_INCDIR)
+#-Q- curie  NCDF_LIB = -L$(NETCDF_LIBDIR) -lnetcdff -lnetcdf
+#-Q- curie  #-
+#-Q- irene  #-
+#-Q- irene  #- Global definitions for Irene at TGCC
+#-Q- irene LIB_MPI = MPI1
+#-Q- irene LIB_MPI_BIS = MPI1
+#-Q- irene PRISM_ARCH = X64
+#-Q- irene PRISM_NAME = irene
+#-Q- irene FCM_ARCH = X64_IRENE
+#-Q- irene  M_K = gmake
+#-Q- irene  P_C = cpp
+#-Q- irene  P_O = -P -C $(P_P)
+#-Q- irene  F_C = mpif90 -c -cpp
+#-Q- irene  #-D- MD    F_D = -g
+#-Q- irene  #-D- MN    F_D =
+#-Q- irene  #-P- I4R4  F_P = -i4
+#-Q- irene  #-P- I4R8  F_P = -i4 -r8
+#-Q- irene  #-P- I8R8  F_P = -i8 -r8
+#-Q- irene  F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- irene  F_L = mpif90
+#-Q- irene  M_M = 0
+#-Q- irene  L_X = 0
+#-Q- irene  L_O =
+#-Q- irene  A_C = ar -r
+#-Q- irene  A_G = ar -x
+#-Q- irene  C_C = cc -c
+#-Q- irene  C_O =
+#-Q- irene  C_L = cc
+#-Q- irene  #-
+#-Q- irene  NCDF_INC = $(NETCDFFORTRAN_INCDIR)
+#-Q- irene  NCDF_LIB = -L$(NETCDFFORTRAN_LIBDIR) -lnetcdff
+#-Q- irene  #-
+#-Q- irene-amd  #- Global definitions for Irene-amd at TGCC
+#-Q- irene-amd LIB_MPI = MPI1
+#-Q- irene-amd LIB_MPI_BIS = MPI1
+#-Q- irene-amd PRISM_ARCH = X64
+#-Q- irene-amd PRISM_NAME = irene-amd
+#-Q- irene-amd FCM_ARCH = X64_IRENE-AMD
+#-Q- irene-amd  M_K = gmake
+#-Q- irene-amd  P_C = cpp
+#-Q- irene-amd  P_O = -P -C $(P_P)
+#-Q- irene-amd  F_C = mpif90 -c -cpp
+#-Q- irene-amd  #-D- MD    F_D = -g
+#-Q- irene-amd  #-D- MN    F_D =
+#-Q- irene-amd  #-P- I4R4  F_P = -i4
+#-Q- irene-amd  #-P- I4R8  F_P = -i4 -r8
+#-Q- irene-amd  #-P- I8R8  F_P = -i8 -r8
+#-Q- irene-amd  F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- irene-amd  F_L = mpif90
+#-Q- irene-amd  M_M = 0
+#-Q- irene-amd  L_X = 0
+#-Q- irene-amd  L_O =
+#-Q- irene-amd  A_C = ar -r
+#-Q- irene-amd  A_G = ar -x
+#-Q- irene-amd  C_C = cc -c
+#-Q- irene-amd  C_O =
+#-Q- irene-amd  C_L = cc
+#-Q- irene-amd  #-
+#-Q- irene-amd  NCDF_INC = $(NETCDFFORTRAN_INCDIR)
+#-Q- irene-amd  NCDF_LIB = -L$(NETCDFFORTRAN_LIBDIR) -lnetcdff
+#-Q- irene-amd  #-
+#-Q- jeanzay  #-
+#-Q- jeanzay  #- Global definitions for JeanZay at IDRIS
+#-Q- jeanzay LIB_MPI = MPI1
+#-Q- jeanzay LIB_MPI_BIS = MPI1
+#-Q- jeanzay PRISM_ARCH = X64
+#-Q- jeanzay PRISM_NAME = jeanzay
+#-Q- jeanzay FCM_ARCH = X64_JEANZAY
+#-Q- jeanzay  M_K = gmake
+#-Q- jeanzay  P_C = cpp
+#-Q- jeanzay  P_O = -P -C $(P_P)
+#-Q- jeanzay  F_C = mpiifort -c -cpp
+#-Q- jeanzay  #-D- MD    F_D = -g
+#-Q- jeanzay  #-D- MN    F_D =
+#-Q- jeanzay  #-P- I4R4  F_P = -i4
+#-Q- jeanzay  #-P- I4R8  F_P = -i4 -r8
+#-Q- jeanzay  #-P- I8R8  F_P = -i8 -r8
+#-Q- jeanzay  F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- jeanzay  F_L = mpiifort
+#-Q- jeanzay  M_M = 0
+#-Q- jeanzay  L_X = 0
+#-Q- jeanzay  L_O =
+#-Q- jeanzay  A_C = ar -r
+#-Q- jeanzay  A_G = ar -x
+#-Q- jeanzay  C_C = cc -c
+#-Q- jeanzay  C_O =
+#-Q- jeanzay  C_L = cc
+#-Q- jeanzay  #-
+#-Q- jeanzay  NCDF_INC = ./ 
+#-Q- jeanzay  NCDF_LIB = -lnetcdff
+#-Q- jeanzay  #-
+#-Q- cur_mono  #-
+#-Q- cur_mono  #- Global definitions for Curie in mono at IDRIS used for rebuild
+#-Q- cur_mono LIB_MPI = MPI1
+#-Q- cur_mono LIB_MPI_BIS = MPI1
+#-Q- cur_mono PRISM_ARCH = X64
+#-Q- cur_mono PRISM_NAME = cur_mono
+#-Q- cur_mono FCM_ARCH = X64_cur_mono
+#-Q- cur_mono  M_K = gmake
+#-Q- cur_mono  P_C = cpp
+#-Q- cur_mono  P_O = -P -C $(P_P)
+#-Q- cur_mono  F_C = ifort -c -cpp
+#-Q- cur_mono  #-D- MD    F_D = -g
+#-Q- cur_mono  #-D- MN    F_D =
+#-Q- cur_mono  #-P- I4R4  F_P = -i4
+#-Q- cur_mono  #-P- I4R8  F_P = -i4 -r8
+#-Q- cur_mono  #-P- I8R8  F_P = -i8 -r8
+#-Q- cur_mono  F_O = -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+######-Q- cur_mono  F_O = -DCPP_PARA -p -g -traceback -fp-stack-check -ftrapuv -check bounds $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- cur_mono  F_L = ifort
+#-Q- cur_mono  M_M = 0
+#-Q- cur_mono  L_X = 0
+#-Q- cur_mono  L_O = -Wl,-rpath=/usr/local/netcdf-4.2/lib
+#-Q- cur_mono  A_C = ar -r
+#-Q- cur_mono  A_G = ar -x
+#-Q- cur_mono  C_C = cc -c
+#-Q- cur_mono  C_O =
+#-Q- cur_mono  C_L = cc
+#-Q- cur_mono  #-
+#-Q- cur_mono  NCDF_INC = $(NETCDF_INCDIR)
+#-Q- cur_mono  NCDF_LIB = -L$(NETCDF_LIBDIR) -lnetcdff -lnetcdf
+#-Q- cur_mono  #-
+#-Q- ifort_CICLAD   #-
+#-Q- ifort_CICLAD   #- Global definitions for ciclad, ifort
+#-Q- ifort_CICLAD LIB_MPI = MPI1
+#-Q- ifort_CICLAD LIB_MPI_BIS = MPI1
+#-Q- ifort_CICLAD FCM_ARCH = ifort_CICLAD
+#-Q- ifort_CICLAD   M_K = make
+#-Q- ifort_CICLAD   P_C = cpp
+#-Q- ifort_CICLAD   P_O = -P -C -traditional $(P_P)
+#-Q- ifort_CICLAD   F_C = /usr/lib64/openmpi/1.4.5-ifort/bin/mpif90 -c -cpp
+#-Q- ifort_CICLAD   #-D- MD    F_D = -g
+#-Q- ifort_CICLAD   #-D- MN    F_D =
+#-Q- ifort_CICLAD   #-P- I4R4  F_P = -i4
+#-Q- ifort_CICLAD   #-P- I4R8  F_P = -i4 -r8
+#-Q- ifort_CICLAD   #-P- I8R8  F_P = -i8 -r8
+#-Q- ifort_CICLAD   F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- ifort_CICLAD   F_L = /usr/lib64/openmpi/1.4.5-ifort/bin/mpif90
+#-Q- ifort_CICLAD   M_M = 0
+#-Q- ifort_CICLAD   L_X = 0
+#-Q- ifort_CICLAD   L_O =
+#-Q- ifort_CICLAD   A_C = ar -rs
+#-Q- ifort_CICLAD   A_G = ar -x
+#-Q- ifort_CICLAD   C_C = cc -c
+#-Q- ifort_CICLAD   C_O =
+#-Q- ifort_CICLAD   C_L = cc
+#-Q- ifort_CICLAD   #-
+#-Q- ifort_CICLAD   NCDF_INC = /opt/netcdf42/ifort/include
+#-Q- ifort_CICLAD   NCDF_LIB = -L/opt/netcdf42/ifort/lib -lnetcdf -lnetcdff
+
+#-Q- ifort_LSCE   #-
+#-Q- ifort_LSCE   #- Global definitions for LSCE, ifort
+#-Q- ifort_LSCE LIB_MPI = MPI1
+#-Q- ifort_LSCE LIB_MPI_BIS = MPI1
+#-Q- ifort_LSCE FCM_ARCH = ifort_LSCE
+#-Q- ifort_LSCE   M_K = gmake
+#-Q- ifort_LSCE   P_C = cpp
+#-Q- ifort_LSCE   P_O = -P -C $(P_P)
+#-Q- ifort_LSCE   F_C = mpif90 -c -cpp
+#-Q- ifort_LSCE   #-D- MD    F_D = -g
+#-Q- ifort_LSCE   #-D- MN    F_D =
+#-Q- ifort_LSCE   #-P- I4R4  F_P = -i4
+#-Q- ifort_LSCE   #-P- I4R8  F_P = -i4 -r8
+#-Q- ifort_LSCE   #-P- I8R8  F_P = -i8 -r8
+#-Q- ifort_LSCE   F_D =
+#-Q- ifort_LSCE   F_P = -i4 -r8
+#-Q- ifort_LSCE   F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+#-Q- ifort_LSCE   F_L = mpif90
+#-Q- ifort_LSCE   M_M = 0
+#-Q- ifort_LSCE   L_X = 0
+#-Q- ifort_LSCE   L_O = -Vaxlib
+#-Q- ifort_LSCE   A_C = ar -rs
+#-Q- ifort_LSCE   A_G = ar -x
+#-Q- ifort_LSCE   C_C = cc -c
+#-Q- ifort_LSCE   C_O =
+#-Q- ifort_LSCE   C_L = cc
+#-Q- ifort_LSCE   #-
+#-Q- ifort_LSCE   NCDF_INC = /usr/local/install/netcdf-4.3.2p/include
+#-Q- ifort_LSCE   NCDF_LIB = -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf
+
+
+
+#-Q- gfortran_CICLAD   #-
+#-Q- gfortran_CICLAD   #- Global definitions for ciclad, gfortran
+#-Q- gfortran_CICLAD LIB_MPI = MPI1
+#-Q- gfortran_CICLAD LIB_MPI_BIS = MPI1
+#-Q- gfortran_CICLAD FCM_ARCH = gfortran_CICLAD
+#-Q- gfortran_CICLAD   M_K = make
+#-Q- gfortran_CICLAD   P_C = cpp
+#-Q- gfortran_CICLAD   P_O = -P -C -traditional $(P_P)
+#-Q- gfortran_CICLAD   F_C = /usr/lib64/openmpi/1.4.5-gfortran/bin/mpif90 -c
+#-Q- gfortran_CICLAD   #-D- MD    F_D = -g -Wall -fbounds-check -pedantic -finit-real=nan
+#-Q- gfortran_CICLAD   #-D- MN    F_D =
+#-Q- gfortran_CICLAD   #-P- I4R4  F_P =
+#-Q- gfortran_CICLAD   #-P- I4R8  F_P = -fdefault-real-8
+#-Q- gfortran_CICLAD   #-P- I8R8  F_P = -fdefault-integer-8 -fdefault-real-8
+#-Q- gfortran_CICLAD   w_w = -DCPP_PARA -O3 -funroll-all-loops $(F_D) $(F_P) -I$(MODDIR)
+#-Q- gfortran_CICLAD   F_O = $(w_w) -J$(MODDIR)
+#-Q- gfortran_CICLAD   F_L = /usr/lib64/openmpi/1.4.5-gfortran/bin/mpif90
+#-Q- gfortran_CICLAD   M_M = 0
+#-Q- gfortran_CICLAD   L_X = 0
+#-Q- gfortran_CICLAD   L_O =
+#-Q- gfortran_CICLAD   A_C = ar -rs
+#-Q- gfortran_CICLAD   A_G = ar -x
+#-Q- gfortran_CICLAD   C_C = cc -c
+#-Q- gfortran_CICLAD   C_O =
+#-Q- gfortran_CICLAD   C_L = cc
+#-Q- gfortran_CICLAD   #-
+#-Q- gfortran_CICLAD   NCDF_INC = /opt/netcdf42/gfortran/include
+#-Q- gfortran_CICLAD   NCDF_LIB = -L/opt/netcdf42/gfortran/lib -lnetcdf -lnetcdff
+#-Q- gfortran_CICLAD   #-
+#-Q- pgf_CICLAD   #-
+#-Q- pgf_CICLAD   #- Global definitions for ciclad, pgfortran
+#-Q- pgf_CICLAD LIB_MPI = MPI1
+#-Q- pgf_CICLAD LIB_MPI_BIS = MPI1
+#-Q- pgf_CICLAD FCM_ARCH = pgf_CICLAD
+#-Q- pgf_CICLAD   M_K = make
+#-Q- pgf_CICLAD   P_C = cpp
+#-Q- pgf_CICLAD   P_O = -P -C -traditional $(P_P)
+#-Q- pgf_CICLAD   F_C = /opt/pgi-2016/linux86-64/2016/bin/pgf95 -c -Mpreprocess
+#-Q- pgf_CICLAD   #-D- MD    F_D = -g -Mbounds -Mchkfpstk -traceback -Mchkptr -Mchkstk
+#-Q- pgf_CICLAD   #-D- MN    F_D =
+#-Q- pgf_CICLAD   #-P- I4R4  F_P = -i4
+#-Q- pgf_CICLAD   #-P- I4R8  F_P = -i4 -r8
+#-Q- pgf_CICLAD   #-P- I8R8  F_P = -i8 -r8
+#-Q- pgf_CICLAD   F_O = -DCPP_PARA -fast -O3 -Munroll=c:4 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- pgf_CICLAD   F_L = /opt/pgi-2016/linux86-64/2016/bin/pgf95
+#-Q- pgf_CICLAD   M_M = 0
+#-Q- pgf_CICLAD   L_X = 0
+#-Q- pgf_CICLAD   L_O =
+#-Q- pgf_CICLAD   A_C = ar -rs
+#-Q- pgf_CICLAD   A_G = ar -x
+#-Q- pgf_CICLAD   C_C = cc -c
+#-Q- pgf_CICLAD   C_O =
+#-Q- pgf_CICLAD   C_L = cc
+#-Q- pgf_CICLAD   #-
+#-Q- pgf_CICLAD   NCDF_INC = /opt/netcdf43/pgf2016/include
+#-Q- pgf_CICLAD   NCDF_LIB = -L/opt/netcdf43/pgf2016/lib -lnetcdf -lnetcdff
+#-Q- pgf_CICLAD   #-
+#-Q- climserv #- Global definitions for Climserv : pgf behind mpif90 wrapper
+#-Q- climserv #- Please check with mpi-selector --query
+#-Q- climserv M_K = gmake
+#-Q- climserv P_C = cpp
+#-Q- climserv P_O = -P -C $(P_P)
+#-Q- climserv F_C = mpif90 -c -Mpreprocess
+#-Q- climserv F_D = -g -Mbounds -Mchkfpstk -traceback -Mchkptr -Mchkstk
+#-Q- climserv FCM_ARCH = pgf_CLIMSERV 
+#-Q- climserv #-P- I4R4 F_P = -i4
+#-Q- climserv #-P- I4R8 F_P = -i4 -r8
+#-Q- climserv #-P- I8R8 F_P = -i8 -r8
+#-Q- climserv F_O = -O3 -tp= amd64e $(F_P) -DCPP_PARA -I$(MODDIR) -module $(MODDIR)
+#-Q- climserv F_L = mpif90 -g
+#-Q- climserv M_M = 0
+#-Q- climserv L_X = 0
+#-Q- climserv L_O =
+#-Q- climserv A_C = ar -r
+#-Q- climserv A_G = ar -x
+#-Q- climserv C_C = cc -c
+#-Q- climserv C_O =
+#-Q- climserv C_L = cc
+#-Q- climserv #-
+#-Q- climserv NCDF_INC = /opt/netcdf/pgf/include
+#-Q- climserv NCDF_LIB = -L/opt/netcdf/pgf/lib -lnetcdf
+#-Q- climserv #-
+#-Q- gfortran  #- Global definitions for gfortran, generic system
+#-Q- gfortran  M_K = make
+#-Q- gfortran  P_C = cpp
+#-Q- gfortran  FCM_ARCH = gfortran 
+#-Q- gfortran  P_O = -fpreprocessed -P -C -traditional $(P_P)
+#-Q- gfortran  F_C = gfortran -c -cpp
+#-Q- gfortran  #-D- MD    F_D = -g -Wall -fbounds-check -pedantic -finit-real=nan
+#-Q- gfortran  #-D- MN    F_D =
+#-Q- gfortran  #-P- I4R4  F_P =
+#-Q- gfortran  #-P- I4R8  F_P = -fdefault-real-8
+#-Q- gfortran  #-P- I8R8  F_P = -fdefault-integer-8 -fdefault-real-8
+#-Q- gfortran  w_w = -O3 -funroll-all-loops $(F_D) $(F_P) -I$(MODDIR)
+#-Q- gfortran  F_O = $(w_w) -J$(MODDIR)
+#-Q- gfortran  F_L = gfortran
+#-Q- gfortran  M_M = 0
+#-Q- gfortran  L_X = 0
+#-Q- gfortran  L_O =
+#-Q- gfortran  A_C = ar -rs
+#-Q- gfortran  A_G = ar -x
+#-Q- gfortran  C_C = cc -c
+#-Q- gfortran  C_O =
+#-Q- gfortran  C_L = cc
+#-Q- gfortran  #-
+#-Q- gfortran  NCDF_INC = /usr/local/include
+#-Q- gfortran  NCDF_LIB = -L/usr/local/lib -lnetcdf
+#-Q- gfortran  #-
+#-Q- lxiv8    #- Global definitions for Intel compiler (ifort) with MPI at obelix/LSCE
+#-Q- lxiv8    FCM_ARCH=ifort_LSCE
+#-Q- lxiv8    M_K = gmake
+#-Q- lxiv8    P_C = cpp
+#-Q- lxiv8    P_O = -P -C $(P_P)
+#-Q- lxiv8    F_C = mpif90 -c -cpp
+#-Q- lxiv8    #-D- MD    F_D = -g
+#-Q- lxiv8    #-D- MN    F_D =
+#-Q- lxiv8    #-P- I4R4  F_P = -i4
+#-Q- lxiv8    #-P- I4R8  F_P = -i4 -r8
+#-Q- lxiv8    #-P- I8R8  F_P = -i8 -r8
+#-Q- lxiv8    F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+####-Q- lxiv8    F_O = -DCPP_PARA -p -g -traceback -fp-stack-check -ftrapuv -check bounds $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- lxiv8    F_L = mpif90
+#-Q- lxiv8    M_M = 0
+#-Q- lxiv8    L_X = 0
+#-Q- lxiv8    L_O = -Vaxlib
+#-Q- lxiv8    A_C = ar -r
+#-Q- lxiv8    A_G = ar -x
+#-Q- lxiv8    C_C = cc -c
+#-Q- lxiv8    C_O =
+#-Q- lxiv8    C_L = cc
+#-Q- lxiv8    #-
+#-Q- lxiv8    NCDF_INC = /usr/local/install/netcdf-4.3.2p/include 
+#-Q- lxiv8    NCDF_LIB = -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf
+#-Q- lxiv8    #-
+#-Q- occigen  #-
+#-Q- occigen  #- Global definitions for Curie at TGCC
+#-Q- occigen LIB_MPI = MPI1
+#-Q- occigen LIB_MPI_BIS = MPI1
+#-Q- occigen PRISM_ARCH = X64
+#-Q- occigen PRISM_NAME = occigen
+#-Q- occigen FCM_ARCH = X64_OCCIGEN
+#-Q- occigen  M_K = gmake
+#-Q- occigen  P_C = cpp
+#-Q- occigen  P_O = -P -C $(P_P)
+#-Q- occigen  F_C = mpif90 -c -cpp
+#-Q- occigen  #-D- MD    F_D = -g
+#-Q- occigen  #-D- MN    F_D =
+#-Q- occigen  #-P- I4R4  F_P = -i4
+#-Q- occigen  #-P- I4R8  F_P = -i4 -r8
+#-Q- occigen  #-P- I8R8  F_P = -i8 -r8
+#-Q- occigen  F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
+######-Q- occigen  F_O = -DCPP_PARA -p -g -traceback -fp-stack-check -ftrapuv -check bounds $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR)
+#-Q- occigen  F_L = mpif90
+#-Q- occigen  M_M = 0
+#-Q- occigen  L_X = 0
+#-Q- occigen  L_O =
+#-Q- occigen  A_C = ar -r
+#-Q- occigen  A_G = ar -x
+#-Q- occigen  C_C = cc -c
+#-Q- occigen  C_O =
+#-Q- occigen  C_L = cc
+#-Q- occigen  #-
+#-Q- occigen  NCDF_INC = $(NETCDF_INC_DIR) -I/$(NETCDFF_INCDIR)
+#-Q- occigen  NCDF_LIB = -L$(NETCDF_LIB_DIR) -L$(NETCDFF_LIBDIR) -lnetcdff -lnetcdf
+#-Q- occigen  #-
+RM      = rm -f
+STRIP   = strip
+SIZE    = size
+

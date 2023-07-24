@@ -1,0 +1,203 @@
+#!/bin/bash
+# $Id: ins_make 5482 2020-10-30 09:16:35Z aclsce $
+#---------------------------------------------------------------------
+#- Installation of Makefiles according to an environment
+#---------------------------------------------------------------------
+shopt -s extglob
+#-
+function ins_make_Usage
+{
+typeset v0 v1 v2 v3 v4 v5 v6 v7 h_n;
+echo -e "
+ins_make install the Makefile in the directories
+
+Usage :
+  ${b_n} [-h] [-v] [-d] [-p r] [-t h] [-m m]
+
+Options :
+  -h   : help
+  -v   : verbose mode
+  -d   : debug mode
+  -p p : int and real precision I4R4/I4R8/I8R8/4/8
+  -t h : target host_name
+  -m m : mpi context choosen for the coupling MPI1/MPI2
+
+Defaults :
+   -t local_host -p I4R8
+
+Example for remote host compilation :
+  ins_make -t sx8brodie
+"
+echo -e "Supported targets :\n"
+[[ ! -f "${MKTG}" ]] && { echo -e "? (${MKTG} unreachable)\n"; exit 3; }
+while read v1 v2 v3 v4 v5 v6 v7
+  do
+    [[ -n "${v1}" && "${v1}${v3}" = '#-Q-#-'                       && \
+       -n "${v4}" && "${v4}${v5}${v6}" = 'Globaldefinitionsfor' ]] && \
+     { h_n=${v2}'           '; echo -e "${h_n:0:13} : ${v7}"; }
+  done <${MKTG}
+echo -e "
+For other targets, look in ${MKTG}.
+"
+}
+#-    dirname     and      basename
+d_n=$(dirname ${0}); b_n=$(basename ${0});
+#- File containing global definitions
+MKTG=${d_n}'/AA_make.gdef'
+
+#- Retrieving and validation of the options
+x_v='silencious'; x_d='normal'; x_p="??"; x_t="??"; x_m='??';
+while getopts :hvdp:m:t: V
+  do
+   case ${V} in
+    (h)  ins_make_Usage; exit 0;;
+    (v)  x_v='verbose';;
+    (d)  x_d='debug';;
+    (p)  x_p=${OPTARG};;
+    (t)  x_t=${OPTARG};;
+    (m)  x_m=${OPTARG};;
+    (:)  echo ${b_n}" : -"${OPTARG}" option : missing value" 1>&2;
+         exit 2;;
+    (\?) echo ${b_n}" : -"${OPTARG}" option : not supported" 1>&2;
+         exit 2;;
+   esac
+  done
+shift $(($OPTIND-1));
+#-
+# Treatment of the options
+#-
+# Default INTEGER and REAL precision
+case ${x_p} in
+ ( I4R4 | 4 )  x_p='I4R4'; w_ip='4'; w_rp='4';;
+ ( I4R8 | ?? ) x_p='I4R8'; w_ip='4'; w_rp='8';;
+ ( I8R8 | 8 )  x_p='I8R8'; w_ip='8'; w_rp='8';;
+ (*)
+   echo 'Invalid precision ' 1>&2;
+   echo ${x_p}' (must be I4R4, I4R8, I8R8, 4 or 8)' 1>&2;
+   exit 1;;
+esac
+#-
+# Target_Host Name
+[[ ${x_t} = '??' ]] && \
+ { x_t=$(${d_n}/w_i_h);
+   { [[ ${?} != 0 ]] && \
+      { echo "Bad installation : w_i_h/uname unreachable" 1>&2;
+        exit 1; }; } || \
+     [[ ${x_t} = "Unknown" ]] && \
+      { echo "Local_Host not supported" 1>&2; exit 1; }; }
+#-
+# Get editing header
+#x_h=$(${d_n}/w_i_p ${x_t});
+x_h=${x_t};
+#-
+[[ ! -f "${MKTG}" ]] && { echo "${MKTG} unreachable ..."; exit 3; }
+#-
+W_X1=$(sed -n -e "s/^#-Q-  *\(${x_h}\)[\t ].*$/\1/p" ${MKTG} | sort -u);
+[[ '\?'"${W_X1}" != '\?'"${x_h}" ]] && \
+  { echo "Target_Host  "${x_t}"  not supported" 1>&2; exit 1; }
+#-
+case ${x_m} in
+ ( mpi1 | mpi2 | MPI1 | MPI2 | ?? );;
+ (*) echo "MPI context "${x_m}" not supported" 1>&2; exit 1;;
+esac
+#-
+[[ ${x_v} = 'verbose' ]] && \
+ { echo "";
+   echo '--- Mode         : '${x_v};
+   echo '--- Compilation  : '${x_d};
+   echo '--- Precision    : '${x_p};
+   echo '--- Target       : '${x_t};
+   echo '--- MPI context  : '${x_m}; }
+#-
+echo "";
+echo "Installation of makefiles, scripts and data for ${x_t}";
+echo "";
+#-
+w_t='AA_make';
+l_rep=$(cd ${d_n};find .. -name ${w_t} -print)
+for i in ${l_rep}
+do
+  k=${i%/${w_t}}; k=${k#./}; j=${d_n}'/'${k}; j=${j#./};
+  echo "Installation in ${j}";
+  MKTL="${j}"'/AA_make.ldef';
+  [[ ! -f "${MKTL}" ]] && { echo "${MKTL} unreachable ..."; exit 3; }
+  MKTR="${j}"'/AA_make';
+  cat ${MKTL} ${MKTG} ${MKTR} > mk1.$$;
+  W_PR='#-Q-  *'; W_X1=${W_PR}${x_h};
+  sed -e "/^${W_X1}[\t ]/ s/^${W_X1} *//" -e "/^${W_PR}/d" mk1.$$ > mk2.$$;
+#-
+# Default INTEGER and REAL precision
+  W_PR='#-P- '; W_X1=${W_PR}${x_p};
+  sed -e "/^${W_X1} */ s///" -e "/^${W_PR}/d" mk2.$$ > mk1.$$;
+#-
+# Handle the precision module "defprec.f90" in "IOIPSL/src"
+  [[ '!!'${j##*/modeles} = '!!/IOIPSL/src' ]] && \
+   { [[ ${x_v} = 'verbose' ]] && W_X1='-v' || W_X1="";
+     ${d_n}/ins_m_prec ${W_X1} -i ${w_ip} -r ${w_rp}; r_c=${?};
+     unset w_ip w_rp;
+     [[ ${r_c} != 0 ]] && exit ${r_c}; }
+#-
+# Debug
+  W_PR='#-D- ';
+  [[ ${x_d} = 'debug' ]] && W_X1=${W_PR}'MD' || W_X1=${W_PR}'MN';
+  sed -e "/^${W_X1} */ s///" -e "/^${W_PR}/d" mk1.$$ > mk2.$$;
+#-
+# Retrieve the path of the Makefile directory
+# and the path from the directory to modipsl/util
+  mk_dir=$(cd ${j};/bin/pwd;);
+  ut_dir=''; for ww in ${k//\//' '}; do ut_dir=${ut_dir}'../'; done
+  ut_dir=${ut_dir%'../'}'util';
+  echo "Path from Makefile to modipsl/util : ${ut_dir}";
+# Update the values
+  W_X1='UTIL_DIR ='; W_X2='MAKE_DIR =';
+  sed -e "s!^${W_X1}.*!${W_X1} ${ut_dir}!" \
+      -e "s!^${W_X2}.*!${W_X2} ${mk_dir}!" \
+      mk2.$$ > mk1.$$
+  unset mk_dir ut_dir;
+#-
+# Choice of mpi library for the coupling
+  W_X1='LIB_MPI ='; W_X2='LIB_MPI_BIS =';
+  case ${x_m} in
+   ( mpi1 | MPI1 )
+    lib_mpi='MPI1'; lib_mpi_bis='MPI1';
+    sed -e "s!^${W_X1}.*!${W_X1} ${lib_mpi}!" \
+        -e "s!^${W_X2}.*!${W_X2} ${lib_mpi_bis}!" \
+      mk1.$$ > ${j}/Makefile;;
+   ( mpi2 | MPI2 )
+    lib_mpi='MPI2'; lib_mpi_bis='';
+    sed -e "s!^${W_X1}.*!${W_X1} ${lib_mpi}!" \
+        -e "s!^${W_X2}.*!${W_X2} ${lib_mpi_bis}!" \
+      mk1.$$ > ${j}/Makefile;;
+   (??) 
+    cp mk1.$$ ${j}/Makefile;;
+   (*) ;;
+  esac
+  unset lib_mpi lib_mpi_bis;
+#-
+done
+#-
+#- Specific to OASIS3-MCT
+if [ -d ${d_n}/../oasis3-mct ] ; 
+then
+    l_dir=$(find ${d_n}/../config  -maxdepth 1 \( -name "IPSLCM6*" -o -name "IPSLCM5A2*"  -o -name "IPSLESM6*" -name "IPSLCM7*" \) -print)
+    for i in ${l_dir}
+    do 
+	mk_dir=$(cd ${d_n}/../oasis3-mct;/bin/pwd;);
+	l_make=$(find ${i}/SOURCES/OASIS3-MCT -maxdepth 1 -name "make*" -print)
+	W_X1="COUPLE          ="
+	for j in ${l_make}
+	do	
+	    cp ${j} ${i}/SOURCES/OASIS3-MCT/mk3.$$
+	    sed -e "s!^${W_X1}.*!${W_X1} ${mk_dir}!" ${i}/SOURCES/OASIS3-MCT/mk3.$$ > ${j}
+	    rm -f ${i}/SOURCES/OASIS3-MCT/mk3.$$
+	done
+    done
+
+fi
+# Creating environment file 
+echo ${x_t} > ${d_n}/.host_target
+#-
+echo "";
+unset W_X1 W_X2 w_t; rm -f mk1.$$ mk2.$$;
+#-
+exit 0;

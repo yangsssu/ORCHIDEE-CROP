@@ -1,0 +1,390 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+# Documentation :
+# This script may be used to create a tree of last configuration downloaded by modipsl/util/model command.
+#
+# It checks the control version used for each components of the configuration and saves the diff
+# between the revision downloaded (or updated) and the modifications of the developper.
+# It saves those diff in the component directory in the copy tree. 
+# It saves also new source files. See SUFFIXES definition below for the list of extension to detect source files. 
+# 
+# It also gives a Last_log file in the root of the save tree with all informations needed to download the same
+# configuration precisely. It has the list of new and modified files and give the date (in an non human format)
+# of each modifications.
+#
+# It may be used in modipsl directory :
+# modipsl_path> util/script_diff_model
+#
+# After this use, you will have a modipsl_path/modipsl_save_diff_$( date +%F_%H%M%S ) tree that 
+# you can tar and save with the executable you have build with this modified configuration.
+#
+# Note :
+#  Be aware to modify AA_make files in your model source code tree (and not only Makefiles) if you use modipsl
+#  ins_make script and portable Makefile build. In this case, Makefiles won't be versionning and modifications
+#  won't be saves.
+#
+# You can use ___ script_recup_model ___ script to download the same configuration and make change 
+# with new files and modified source files.
+
+
+case $( hostname -s ) in
+    vargas*)
+# 	alias ls=/opt/freeware/bin/ls
+# 	alias wc=/opt/freeware/bin/wc
+# 	alias tail=/opt/freeware/bin/tail
+# 	alias tee=/opt/freeware/bin/tee
+# 	module load svn
+	return 1
+	;;
+esac
+
+# env must know MODIPSL path variable !
+MODIPSL=${MODIPSL:=$(pwd)}
+tmpMODIPSL=${MODIPSL}/tmp
+
+SUBMIT_DIR=$1
+
+DEBUG_mode=false
+
+function printDebugArray {
+    if ( ${DEBUG_mode} ); then
+	typeset nb_line i
+	eval nb_line=\${#$1[@]}
+	eval echo "$1 : " ${nb_line}
+	(( i = 0 ))
+	while [ $i -lt $nb_line ] ; do
+	    eval echo \${$1[$i]}
+	    (( i = i + 1 ))
+	done
+    fi
+}
+
+typeset tag thedate save_diff_file pathComp pathexist i filecomp filedate file SpathComp SUFFIXES NbNewFiles NbModifFiles Maxfiledate
+
+# Analyse log file: get last model command
+. ${MODIPSL}/util/script_log_analyse
+
+# Code source suffixe for new file detection 
+SUFFIXES='\(f90\|F90\|f\|F\|h\|h90\|hh\|c\|cc\|inc\|fcm\|path\|cfg\|card\|driver\|def\|def_.*\|txt\|xml\|ksh\|tex\)'
+
+MODIPSL_SAVE_NAME=modipsl_save_diff_$( date +%F_%H%M%S )
+echo "SAVE directory in " ${MODIPSL_SAVE_NAME}
+MODIPSL_SAVE=${tmpMODIPSL}/${MODIPSL_SAVE_NAME}
+printDebugArray MODIPSL_SAVE
+
+set +A ListRep -- $( find ${MODIPSL} -mindepth 1 -type d \
+    \( -not -path '*.svn*' -a -not -path '*CVS*' -a -not -path "${MODIPSL}" \
+    -a -not -path "${MODIPSL}/bin" -a -not -path "${MODIPSL}/lib" -a -not -path "${MODIPSL}/util" \
+    -a -not -path "${tmpMODIPSL}*" \) \
+    -exec bash -c " echo "'{}'" | sed -e 's&"${MODIPSL}"/&&' | tee -a >( sed -e 's&\(.*\)&"${MODIPSL_SAVE}"/\1&' | xargs mkdir -p >> out_mkdir 2>&1 ) " \; )
+rm out_mkdir
+#echo ${ListRep[0]} | tee $(ls > toto) $(ls -la > tata)
+#mkdir -Rp ${MODIPSL_SAVE}/
+printDebugArray ListRep
+
+
+echo "Last Model in log : " ${ListModelCommands[$ModelNul]} | sed -e 's&::& &g' > ${MODIPSL_SAVE}/Last_log
+echo "${NbComponents} components : " >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelComponents[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelTags[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelSystems[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelServers[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelDirectories[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ModelLocalDirs[@]} >> ${MODIPSL_SAVE}/Last_log
+
+thedate=$( echo ${ListModelDates[${ModelNum}]} | sed -e "s&_& &g" | sed -e "s&-&/&g")
+
+
+(( NbNewFiles = 0 ))
+(( NbModifFiles = 0 ))
+(( Maxfiledate = 0 ))
+(( i = 0 ))
+for comp in ${ModelComponents[@]}; do
+    tag=${ModelTags[$i]}
+    echo $i $comp " : " $tag
+
+    case ${ModelLocalDirs[$i]} in
+	[a-z]*)
+	    if [ X${ModelDirectories[$i]} = X. ] ; then
+		pathComp=${ModelLocalDirs[i]}/${ModelComponents[$i]}
+		if [ -f ${pathComp} ] ; then
+		    filecomp=$( basename ${pathComp} )
+		    ListPathFile[$i]=${filecomp}
+		    pathComp=$( dirname ${pathComp} )
+		    pathexist=true
+		elif [ -d ${pathComp} ] ; then
+		    filecomp=""
+		    ListPathFile[$i]=_empty_
+		    pathexist=true
+		elif [ -d ${ModelLocalDirs[i]}/$( basename ${ModelComponents[$i]} ) ] ; then
+		    pathComp=${ModelLocalDirs[i]}/$( basename ${ModelComponents[$i]} )
+		    filecomp=""
+		    ListPathFile[$i]=_empty_
+		    pathexist=true
+		else
+		    echo "error for component : ${comp} !!"
+		    echo "  ${pathComp} does not exist."
+		    pathexist=false	
+		fi
+	    else
+		pathComp=${ModelLocalDirs[i]}/${ModelDirectories[$i]}
+		if [ -f ${pathComp} ] ; then
+		    filecomp=$( basename ${pathComp} )
+		    ListPathFile[$i]=${filecomp}
+		    pathComp=$( dirname ${pathComp} )
+		    pathexist=true
+		elif [ -d ${pathComp} ] ; then
+		    filecomp=""
+		    ListPathFile[$i]=_empty_
+		    pathexist=true
+		else
+		    echo "error for component : ${comp} !!"
+		    echo "  ${pathComp} does not exist."
+		    pathexist=false	
+		fi
+	    fi
+	    ;;
+	\.)
+	    pathComp=${ModelDirectories[$i]}
+	    if [ -f ${pathComp} ] ; then
+		filecomp=$( basename ${pathComp} )
+		ListPathFile[$i]=${filecomp}
+		pathComp=$( dirname ${pathComp} )
+		pathexist=true
+	    elif [ -d ${pathComp} ] ; then
+		filecomp=""
+		ListPathFile[$i]=_empty_
+		pathexist=true
+	    else
+		echo "error for component : ${comp} !!"
+		echo "  ${pathComp} does not exist."
+		pathexist=false	
+	    fi
+	    ;;
+	*)
+	    echo "error ${ModelLocalDirs[$i]} is not recognized as a valid path in modipsl."
+	    exit 1
+	    ;;
+    esac
+
+    if ( ${pathexist} ) ; then
+	echo "real local path = " ${pathComp}
+	ListPathComp[$i]=${pathComp}
+
+
+	cd ${pathComp}
+	SpathComp=${MODIPSL_SAVE}/${pathComp}
+
+	save_diff_file=$( echo ${comp} | sed -e 's&/&:&g' )
+	    
+	case ${ModelSystems[$i]} in
+	    svn)
+		ListPathRev[$i]=$( svn info ${filecomp} | grep "R.vision_*:" | gawk -F  ' ' '{print $2}' )
+		ListPathBranch[$i]=${comp}
+		
+		svn diff -r ${ListPathRev[$i]} ${filecomp} > ${tmpMODIPSL}/svn_diff_${save_diff_file}
+		RET=$?
+		if [ $RET -gt 0 ] ; then
+		    ListPathComp[$i]="error"
+		    ListPathFile[$i]="error"
+		    ListPathRev[$i]="error"
+		    ListPathBranch[$i]="error"
+		else
+		    svn status ${filecomp} > ${tmpMODIPSL}/svn_status_${save_diff_file}
+		    set -A NewFiles -- $( grep "^? *\(.*\.${SUFFIXES}\|AA_.*\|BB_.*\)$" ${tmpMODIPSL}/svn_status_${save_diff_file} | sed -e "s&? *&&" )
+		    printDebugArray NewFiles
+		    for file in ${NewFiles[@]} ; do
+			echo "New file : " $file
+			cp -p $file ${SpathComp}/$( dirname $file )
+			ListNewFiles[$NbNewFiles]=${pathComp}/${file}
+			(( NbNewFiles = NbNewFiles + 1 ))
+		    done
+
+		    set -A ModifiedFiles -- $( grep "^M *" ${tmpMODIPSL}/svn_status_${save_diff_file} | sed -e "s&M *&&" )
+		    printDebugArray ModifiedFiles
+		    for file in ${ModifiedFiles[@]} ; do
+			echo "Modified file : " $file
+			filedate=$( ls -l --full-time --time-style='+%Y%m%d%H%M%S' $file | gawk -F  ' ' '{print $6}' )
+			Maxfiledate=$(( ( $Maxfiledate > $filedate ) ? $Maxfiledate : $filedate ))
+			ListModifFiles[$NbModifFiles]=${pathComp}/${file}
+			ListModifFilesDate[$NbModifFiles]=${filedate}
+			(( NbModifFiles = NbModifFiles + 1 ))
+		    done
+
+		    if ( ${DEBUG_mode} ); then 
+			cp ${tmpMODIPSL}/svn_diff_${save_diff_file} ${SpathComp}/svn_diff
+		    else
+			rm ${tmpMODIPSL}/svn_status_${save_diff_file}
+ 			mv ${tmpMODIPSL}/svn_diff_${save_diff_file} ${SpathComp}/svn_diff
+		    fi
+		    RET=$?
+		    if [ $RET -gt 0 ] ; then
+			ListPathComp[$i]="error"
+			ListPathFile[$i]="error"
+			ListPathRev[$i]="error"
+			ListPathBranch[$i]="error"
+		    fi
+		fi
+
+		;;
+	    cvs)
+		ListPathRev[$i]=${tag}:\"${thedate}\"
+		ListPathBranch[$i]=${tag}
+
+		cvs diff -U 2 ${filecomp} > ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00
+		#eval cvs diff -U 2 -r "${ListPathRev[$i]}" ${filecomp} > ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00
+		RET=$?
+		if [ $RET -gt 1 ] ; then
+		    ListPathComp[$i]="error"
+		    ListPathFile[$i]="error"
+		    ListPathRev[$i]="error"
+		    ListPathBranch[$i]="error"
+		else
+		    set -A NewFiles -- $( grep "^? .*\.${SUFFIXES}$" ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00 | sed -e "s&? *&&" )
+		    printDebugArray NewFiles
+		    for file in ${NewFiles[@]} ; do
+			echo "New file : " $file
+			cp -p $file ${SpathComp}/$( dirname $file )
+			ListNewFiles[$NbNewFiles]=${pathComp}/${file}
+			(( NbNewFiles = NbNewFiles + 1 ))
+		    done
+
+		    set -A ModifiedFiles -- $( grep "^M .*\.${SUFFIXES}$" ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00 | sed -e "s&M *&&" )
+		    printDebugArray ModifiedFiles
+		    for file in ${ModifiedFiles[@]} ; do
+			echo "Modified file : " $file
+			filedate=$( ls -l --full-time --time-style='+%Y%m%d%H%M%S' $file | gawk -F  ' ' '{print $6}' )
+			Maxfiledate=$(( ( $Maxfiledate > $filedate ) ? $Maxfiledate : $filedate ))
+			ListModifFiles[$NbModifFiles]=${pathComp}/${file}
+			ListModifFilesDate[$NbModifFiles]=${filedate}
+			(( NbModifFiles = NbModifFiles + 1 ))
+		    done
+
+		    ${MODIPSL}/util/correct-cvs-diff.awk ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00 > ${tmpMODIPSL}/cvs_diff_${save_diff_file}_01
+		    RET=$?
+		    if ( ${DEBUG_mode} ); then 
+			cp ${tmpMODIPSL}/cvs_diff_${save_diff_file}_01 ${SpathComp}/cvs_diff
+		    else
+			mv ${tmpMODIPSL}/cvs_diff_${save_diff_file}_01 ${SpathComp}/cvs_diff
+			rm ${tmpMODIPSL}/cvs_diff_${save_diff_file}_00
+		    fi
+		    RET1=$?
+		    (( RET = RET + RET1 ))
+		    if [ $RET -gt 0 ] ; then
+			ListPathComp[$i]="error"
+			ListPathFile[$i]="error"
+			ListPathRev[$i]="error"
+			ListPathBranch[$i]="error"
+		    fi
+		fi
+		;;
+	    *)
+		echo "error ${ModelSystems[$i]} is not recognized as a valid control version system for $0."
+		exit 1
+		;;
+	esac
+    else
+	ListPathComp[$i]="error"
+	ListPathFile[$i]="error"
+	ListPathRev[$i]="error"
+	ListPathBranch[$i]="error"
+    fi
+    (( i = i + 1 ))
+    echo 
+    cd ${MODIPSL}
+
+done
+
+if [ -d ${SUBMIT_DIR} ] ; then
+    echo "Save SUBMIT_DIR : " ${SUBMIT_DIR}
+    echo
+    pathComp=$( basename ${SUBMIT_DIR} )
+    LocalDirectories[$i]=$( find . -mindepth 1 -type d \
+	\( -not -path "*${MODIPSL_SAVE_NAME}*" -a -name "${pathComp}" \) | head -1 )
+    ModelDirectories[$i]=.
+
+    ListPathComp[$i]=${pathComp}
+
+    cd ${SUBMIT_DIR}
+    SpathComp=${MODIPSL_SAVE}/${LocalDirectories[$i]}
+
+    save_diff_file=${pathComp}
+	    
+    ListPathRev[$i]=$( svn info | grep "R.vision_*:" | gawk -F  ' ' '{print $2}' )
+    
+    svn diff -r ${ListPathRev[$i]} > ${tmpMODIPSL}/svn_diff_${save_diff_file}
+    RET=$?
+    if [ $RET -gt 0 ] ; then
+	ListPathComp[$i]="error"
+	ListPathFile[$i]="error"
+	ListPathRev[$i]="error"
+	ListPathBranch[$i]="error"
+    else
+	svn status > ${tmpMODIPSL}/svn_status_${save_diff_file}
+	set -A NewFiles -- $( grep "^? *\(.*\.${SUFFIXES}\|AA_.*\|BB_.*\)$" ${tmpMODIPSL}/svn_status_${save_diff_file} | sed -e "s&? *&&" )
+	printDebugArray NewFiles
+	for file in ${NewFiles[@]} ; do
+	    echo "New file : " $file
+	    cp -p $file ${SpathComp}/$( dirname $file )
+	    ListNewFiles[$NbNewFiles]=${LocalDirectories[$i]}/${file}
+	    (( NbNewFiles = NbNewFiles + 1 ))
+	done
+
+	set -A ModifiedFiles -- $( grep "^M *" ${tmpMODIPSL}/svn_status_${save_diff_file} | sed -e "s&M *&&" )
+	printDebugArray ModifiedFiles
+	for file in ${ModifiedFiles[@]} ; do
+	    echo "Modified file : " $file
+# 	    filedate=$( ls -l --full-time --time-style='+%Y%m%d%H%M%S' $file | gawk -F  ' ' '{print $6}' )
+# 	    Maxfiledate=$(( ( $Maxfiledate > $filedate ) ? $Maxfiledate : $filedate ))
+	    ListModifFiles[$NbModifFiles]=${LocalDirectories[$i]}/${file}
+	    ListModifFilesDate[$NbModifFiles]=${filedate}
+	    (( NbModifFiles = NbModifFiles + 1 ))
+	done
+
+	if ( ${DEBUG_mode} ); then 
+	    cp ${tmpMODIPSL}/svn_diff_${save_diff_file} ${SpathComp}/svn_diff
+	else
+	    rm ${tmpMODIPSL}/svn_status_${save_diff_file}
+ 	    mv ${tmpMODIPSL}/svn_diff_${save_diff_file} ${SpathComp}/svn_diff
+	fi
+	RET=$?
+	if [ $RET -gt 0 ] ; then
+	    ListPathComp[$i]="error"
+	    ListPathFile[$i]="error"
+	    ListPathRev[$i]="error"
+	    ListPathBranch[$i]="error"
+	fi
+    fi
+    
+    echo 
+    cd ${MODIPSL}
+fi
+
+printDebugArray ListPathComp
+printDebugArray ListPathFile
+printDebugArray ListPathRev
+printDebugArray ListPathBranch
+printDebugArray ListNewFiles
+
+echo ${ListPathComp[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListPathFile[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListPathRev[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListPathBranch[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListNewFiles[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListModifFiles[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${ListModifFilesDate[@]} >> ${MODIPSL_SAVE}/Last_log
+echo ${Maxfiledate} >> ${MODIPSL_SAVE}/Last_log
+
+
+echo "out directory in " ${MODIPSL_SAVE}

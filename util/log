@@ -1,0 +1,80 @@
+05/09/16 18:00:37 ./model ORCHIDEE_crop
+--- Model        : ORCHIDEE_crop
+--- Action       : checkout
+--- Mode         : silencious
+--- Mail address : Xuhui.Wang@lsce.ipsl.fr
+---
+--- Component  : IOIPSL/tags/v2_2_2/src
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/igcmg/svn
+--- Directory  : IOIPSL/src
+--- Local Dir  : modeles
+---
+--- Component  : tags/libIGCM_v2.8.1
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/libigcm/svn
+--- Directory  : libIGCM
+--- Local Dir  : .
+---
+--- Component  : perso/xuhui.wang/ORCHIDEEcrop/ORCHIDEE
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : svn://forge.ipsl.jussieu.fr/orchidee
+--- Directory  : ORCHIDEE
+--- Local Dir  : modeles
+---
+--- Component  : trunk/ORCHIDEE_OL
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : svn://forge.ipsl.jussieu.fr/orchidee
+--- Directory  : ORCHIDEE_OL
+--- Local Dir  : config
+---
+--- Component  : XIOS/branchs/xios-1.0
+--- Tag        : 604
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/ioserver/svn
+--- Directory  : XIOS
+--- Local Dir  : modeles
+05/09/16 18:10:57 ./model ORCHIDEE_crop
+--- Model        : ORCHIDEE_crop
+--- Action       : checkout
+--- Mode         : silencious
+--- Mail address : Xuhui.Wang@lsce.ipsl.fr
+---
+--- Component  : IOIPSL/tags/v2_2_2/src
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/igcmg/svn
+--- Directory  : IOIPSL/src
+--- Local Dir  : modeles
+---
+--- Component  : tags/libIGCM_v2.8.1
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/libigcm/svn
+--- Directory  : libIGCM
+--- Local Dir  : .
+---
+--- Component  : perso/xuhui.wang/MICTcrop/ORCHIDEE
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : svn://forge.ipsl.jussieu.fr/orchidee
+--- Directory  : ORCHIDEE
+--- Local Dir  : modeles
+---
+--- Component  : trunk/ORCHIDEE_OL
+--- Tag        : HEAD
+--- System     : svn
+--- Server     : svn://forge.ipsl.jussieu.fr/orchidee
+--- Directory  : ORCHIDEE_OL
+--- Local Dir  : config
+---
+--- Component  : XIOS/branchs/xios-1.0
+--- Tag        : 604
+--- System     : svn
+--- Server     : http://forge.ipsl.jussieu.fr/ioserver/svn
+--- Directory  : XIOS
+--- Local Dir  : modeles
