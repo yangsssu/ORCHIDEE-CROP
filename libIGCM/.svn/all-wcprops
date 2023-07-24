@@ -1,0 +1,173 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/libigcm/svn/!svn/ver/1328/tags/libIGCM_v2.8.1
+END
+AA_pack_restart
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_pack_restart
+END
+ins_job
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/libigcm/svn/!svn/ver/1323/tags/libIGCM_v2.8.1/ins_job
+END
+AA_metrics_NEMO
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_metrics_NEMO
+END
+AA_pack_debug
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_pack_debug
+END
+AA_monitoring
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1328/tags/libIGCM_v2.8.1/AA_monitoring
+END
+AA_additionnal
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_additionnal
+END
+libIGCM_CeCILL.LIC
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/libIGCM_CeCILL.LIC
+END
+AA_clean_month
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_clean_month
+END
+AA_SaveSourceModifications
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_SaveSourceModifications
+END
+AA_RunChecker
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_RunChecker
+END
+AA_create_se
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_create_se
+END
+AA_atlas_LMDZ
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_atlas_LMDZ
+END
+AA_SE_Checker
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_SE_Checker
+END
+AA_metrics_LMDZ
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_metrics_LMDZ
+END
+AA_TimeSeries_Checker
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_TimeSeries_Checker
+END
+AA_pack_output
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_pack_output
+END
+AA_clean_year
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_clean_year
+END
+AA_create_multi_se
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_create_multi_se
+END
+AA_atlas_ORCHIDEE
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_atlas_ORCHIDEE
+END
+AA_metrics_ORCHIDEE
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_metrics_ORCHIDEE
+END
+AA_create_ts
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_create_ts
+END
+AA_atlas_ORCA_LIM
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_atlas_ORCA_LIM
+END
+AA_job
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_job
+END
+AA_atlas_PISCES
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_atlas_PISCES
+END
+AA_move-and-rename
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_move-and-rename
+END
+AA_rebuild_fromWorkdir
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/AA_rebuild_fromWorkdir
+END
+libIGCM.card
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/libIGCM.card
+END
+run.card.init
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/libigcm/svn/!svn/ver/1319/tags/libIGCM_v2.8.1/run.card.init
+END
