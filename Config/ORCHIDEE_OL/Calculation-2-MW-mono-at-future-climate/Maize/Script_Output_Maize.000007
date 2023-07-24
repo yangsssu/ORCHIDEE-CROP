@@ -1,0 +1,856 @@
+Thu Apr 13 06:04:00 CEST 2023
+
+#######################################
+#       ANOTHER GREAT SIMULATION      #
+#######################################
+
+
+====================================================
+Where do we run ? obelix52
+Linux obelix52 3.10.0-1160.83.1.el7.x86_64 #1 SMP Wed Jan 25 16:41:43 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+Check libIGCM_debug ..............................................[ OK ]
+Check libIGCM_card ...............................................[ OK ]
+Check libIGCM_date ...............................................[ OK ]
+
+2023-04-13 06:04:00 --Debug1--> IGCM_config_CommonConfiguration
+2023-04-13 06:04:00 --Debug1--> /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/config.card
+
+2023-04-13 06:04:00 --Debug1--> DefineArrayFromOption : config_UserChoices
+2023-04-13 06:04:01 --------------Debug3--> JobName : Maize
+2023-04-13 06:04:01 --------------Debug3--> LongName : NewCrop_PNT_fullirrig
+2023-04-13 06:04:01 --------------Debug3--> TagName : OL2
+2023-04-13 06:04:01 --------------Debug3--> SpaceName : DEVT
+2023-04-13 06:04:01 --------------Debug3--> ExperimentName : Case-2-crop-yield-mono-future
+2023-04-13 06:04:01 --------------Debug3--> CalendarType : noleap
+2023-04-13 06:04:01 --------------Debug3--> DateBegin : 2089-01-01
+2023-04-13 06:04:01 --------------Debug3--> DateEnd : 2100-12-31
+2023-04-13 06:04:01 --------------Debug3--> PeriodLength : 1Y
+2023-04-13 06:04:01 --------------Debug3--> ARCHIVE : /home/orchidee04/yangsu
+
+2023-04-13 06:04:01 --Debug1--> DefineArrayFromOption : config_Ensemble
+
+2023-04-13 06:04:01 --Debug1--> Warning with readding of config_Ensemble variable in /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/config.card.
+2023-04-13 06:04:01 --Debug1--> Warning: Section Ensemble not found
+
+2023-04-13 06:04:01 --Debug1--> DefineArrayFromOption : config_Post
+2023-04-13 06:04:01 --------------Debug3--> PackFrequency : 10Y
+2023-04-13 06:04:01 --------------Debug3--> RebuildFrequency : NONE
+2023-04-13 06:04:01 --------------Debug3--> TimeSeriesFrequency : 10Y
+2023-04-13 06:04:01 --------------Debug3--> IgnoreNonMonotonic : TRUE
+2023-04-13 06:04:01 --------------Debug3--> SeasonalFrequency : 10Y
+2023-04-13 06:04:01 --------------Debug3--> SeasonalFrequencyOffset : 0
+
+2023-04-13 06:04:01 --Debug1--> R_OUT has been defined = /home/orchidee04/yangsu/IGCM_OUT
+2023-04-13 06:04:01 --Debug1--> R_BUF has been defined = /home/orchidee04/yangsu/IGCM_OUT
+2023-04-13 06:04:01 --Debug1--> R_FIG has been defined = /home/orchidee04/yangsu/IGCM_OUT
+IGCM_sys_MkdirWork : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/REBUILD
+2023-04-13 06:04:01 --------Debug2--> run.card exists
+IGCM_sys_getJobSchedulerID
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[195]: IGCM_debug_BigBro_Initialize[505]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_check_quota
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[195]: IGCM_debug_BigBro_Initialize[549]: IGCM_debug_sendAMQP_projectAccounting: not found [No such file or directory]
+
+2023-04-13 06:04:01 --Debug1--> IGCM_config_Initialize
+IGCM_sys_TestDir : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration
+IGCM_sys_TestDir : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/libIGCM
+IGCM_sys_TestDir : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/bin
+IGCM_sys_TestDir : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize
+Keep trace of inital SUBMIT_DIR : 
+total 468
+drwxr-sr-x 4 yangsu orchidee  4096 Apr 13 06:03 .
+-rw------- 1 yangsu lsce     68520 Apr 13 06:03 Script_Output_Maize.000006
+-rwxr-xr-x 1 yangsu orchidee  2738 Apr 13 06:03 run.card.bak
+-rw-r--r-- 1 yangsu orchidee  2738 Apr 13 06:03 run.card
+-rw------- 1 yangsu lsce     68066 Apr 13 05:53 Script_Output_Maize.000005
+-rw------- 1 yangsu lsce     67612 Apr 13 05:42 Script_Output_Maize.000004
+-rw------- 1 yangsu lsce     67413 Apr 13 05:31 Script_Output_Maize.000003
+-rw------- 1 yangsu lsce     66703 Apr 13 05:19 Script_Output_Maize.000002
+-rw------- 1 yangsu lsce     72299 Apr 13 05:08 Script_Output_Maize.000001
+-rw-r--r-- 1 yangsu orchidee 19187 Apr 13 04:56 Job_Maize
+-rwxr-xr-x 1 yangsu orchidee  1546 Apr 13 04:56 run.card.init
+-rw-r--r-- 1 yangsu orchidee  4200 Dec  2 20:42 config.card
+drwxr-sr-x 4 yangsu orchidee  4096 Dec  2 20:39 ..
+drwxr-sr-x 3 yangsu orchidee  4096 Aug 26  2022 PARAM
+drwxr-sr-x 3 yangsu orchidee  4096 Aug 26  2022 COMP
+
+2023-04-13 06:04:01 --Debug1--> DefineArrayFromSection : ListOfComponents
+2023-04-13 06:04:02 --------------Debug3--> SRF
+2023-04-13 06:04:02 --------------Debug3--> SBG
+2023-04-13 06:04:02 --------------Debug3--> OOL
+
+2023-04-13 06:04:02 --Debug1--> DefineArrayFromOption : config_Restarts
+2023-04-13 06:04:02 --------------Debug3--> OverRule : n
+2023-04-13 06:04:02 --------------Debug3--> RestartDate : ...
+2023-04-13 06:04:02 --------------Debug3--> RestartJobName : ...
+2023-04-13 06:04:02 --------------Debug3--> RestartPath : ...
+
+2023-04-13 06:04:02 --------Debug2--> Define Script_Output_Prefix and Exe_Output
+2023-04-13 06:04:02 --------------Debug3--> Script_Output_Prefix = Script_Output
+2023-04-13 06:04:02 --------------Debug3--> Exe_Output = out_execution
+
+2023-04-13 06:04:02 --------Debug2--> (Re)Define R_INIT, R_BC and PeriodNb
+2023-04-13 06:04:02 --------------Debug3--> R_INIT=/home/orchideeshare/igcmg/IGCM/INIT
+2023-04-13 06:04:02 --------------Debug3--> R_BC=/home/orchideeshare/igcmg/IGCM/BC
+2023-04-13 06:04:02 --------------Debug3--> Loop in main Job with 1 period(s)
+IGCM_sys_TestDirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[207]: IGCM_config_Initialize[308]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+IGCM_sys_MkdirWork : /scratch/yangsu.2704487.obelix0/Maize.183835
+IGCM_sys_Cd : /scratch/yangsu.2704487.obelix0/Maize.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[219]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+
+2023-04-13 06:04:02 --Debug1--> IGCM_comp_Initialize
+
+2023-04-13 06:04:02 --Debug1--> Initialize SRF : sechiba component.
+2023-04-13 06:04:02 --------------Debug3--> DefineArrayFromSection : SRF
+2023-04-13 06:04:03 --------------Debug3--> Found in section config_SRF : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2023-04-13 06:04:03 --Debug1--> Write frequency for sechiba : 1Y
+2023-04-13 06:04:03 --------Debug2--> Initialize following component library
+2023-04-13 06:04:03 --------Debug2--> /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/sechiba.driver
+2023-04-13 06:04:03 --------------Debug3--> With tag : orchidee
+2023-04-13 06:04:03 --------------Debug3--> Initialize SRF output directory.
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Output
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Restart
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug
+2023-04-13 06:04:03 --------Debug2--> DefineArrayFromSection : sechiba_UserChoices /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/sechiba.card
+2023-04-13 06:04:03 --------------Debug3--> sechiba_UserChoices_values:
+2023-04-13 06:04:03 --------------Debug3--> LAIMAP=n
+2023-04-13 06:04:03 --------------Debug3--> IMPOSE_VEG=y
+2023-04-13 06:04:03 --------------Debug3--> VEGET_UPDATE=1Y
+2023-04-13 06:04:03 --------------Debug3--> ROUTING=n
+2023-04-13 06:04:03 --------------Debug3--> NEWHYDROL=y
+2023-04-13 06:04:03 --------------Debug3--> OKCO2=y
+2023-04-13 06:04:03 --------------Debug3--> HARVEST_AGRI=y
+2023-04-13 06:04:03 --------Debug2--> DefineArrayFromOption : sechiba_OutputFiles /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/sechiba.card
+2023-04-13 06:04:03 --------------Debug3--> 2D time series activated for Post_1M_sechiba_history
+2023-04-13 06:04:03 --------------Debug3--> 3D time series activated with chunck for Post_1M_sechiba_history
+2023-04-13 06:04:03 --------------Debug3--> Initialize sechiba with driver.
+
+2023-04-13 06:04:03 --Debug1--> Initialize SBG : stomate component.
+2023-04-13 06:04:03 --------------Debug3--> DefineArrayFromSection : SBG
+2023-04-13 06:04:03 --------------Debug3--> Found in section config_SBG : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2023-04-13 06:04:03 --Debug1--> Write frequency for stomate : 1Y
+2023-04-13 06:04:03 --------Debug2--> Initialize following component library
+2023-04-13 06:04:03 --------Debug2--> /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/stomate.driver
+2023-04-13 06:04:03 --------------Debug3--> With tag : orchidee
+2023-04-13 06:04:03 --------------Debug3--> Initialize SBG output directory.
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Output
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Restart
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Debug
+2023-04-13 06:04:04 --------Debug2--> DefineArrayFromSection : stomate_UserChoices /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/stomate.card
+2023-04-13 06:04:04 --------------Debug3--> stomate_UserChoices_values:
+2023-04-13 06:04:04 --------------Debug3--> SPINUP_ANALYTIC=n
+2023-04-13 06:04:04 --------Debug2--> DefineArrayFromOption : stomate_OutputFiles /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/stomate.card
+2023-04-13 06:04:04 --------------Debug3--> 2D time series activated for Post_1M_stomate_history
+2023-04-13 06:04:04 --------------Debug3--> 3D time series activated with chunck for Post_1M_stomate_history
+2023-04-13 06:04:04 --------------Debug3--> Initialize stomate with driver.
+
+2023-04-13 06:04:04 --Debug1--> Initialize OOL : orchidee_ol component.
+2023-04-13 06:04:04 --------------Debug3--> DefineArrayFromSection : OOL
+2023-04-13 06:04:04 --------------Debug3--> Found in section config_OOL : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2023-04-13 06:04:04 --Debug1--> Write frequency for orchidee_ol :
+2023-04-13 06:04:04 --------Debug2--> Initialize following component library
+2023-04-13 06:04:04 --------Debug2--> /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/orchidee_ol.driver
+2023-04-13 06:04:04 --------------Debug3--> With tag : orchidee
+2023-04-13 06:04:04 --------------Debug3--> Initialize OOL output directory.
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Output
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Restart
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+2023-04-13 06:04:04 --------Debug2--> DefineArrayFromSection : orchidee_ol_UserChoices /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/orchidee_ol.card
+2023-04-13 06:04:04 --------------Debug3--> orchidee_ol_UserChoices_values:
+2023-04-13 06:04:04 --------------Debug3--> XIOS=n
+2023-04-13 06:04:04 --------Debug2--> DefineArrayFromOption : orchidee_ol_OutputFiles /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/COMP/orchidee_ol.card
+2023-04-13 06:04:04 --------------Debug3--> Initialize orchidee_ol with driver.
+
+
+2023-04-13 06:04:04 --Debug1--> IGCM_config_Check
+
+2023-04-13 06:04:04 --Debug1--> Asynchronous rebuild has not been activated
+2023-04-13 06:04:04 --Debug1--> Proceed with standard post-treatment pathway
+
+2023-04-13 06:04:04 --Debug1--> Check coherence between TimeSeriesFrequency and PeriodLength
+2023-04-13 06:04:04 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=10Y Slave=1Y
+2023-04-13 06:04:04 --Debug1--> Check coherence between SeasonalFrequency and PeriodLength
+2023-04-13 06:04:04 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=10Y Slave=1Y
+2023-04-13 06:04:04 --Debug1--> Check coherence between Post_1M_sechiba_history Chunck3D frequency and TimeSeriesFrequency
+2023-04-13 06:04:04 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=100Y Slave=10Y
+2023-04-13 06:04:04 --Debug1--> Check coherence between Post_1M_stomate_history Chunck3D frequency and TimeSeriesFrequency
+2023-04-13 06:04:05 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=100Y Slave=10Y
+
+2023-04-13 06:04:05 --Debug1--> Check if there is enough space on temporary filesystem
+IGCM_sys_check_quota
+
+2023-04-13 06:04:05 --Debug1--> Check where RUN_DIR_PATH variable is pointing to
+IGCM_sys_check_path
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[246]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+
+Starting iteration 1 / 1
+
+2023-04-13 06:04:05 --Debug1--> IGCM_config_PeriodStart
+
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[785]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+IGCM_sys_Cd : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize
+2023-04-13 06:04:05 --------Debug2--> Save previous ksh job output
+IGCM_sys_Cp : Script_Output_Maize.000001 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000001.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : Script_Output_Maize.000002 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000002.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : Script_Output_Maize.000003 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000003.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : Script_Output_Maize.000004 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000004.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : Script_Output_Maize.000005 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000005.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : Script_Output_Maize.000006 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Script_Output_Maize.000006.183835
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[811]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:06 --------Debug2--> Save current run.card
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/run.card /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/run.card
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[820]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cd : /scratch/yangsu.2704487.obelix0/Maize.183835
+
+2023-04-13 06:04:06 --------Debug2--> Number of years for PeriodLength : 1
+
+2023-04-13 06:04:06 --Debug1--> IGCM_config_DateCoherency
+
+
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[835]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[276]: IGCM_config_PeriodStart[840]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+2023-04-13 06:04:07 --Debug1--> CyclicYear wont be use without adding CyclicBegin and CyclicEnd in config.card
+
+2023-04-13 06:04:07 --Debug1--> IGCM_config_PeriodStart : Before Execution
+2023-04-13 06:04:07 --Debug1--> Year of simulation : 2095
+2023-04-13 06:04:07 --Debug1--> Month of simulation : 01
+2023-04-13 06:04:07 --Debug1--> PeriodLengthInDays : 365
+2023-04-13 06:04:07 --Debug1--> PeriodDateBegin : 20950101
+2023-04-13 06:04:07 --Debug1--> PeriodDateEnd : 20951231
+2023-04-13 06:04:07 --Debug1--> SimulationLengthInDays : 2555
+2023-04-13 06:04:07 --Debug1--> ExperienceLengthInDays : 4380
+2023-04-13 06:04:07 --Debug1--> IGCM_config_ConfigureExecution
+2023-04-13 06:04:07 --Debug1--> OOL
+2023-04-13 06:04:07 --------Debug2--> 16MPI
+2023-04-13 06:04:07 --Debug1--> MPI/OMP treatment coreNumber = 16
+2023-04-13 06:04:07 --Debug1--> MPI/OMP treatment mpiTasks = 16
+2023-04-13 06:04:07 --Debug1--> MPI/OMP treatment openMPthreads = 1
+2023-04-13 06:04:07 --Debug1--> MPI/OMP treatment executionType = 4
+IGCM_sys_build_execution_scripts 
+IGCM_sys_Chmod : u+x script_orchidee_ol.ksh
+2023-04-13 06:04:08 --Debug1--> sys Obelix : script_orchidee_ol.ksh contains
+#!/bin/ksh
+
+./orchidee_ol > out_orchidee_ol.out.${OMPI_COMM_WORLD_RANK} 2>out_orchidee_ol.err.${OMPI_COMM_WORLD_RANK}
+2023-04-13 06:04:08 --Debug1--> sys Obelix : execution command is
+2023-04-13 06:04:08 --Debug1--> time mpirun ./script_orchidee_ol.ksh
+
+2023-04-13 06:04:08 --Debug1--> IGCM_comp_PeriodStart
+
+2023-04-13 06:04:08 --------------Debug3--> PeriodStart sechiba Driver Function (if any).
+2023-04-13 06:04:08 --------------Debug3--> PeriodStart stomate Driver Function (if any).
+2023-04-13 06:04:08 --------------Debug3--> PeriodStart orchidee_ol Driver Function (if any).
+
+2023-04-13 06:04:08 --Debug1--> IGCM_comp_GetInputParametersFiles
+
+2023-04-13 06:04:08 --------------Debug3--> Parameters sechiba
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/PARAM/run.def .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:08 --------------Debug3--> Parameters stomate
+IGCM_sys_Cp : /home/orchideeshare/igcmg/IGCM/ATM/IPCC_AR5/RCPs/RCP85/CO2_1765_2500.txt CO2.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:08 --------------Debug3--> Parameters orchidee_ol
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/PARAM/run.def .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/PARAM/iodef.xml .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/PARAM/file_def_orchidee.xml .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/modeles/ORCHIDEE/src_xml/context_orchidee.xml .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/modeles/ORCHIDEE/src_xml/field_def_orchidee.xml .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[300]: IGCM_comp_GetInputParametersFiles[600]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+
+2023-04-13 06:04:09 --Debug1--> IGCM_comp_GetInputInitialStateFiles
+
+
+2023-04-13 06:04:09 --Debug1--> IGCM_comp_GetInputBoundaryFiles
+
+2023-04-13 06:04:09 --------------Debug3--> Boundary files sechiba
+IGCM_sys_IsFileArchived : /home/orchidee04/bgabriel/Other_datasets/FPT/PFTmap_2095.nc
+IGCM_sys_Cp : /home/orchidee04/bgabriel/Other_datasets/FPT/PFTmap_2095.nc PFTmap.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[318]: IGCM_comp_GetInputBoundaryFiles[500]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:09 --------------Debug3--> Boundary files stomate
+IGCM_sys_IsFileArchived : /home/users/yangsu/crop_season/Crop_calendar.nc
+IGCM_sys_Cp : /home/users/yangsu/crop_season/Crop_calendar.nc PlantingDate.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[318]: IGCM_comp_GetInputBoundaryFiles[500]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_IsFileArchived : /home/orchideeshare/igcmg/IGCM/SRF/reftemp.nc
+IGCM_sys_Cp : /home/orchideeshare/igcmg/IGCM/SRF/reftemp.nc .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[318]: IGCM_comp_GetInputBoundaryFiles[530]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:10 --------------Debug3--> Boundary files orchidee_ol
+IGCM_sys_IsFileArchived : /home/orchidee04/yangsu/Other_datasets/Climate_data/ISIMIP2b-RCP85/IPSL-CM5A-LR_rcp85_onedeg_daily_2095_bias_corrected.nc
+IGCM_sys_Cp : /home/orchidee04/yangsu/Other_datasets/Climate_data/ISIMIP2b-RCP85/IPSL-CM5A-LR_rcp85_onedeg_daily_2095_bias_corrected.nc forcing_file.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[318]: IGCM_comp_GetInputBoundaryFiles[500]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+
+2023-04-13 06:04:18 --Debug1--> IGCM_comp_GetInputSmoothFiles
+
+2023-04-13 06:04:18 --------------Debug3--> Smooth files sechiba
+2023-04-13 06:04:18 --------------Debug3--> Smooth files stomate
+2023-04-13 06:04:18 --------------Debug3--> Smooth files orchidee_ol
+
+2023-04-13 06:04:18 --Debug1--> IGCM_comp_GetInputRestartFiles
+
+2023-04-13 06:04:18 --------------Debug3--> restart sechiba
+2023-04-13 06:04:18 --------------Debug3--> Archived restart /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Restart/Maize_20941231_sechiba_rest.nc
+IGCM_sys_Get : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Restart/Maize_20941231_sechiba_rest.nc sechiba_rest_in.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[345]: IGCM_comp_GetInputRestartFiles[891]: eval[1]: IGCM_sys_Get[646]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:21 --------------Debug3--> restart stomate
+2023-04-13 06:04:21 --------------Debug3--> Archived restart /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Restart/Maize_20941231_stomate_rest.nc
+IGCM_sys_Get : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Restart/Maize_20941231_stomate_rest.nc stomate_rest_in.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[345]: IGCM_comp_GetInputRestartFiles[891]: eval[1]: IGCM_sys_Get[646]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:04:23 --------------Debug3--> restart orchidee_ol
+2023-04-13 06:04:23 --------------Debug3--> Archived restart /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Restart/Maize_20941231_driver_rest.nc
+IGCM_sys_Get : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Restart/Maize_20941231_driver_rest.nc driver_rest_in.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[345]: IGCM_comp_GetInputRestartFiles[891]: eval[1]: IGCM_sys_Get[646]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Chmod : u+rw CO2.nc PFTmap.nc PlantingDate.nc context_orchidee.xml driver_rest_in.nc field_def_orchidee.xml file_def_orchidee.xml forcing_file.nc iodef.xml reftemp.nc run.def script_orchidee_ol.ksh sechiba_rest_in.nc stomate_rest_in.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[350]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+IGCM_sys_activ_variables
+
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_Update
+
+2023-04-13 06:04:23 --Debug1--> Update sechiba Parameter Files.
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def STOMATE_OK_STOMATE y
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_OK_STOMATE=y
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def XIOS_ORCHIDEE_OK n
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: XIOS_ORCHIDEE_OK is set by the user. Nothing done.
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def WRITE_STEP 31536000
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: In run.def set WRITE_STEP=31536000
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SECHIBA_HISTFILE2 n
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: SECHIBA_HISTFILE2 is not set in run.def. This is a nonblocker call so nothing is done.
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: Default value for SECHIBA_HISTFILE2 from the model will be used.
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: SECHIBA_HISTFILE2 is set by the user. Nothing done.
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_OK_CO2 y
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_OK_CO2=y
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def LAI_MAP n
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: In run.def set LAI_MAP=n
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def RIVER_ROUTING n
+2023-04-13 06:04:23 --Debug1--> IGCM_comp_modifyDefFile: RIVER_ROUTING is set by the user. Nothing done.
+2023-04-13 06:04:23 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def HYDROL_CWRR y
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: HYDROL_CWRR is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def IMPOSE_VEG y
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: IMPOSE_VEG is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def VEGET_UPDATE 0Y
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: VEGET_UPDATE is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def SECHIBA_restart_in sechiba_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set SECHIBA_restart_in=sechiba_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def RIVER_DESC n
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: RIVER_DESC is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Update stomate Parameter Files.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SPINUP_ANALYTIC n
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_ANALYTIC is not set in run.def. This is a nonblocker call so nothing is done.
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: Default value for SPINUP_ANALYTIC from the model will be used.
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_ANALYTIC is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SPINUP_PERIOD -1
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_PERIOD is not set in run.def. This is a nonblocker call so nothing is done.
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: Default value for SPINUP_PERIOD from the model will be used.
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_PERIOD is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_HIST_DT 365
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_HIST_DT=365
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_IPCC_HIST_DT 365
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: STOMATE_IPCC_HIST_DT is set by the user. Nothing done.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def STOMATE_RESTART_FILEIN stomate_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_RESTART_FILEIN=stomate_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_CFORCING_NAME NONE
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_CFORCING_NAME=NONE
+IGCM_sys_Cp : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/bin/orchidee_ol orchidee_ol
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[364]: IGCM_comp_Update[1407]: eval[1]: IGCM_sys_Cp[491]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Chmod : +rx /scratch/yangsu.2704487.obelix0/Maize.183835/orchidee_ol
+2023-04-13 06:04:24 --Debug1--> Update orchidee_ol Parameter Files.
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def TIME_LENGTH 1Y
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set TIME_LENGTH=1Y
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def TIME_SKIP 0D
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set TIME_SKIP=0D
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def RESTART_FILEIN driver_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set RESTART_FILEIN=driver_rest_in.nc
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def DRIVER_reset_time n
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set DRIVER_reset_time=n
+2023-04-13 06:04:24 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def ATM_CO2 DEFAULT
+2023-04-13 06:04:24 --Debug1--> IGCM_comp_modifyDefFile: In run.def set ATM_CO2= 350.
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[369]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+
+#######################################
+#      DIR BEFORE RUN EXECUTION       #
+#######################################
+
+total 1401508
+-rwxr--r-- 1 yangsu lsce       118 Apr 13 06:04 script_orchidee_ol.ksh
+-rwxr-xr-x 1 yangsu lsce     19136 Apr 13 06:04 CO2.nc
+-rwxr-xr-x 1 yangsu lsce      1640 Apr 13 06:04 iodef.xml
+-rwxr-xr-x 1 yangsu lsce      4119 Apr 13 06:04 context_orchidee.xml
+-rwxr-xr-x 1 yangsu lsce     37397 Apr 13 06:04 field_def_orchidee.xml
+-rw-r--r-- 1 yangsu lsce  62226912 Apr 13 06:04 PFTmap.nc
+-rw-r--r-- 1 yangsu lsce  17626416 Apr 13 06:04 PlantingDate.nc
+-rwxr-xr-x 1 yangsu lsce    615116 Apr 13 06:04 reftemp.nc
+-rw-r--r-- 1 yangsu lsce 947125928 Apr 13 06:04 forcing_file.nc
+-rw-r--r-- 1 yangsu lsce 183176380 Apr 13 06:04 sechiba_rest_in.nc
+-rw-r--r-- 1 yangsu lsce 198876388 Apr 13 06:04 stomate_rest_in.nc
+-rw-r--r-- 1 yangsu lsce    178768 Apr 13 06:04 driver_rest_in.nc
+-rwxr-xr-x 1 yangsu lsce  25171760 Apr 13 06:04 orchidee_ol
+-rw-r--r-- 1 yangsu lsce     12888 Apr 13 06:04 run.def
+-rwxr-xr-x 1 yangsu lsce     30375 Apr 13 06:04 file_def_orchidee.xml
+========================================================================
+EXECUTION of : time mpirun ./script_orchidee_ol.ksh
+========================================================================
+
+#######################################
+#       DIR AFTER RUN EXECUTION       #
+#######################################
+
+total 2165696
+-rwxr--r-- 1 yangsu lsce       118 Apr 13 06:04 script_orchidee_ol.ksh
+-rwxr-xr-x 1 yangsu lsce     19136 Apr 13 06:04 CO2.nc
+-rwxr-xr-x 1 yangsu lsce      1640 Apr 13 06:04 iodef.xml
+-rwxr-xr-x 1 yangsu lsce      4119 Apr 13 06:04 context_orchidee.xml
+-rwxr-xr-x 1 yangsu lsce     37397 Apr 13 06:04 field_def_orchidee.xml
+-rw-r--r-- 1 yangsu lsce  62226912 Apr 13 06:04 PFTmap.nc
+-rw-r--r-- 1 yangsu lsce  17626416 Apr 13 06:04 PlantingDate.nc
+-rwxr-xr-x 1 yangsu lsce    615116 Apr 13 06:04 reftemp.nc
+-rw-r--r-- 1 yangsu lsce 947125928 Apr 13 06:04 forcing_file.nc
+-rw-r--r-- 1 yangsu lsce 183176380 Apr 13 06:04 sechiba_rest_in.nc
+-rw-r--r-- 1 yangsu lsce 198876388 Apr 13 06:04 stomate_rest_in.nc
+-rw-r--r-- 1 yangsu lsce    178768 Apr 13 06:04 driver_rest_in.nc
+-rwxr-xr-x 1 yangsu lsce  25171760 Apr 13 06:04 orchidee_ol
+-rw-r--r-- 1 yangsu lsce     12888 Apr 13 06:04 run.def
+-rwxr-xr-x 1 yangsu lsce     30375 Apr 13 06:04 file_def_orchidee.xml
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.0
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.1
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.2
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.3
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.4
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.5
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.6
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.7
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.8
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.9
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.10
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.12
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.11
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.13
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.14
+-rw-r--r-- 1 yangsu lsce         0 Apr 13 06:04 out_orchidee_ol.err.15
+-rw-r--r-- 1 yangsu lsce       400 Apr 13 06:13 Load_balance_orchidee.dat
+-rw-r--r-- 1 yangsu lsce    265385 Apr 13 06:13 out_orchidee_ol.out.6
+-rw-r--r-- 1 yangsu lsce    189585 Apr 13 06:13 out_orchidee_ol.out.5
+-rw-r--r-- 1 yangsu lsce    184709 Apr 13 06:13 out_orchidee_ol.out.4
+-rw-r--r-- 1 yangsu lsce    214979 Apr 13 06:13 out_orchidee_ol.out.3
+-rw-r--r-- 1 yangsu lsce    289427 Apr 13 06:13 out_orchidee_ol.out.2
+-rw-r--r-- 1 yangsu lsce    110892 Apr 13 06:13 out_orchidee_ol.out.15
+-rw-r--r-- 1 yangsu lsce    253322 Apr 13 06:13 out_orchidee_ol.out.1
+-rw-r--r-- 1 yangsu lsce    468824 Apr 13 06:13 out_orchidee_ol.out.0
+-rw-r--r-- 1 yangsu lsce    227862 Apr 13 06:13 out_orchidee_ol.out.7
+-rw-r--r-- 1 yangsu lsce    284436 Apr 13 06:13 out_orchidee_ol.out.9
+-rw-r--r-- 1 yangsu lsce    171319 Apr 13 06:13 out_orchidee_ol.out.11
+-rw-r--r-- 1 yangsu lsce    258148 Apr 13 06:13 out_orchidee_ol.out.8
+-rw-r--r-- 1 yangsu lsce    133006 Apr 13 06:13 out_orchidee_ol.out.14
+-rw-r--r-- 1 yangsu lsce    148212 Apr 13 06:13 out_orchidee_ol.out.13
+-rw-r--r-- 1 yangsu lsce    233743 Apr 13 06:13 out_orchidee_ol.out.12
+-rw-r--r-- 1 yangsu lsce    260905 Apr 13 06:13 out_orchidee_ol.out.10
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0015.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0014.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0013.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0012.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0011.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0010.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0009.nc
+-rw-r--r-- 1 yangsu lsce    475804 Apr 13 06:13 sechiba_history_0008.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0007.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0006.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0005.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0004.nc
+-rw-r--r-- 1 yangsu lsce    902052 Apr 13 06:13 sechiba_history_0003.nc
+-rw-r--r-- 1 yangsu lsce    688928 Apr 13 06:13 sechiba_history_0002.nc
+-rw-r--r-- 1 yangsu lsce    902052 Apr 13 06:13 sechiba_history_0001.nc
+-rw-r--r-- 1 yangsu lsce    902052 Apr 13 06:13 sechiba_history_0000.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0013.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0012.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0011.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0010.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0009.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0007.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0005.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0004.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0002.nc
+-rw-r--r-- 1 yangsu lsce    453084 Apr 13 06:13 stomate_ipcc_history_0001.nc
+-rw-r--r-- 1 yangsu lsce    453084 Apr 13 06:13 stomate_ipcc_history_0000.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0015.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0014.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0013.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0012.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0011.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0010.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0009.nc
+-rw-r--r-- 1 yangsu lsce     60984 Apr 13 06:13 stomate_history_0008.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0007.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0006.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0005.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0004.nc
+-rw-r--r-- 1 yangsu lsce    111392 Apr 13 06:13 stomate_history_0003.nc
+-rw-r--r-- 1 yangsu lsce     86188 Apr 13 06:13 stomate_history_0002.nc
+-rw-r--r-- 1 yangsu lsce    111392 Apr 13 06:13 stomate_history_0001.nc
+-rw-r--r-- 1 yangsu lsce    111392 Apr 13 06:13 stomate_history_0000.nc
+-rw-r--r-- 1 yangsu lsce 183176380 Apr 13 06:13 sechiba_rest_out.nc
+-rw-r--r-- 1 yangsu lsce    178768 Apr 13 06:13 driver_rest_out.nc
+-rw-r--r-- 1 yangsu lsce 198876388 Apr 13 06:13 stomate_rest_out.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0015.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0014.nc
+-rw-r--r-- 1 yangsu lsce    235636 Apr 13 06:13 stomate_ipcc_history_0008.nc
+-rw-r--r-- 1 yangsu lsce    344360 Apr 13 06:13 stomate_ipcc_history_0006.nc
+-rw-r--r-- 1 yangsu lsce    453084 Apr 13 06:13 stomate_ipcc_history_0003.nc
+-rw-r--r-- 1 yangsu lsce    160130 Apr 13 06:13 used_run.def
+-rw-r--r-- 1 yangsu lsce  23366183 Apr 13 06:13 out_orchidee_0012
+-rw-r--r-- 1 yangsu lsce  22440508 Apr 13 06:13 out_orchidee_0015
+-rw-r--r-- 1 yangsu lsce  22728770 Apr 13 06:13 out_orchidee_0014
+-rw-r--r-- 1 yangsu lsce  23001834 Apr 13 06:13 out_orchidee_0011
+-rw-r--r-- 1 yangsu lsce  23994635 Apr 13 06:13 out_orchidee_0010
+-rw-r--r-- 1 yangsu lsce  24070806 Apr 13 06:13 out_orchidee_0009
+-rw-r--r-- 1 yangsu lsce  23666701 Apr 13 06:13 out_orchidee_0007
+-rw-r--r-- 1 yangsu lsce  23041083 Apr 13 06:13 out_orchidee_0005
+-rw-r--r-- 1 yangsu lsce  22979011 Apr 13 06:13 out_orchidee_0004
+-rw-r--r-- 1 yangsu lsce  24398736 Apr 13 06:13 out_orchidee_0002
+-rw-r--r-- 1 yangsu lsce  24148022 Apr 13 06:13 out_orchidee_0001
+-rw-r--r-- 1 yangsu lsce  25905966 Apr 13 06:13 out_orchidee_0000
+-rw-r--r-- 1 yangsu lsce  22758674 Apr 13 06:13 out_orchidee_0013
+-rw-r--r-- 1 yangsu lsce  23904239 Apr 13 06:13 out_orchidee_0008
+-rw-r--r-- 1 yangsu lsce  23769886 Apr 13 06:13 out_orchidee_0006
+-rw-r--r-- 1 yangsu lsce  23247370 Apr 13 06:13 out_orchidee_0003
+-rw-r--r-- 1 yangsu lsce       366 Apr 13 06:13 out_execution
+IGCM_sys_desactiv_variables
+
+2023-04-13 06:13:18 --Debug1--> IGCM_comp_Finalize
+
+2023-04-13 06:13:18 --Debug1--> Finalize SRF : sechiba component.
+2023-04-13 06:13:18 --------Debug2--> Save Output Text files for SRF : sechiba component.
+IGCM_sys_Put_Out : used_run.def /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug/Maize_20950101_20951231_used_run.def
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug
+IGCM_sys_Chmod : 444 used_run.def
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:13:19 --------Debug2--> Parallelism of Text Output with 48 files.
+2023-04-13 06:13:19 --------Debug2--> Compact files in Maize_20950101_20951231_out_orchidee :
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0000
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0001
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0002
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0003
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0004
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0005
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0006
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0007
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0008
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0009
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0010
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0011
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0012
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0013
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0014
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_0015
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.0
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.1
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.10
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.11
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.12
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.13
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.14
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.15
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.2
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.3
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.4
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.5
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.6
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.7
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.8
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.err.9
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.0
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.1
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.10
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.11
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.12
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.13
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.14
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.15
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.2
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.3
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.4
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.5
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.6
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.7
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.8
+2023-04-13 06:13:19 --------Debug2--> out_orchidee_ol.out.9
+IGCM_sys_Put_Out : Maize_20950101_20951231_out_orchidee /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug/Maize_20950101_20951231_out_orchidee
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug
+IGCM_sys_Chmod : 444 Maize_20950101_20951231_out_orchidee
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1534]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : river_desc.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Debug/Maize_20950101_20951231_river_desc.nc
+WARNING : IGCM_sys_Put_Out river_desc.nc DOES NOT EXIST .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[571]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:14:03 --------Debug2--> Save Restart files for SRF : sechiba component.
+IGCM_sys_Put_Rest : sechiba_rest_out.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Restart/Maize_20951231_sechiba_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Restart/Maize_20951231_sechiba_rest.nc
+IGCM_sys_Mv : sechiba_rest_out.nc sechiba_rest_in.nc
+2023-04-13 06:14:08 --------Debug2--> Save Output files for SRF : sechiba component.
+2023-04-13 06:14:08 --------Debug2--> Parallelism detected and rebuilding sechiba_history.nc is needed
+2023-04-13 06:14:08 --------Debug2--> Rebuilding sechiba_history.nc online
+IGCM_sys_rebuild : sechiba_history.nc sechiba_history_0000.nc sechiba_history_0001.nc sechiba_history_0002.nc sechiba_history_0003.nc sechiba_history_0004.nc sechiba_history_0005.nc sechiba_history_0006.nc sechiba_history_0007.nc sechiba_history_0008.nc sechiba_history_0009.nc sechiba_history_0010.nc sechiba_history_0011.nc sechiba_history_0012.nc sechiba_history_0013.nc sechiba_history_0014.nc sechiba_history_0015.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1684]: IGCM_sys_rebuild[925]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : sechiba_history.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Output/MO/Maize_20950101_20951231_1M_sechiba_history.nc
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Output/MO
+IGCM_sys_Chmod : 444 sechiba_history.nc
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1756]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : sechiba_out_2.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SRF/Output/HF/Maize_20950101_20951231_HF_sechiba_out_2.nc
+WARNING : IGCM_sys_Put_Out sechiba_out_2.nc DOES NOT EXIST .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1756]: IGCM_sys_Put_Out[571]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+
+2023-04-13 06:14:10 --Debug1--> Finalize SBG : stomate component.
+2023-04-13 06:14:10 --------Debug2--> Save Output Text files for SBG : stomate component.
+2023-04-13 06:14:10 --------Debug2--> Save Restart files for SBG : stomate component.
+IGCM_sys_Put_Rest : stomate_rest_out.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Restart/Maize_20951231_stomate_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Restart/Maize_20951231_stomate_rest.nc
+IGCM_sys_Mv : stomate_rest_out.nc stomate_rest_in.nc
+2023-04-13 06:14:14 --------Debug2--> Save Output files for SBG : stomate component.
+2023-04-13 06:14:14 --------Debug2--> Parallelism detected and rebuilding stomate_history.nc is needed
+2023-04-13 06:14:14 --------Debug2--> Rebuilding stomate_history.nc online
+IGCM_sys_rebuild : stomate_history.nc stomate_history_0000.nc stomate_history_0001.nc stomate_history_0002.nc stomate_history_0003.nc stomate_history_0004.nc stomate_history_0005.nc stomate_history_0006.nc stomate_history_0007.nc stomate_history_0008.nc stomate_history_0009.nc stomate_history_0010.nc stomate_history_0011.nc stomate_history_0012.nc stomate_history_0013.nc stomate_history_0014.nc stomate_history_0015.nc
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1684]: IGCM_sys_rebuild[925]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : stomate_history.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Output/MO/Maize_20950101_20951231_1M_stomate_history.nc
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/SBG/Output/MO
+IGCM_sys_Chmod : 444 stomate_history.nc
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1756]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+
+2023-04-13 06:14:15 --Debug1--> Finalize OOL : orchidee_ol component.
+2023-04-13 06:14:15 --------Debug2--> Save Output Text files for OOL : orchidee_ol component.
+IGCM_sys_Put_Out : run.def /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_run.def
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 run.def
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : used_run.def /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_used_run.def
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 used_run.def
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:14:15 --------Debug2--> Parallelism of Text Output with 32 files.
+2023-04-13 06:14:15 --------Debug2--> Compact files in Maize_20950101_20951231_out_orchidee_ol :
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.0
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.1
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.10
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.11
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.12
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.13
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.14
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.15
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.2
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.3
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.4
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.5
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.6
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.7
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.8
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.err.9
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.0
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.1
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.10
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.11
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.12
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.13
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.14
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.15
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.2
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.3
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.4
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.5
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.6
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.7
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.8
+2023-04-13 06:14:15 --------Debug2--> out_orchidee_ol.out.9
+IGCM_sys_Put_Out : Maize_20950101_20951231_out_orchidee_ol /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_out_orchidee_ol
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 Maize_20950101_20951231_out_orchidee_ol
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1534]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : iodef.xml /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_iodef.xml
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 iodef.xml
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : context_orchidee.xml /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_context_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 context_orchidee.xml
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : field_def_orchidee.xml /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_field_def_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 field_def_orchidee.xml
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : file_def_orchidee.xml /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_file_def_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug
+IGCM_sys_Chmod : 444 file_def_orchidee.xml
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+IGCM_sys_Put_Out : xios_client_* /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Debug/Maize_20950101_20951231_xios_client_*
+WARNING : IGCM_sys_Put_Out xios_client_* DOES NOT EXIST .
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[441]: IGCM_comp_Finalize[1565]: eval[1]: IGCM_sys_Put_Out[571]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+2023-04-13 06:14:17 --------Debug2--> Save Restart files for OOL : orchidee_ol component.
+IGCM_sys_Put_Rest : driver_rest_out.nc /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Restart/Maize_20951231_driver_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/OOL/Restart/Maize_20951231_driver_rest.nc
+IGCM_sys_Mv : driver_rest_out.nc driver_rest_in.nc
+2023-04-13 06:14:17 --------Debug2--> Save Output files for OOL : orchidee_ol component.
+
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[446]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+
+2023-04-13 06:14:17 --Debug1--> IGCM_post_Configure
+
+2023-04-13 06:14:17 --------Debug2--> IGCM_post_ModuloRuntimeFrequency : Master=10Y Slave=1Y CumulPeriod=7
+2023-04-13 06:14:17 --Debug1--> TimeSeriesFrequency flag value : false
+
+2023-04-13 06:14:17 --------Debug2--> IGCM_post_ModuloRuntimeFrequency : Master=10Y Slave=1Y CumulPeriod=7
+2023-04-13 06:14:17 --Debug1--> SeasonalFrequency flag value : false
+2023-04-13 06:14:17 --------Debug2--> POST-TREATEMENT flag value : false
+
+2023-04-13 06:14:17 --Debug1--> IGCM_config_PeriodEnd
+
+2023-04-13 06:14:17 --Debug1--> Check components binary : size and creation date
+2023-04-13 06:14:17 --------------Debug3--> SRF
+2023-04-13 06:14:17 --------------Debug3--> SBG
+2023-04-13 06:14:17 --------------Debug3--> OOL
+IGCM_sys_Put_Out : out_execution /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out/Maize_20950101_20951231_out_execution
+IGCM_sys_MkdirArchive : /home/orchidee04/yangsu/IGCM_OUT/OL2/DEVT/Case-2-crop-yield-mono-future/Maize/Out
+IGCM_sys_Chmod : 444 out_execution
+IGCM_sys_UnTar : 0
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[471]: IGCM_config_PeriodEnd[1131]: IGCM_sys_Put_Out[600]: IGCM_debug_PopStack[401]: IGCM_debug_PrintInfosActions[743]: IGCM_debug_sendAMQP: not found [No such file or directory]
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[471]: IGCM_config_PeriodEnd[1136]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+
+2023-04-13 06:14:17 --Debug1--> Files that will be deleted before next period-run :
+-r--r--r-- 1 yangsu lsce 12888 Apr 13 06:04 run.def
+-rwxr-xr-x 1 yangsu lsce 19136 Apr 13 06:04 CO2.nc
+-r--r--r-- 1 yangsu lsce 1640 Apr 13 06:04 iodef.xml
+-r--r--r-- 1 yangsu lsce 30375 Apr 13 06:04 file_def_orchidee.xml
+-r--r--r-- 1 yangsu lsce 4119 Apr 13 06:04 context_orchidee.xml
+-r--r--r-- 1 yangsu lsce 37397 Apr 13 06:04 field_def_orchidee.xml
+-r--r--r-- 1 yangsu lsce 160130 Apr 13 06:13 used_run.def
+-rw-r--r-- 1 yangsu lsce 25905966 Apr 13 06:13 out_orchidee_0000
+-rw-r--r-- 1 yangsu lsce 24148022 Apr 13 06:13 out_orchidee_0001
+-rw-r--r-- 1 yangsu lsce 24398736 Apr 13 06:13 out_orchidee_0002
+-rw-r--r-- 1 yangsu lsce 23247370 Apr 13 06:13 out_orchidee_0003
+-rw-r--r-- 1 yangsu lsce 22979011 Apr 13 06:13 out_orchidee_0004
+-rw-r--r-- 1 yangsu lsce 23041083 Apr 13 06:13 out_orchidee_0005
+-rw-r--r-- 1 yangsu lsce 23769886 Apr 13 06:13 out_orchidee_0006
+-rw-r--r-- 1 yangsu lsce 23666701 Apr 13 06:13 out_orchidee_0007
+-rw-r--r-- 1 yangsu lsce 23904239 Apr 13 06:13 out_orchidee_0008
+-rw-r--r-- 1 yangsu lsce 24070806 Apr 13 06:13 out_orchidee_0009
+-rw-r--r-- 1 yangsu lsce 23994635 Apr 13 06:13 out_orchidee_0010
+-rw-r--r-- 1 yangsu lsce 23001834 Apr 13 06:13 out_orchidee_0011
+-rw-r--r-- 1 yangsu lsce 23366183 Apr 13 06:13 out_orchidee_0012
+-rw-r--r-- 1 yangsu lsce 22758674 Apr 13 06:13 out_orchidee_0013
+-rw-r--r-- 1 yangsu lsce 22728770 Apr 13 06:13 out_orchidee_0014
+-rw-r--r-- 1 yangsu lsce 22440508 Apr 13 06:13 out_orchidee_0015
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.0
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.1
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.10
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.11
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.12
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.13
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.14
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.15
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.2
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.3
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.4
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.5
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.6
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.7
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.8
+-rw-r--r-- 1 yangsu lsce 0 Apr 13 06:04 out_orchidee_ol.err.9
+-rw-r--r-- 1 yangsu lsce 468824 Apr 13 06:13 out_orchidee_ol.out.0
+-rw-r--r-- 1 yangsu lsce 253322 Apr 13 06:13 out_orchidee_ol.out.1
+-rw-r--r-- 1 yangsu lsce 260905 Apr 13 06:13 out_orchidee_ol.out.10
+-rw-r--r-- 1 yangsu lsce 171319 Apr 13 06:13 out_orchidee_ol.out.11
+-rw-r--r-- 1 yangsu lsce 233743 Apr 13 06:13 out_orchidee_ol.out.12
+-rw-r--r-- 1 yangsu lsce 148212 Apr 13 06:13 out_orchidee_ol.out.13
+-rw-r--r-- 1 yangsu lsce 133006 Apr 13 06:13 out_orchidee_ol.out.14
+-rw-r--r-- 1 yangsu lsce 110892 Apr 13 06:13 out_orchidee_ol.out.15
+-rw-r--r-- 1 yangsu lsce 289427 Apr 13 06:13 out_orchidee_ol.out.2
+-rw-r--r-- 1 yangsu lsce 214979 Apr 13 06:13 out_orchidee_ol.out.3
+-rw-r--r-- 1 yangsu lsce 184709 Apr 13 06:13 out_orchidee_ol.out.4
+-rw-r--r-- 1 yangsu lsce 189585 Apr 13 06:13 out_orchidee_ol.out.5
+-rw-r--r-- 1 yangsu lsce 265385 Apr 13 06:13 out_orchidee_ol.out.6
+-rw-r--r-- 1 yangsu lsce 227862 Apr 13 06:13 out_orchidee_ol.out.7
+-rw-r--r-- 1 yangsu lsce 258148 Apr 13 06:13 out_orchidee_ol.out.8
+-rw-r--r-- 1 yangsu lsce 284436 Apr 13 06:13 out_orchidee_ol.out.9
+-r--r--r-- 1 yangsu lsce 390718877 Apr 13 06:13 Maize_20950101_20951231_out_orchidee
+-r--r--r-- 1 yangsu lsce 7508072 Apr 13 06:14 sechiba_history.nc
+-rw-r--r-- 1 yangsu lsce 902052 Apr 13 06:13 sechiba_history_0000.nc
+-rw-r--r-- 1 yangsu lsce 902052 Apr 13 06:13 sechiba_history_0001.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0002.nc
+-rw-r--r-- 1 yangsu lsce 902052 Apr 13 06:13 sechiba_history_0003.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0004.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0005.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0006.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0007.nc
+-rw-r--r-- 1 yangsu lsce 475804 Apr 13 06:13 sechiba_history_0008.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0009.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0010.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0011.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0012.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0013.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0014.nc
+-rw-r--r-- 1 yangsu lsce 688928 Apr 13 06:13 sechiba_history_0015.nc
+-r--r--r-- 1 yangsu lsce 891948 Apr 13 06:14 stomate_history.nc
+-rw-r--r-- 1 yangsu lsce 111392 Apr 13 06:13 stomate_history_0000.nc
+-rw-r--r-- 1 yangsu lsce 111392 Apr 13 06:13 stomate_history_0001.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0002.nc
+-rw-r--r-- 1 yangsu lsce 111392 Apr 13 06:13 stomate_history_0003.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0004.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0005.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0006.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0007.nc
+-rw-r--r-- 1 yangsu lsce 60984 Apr 13 06:13 stomate_history_0008.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0009.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0010.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0011.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0012.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0013.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0014.nc
+-rw-r--r-- 1 yangsu lsce 86188 Apr 13 06:13 stomate_history_0015.nc
+-r--r--r-- 1 yangsu lsce 3839652 Apr 13 06:14 Maize_20950101_20951231_out_orchidee_ol
+-rw-r--r-- 1 yangsu lsce 366 Apr 13 06:14 out_execution_tail.txt
+-r--r--r-- 1 yangsu lsce 366 Apr 13 06:13 out_execution
+
+2023-04-13 06:14:19 --------Debug2--> Number of years for PeriodLength : 1
+
+2023-04-13 06:14:19 --Debug1--> IGCM_config_PeriodEnd : Preparing Next Execution
+2023-04-13 06:14:19 --Debug1--> PeriodDateBegin : 20960101
+2023-04-13 06:14:19 --Debug1--> PeriodDateEnd : 20961231
+2023-04-13 06:14:19 --Debug1--> PeriodLengthInDays : 365
+
+2023-04-13 06:14:19 --------------Debug3--> PeriodDateBegin Human : 2096-01-01
+2023-04-13 06:14:19 --------------Debug3--> PeriodDateEnd Human : 2096-12-31
+2023-04-13 06:14:19 --------------Debug3--> CumulPeriod : 8
+Ending iteration 1
+
+2023-04-13 06:14:19 --Debug1--> IGCM_config_Finalize
+
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[491]: IGCM_config_Finalize[1288]: IGCM_debug_Verif_Exit: not found [No such file or directory]
+2023-04-13 06:14:20 --Debug1--> Submit next job
+IGCM_sys_Cd : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize
+IGCM_sys_Qsub : /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Calculation-2-MW-mono-at-future-climate/Maize/Job_Maize
+2704493.obelix0
+IGCM_sys_Cd : -
+/scratch/yangsu.2704487.obelix0/Maize.183835
+IGCM_sys_Cd : ..
+IGCM_sys_RmRunDir : -rf /scratch/yangsu.2704487.obelix0
+Dummy call, let the scheduler do that.
+/var/spool/pbs/mom_priv/jobs/2704487.obelix0.SC[491]: IGCM_config_Finalize[1332]: IGCM_debug_BigBro_Finalize[607]: IGCM_debug_sendAMQP: not found [No such file or directory]
+Thu Apr 13 06:14:20 CEST 2023
