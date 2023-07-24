@@ -1,0 +1,420 @@
+# RIVER_DESC ([FLAG]) :  Writes out a description of the rivers
+# {RIVER_ROUTING}
+RIVER_DESC =  n
+
+# RIVER_DESC_FILE ([FILE]) :  Filename in which we write the description of
+# the rivers. If suffix is ".nc" a netCDF file is created     {RIVER_DESC}
+RIVER_DESC_FILE =  river_desc.nc
+
+DO_FLOODPLAINS =  n
+DO_FLOODINFILT =  n
+DO_SWAMPS =   n
+
+#---- pixels
+# grignon
+#LIMIT_WEST = 0.0
+#LIMIT_EAST = 2.0
+#LIMIT_SOUTH= 47.5
+#LIMIT_NORTH= 49.5
+
+#LIMIT_WEST = -10.05
+#LIMIT_EAST = -9.55
+#LIMIT_SOUTH= 54.05
+#LIMIT_NORTH= 54.55
+
+
+LIMIT_WEST = -10.0
+LIMIT_EAST = 35.0
+LIMIT_SOUTH= 35.0
+LIMIT_NORTH= 70.0
+
+
+
+#####################
+#for new crop module#
+#####################
+NVM = 15
+PFT_TO_MTC = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 12
+#PFT_TO_MTC = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 13, 13, 13
+
+#OK_LAIDEV = n, n, n, n, n, n, n, n, n, n, n, y, y, y, n
+OK_LAIDEV = n, n, n, n, n, n, n, n, n, n, n, y, y, y, y
+NSTM = 7
+PREF_SOIL_VEG = 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 5, 6, 7
+IRRIG_THRESHOLD = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 0
+IRRIG_FULFILL = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 0
+DURVIEF = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 780, 480, 480,0
+#STLEVAMF = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 200, 225, 571,0
+#STAMFLAX= 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 505, 450, 409,0
+
+# define SP_IPLT0, default is without this parameter, and in stomate.card, IMPOSE_IPLT=n
+#SP_IPLT0=0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120, 284, 100, 120,284
+
+
+
+DO_IRRIGATION = n
+DO_FULLIRR = n
+FREE_DRAIN_COEF = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+
+#If cut off deep drainage, we have to increase soil layers to
+#avoid numerical errors
+DEPTH_CSTTHICK = 0.2
+REFINEBOTTOM = y
+
+DO_IRRIG_RESERVOIR = n, n, n, n, n, y, n
+RESERVOIR_DEP_MAX = 0, 0, 0, 0, 0, 100, 0
+IRRIG_DEP_THRESHOLD = 0, 0, 0, 0, 0, 50, 0
+
+#do arid and wet irrigation or not
+#DO_AWD = n, n, n, n, n, y, n
+# if AWD_DEP is a value, it means the irrigation amount (mm) in one irrigation
+# event. if not, the water amount will calculated based on IRRIG_FULFILL
+#AWD_DEP = -1, -1, -1, -1, -1, 40, -1
+#IRRIG_THRESHOLD = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.9, 0
+
+#
+#**************************************************************************
+#                    Parameter file list for ORCHIDEE
+# See all optional parameters in modipsl/modeles/ORCHIDEE/orchidee.default
+#**************************************************************************
+# Time
+TIME_LENGTH = _AUTO_
+TIME_SKIP = _AUTO_
+
+# Input and output
+#**************************************************************************
+# If DRIVER_reset_time=y, read the year from forcing file instead of taking it from restart file 
+DRIVER_reset_time = _AUTO_
+
+# Name of restart to read for initial conditions for the driver
+RESTART_FILEIN = _AUTOBLOCKER_
+
+# Name of restart to read for initial conditions
+# default = NONE
+SECHIBA_restart_in = _AUTOBLOCKER_
+
+# Name of restart to read for initial conditions of STOMATE
+# default = NONE
+STOMATE_RESTART_FILEIN = _AUTOBLOCKER_
+
+# Use XIOS for writing diagnostics file
+# defulat = n
+XIOS_ORCHIDEE_OK = n
+
+# Flag to activate sechiba_out_2.nc history file for SECHIBA
+# default  = FALSE
+# SECHIBA_HISTFILE2 = TRUE
+
+# Writefrequency in seconds in sechiba_history.nc
+# default = 86400.0
+WRITE_STEP = _AUTO_
+
+# Writefrequency in seconds sechiba_out_2.nc 
+# default = 1800.0
+# WRITE_STEP2 = 86400.0
+
+# Writefrequency in days in stomate_history.nc
+# default = 10.
+STOMATE_HIST_DT = _AUTO_
+
+# Writefrequency in days or -1 for monthly output in stomate_ipcc_history.nc
+# default = 0.
+STOMATE_IPCC_HIST_DT = -1
+
+#from here, not included in my config
+## SECHIBA history output level (0..10)
+## default = 5
+SECHIBA_HISTLEVEL = 5
+#
+## SECHIBA history 2 output level (0..10)
+## default = 1
+SECHIBA_HISTLEVEL2 = 2
+#
+## STOMATE history output level (0..10)
+## default = 10
+STOMATE_HISTLEVEL = 1
+
+
+# Hydrology parameters
+#**************************************************************************
+# Activate the multi-layer diffusion scheme adapted from CWRR
+# by default the Choisnel hydrology is used.
+HYDROL_CWRR = y
+
+# Activate river routing
+RIVER_ROUTING = n
+
+
+#**************************************************************************
+# Activate Stomate component
+STOMATE_OK_STOMATE = _AUTOBLOCKER_ 
+
+# Activate calculations of CO2 according to Farqhuar and Ball
+STOMATE_OK_CO2 = _AUTO_ 
+
+# Parmeters related to vegetation map
+#**************************************************************************
+# Update vegetation frequency
+# default = 1Y
+#VEGET_UPDATE = _AUTO_
+
+VEGET_UPDATE=1D
+
+# Read lai map
+LAI_MAP = _AUTO_:DEFAULT = n
+
+# Prescribed vegetation, default=n
+IMPOSE_VEG = y
+SECHIBA_VEGMAX = 0,0,0,0,0,0,0,0,0,0,0,1.0,0,0,0
+# without rice, the ratio should add to 1
+
+# to active impose_soilt, need impose_veg = y
+IMPOSE_SOILT = n
+
+# for Grignon, sand,silt,clad %
+#SOIL_FRACTIONS = 0.11,0.71,0.18
+
+
+# Other parameters
+#**************************************************************************
+# Analytic spinup
+#SPINUP_ANALYTIC = _AUTO_
+#SPINUP_PERIOD = _AUTO_
+
+# Value for atmospheric CO2, default=350. When you want to quantify CO2 effect, go to stomate card to change CO2 file path
+ATM_CO2 = _AUTO_: DEFAULT = 350.
+#ATM_CO2 = 400.
+
+
+
+
+
+# Activate reading/writing of cforcing file. Default=NONE
+STOMATE_CFORCING_NAME = _AUTO_ : DEFAULT = NONE
+
+############################# General flags to activate the modules #############################
+
+# Activate the DGVM? (FALSE by default)
+STOMATE_OK_DGVM = n
+
+# Activate grassland management? (FALSE by default)
+ENABLE_GRAZING = n
+
+# Activate Spitfire? (FALSE by default ?)
+FIRE_DISABLE = y
+ALLOW_DEFOREST_FIRE = n
+
+# Activate the soil freezing scheme? (FALSE by default)
+OK_FREEZE = n
+
+# Activate permafrost carbon? (FALSE by default)
+OK_PC = n
+
+# Activate the explicit snow scheme developed by Tao? (FALSE by default)
+OK_EXPLICITSNOW = n
+
+# Activate computation of flux densities of CH4 from wetlands? (FALSE by default)
+#CH4_CALCUL = n
+
+# Activate Topmodel? (FALSE by default)
+#TOPM_CALCUL = n
+
+# Activate CO2 downregulation? (FALSE by default ?)
+#DOWNREGULATION_CO2 = n
+
+##################################################################################
+
+################################# ISABELLE #######################################
+
+## Setting yedoma carbon
+#reset_yedoma_carbon=n
+#yedoma_map_filename=/home/orchidee04/ajornet/inputsMICTv8/yedoma_map.nc
+#yedoma_depth=20.
+#deepC_a_init=1790.1
+#deepC_s_init=14360.8
+#deepC_p_init=1436.0
+
+## WETLAND CH4 methane
+#CH4atmo_CONC=0.0033
+
+## TOPMODEL
+#TOPMODEL_PARAMETERS_FILE=/home/orchidee04/ajornet/inputsMICTv8/TOPMODEL_param_1deg.nc
+
+############Soil Carbon##############
+#SOIL_REFSOC_FILE=/home/orchidee04/ajornet/inputsMICTv8/refSOC_NCSCD_linear_05deg_v4.nc
+
+## Define animal status parameters
+#FILE_PARAM_INIT=/home/orchidee04/ajornet/inputsMICTv8/laq-int.init_cond.par
+
+#DEBUG_INFO =  y
+#LONGPRINT = n
+#STOMATE_OK_STOMATE=y
+#OK_CO2 = y
+#PRINTLEV = 2
+#XIOS_ORCHIDEE_OK = n
+
+#### MICT SPECIFIC SETTINGS
+#LIGHTNING_FILE= /home/orchidee01/ychao/FIRE_INPUT_DATA/LISOTD_HRMC_V2.3.2011.lightn.nc
+#OK_PC=n
+
+#start from here ZY
+#OK_ECORR = y #OK_FREEZE active already this flag
+#OK_GEL_THD = n # not found
+#OK_GEL_THERMOSOIL = n # not found
+#OK_QGROUND = n 
+#OK_SHUMDIAG_INTERPOL = y # not found
+#OK_SHUMDIAG_PERMA = n # not found
+#OK_SHUM_PERMA_LONG = n # not found
+#OK_SNOWFACT = y #YES if OK_FREEZE 
+#OK_SNOW_TUNDRA_TAIGA = n # not found
+#OK_THERMIX_trunc = y # not found
+#OK_FREEZE_THERMIX=y #OK_FREEZE active already this flag
+
+
+#SOILALB_FILE =  /home/orchideeshare/igcmg/IGCM/SRF/soils_param.nc
+#SOILTYPE_FILE =  /home/orchideeshare/igcmg/IGCM/SRF/soils_param.nc
+#SOILCLASS_FILE =  /home/orchideeshare/igcmg/IGCM/SRF/soils_param.nc
+#VEGETATION_FILE =  Siberia_PFTMap_05degree.nc
+#REFTEMP_FILE =  /home/orchideeshare/igcmg/IGCM/SRF/reftemp.nc
+
+
+#SECHIBA_VEG = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+#SECHIBA_VEGMAX = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,0.0
+#SECHIBA_FRAC_NOBIO = 0.0
+
+
+
+
+#specific rice-induced change in parameters
+#IS_C4 =  n, n, n, n, n, n, n, n, n, n, n, n, y, n
+#NATURAL =  y, y, y, y, y, y, y, y, y, y, y, n, n, n
+
+#CODELAINET = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 3
+#STPLTGER =  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50.0, 50.0, 35.0, 50.0
+#STADE0 = snu, snu, snu, snu, snu, snu, snu, snu, snu, snu, lev, lev, snu, lev
+
+# INNSENES = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.35, 1.00, 1.00, 0.35
+#CODEHYPO = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 2
+#### laiplantule only makes sense when CODEHYPO=2
+#LAIPLANTULE = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0
+#LAI0 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.8, 0.0, 0.8
+#INNLAI = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0, 1.0
+#DURVIEF = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 480.0, 480.0, 200.0, 480.0
+#VLAIMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.6, 1.6, 2.2, 1.6  # decrease this can increase LAI
+# below is after calibration for Grignon site
+VLAIMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.5, 2.2, 1.4, 1.5 
+
+#DLAIMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0035, 0.0035, 0.0020, 0.0038 
+# below is after calibration for Grignon site
+DLAIMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0060, 0.00060, 0.00172, 0.0042  
+
+#STLEVAMF = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 571.0, 185.0, 225.0, 215.0   # decrease this can increase wheat, maize final LAI, but decrease the initial maize LAI, increase this can increase the time for crop to reach the maximum
+# below is after calibration for Grignon site
+STLEVAMF = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 571.0, 445.0, 370.0, 215.0
+
+#STAMFLAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 409.0, 270.0, 450.0, 475.0  # decrease this can decrease LAI
+# below is after calibration for Grignon site
+STAMFLAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 409.0, 295.0, 395.0, 475.0
+
+#STLEVDRP = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 959.0, 690.0, 900.0, 795.0  # no change for LAI, increase this can delay the flowering date, and increase the yield
+STLEVDRP = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 959.0, 930.0, 970.0, 795.0
+
+#STFLODRP = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50.0, 0.0, 250.0, 50.0
+STFLODRP = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50.0, 0.0, 250.0, 50.0
+
+# STDRPMAT = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 442.0, 750.0, 600.0, 380.0 # after change the flowering date, no change for NFLO and NREC
+STDRPMAT = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 442.0, 830.0, 320.0, 380.0
+
+#STDRPDES = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350.0, 700.0, 600.0, 350.0 # after change the flowering date, no change for NFLO and NREC
+STDRPDES = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350.0, 830.0, 320.0, 350.0
+
+PHYLLOTHERME = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120.0, 120.0, 70.0, 120.0
+
+DENSITESEM = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66.0, 230.0, 10.0, 66.0
+
+
+
+# harvest index
+# VITIRCARB = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.085, 0.080, 0.015   it seems reduce this can increase the yield
+VITIRCARB = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.05, 0.03, 0.015
+
+# IRMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.65, 0.95, 0.69, 0.65
+IRMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.65, 0.55, 0.9, 0.65
+
+VITIRCARBT = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0012, 0.1, 0.00150, 0.002
+
+
+
+
+#TDMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30.0, 32.0, 30.0
+#TDMIN = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13.0, 6.0, 13.0
+#TCMAX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30.0, 32.0, 30.0
+#TCMIN = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13.0, 6.0, 13.0
+#TCXSTOP = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40.0, 35.0, 40.0 
+
+#NUMAGEBOX = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 5, 10
+
+#IPLT_FILE = /home/satellites8/speng/Xuhui/DataManage/PlantDate_NewOrc.nc
+
+IMPOSE_IPLT = n
+
+#List=   (/home/surface4/vyin/data/newPFT/PlantDate_China_all_9294.nc PlantDate.nc)
+#IPLT_FILE = /home/users/bgabriel/crop_season/PlantDate_China_all_9294_delay10days.nc
+IPLT_FILE = /home/users/yangsu/crop_season/Crop_calendar.nc
+#IPLT_FILE = /home/users/bgabriel/crop_season/Crop_calendar_with_rotation_grignon.nc
+
+
+#HYDROL_CWRR = y
+#RIVER_ROUTING = n
+#IRRIG_DOSMAX = 5.0
+#IRRIG_DOSMAX = 20.0
+#IRRIG_DOSMAX = 10.0
+#IRRIG_DRIP = n 
+
+# before is y, not I change it to IMPOSE_IPLT = n
+
+#CHECK_WATERBAL = n
+
+################# CROP ROTATION SETTING
+OK_ROTATE = n 
+ROTATION_UPDATE = 1D
+
+IMPOSE_ROT = n 
+
+NVM_PLNT = y 
+#SP_IPLT0 = 0, 0, 0,  284,275,110,284
+#SP_IPLT1 = 0, 0, 0, 110, 111, 285, 110 
+
+#SP_IPLT0=0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  120, 275,88,284
+#SP_IPLT1 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 110, 111, 285, 110
+
+#SP_IPLT2 = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 207, 121, 35,207
+#SP_IPLT2 = 0, 0, 0, 300, 520, 300, 525
+
+#CYC_ROT_MAX = 2 
+
+#ROT_CMD_MAX = 2 
+#CMDROTATE_11 = 1001412, 0, 0
+#CMDROTATE_21 = 1001214, 0, 0
+#CMDROTATE_1 = 1001312
+#CMDROTATE_2 = 1001213
+
+#cmdin=1001214
+
+#DYN_PLNTDT = y 
+## dyn_plntdt allows the planting date files to be updated
+## when rotation cycle does not change (FALSE by default)
+## useful in multi-year simulations
+
+#PRINTLEV = 4 
+
+
+####### 2D input when IMPOSE_ROT is FALSE
+
+#NUMROTATE_FILE = FILENAME.nc
+## 2D matrix of cyc_rot_max
+## var name in NC should be CycleNum
+
+#CMDROTATE_FILE = FILENAME.nc
+## 2D matrix of rotation command
+## var name in NC should be Command

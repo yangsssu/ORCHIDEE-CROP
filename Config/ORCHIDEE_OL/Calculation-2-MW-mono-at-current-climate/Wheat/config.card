@@ -1,0 +1,129 @@
+
+# $Revision: 3478 $
+#
+#========================================================================
+#D-- Compatibility -
+[Compatibility]
+libIGCM=1.0
+
+#========================================================================
+#D-- UserChoices -
+[UserChoices]
+#============================
+#-- Output will be stored in IGCM_OUT/TagName/SpaceName/ExperimentName/JobName
+JobName=Wheat
+#----- LongName : Some words describing the experiment. LongName will be added in all output files produced by XIOS.
+LongName="NewCrop_PNT_fullirrig"
+TagName=OL2
+#------ SpaceName = DEVT/TEST/PROD
+SpaceName=DEVT
+#----- ExperimentName : Short Name of Experiment
+ExperimentName=Case-2-crop-yield-mono-current
+#============================
+#-- leap(gregorian), noleap, 360d
+CalendarType=noleap
+#-- Start and End of Job
+#-- "YYYY-MM-DD"
+#-- SPINUP
+DateBegin=2009-01-01
+DateEnd=2020-12-31
+#============================
+#-- 1Y, 1M, 5D, 1D
+PeriodLength=1Y
+#ARCHIVE=/home/users/bgabriel
+#ARCHIVE=/home/scratch01/bgabriel
+ARCHIVE=/home/orchidee04/yangsu
+
+#========================================================================
+#D-- ListOfComponents -
+[ListOfComponents]
+#D- For each component: (Component name, tag/version name)
+SRF= (sechiba, orchidee)
+SBG= (stomate, orchidee)
+OOL= (orchidee_ol, orchidee)
+#IOS= (xios, XIOS)
+
+#========================================================================
+#D-- Executable -
+[Executable]
+#D- For each component: 
+#D  (Real executable name, temorary name during run, number of process MPI)
+SRF= ("", "")
+SBG= ("", "")
+OOL= (orchidee_ol, orchidee_ol, 16MPI)
+#IOS= (xios_server.exe, xios.x, 1MPI)
+
+#========================================================================
+#D-- Restarts -
+[Restarts]
+#D- OverRule=y : All component will restart from the same simulation
+OverRule=n
+#D- Date of restart file to be used
+RestartDate=...
+#
+#- JobName for the restart file
+RestartJobName=...
+#D- Path to directory where the RestartJobName directory is stored
+#D- NB! ${ARCHIVE} depend on login. The full path can also be set
+RestartPath=...
+
+#========================================================================
+#D-- Post -
+[Post]
+#D- Do we archive the output text files and restart files?
+#D- frequency to create the archives (by default RebuildFrequency)
+PackFrequency=10Y
+#D- Frequency of rebuild submission. Only set NONE if running with 1 XIOS server
+RebuildFrequency=NONE
+#D- If you want to produce time series, this flag determines
+#D- frequency of post-processing submission
+TimeSeriesFrequency=10Y
+#D- Activate IgnoreNonMonotonic only when cycling over the same forcing files as for a spin up. 
+IgnoreNonMonotonic=TRUE
+#D- If you want to produce seasonal average, this flag determines
+#D- the period of this average
+SeasonalFrequency=10Y
+#D- Offset for seasonal average first start dates ; same unit as SeasonalFrequency
+#D- Usefull if you do not want to consider the first X simulation's years
+SeasonalFrequencyOffset= 0
+
+#========================================================================
+#D-- SRF - SECHIBA
+[SRF]
+# WriteFrequency for SRF: The first frequency (xY, xM, 5D, 1D or xs, where x 
+# is an integer) corresponds to the output frequency for the sechiba_history.nc file. 
+# This file is required. If you add HF, a second sechiba_out_2.nc file will be 
+# written with the 3H frequency. 
+WriteFrequency="1Y"
+Restart=n
+RestartDate=...
+RestartJobName=...
+RestartPath=...
+#========================================================================
+#D-- SBG - STOMATE
+[SBG]
+# WriteFrequency for SBG: Only one frequency (xY, xM, 5D, 1D or xs) can 
+# be specified. The same frequency will be applied for both files 
+# stomate_history.nc and stomate_ipcc_history.nc
+WriteFrequency="1Y"
+Restart=n
+RestartDate=...
+RestartJobName=...
+RestartPath=...
+#========================================================================
+#D-- OOL - Offline driver
+[OOL]
+WriteFrequency=""
+Restart=n
+RestartDate=...
+RestartJobName=...
+RestartPath=...
+#========================================================================
+#D-- IOS - XIOS
+[IOS]
+WriteFrequency=""
+Restart=n
+RestartDate=...
+RestartJobName=...
+RestartPath=...
+#========================================================================
