@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/igcmg/svn/!svn/ver/2078/IOIPSL/tags/v2_2_2/src
+END
+getincom.f90
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/getincom.f90
+END
+stringop.f90
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/stringop.f90
+END
+histcom.f90
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/histcom.f90
+END
+flincom.f90
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/flincom.f90
+END
+errioipsl.f90
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/igcmg/svn/!svn/ver/2078/IOIPSL/tags/v2_2_2/src/errioipsl.f90
+END
+fliocom.f90
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/fliocom.f90
+END
+calendar.f90
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/calendar.f90
+END
+def.prec
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/def.prec
+END
+AA_make.ldef
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/AA_make.ldef
+END
+mathelp.f90
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/mathelp.f90
+END
+restcom.f90
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/restcom.f90
+END
+ioipsl.f90
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/ioipsl.f90
+END
+AA_make
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/igcmg/svn/!svn/ver/2073/IOIPSL/tags/v2_2_2/src/AA_make
+END
