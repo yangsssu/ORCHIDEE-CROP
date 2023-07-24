@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date
+END
+noleap.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/noleap.cpp
+END
+allleap.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/allleap.hpp
+END
+calendar_type.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/calendar_type.hpp
+END
+d360.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/d360.hpp
+END
+gregorian.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/gregorian.hpp
+END
+julian.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/julian.cpp
+END
+noleap.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/noleap.hpp
+END
+julian.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/julian.hpp
+END
+allleap.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/allleap.cpp
+END
+d360.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/d360.cpp
+END
+gregorian.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/date/gregorian.cpp
+END
