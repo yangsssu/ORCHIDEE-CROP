@@ -1,0 +1,14 @@
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/run.card.init’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000012’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/config.card’: No such file or directory
+cp: cannot create directory ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/PARAM’: No such file or directory
+cp: cannot create directory ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/COMP’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Job_Pixel-1’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000009’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000007’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/run.card’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000011’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000010’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000008’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/Script_Output_Pixel-1.000006’: No such file or directory
+cp: cannot create regular file ‘/home/scratch01/yangsu/Final-Code/Case-2-current-MW-rotation-current-RCP85/run.card.bak’: No such file or directory
