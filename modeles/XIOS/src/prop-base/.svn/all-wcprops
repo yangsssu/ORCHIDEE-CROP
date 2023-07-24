@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/ioserver/svn/!svn/ver/588/XIOS/branchs/xios-1.0/src/functor
+END
+average.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/average.hpp
+END
+instant.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/instant.cpp
+END
+minimum.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/minimum.hpp
+END
+maximum.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/maximum.hpp
+END
+accumulate.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/accumulate.cpp
+END
+once.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/once.cpp
+END
+instant.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/instant.hpp
+END
+functor_type.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/functor_type.hpp
+END
+accumulate.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/accumulate.hpp
+END
+once.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/once.hpp
+END
+average.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/588/XIOS/branchs/xios-1.0/src/functor/average.cpp
+END
+minimum.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/minimum.cpp
+END
+maximum.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/functor/maximum.cpp
+END
