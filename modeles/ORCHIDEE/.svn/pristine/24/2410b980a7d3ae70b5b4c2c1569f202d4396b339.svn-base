@@ -1,0 +1,52 @@
+digraph test {
+ratio=2.176
+node [style=filled]
+"START diffuco_main" -> "first time step?
+(IF l_first_diffuco?)"
+"first time step?
+(IF l_first_diffuco?)" -> "drag coefficient from GCM?
+(IF ldq_cdrag_from_gcm?)"
+"first time step?
+(IF l_first_diffuco?)" -> "restart file required?
+(IF ldrestart_write?)"
+"drag coefficient from GCM?
+(IF ldq_cdrag_from_gcm?)" -> "CALL diffuco_init"
+"CALL diffuco_init" -> "<DiaObject of type "Standard - Line" at 2a7f9e0>"
+"CALL diffuco_trans" -> "CALL diffuco_comb"
+"CALL diffuco_comb" -> "Almagamated output?
+(IF (NOT almaoutput?))"
+"drag coefficient from GCM?
+(IF ldq_cdrag_from_gcm?)" -> "fetch drag coefficient from GCM
+(CALL getin_p)"
+"restart file required?
+(IF ldrestart_write?)" -> "CALL restup_p
+- rstruct
+- raero
+-qsatt
+-CO2 (if calculated)
+q_cdrag (if not passed from GCM)"
+"restart file required?
+(IF ldrestart_write?)" -> "drag coefficient from GCM?
+(IF ldq_cdrag_from_gcm?)"
+"drag coefficient from GCM?
+(IF ldq_cdrag_from_gcm?)" -> "CALL diffuco_aero"
+"CALL diffuco_aero" -> "CALL qsatcalc"
+"CALL qsatcalc" -> "CALL diffuco_snow"
+"CALL diffuco_snow" -> "CALL diffuco_inter"
+"CALL diffuco_inter" -> "CALL diffuco_bare"
+"CALL diffuco_bare" -> "Is CO2 to be calculated?
+(IF control%ok_co2?)"
+"Is CO2 to be calculated?
+(IF control%ok_co2?)" -> "CALL diffuco_trans_CO2"
+"Is CO2 to be calculated?
+(IF control%ok_co2?)" -> "CALL diffuco_trans"
+"Almagamated output?
+(IF (NOT almaoutput?))" -> "END diffuco_main"
+"Almagamated output?
+(IF (NOT almaoutput?))" -> "CALL histwrite
+-rstruct
+-raero
+-cdrag
+-Wind
+-qsatt"
+}

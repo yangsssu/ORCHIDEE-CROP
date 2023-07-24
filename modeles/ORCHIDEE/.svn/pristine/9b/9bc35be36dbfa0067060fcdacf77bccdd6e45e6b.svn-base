@@ -1,0 +1,4 @@
+\begin{eqnarray}
+    \chi^{dew, veg}= \chi^{d,v}_6(LAI)^5 - \chi^{d,v}_5(LAI)^4 + \chi^{d,v}_4(LAI)^3 
+    - \chi^{d,v}_3(LAI)^2 + \chi^{d,v}_2(LAI) + \chi^{d,v}_1
+\end{eqnarray}

@@ -1,0 +1,94 @@
+#-
+#- $Id$
+#-
+MODS1 = data_para.f90 \
+        timer.f90 \
+        transfert_para.f90 \
+	ioipsl_para.f90 \
+	tools_para.f90 \
+	parallel.f90
+#\
+# 	orch_write_field.f90 \
+# 	write_field.f90 \
+# 	orch_write_field_p.f90\
+# 	write_field_p.f90
+
+OBJSMODS1 = $(MODS1:.f90=.o)
+#-
+.PRECIOUS : $(MODEL_LIB)
+#-Q- sxnec  .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx6nec .PRECIOUS : $(SXMODEL_LIB)
+#-Q- eshpux .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx8brodie .PRECIOUS : $(SXMODEL_LIB)
+#-
+all:
+	$(M_K) m_all
+	@echo parallel is OK
+
+m_all: $(MODEL_LIB)($(OBJSMODS1))
+#-Q- intel m_all: WORK_MOD $(MODEL_LIB)($(OBJSMODS1))
+
+$(MODEL_LIB)(%.o) : %.f90
+	$(F_C) $(F_O) -I$(NCDF_INC) $*.f90
+	$(A_C) $(MODEL_LIB) $*.o
+#-Q- sxnec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sxnec 	mv $*.mod $(MODDIR)
+#-Q- sx6nec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx6nec 	mv $*.mod $(MODDIR)
+#-Q- eshpux 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- eshpux 	mv $*.mod $(MODDIR)
+#-Q- sx8mercure 	mv $*.mod $(MODDIR)
+#-Q- sx9mercure 	mv $*.mod $(MODDIR)
+#-Q- sx8brodie 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx8brodie 	mv $*.mod $(MODDIR)
+#-Q- solaris 	mv $*.mod $(MODDIR)
+	$(RM) $*.o
+#-Q- intel
+#-Q- intel WORK_MOD :
+#-Q- intel 	$(RM) work.pcl
+#-Q- intel 	@echo "work.pc" > work.pcl
+#-Q- intel 	@echo "../src_parameters/work.pc" >> work.pcl
+#-Q- intel 	@echo "../src_stomate/work.pc" >> work.pcl
+#-Q- intel 	@echo "../../IOIPSL/src/work.pc" >> work.pcl
+
+config : 
+	$(BINDIR)/Fparser -name PARALLEL $(MODS1)
+	echo 'Configuration of PARALLEL done'
+
+clean:
+	$(RM) $(MODEL_LIB)
+
+$(MODEL_LIB)(mpi_dummy.o):
+
+$(MODEL_LIB)(timer.o):
+
+$(MODEL_LIB)(data_para.o):
+
+$(MODEL_LIB)(orch_write_field.o):
+
+$(MODEL_LIB)(write_field_p.o): \
+  $(MODEL_LIB)(orch_write_field.o)
+
+$(MODEL_LIB)(transfert_para.o): \
+  $(MODEL_LIB)(timer.o) \
+  $(MODEL_LIB)(data_para.o) \
+
+$(MODEL_LIB)(ioipsl_para.o): \
+  $(MODEL_LIB)(transfert_para.o) \
+  $(MODEL_LIB)(data_para.o)
+
+$(MODEL_LIB)(tools_para.o): \
+  $(MODEL_LIB)(timer.o) \
+  $(MODEL_LIB)(data_para.o)
+
+$(MODEL_LIB)(orch_write_field_p.o): \
+  $(MODEL_LIB)(parallel.o)
+
+$(MODEL_LIB)(write_field_p.o): \
+  $(MODEL_LIB)(parallel.o) \
+  $(MODEL_LIB)(orch_write_field_p.o)
+
+$(MODEL_LIB)(parallel.o): \
+  $(MODEL_LIB)(data_para.o) \
+  $(MODEL_LIB)(transfert_para.o) \
+  $(MODEL_LIB)(ioipsl_para.o) 

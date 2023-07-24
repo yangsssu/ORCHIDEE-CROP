@@ -1,0 +1,122 @@
+
+\documentclass[11pt]{amsart}
+\usepackage{helvet}
+\usepackage{geometry}    
+\geometry{a4paper} 
+\usepackage[parfill]{parskip}  \usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+
+
+
+\begin{document}
+
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabular}{|c|l|r|}
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+\hline
+ $ps^{old}$ & psold & surface static energy at old timestep (J/kg) \\
+ $ps^{new}$ & psnew & surface static energy at new timestep (J/kg)\\
+ $q_s$ & qsurf & surface specific humidity (kg/kg) \\
+ $q_{s, sat}$ & qsol\_sat & saturated surface humidity (kg/kg) \\
+ $q_{air}$ & qair & lowest level specific humidity at 'old' timestep (kg/kg) \\
+ $q_{air}^{new}$ & qair\_new & lowest level specific humidity at 'new' timestep (kg/kg) \\
+ $\frac{\delta q_s^{old}}{\delta t}$ & pdqsold & derivative of saturated specific humidity at old temperature (kg/(kg s)) \\ 
+ $p_l$ & pb & lowest level air pressure (Pa) \\
+ \hline
+ $C_p^{air}$ & cp\_air & lowest level atmospheric heat capacity (J/(K kg)) \\   
+ \hline
+ $\chi_{CO_2}^{canopy}$ & ccanopy & $CO_2$ concentration in the canopy (?? ppm)  \\
+ $\bar{Ci}$ & cimean & mean intercellular ci (from STOMATE) $(\mu mole/m^2/s)$\\  
+ \hline
+ $R^{LW}_{\uparrow}$ & lwup & long-wave upwelling radiation $(W/m^2)$ \\  
+ $ R^{LW}_{\downarrow}$ & lwdown & downwelling long-wave radiation flux $(W/m^2)$ \\
+ $R^{LW}_{abs}$ & lwabs  & LW radiation absorbed by the surface $(W/m^2)$ \\ 
+ $R^{SW}_{net}$ & swnet & net shortwave radiation flux $(W/m^2)$ \\
+ $R^{net}_{sns}$ & netrad\_sns & sensitivity of net radiation $(W/m^2)$ \\
+ $R_{net}$ & netrad & net radiation at surface layer $(W/m^2)$ \\
+ \hline
+ $\Delta \theta$ & dtradia & Time step (s) \\
+ $\epsilon$ & emis & emissivity (fraction) \\
+ $\sigma$ & c\_stefan & Stefan-Boltzmann constant $(W / (m^2 K^4))$\\
+ $q_{c}$ & q\_cdrag & surface drag coefficient (m/s) \\
+ $\rho_{air}$ & rau & density of air $(kg/m^3)$ \\
+\hline
+\end{tabular}
+
+
+\begin{tabular}{|c|l|r|}
+
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+
+
+ \hline
+ 
+ $z_0$     &  z0 & Surface roughness Length (m) \\
+ roughheight  & roughheight   & Effective roughness height (m) \\
+ zlev  &  zlev & Height of first atmospheric layer (m) \\
+ veget\_max  & veget\_max & Fraction of vegetation type (-) \\
+ temp\_sol & temp\_sol &  Ground temperature (K) \\
+ temp\_air & temp\_air  &     !! Lowest level temperature (K) \\
+ qsurf  & qsurf & near surface specific air humidity (kg/kg) \\
+ qair  & qair & Lowest level specific air humidity (kg/kg) \\
+ 
+ \hline
+ 
+ veget    & veget & vegetation fraction for each type (fraction) \\
+ qsintveg & qsintveg & Water on vegetation due to interception $(kg/m^2)$ \\
+ qsintmax & qsintmax & Maximum water on vegetation $(kg/m^2)$ \\
+ rstruct  & rstruct & architectural resistance (s/m) \\
+ humrel & humrel & Soil moisture stress (within range 0 to 1 \\
+ veget  & veget & Type of vegetation (-) \\
+ veget\_max  & veget\_max &  Max. vegetation fraction (LAI to infinity) (fraction) \\
+ lai  & lai & Leaf\ area\ index $(m^2/m^2)$ \\
+ qsintveg & qsintveg & Water on vegetation due to interception $(kg/m^2)$ \\
+ 
+ \hline
+ 
+ $r_a$    & raero & aerodynamic resistance (s/m) \\
+ $r_{soil}$    & rsol & bare soil evaporation resistance (s/m) \\
+ $\delta _c$ & zdefconc & water vapour concentration deficit $(kg/m^3)$\\
+ \hline
+  
+\end{tabular}
+
+
+
+\begin{tabular}{|c|l|r|}
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+
+
+ \hline
+ $T_{air}$ & tair & air temperature (K) \\
+ $T_{dgnc}^{2m}$ & t2mdiag & diagnostic temperature at 2m above ground (K) \\  
+ $T^{2m}$ & t2m & 2m air temperature (K) \\  
+ $q^{2m}$ & q2m & 2m specific humidity (kg/kg) \\  
+ $T_S$ & temp\_sol & surface temperature (K) \\  
+ \hline
+
+ $\alpha_v $ & valpha & total $\alpha$ resistance coefficient (fraction) \\
+ $\beta_v$ & vbeta & total resistance coefficient (fraction) \\
+ $\beta_{v1}$ & vbeta1 & snow resistance (fraction) \\  
+ $\beta_{v2}$ & vbeta2 & interception resistance (fraction)\\  
+ $\beta_{v3}$ & vbeta3 & vegetation resistance (fraction)\\  
+ $\beta_{v4}$ & vbeta4 & bare soil resistance (fraction)\\
+ $\beta_{v23}$ & vbeta23 & portion of wetted foliage that will transpire (fraction)\\ 
+ $\beta_{v,CO_2}$ & vbetaco2 & vegetation resistance to $CO_2$ \\ 
+ \hline
+ $U$ & speed & lowest level wind speed (m/s) \\
+ $u$ & u & lowest level wind velocity,  Eastward component  (m/s) \\
+ $v$ & v & lowest level wind volocity, Northward component  (m/s) \\
+ \hline
+ $z_{ikt}$ & zikt & aerodynamic resistance / density of air (kg s $m^{-4}$) \\
+ $z_{ikq}$ & zikq & aerodynamic resistance / density of air (kg s $m^{-4}$)  \\
+\hline
+\end{tabular}
+
+
+\end{document}

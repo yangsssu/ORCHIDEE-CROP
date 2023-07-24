@@ -1,0 +1,7 @@
+\begin{equation}
+f_{t} = \frac {f_{t-1}\cdot B_{leaf,t-1} + \Delta lm} {B_{leaf,t}}
+\end{equation}
+where $f_{t}$ is the new leaf fraction, $f_{t-1}$ is the old leaf fraction, $B_{leaf,t}$ is the new total leaf biomass
+and $B_{leaf,t-1}$ is the old total leaf biomass. $\Delta lm$ is the change in leaf biomass in the considered class due to 
+senescence.
+

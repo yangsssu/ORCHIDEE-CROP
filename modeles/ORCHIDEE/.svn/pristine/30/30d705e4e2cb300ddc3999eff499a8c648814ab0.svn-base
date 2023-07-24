@@ -1,0 +1,392 @@
+\documentclass{article}
+\begin{document}
+
+
+{ \bf enerbil.f90 equations }
+
+\vspace {10mm}
+{ \bf enerbil\_begin }
+
+\vspace {10mm}
+enerbilbegin1.tex
+
+\begin{equation}
+    ps^{t} = T_S C_p
+\end{equation}
+
+\vspace {10mm}
+enerbilbegin2.tex
+
+\begin{equation}
+    \frac{\delta q_s^{t}}{\delta t} = \delta q_s \frac{(p_l)^\kappa}{C_p^{air}}
+\end{equation}
+
+\vspace {10mm}
+enerbilbegin3.tex
+
+\begin{equation}
+    R^{LW}_{abs} = \epsilon R^{LW}_{\downarrow}
+\end{equation}
+
+\vspace {10mm}
+enerbilbegin4.tex
+
+\begin{equation}
+    R_{net} = R^{LW}_{\downarrow} + S^{SW}_{net} - \epsilon \sigma T^4 (1-\epsilon) R^{LW}_{\downarrow}
+\end{equation}
+
+\vspace {10mm}
+{ \bf enerbil\_surftemp }
+
+\vspace {10mm}
+enerbilsurftemp1.tex
+
+\begin{equation}
+    U = max \{ U_{min}, \sqrt{u^2 + v^2} \}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp2.tex
+
+\begin{equation}
+    z_{ikt}=\frac{1}{\rho_{air} U q_{c}}; \quad z_{ikq}=\frac{1}{\rho_{air} U q_{c}}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp3.tex
+
+\begin{equation}
+    H^{t} = \frac{B_T^{orc} - ps^{t}}{z_{ikt} - A_T^{orc}}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp4.tex
+
+\begin{equation}
+    \lambda E _{sub}^{t} = \lambda E_{sub}^0 \frac{B_q^{orc} - q_{s, sat}}{z_{ikq}-A_q^{orc}}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp5.tex
+
+\begin{equation}
+    \lambda E _{evap}^{t} = \lambda E_{evap}^0  \left( 1-\beta_{v1} \beta_v \left( \frac {  B_q^{orc} - \alpha_v q_{s, sat}  }{  z_{ikq} - A_q^{orc}  }  \right) \right)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp6.tex
+
+\begin{equation}
+    R^{net}_{sns} = \left( \frac{1}{C_p} \right) 4 \epsilon \sigma \left( \left( \frac{1}{C_p} \right) ps_{t} ^3 \right)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp7.tex
+
+\begin{equation}
+    H_{sns} = \frac{1} { \left( \frac{1}{\rho_{air} S q_{c}} - A_T^{orc} \right)}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp8.tex
+
+\begin{equation}
+    \lambda E_{sns}^{sub} = \lambda E_{sub}^0 \beta_{v1} \frac{1}{C_p} \left( \frac{ ({\delta q_s^{t}}/{\delta t}) } {z_{ikq} - A_q^{orc} } \right)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp9.tex
+
+\begin{equation}
+    \lambda E_{sns}^{evap} = \lambda E_{evap}^0 (1-\beta_{v1}) \beta_v \alpha_v \frac{1}{C_p} \left( \frac{ ({\delta q_s^{t}}/{\delta t}) } {z_{ikq} - A_q^{orc} } \right)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp10.tex
+
+\begin{equation}
+    \Sigma E^{t} = R_{net} + H^{t} + {\lambda E}_{sub}^{t} + {\lambda E}_{evap}^{t} + G
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp11.tex
+
+\begin{equation}
+    \Sigma E^{sns} = R^{sns} + H^{sns} + {\lambda E}_{sub}^{sns} + {\lambda E}_{evap}^{sns} + G
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp12.tex
+
+\begin{equation}
+    \Delta \theta = \frac {\Delta t (\Sigma E^{t})} {\left( \frac {1}{C_p^{air}} (C_p^{soil} + \Delta T) (\Sigma E^{sns}) \right)}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp13.tex
+
+\begin{equation}
+    ps_{t+\Delta t} = ps_{t} + \Delta \theta
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp14.tex
+
+\begin{equation}
+    q_{s,sat}^{t+\Delta t} = q_{s,sat} + \left( \left( \frac{1}{C_p^{air}} \right) \left( \frac{\delta q_s^{t}}{\delta t} \right) \delta\theta \right)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp15.tex
+
+\begin{equation}
+    T_{s}^{t+\Delta t} = \frac {ps^{t+\Delta t}}{C_p^{air}}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp16.tex
+
+\begin{equation}
+    E_{pot}^{air,t+\Delta t} = z_{ikt} (H^{t} - H^{sns} \Delta \theta) + ps^{t+\Delta t}
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp17.tex
+
+\begin{equation}
+    {\lambda E} ^{evap} = ({\lambda E}_{evap}^{t} - {\lambda E} _{evap} ^{sns} \Delta \theta) + ({\lambda E}_{sub}^{t} - {\lambda E}_{sub}^{sns} \Delta \theta)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp18.tex
+
+\begin{equation}
+    q_{air}^{t+\Delta t}(ji) = q_{air}(ji)
+\end{equation}
+
+\vspace {10mm}
+enerbilsurftemp19.tex
+
+\begin{equation}
+   q_{air}^{t+\Delta t} = z_{ikq} \frac {1} {(\lambda E^{evap}_0  (1 - \beta_{v1}) \beta_1 \alpha_v + \lambda E^{sub}_0 \beta_{v1})} {\lambda E} ^{evap} + q_{s,sat}^{t+\Delta t} 
+\end{equation}
+
+\vspace {10mm}
+{ \bf surf\_land\_orchidee (links from LMDZ to ORCHIDEE)} 
+
+\vspace {10mm}
+surflandLMDZ1.tex
+
+\begin{equation}
+    A_T^{orc} = B_T^{lmdz} \Delta t
+\end{equation}
+
+\vspace {10mm}
+surflandLMDZ2.tex
+
+\begin{equation}
+    B_T^{orc} = A_T^{lmdz}
+\end{equation}
+
+\vspace {10mm}
+surflandLMDZ3.tex
+
+\begin{equation}
+    A_q^{orc} = B_q^{lmdz} \Delta t
+\end{equation}
+
+\vspace {10mm}
+surflandLMDZ4.tex
+
+\begin{equation}
+    B_q^{orc} = A_q^{lmdz}
+\end{equation}
+
+\vspace {10mm}
+{ \bf enerbil\_flux} 
+
+\vspace {10mm}
+enerbilflux1.tex
+
+\begin{equation}
+    U=max\{U_{min}, \sqrt{u^2+v^2} \}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux2.tex
+
+\begin{equation}
+    q_c=|v|q_{c, drag}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux3.tex
+
+\begin{equation}
+    R^{LW}_{\uparrow}=\epsilon \sigma T_{sol}^4+\epsilon 4 \sigma T_{sol}^3(T_{s}^{t+\Delta t}-T_{s})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux4.tex
+
+\begin{equation}
+    R^{LW}_{\uparrow}=R^{LW}_{\uparrow}+(1-\epsilon)R^{LW}_{\downarrow}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux5.tex
+
+\begin{equation}
+    T_{s}^{rad}=\epsilon \sigma T_{s}^4 + R^{LW}_{\uparrow}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux6.tex
+
+\begin{equation}
+    q_{surf}=\beta_{v,1} (q_{s,sat}^{t+\Delta t})+(1-\beta_{v,1})\beta_v\alpha_v(q_{s,sat}^{t+\Delta t})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux7.tex
+
+\begin{equation}
+    q_s = max \{q_s, q_{air} \}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux8.tex
+
+\begin{equation}
+    R_{net}=R^{LW}_{\downarrow}+R^{SW}_{net}-R^{LW}_{\uparrow}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux9.tex
+
+\begin{equation}
+    vev_{app} = dt(\rho)q_c \beta_{v,1}(q_{s,sat}^{t+\Delta t}-q_{air})+\Delta t(\rho)q_c(1-\beta_{1,v}\beta_v(\alpha_v)q_{s,sat}^{t+\Delta t}-q_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux10.tex
+
+\begin{equation}
+   H=\lambda E_0^{sub}(\rho)q_c(\beta_{v,1})(q_{s,sat}^{t+\Delta t}-q_{air}+\lambda E_0^{evap}(\rho)q_c(1-\beta_{v,1})\beta_v(\alpha_v)q_{s,sat}^{t+\Delta t}-q_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux11.tex
+
+\begin{equation}
+   \lambda E^{sub}=\lambda E_0^{sub} (\rho)q_c\beta_{v,1}(q_{s,sat}^{t+\Delta t}-q_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux12.tex
+
+\begin{equation}
+    H = \rho q_c (ps^{t+\Delta t}- E^{pot}_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilflux13.tex
+
+\begin{equation}
+   R^{LW}_{net} = R^{LW}_{\downarrow}-R^{LW}_{\uparrow}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux14.tex
+
+\begin{equation}
+   E^{pot}_{air} = max \{0, \Delta t \rho q_c (q_{s,sat}^{t+\Delta t} -q_{air}) \}
+\end{equation}
+
+\vspace {10mm}
+enerbilflux15.tex
+
+\begin{equation}
+   T_{air}= \frac{E^{pot}_{air}}{c_{p, air}}
+\end{equation}
+
+
+
+
+
+
+
+
+
+{\bf enerbil\_evapveg.f90}
+
+\vspace {10mm}
+enerbilevapveg1.tex
+
+\begin{equation}
+    U = max\{U_{min}, \sqrt{u^2 + v^2} \}
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg2.tex
+
+\begin{equation}
+   E^{snow} = \beta_{v1} \Delta t \rho U q_c^{drag} (q_{sol,s}^{t+\Delta t}- q_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg3.tex
+
+\begin{equation}
+   E^{soil} = (1-\beta_{v1})\beta_{v4} \Delta t \rho U q_c^{drag} (q_{sol,s}^{t+\Delta t} - q_{air})
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg4.tex
+
+\begin{equation}
+    U = max\{U_{min}, \sqrt{u^2 + v^2} \}
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg5.tex
+
+\begin{equation}
+   xx = \Delta t (1-\beta_{v1}) (q_{s,sat}^{t+\Delta t} - q_{a}) \rho S q_c^{drag}
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg6.tex
+
+\begin{equation}
+   (Interception) = xx \beta_{v2}
+\end{equation}
+
+\vspace {10mm}
+enerbilevapveg7.tex
+
+\begin{equation}
+   (Transpiration) = xx \beta_{v3}
+\end{equation}
+
+
+\vspace {10mm}
+enerbilevapveg8.tex
+
+\begin{equation}
+   U = max \{U_{min}, \sqrt{u^2 + v^2} \}
+\end{equation}
+
+
+\vspace {10mm}
+enerbilevapveg9.tex
+
+\begin{equation}
+   (Assimilation) = \beta_{v,CO_2} \Delta t \rho S q_c^{drag} (\chi_{CO_2}^{canopy} - \bar{Ci})
+\end{equation}
+
+
+
+
+
+\end{document}

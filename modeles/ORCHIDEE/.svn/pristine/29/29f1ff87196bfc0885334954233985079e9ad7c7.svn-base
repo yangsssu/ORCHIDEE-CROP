@@ -1,0 +1,9 @@
+% \documentclass[onecolumn,a4paper]{article}
+% \usepackage[english]{babel}
+% \usepackage{amsmath}
+% \newcommand[1]{{\mathversion{normal}$#1$}}
+% \begin{document}
+\begin{equation}
+{{{light}}=e^{{-k\cdot {{LAI}}(l)}}}\nonumber
+\end{equation}
+% \end{document}

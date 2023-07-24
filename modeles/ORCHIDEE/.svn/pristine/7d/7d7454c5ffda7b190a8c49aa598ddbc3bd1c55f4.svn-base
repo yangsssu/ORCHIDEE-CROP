@@ -1,0 +1,10 @@
+\begin{equation}
+Tl_{ref} = MAX(\, Tl_{ref-min}, \, MIN( \, Tl_{ref-max}, \, Tl \,) \,)
+\end{equation}
+
+\noindent where Tl$_{ref}$ is the long-term reference 2-meter temperature, 
+Tl$_{ref-min}$ and Tl$_{ref-max}$ are the reference minimum and maximum
+ long-term 2-meter temperature which CHECK should be set at the beginning of this 
+subroutine, and Tl is the "long-term" 2-meter reference temperature, previously
+calculated.
+

@@ -1,0 +1,6 @@
+\begin{equation}
+T_{crit}   = a\cdot T^{2}+b\cdot T+c
+\end{equation}
+where $T_{crit}$ is the critical temperature for senescence, $T$ is 
+the long term annual mean temperature and $a$,$b$ and $c$ are PFT-dependent 
+empirical parameters.

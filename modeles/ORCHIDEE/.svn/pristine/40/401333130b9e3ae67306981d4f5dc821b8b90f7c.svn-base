@@ -1,0 +1,3 @@
+\begin{equation}
+    T_{V, a, surf} = T_a + \frac {Z_d^\phi} {(1 + rv_{tmp2} q_{air})(1+retv q_{air}) }
+\end{equation}

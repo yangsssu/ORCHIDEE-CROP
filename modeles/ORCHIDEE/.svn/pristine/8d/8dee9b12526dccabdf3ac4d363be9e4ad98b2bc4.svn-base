@@ -1,0 +1,55 @@
+Sapling biomass for trees : \\
+
+\begin{equation}
+\alpha_{tree} = 1
+\end{equation}
+
+\begin{equation}
+SAPL_{leaf} =  \left( \frac {4 \cdot k_{allom1} \cdot \left( \dfrac{4 \cdot r_{hs:s} \cdot SLA }{\pi .k_{la:sa}}\right)^{0.8} }{SLA} \right)^5
+\end{equation}
+
+\begin{equation}
+SAPL_{sapabove} = 0.5 \cdot P \cdot \frac{SAPL_{leaf}}{\left( \dfrac
+  {k_{la:sa}}{SLA} \right) } \cdot k_{allom2} \cdot \left(
+  \sqrt{4.\frac{r_{hs:s}}{\pi} \frac{SAPL_{leaf}}{ \left( \dfrac {k_{la:sa}}{SLA} \right) }} \right) ^{k_{allom3}} 
+\end{equation}
+
+\begin{equation}
+SAPL_{sapbelow} = SAPL_{sapabove}
+\end{equation}
+
+
+\begin{equation}
+SAPL_{heartabove} = 2.SAPL_{sapabove}
+\end{equation}
+
+\begin{equation}
+SAPL_{heartbelow} = 2.SAPL_{sapbelow}
+\end{equation}
+
+\begin{equation}
+SAPL_{root} = 0.1 \cdot \frac{1}{\alpha_{tree}} \cdot SAPL_{leaf} 
+\end{equation}
+
+\begin{equation}
+SAPL_{fruit} = 0.3 \cdot SAPL_{leaf} 
+\end{equation}
+
+\begin{equation}
+SAPL_{reserve} = 
+\begin{cases}
+5 \cdot SAPL_{leaf} & \text{if PFT not evergreen} \\
+0 & \text{if PFT evergreen}
+\end{cases} %\]
+\end{equation}
+
+where : \\
+\begin{itemize}
+ \item  $k_{allom1}= 100$; \quad $ k_{allom2} = 40$; \quad  $k_{allom3}= 0.5$.
+ \item  $r_{hs:s}$ is the ratio between the sum of the mass of sapwood and heartwood over sapwood.
+ \item  $k_{la:sa} = 8000 $
+ \item  $P = 200000$ is the pipe density. 
+\end{itemize}
+
+
+
