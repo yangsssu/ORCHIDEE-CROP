@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/input
+END
+inetcdf4.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/input/inetcdf4.cpp
+END
+nc4_data_input.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/input/nc4_data_input.hpp
+END
+inetcdf4.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/input/inetcdf4.hpp
+END
+nc4_data_input.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/input/nc4_data_input.cpp
+END
