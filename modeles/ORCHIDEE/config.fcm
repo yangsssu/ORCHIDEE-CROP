@@ -1,0 +1,8 @@
+%ARCH          ifort_LSCE
+%FFLAGS        %BASE_FFLAGS %PROD_FFLAGS %MPI_FFLAGS
+%CPP_KEY       CPP_PARA %FPP_DEF
+%EXEC          liborchidee_ol.a dim2_driver.exe
+%LD_FFLAGS     %MPI_LD %BASE_LD %PROD_FFLAGS
+%INCDIR        -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee04/yangsu/Calibration/0_a_Final_calibration/modeles/ORCHIDEE/../../lib
+%LIBDIR        -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf -L/usr/local/install/hdf5-1.8.9p/lib -lhdf5_hl -lhdf5 -lhdf5 -lz -lcurl -lstdc++ -L/home/orchidee04/yangsu/Calibration/0_a_Final_calibration/modeles/ORCHIDEE/../../lib
+%EXT_SRC       

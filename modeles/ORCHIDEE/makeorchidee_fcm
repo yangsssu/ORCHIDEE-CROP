@@ -1,0 +1,460 @@
+#!/bin/bash
+
+#==============================================================================================================================\n
+#  MODULE 	: makeorchidee_fcm
+# 
+#  CONTACT      : orchidee-help _at_ ipsl.jussieu.fr
+#
+#  LICENCE      : IPSL (2006)
+#  This software is governed by the CeCILL licence see ORCHIDEE/ORCHIDEE_CeCILL.LIC
+#
+# SVN     :
+# $HeadURL: svn://forge.ipsl.jussieu.fr/orchidee/trunk/ORCHIDEE/makeorchidee_fcm $ 
+# $Date: $
+# $Revision: $
+# \n
+####################################################################################################
+#
+# This script has several possible functions :
+#   1. Compiling ORCHIDEE
+#   2. Building of the documentation
+#
+#***************************************************************************************************
+#
+# Command lines :
+#
+#   1) makeorchidee_fcm   [ -parallel  PARALLEL_TYPE ]
+#                         [ -driver ]
+#                         [ -arch XXX ]
+#                         [ -prod | -dev | -debug ]
+#
+#   2) makeorchidee_fcm   [ -clean ]
+#
+#   3) makeorchidee_fcm   [ -doc | -doc_para ] ## actually doc_para is commented
+#                         [ -rmdoc ]
+#                         [ -doc_tree ]
+#
+
+parallel_mode=seq
+is_driver_opt=FALSE
+is_arch_opt=FALSE 
+clean=FALSE
+compile_flags="%PROD_FFLAGS"
+xios1=FALSE
+xios2=FALSE
+full=""
+job=1
+ext_src=""
+
+export P_P=""
+export SECTIONS_PARA=""
+
+ORCHDIR=`/bin/pwd`
+fcm_path=$ORCHDIR/tools/FCM_V1.2/bin
+
+while (($# > 0)) ; do
+  case $1 in
+      "-h") cat <<fin
+
+########################################################################
+# Usage of the script makeorchidee_fcm
+#
+# makeorchidee_fcm compiles ORCHIDEE using the Fcm a software developed
+# by the Hadley Centre. Fcm is stored in tools directory. 
+# Platform specific compile options are found in the arch directory. 
+########################################################################
+
+./makeorchidee_fcm [Options] 
+
+Main options
+[ -h ]        : show this help
+
+[ -arch XXX ] : name of the archicture file containg platform dependent compile options. 
+                The files arch/arch-XXX.fcm and arch/arch-XXX.path must exist. 
+
+[ -parallel|-p PARALLEL_TYPE ] : choose parallelization mode for ORCHIDEE : 
+    PARALLEL_TYPE =
+    ( mpi | MPI )              : only MPI (Message Passing Interface)
+    ( omp | OMP )              : only OpenMP
+    ( mpi_omp | MPI_OMP )      : hybrid MPI/OpenMP mode
+    ( none | NONE | seq )      : sequential mode (default)
+
+[ -driver ]      : compilation of ORCHIDEE offline driver (default compiling only the library)
+
+Options related to cleaning
+| -clean ]       : delete all files produceed during previous compilation
+| -full ]        : activate full recompiling 
+
+Options for XIOS, only choose one of the following
+[ -xios | -xios1 ] : linking with XIOS 1.0
+[ -xios2 ]         : linking with XIOS 2.0
+[ -noxios ]        : compilation without XIOS (default)
+
+Options for optimization, choose only one of the following
+[ -prod ]        : compilation for production (all optimization)
+[ -dev ]         : compilation for development (low optimization and -g)
+[ -debug ]       : compilation for debugging (no optmization and all debug options)
+
+Option to optimize the compilation time
+[ -j x ]         : activate parallel compiling on x task, default 1 task
+
+Option to add extra source to compile
+[ -ext_src path] : path to an additional directory with fortran routines to compile with the model
+
+Options for compiling the documentation :
+[ -doc ]         : generate documentation with Doxygen (exit after doc computation)
+[ -doc_para ]    : generate documentation with Doxygen with parallelization calls
+[ -rmdoc ]       : remove documentation directory (before generate new documentation with Doxygen ?)
+[ -doc_tree ]    : generate tree of ORCHIDEE directories for each file
+
+
+Example 1 : compile at curie(TGCC) for MPI parallel run mode
+   ./makeorchidee_fcm -parallel mpi -arch X64_CURIE -driver
+
+Example 2 : compile at ada(IDRIS) for MPI-OpenMP parallel run mode
+   ./makeorchidee_fcm -parallel mpi_omp -arch X64_ADA -driver
+
+Example 3 : compile at obelix(LSCE)
+   ./makeorchidee_fcm -arch ifort_LSCE -driver
+
+Example 4 : compile using gfortran compiler for sequential run mode 
+First make sure that the files arch/gfortran.fcm and arch/gfortran.path are suitable for 
+your environement especially the path to netcdf library. 
+   ./makeorchidee_fcm -parallel seq -arch gfortran -driver
+
+Example 5 : clean files created during previous compilation
+   ./makeorchidee_fcm -clean
+
+fin
+    exit;;
+
+########################################################################
+# Read argument
+########################################################################
+
+    "-parallel")
+        parallel_mode=$2 ; shift ; shift ;; 
+                       
+    "-driver")
+         is_driver_opt=TRUE
+        shift ;;
+
+    "-arch")
+        is_arch_opt=TRUE
+        arch="$2" ; shift ; shift ;;
+
+    "-xios")
+         xios1=TRUE
+         xios2=FALSE
+        shift ;;
+
+    "-xios1")
+         xios1=TRUE
+         xios2=FALSE
+        shift ;;
+
+    "-xios2")
+         xios1=FALSE
+         xios2=TRUE
+        shift ;;
+
+    "-noxios")
+         xios1=FALSE
+         xios2=FALSE
+        shift ;;
+
+    "-prod")
+        compile_flags="%PROD_FFLAGS"
+        shift ;;
+
+    "-dev")
+        compile_flags="%DEV_FFLAGS"
+        shift ;;
+
+    "-debug")
+        compile_flags="%DEBUG_FFLAGS"
+        shift ;;
+
+     "-j")
+        job="$2" ; shift ; shift ;;
+
+     "-full")
+        full='-full'
+        shift ;;
+
+     "-clean")
+        clean=TRUE
+        shift ;;
+
+      "-ext_src")
+        ext_src=$2 ; shift ; shift ;;
+
+#    "-doc_para")
+#        setenv P_P -DCPP_PARA
+#	setenv SECTIONS_PARA "-e s&ENABLED_SECTIONS\ *= &ENABLED_SECTIONS       = CPP_PARA&g"
+#	goto doc
+
+	"-doc")
+#####################################################################################################
+
+# 2) Building the documentation:
+# ------------------------------
+# We assume to start in the ORCHIDEE directory
+#
+#****  Directory structure:
+#
+# ..                       : parent of the start dir.
+#   -- ORCHIDEE            : ($MODELPATH), start directory
+#       - src_sechiba
+#       - src_stomate
+#       + DOC
+#       + webdoc
+#   -- IOIPSL
+#       - src
+#   ++ modeles_doc         : ($SRCPATH), source files for the documentation, emptied at start, temporary
+#
+#****  gawk scripts called :
+#
+# codeinc.awk              : encaspulates code parts in Doxygen documentation
+# codedox.awk              : transforms almost all comments in Doxygen comments for documentation
+# codealgo.awk             : emphasizes main algorithm description of each routine in their Doxygen documentation
+#
+#****
+        unalias cd
+
+	export REV=`svn info | grep vision | sed -e 's&.*vision.*: \([0-9]*\)&\1&' | head -n 1`
+	export TAG=`svn info | grep URL | sed -e 's&.*URL.*: svn://forge.ipsl.jussieu.fr/orchidee/\(.*\)&\1&' | head -n 1 | xargs dirname`
+       	cd ..
+
+	\rm -rf modeles_doc
+	export MODELPATH=${PWD}
+	\mkdir modeles_doc
+	export SRCPATH=${MODELPATH}/modeles_doc
+
+	find IOIPSL/src \( -not -path '*.svn*' \
+			-a \( -name '*.f90' -o -name "*.F90" -o -name "*.h" \) \) \
+		    -exec bash -c 'mkdir -p '${SRCPATH}'/$( dirname {} ); cp -p {} '${SRCPATH}'/$( dirname {} )' \;
+
+	find ORCHIDEE \( -not -path '*.svn*' \
+			-a \( -name '*.f90' -o -name "*.F90" -o -name "*.h" \) \) \
+		    -exec bash -c 'mkdir -p '${SRCPATH}'/$( dirname {} ); cp -p {} '${SRCPATH}'/$( dirname {} )' \;
+	cd ${SRCPATH}
+	# Use standard preprocessor to suppress all preproc directives
+	\find . -name "*.f90" -exec cpp -P -C -traditional -x assembler-with-cpp ${P_P} '{}' '{}'_ \;
+	\find . -name "*.f90" -print -exec mv -f '{}'_ '{}' \;
+
+	# use codeinc script to encaspulate code parts in Doxygen documentation
+	\find . -name "*.f90" -exec gawk -f ${MODELPATH}/ORCHIDEE/DOC/TOOLS/codeinc.awk '{}' \; > /dev/null
+	\find . -name "*.f90" -print -exec mv -f '{}'_preproc_codeinc '{}' \;
+	# use codedox script to transform almost all comments in Doxygen comments for documentation (use with care !)
+	\find . -name "*.f90" -exec gawk -f ${MODELPATH}/ORCHIDEE/DOC/TOOLS/codedox.awk '{}' \; > /dev/null
+	\find . -name "*.f90" -print -exec mv -f '{}'_preproc_codedox '{}' \;
+
+	# use codealgo script to emphasize main algorithm description of each routine in their Doxygen documentation
+	\find . -name "*.f90" -exec gawk -f ${MODELPATH}/ORCHIDEE/DOC/TOOLS/codealgo.awk '{}' \; > /dev/null
+	\find . -name "*.f90" -print -exec mv -f '{}'_preproc_codealgo '{}' \;
+        cd ../ORCHIDEE
+	\rm -f ${MODELPATH}/ORCHIDEE/Doxyfile_ORCHIDEE
+	sed -e 's&MYPATH&'${MODELPATH}'&g' -e 's&SRCPATH&'${SRCPATH}'&g' \
+            -e 's&MYTAG&'${TAG}'&' -e 's&MYREV&'${REV}'&' ${SECTIONS_PARA} \
+            ${MODELPATH}/ORCHIDEE/Doxyfile_ORCHIDEE.init > ${MODELPATH}/ORCHIDEE/Doxyfile_ORCHIDEE
+	\rm -f ${MODELPATH}/ORCHIDEE/DOC/header.tex
+	sed -e "s&MYTAG&${TAG}&" -e "s&MYREV&${REV}&" \
+            ${MODELPATH}/ORCHIDEE/DOC/header.tex.init > ${MODELPATH}/ORCHIDEE/DOC/header.tex
+	ln -s /home/orchidee01/maignan/ORCHIDEE/DOC/IMAGES ${MODELPATH}/ORCHIDEE/DOC/IMAGES
+	gmake doc
+	gmake bib
+	gmake toc
+	\rm -rf ${MODELPATH}/ORCHIDEE/webdoc
+	\mv ${MODELPATH}/ORCHIDEE/docs/html ${MODELPATH}/ORCHIDEE/webdoc
+	gmake index
+	gmake toc
+	\rm -rf ${SRCPATH}
+	cp ${MODELPATH}/ORCHIDEE/docs/latex/refman.pdf ${MODELPATH}/ORCHIDEE/documentation.pdf
+	exit
+        shift ;;
+
+
+     "-rmdoc")
+	\rm -rf docs
+        shift ;;
+
+     "-doc_tree") 
+        cd ..
+	find ORCHIDEE \( -not -path '*.svn*' \
+			-a \( -name '*.f90' -o -name "*.F90" -o -name "*.h" \) \) \
+		    -exec bash -c 'mkdir -p ORCHIDEE/DOC/$( dirname {} )/$( echo $( basename {} ) | sed -e "s/\..*//" )' \;
+	cd ORCHIDEE
+        shift ;;
+
+    *)
+        echo "unknown option "$1" , exiting..."
+        exit 
+   esac
+done
+
+#####################################################################################################
+# 0) Clean directory from files produced during previous compilation
+# --------------------------------------
+if [[ "$clean" == "TRUE" ]] ; then
+    rm -fr .config
+    rm -fr lib
+    rm -fr bin
+    rm -fr tmp_src
+    rm -f ../../lib/intersurf.mod
+    rm -f ../../lib/chemistry.mod
+    rm -f ../../lib/liborglob.a 
+    rm -f ../../lib/libparallel.a 
+    rm -f ../../lib/libsechiba.a 
+    rm -f ../../lib/libstomate.a 
+    rm -f ../../lib/libparameters.a 
+    rm -f ../../lib/liborchidee_ol.a
+    rm -f ../../lib/liborchidee.a
+
+    exit
+fi
+
+# 1) Compilation du code direct avec fcm
+# --------------------------------------
+# Add fcm in environement path
+export PATH=${fcm_path}:${PATH}
+
+#define architecture files
+if [[ "$is_arch_opt" == "TRUE" ]] ; then
+  if [[ -e arch/arch-${arch}.fcm ]] ; then
+    rm -f arch.fcm
+    ln -s arch/arch-${arch}.fcm arch.fcm
+  else
+    echo "architecture file : << arch/arch-${arch}.fcm >> is missing, exiting...."
+    exit
+  fi
+  
+  if [[ -e arch/arch-${arch}.path ]] ; then
+    rm -f arch.path
+    ln -s arch/arch-${arch}.path arch.path
+  else
+    echo "architecture file : << arch/arch-${arch}.path >> is missing, exiting...."
+    exit
+  fi
+else
+  echo "Warning : architecture not specified, taking default file <<arch.fcm>> and <<arch.path>>" 
+  if [[ ! -e arch.fcm ]] ; then
+    echo "architecture file : << arch.fcm >> is missing, exiting...."
+    exit
+  fi
+
+  if [[ ! -e arch.fcm ]] ; then
+    echo "architecture file : << arch.path >> is missing, exiting...."
+    exit
+  fi
+fi
+  
+# set compiler flags
+FFLAGS="%BASE_FFLAGS"
+LD_FFLAGS="%BASE_LD"
+CPP_KEY="%FPP_DEF"
+
+# set compiler flags for optimisation
+FFLAGS=${FFLAGS}" "$compile_flags
+LD_FFLAGS=${LD_FFLAGS}" "$compile_flags
+
+# set compiler flags for parallelism
+echo "parallel_mode = "${parallel_mode}
+
+if [[ "$parallel_mode" == "mpi" ]] || [[ "$parallel_mode" == "MPI" ]] ; then 
+    FFLAGS="${FFLAGS} %MPI_FFLAGS"
+    LD_FFLAGS="%MPI_LD ${LD_FFLAGS}"
+    CPP_KEY="CPP_PARA ${CPP_KEY}"
+elif [[ "$parallel_mode" == "omp" ]] || [[ "$parallel_mode" == "OMP" ]] ; then
+    FFLAGS="${FFLAGS} %OMP_FFLAGS"
+    LD_FFLAGS="%OMP_LD ${LD_FFLAGS}"
+    CPP_KEY="CPP_OMP CPP_PARA ${CPP_KEY}"
+elif [[ "$parallel_mode" == "mpi_omp" ]] || [[ "$parallel_mode" == "MPI_OMP" ]] ; then
+    FFLAGS="${FFLAGS} %MPI_FFLAGS %OMP_FFLAGS"
+    LD_FFLAGS="%MPI_LD %OMP_LD ${LD_FFLAGS}"
+    CPP_KEY="CPP_OMP CPP_PARA ${CPP_KEY}"
+elif [[ "$parallel_mode" == "none" ]] || [[ "$parallel_mode" == "NONE" ]] || [[ "$parallel_mode" == "seq" ]] ; then
+    echo "Compiling for sequential mode"
+else
+    echo "This option for parallel_mode is not implemeted. Choose between mpi, omp, mpi_omp and none."
+    exit
+fi
+
+
+if [[ "$xios1" == "TRUE" ]] ; then
+    CPP_KEY="XIOS ${CPP_KEY}"
+elif [[ "$xios2" == "TRUE" ]] ; then
+    CPP_KEY="XIOS XIOS2 ${CPP_KEY}"
+fi
+
+# set target
+TARGET=liborchidee.a
+if [[ "$is_driver_opt" == "TRUE" ]] ; then
+#    TARGET="liborchidee_ol.a dim2_driver.exe teststomate.exe forcesoil.exe"
+    TARGET="liborchidee_ol.a dim2_driver.exe"
+fi
+
+source ./arch.path
+
+# build config file
+config_fcm="config.fcm"
+rm -f $config_fcm
+touch $config_fcm
+
+echo "%ARCH          $arch"                             >> $config_fcm 
+echo "%FFLAGS        $FFLAGS"                           >> $config_fcm 
+echo "%CPP_KEY       $CPP_KEY"                          >> $config_fcm
+echo "%EXEC          $TARGET"                           >> $config_fcm
+echo "%LD_FFLAGS     $LD_FFLAGS"                        >> $config_fcm
+if [[ "$xios1" == "TRUE" ]] || [[ "$xios2" == "TRUE" ]] ; then
+   echo "%INCDIR        -I$NETCDF_INCDIR -I$IOIPSL_INCDIR -I$XIOS_INCDIR" >> $config_fcm
+   echo "%LIBDIR        -L$NETCDF_LIBDIR -L$IOIPSL_LIBDIR -L$XIOS_LIBDIR" >> $config_fcm
+else
+   echo "%INCDIR        -I$NETCDF_INCDIR -I$IOIPSL_INCDIR" >> $config_fcm
+   echo "%LIBDIR        -L$NETCDF_LIBDIR -L$IOIPSL_LIBDIR" >> $config_fcm
+fi
+echo "%EXT_SRC       $ext_src"                          >> $config_fcm
+
+
+# Delete interface module from modipsl/lib directory
+rm -f ../../lib/intersurf.mod
+rm -f ../../lib/chemistry.mod
+
+# Check if compiling is locked
+if [ -f .config/fcm.bld.lock ] ; then
+    echo "WARNING : build lock file exists"
+    echo "This means that either someone else is compiling this directory right now "
+    echo "or the previous compiling was interrupt abnormally."
+    echo ""
+    echo "Do you whant to remove this file and start compiling? [answer yes/no]"  
+    read answer
+    if [ $answer = "yes" ] || [ $answer = "y" ] ; then
+	rm -f .config/fcm.bld.lock
+    else
+	echo "Exit now!!!"
+	exit 1
+    fi
+fi
+
+# Do the compiling
+fcm build -j $job $full
+err=$?
+if [ $err != 0 ] ; then 
+  # ERROR IN COMPILING
+  echo ERROR IN COMPILING ORCHIDEE : $err 
+  exit 1
+fi
+
+# Copy into modipsl/lib directory libraries and interface module needed by LMDZ
+cp lib/lib*a ../../lib/.
+cp lib/intersurf.mod ../../lib/.
+cp lib/chemistry.mod ../../lib/.
+
+# Copy executables to modipsl/bin directory
+if [[ "$is_driver_opt" == "TRUE" ]] ; then
+    cp bin/dim2_driver.exe ../../bin/orchidee_ol
+#    cp bin/teststomate.exe ../../bin/teststomate
+#    cp bin/forcesoil.exe ../../bin/forcesoil
+fi
+
+
