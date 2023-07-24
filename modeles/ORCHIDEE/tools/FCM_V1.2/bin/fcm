@@ -1,0 +1,794 @@
+#!/usr/bin/perl
+# ------------------------------------------------------------------------------
+# NAME
+#   fcm
+#
+# SYNOPSIS
+#   fcm SUBCOMMAND [OPTIONS...] ARGS...
+#
+# DESCRIPTION
+#   The fcm command is the frontend of the FCM system. The first argument to the
+#   command must be a recognised subcommand. See "fcm help" for a full list of
+#   functionalities.
+#
+# COPYRIGHT
+#   (C) Crown copyright Met Office. All rights reserved.
+#   For further details please refer to the file COPYRIGHT.txt
+#   which you should have received as part of this distribution.
+# ------------------------------------------------------------------------------
+
+# Standard pragmas:
+use warnings;
+use strict;
+
+# Standard modules:
+use File::Basename;
+use File::Spec;
+use Getopt::Long;
+use Cwd;
+
+# FCM component modules:
+use lib File::Spec->catfile (dirname (dirname ($0)), 'lib');
+use Fcm::Config;
+use Fcm::Extract;
+use Fcm::Build;
+use Fcm::Util;
+
+BEGIN {
+  eval {
+    require Fcm::Cm;
+    import Fcm::Cm;
+
+    require Fcm::CmUrl;
+    import Fcm::CmUrl;
+  }
+}
+
+# Function declaration:
+sub cmp_ext_cfg;
+sub invoke_build_system;
+sub invoke_extract_system;
+sub invoke_cfg_printer;
+sub invoke_cm_system;
+sub invoke_www_browser;
+sub invoke_help;
+
+# ------------------------------------------------------------------------------
+
+my $prog      = basename $0;
+my $year      = (localtime)[5] + 1900;
+my $copyright = <<EOF;
+
+(C) Crown copyright $year Met Office. All rights reserved.
+EOF
+
+# List of sub-commands recognised by FCM
+my %subcommand = (
+  HLP => [qw/help ? h/],
+  BLD => [qw/build bld/],
+  EXT => [qw/extract ext/],
+  CFG => [qw/cfg/],
+  GUI => [qw/gui/],
+  CM  => [qw/
+    branch    br
+    conflicts cf
+    add
+    blame     praise annotate ann
+    cat
+    checkout  co
+    cleanup
+    commit    ci
+    copy      cp
+    delete    del    remove   rm
+    diff      di
+    export
+    import
+    info
+    list      ls
+    lock
+    log
+    merge
+    mkdir
+    mkpatch
+    move      mv     rename   ren
+    propdel   pdel   pd
+    propedit  pedit  pe
+    propget   pget   pg
+    proplist  plist  pl
+    propset   pset   ps
+    resolved
+    revert
+    status    stat   st
+    switch    sw
+    unlock
+    update    up
+  /],
+  CMP => [qw/cmp-ext-cfg/],
+  WWW => [qw/www trac/],
+);
+
+# Get configuration settings
+my $config = Fcm::Config->new ();
+$config->get_config ();
+
+# Determine the functionality of this invocation of the command
+my $function = @ARGV ? shift @ARGV : '';
+
+# Run command accordingly
+if (grep {$_ eq $function} @{ $subcommand{BLD} }) {
+  invoke_build_system;
+
+} elsif (grep {$_ eq $function} @{ $subcommand{EXT} }) {
+  invoke_extract_system;
+
+} elsif (grep {$_ eq $function} @{ $subcommand{CFG} }) {
+  invoke_cfg_printer;
+
+} elsif (grep {$_ eq $function} @{ $subcommand{GUI} }) {
+  &run_command (['fcm_gui', @ARGV], METHOD => 'exec');
+
+} elsif (grep {$_ eq $function} @{ $subcommand{CM} }) {
+  invoke_cm_system;
+
+} elsif (grep {$_ eq $function} @{ $subcommand{CMP} }) {
+  cmp_ext_cfg;
+
+} elsif (grep {$_ eq $function} @{ $subcommand{WWW} }) {
+  invoke_www_browser;
+
+} elsif ($function =~ /^\s*$/ or grep {$_ eq $function} @{ $subcommand{HLP} }) {
+  invoke_help;
+
+} else {
+  w_report 'Unknown command: ', $function;
+  e_report 'Type "', $prog, ' help" for usage';
+}
+
+exit;
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   $cfg = &main::cfg ();
+#
+# DESCRIPTION
+#   Return the $config variable.
+# ------------------------------------------------------------------------------
+
+sub cfg {
+  return $config;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &cmp_ext_cfg ();
+#
+# DESCRIPTION
+#   Compare two similar extract configuration files.
+# ------------------------------------------------------------------------------
+
+sub cmp_ext_cfg {
+  # Check options
+  # ----------------------------------------------------------------------------
+  my ($wiki, $verbose);
+
+  GetOptions ('wiki|w=s' => \$wiki, 'verbose|v' => \$verbose);
+
+  # Check arguments
+  # ----------------------------------------------------------------------------
+  e_report $prog, ' ', $function,
+           ': 2 extract config files must be specified, abort.'
+    if @ARGV < 2;
+
+  # Invoke 2 new instances of the Fcm::Extract class
+  # ----------------------------------------------------------------------------
+  my (@cfg, $rc);
+  for my $i (0 .. 1) {
+    $cfg[$i] = Fcm::Extract->new (CFG_SRC => $ARGV[$i]);
+
+    # Read the extract configuration file
+    $rc = $cfg[$i]->decipher_cfg;
+    $rc = $cfg[$i]->expand_cfg if $rc;
+
+    last if not $rc;
+  }
+
+  # Throw error if command has failed
+  # ----------------------------------------------------------------------------
+  e_report $prog, ' ', $function,
+           ': cannot read extract configuration file, abort' if not $rc;
+
+  # Get list of URLs
+  # ----------------------------------------------------------------------------
+  my @urls = ();
+  for my $i (0 .. 1) {
+    # List of branches in each extract configuration file
+    my @branches = $cfg[$i]->branches;
+
+    for my $branch (@branches) {
+      # Ignore declarations of local directories
+      next if $branch->type eq 'user';
+
+      # List of SRC declarations in each branch
+      my %dirs = $branch->dirs;
+
+      for my $dir (values %dirs) {
+        # Set up a new instance of Fcm::CmUrl object for each SRC declaration
+        my $cm_url = Fcm::CmUrl->new (
+          URL => $dir . ($branch->version ? '@' . $branch->version : ''),
+        );
+
+        $urls[$i]{$cm_url->branch_url}{$dir} = $cm_url;
+      }
+    }
+  }
+
+  # Compare
+  # ----------------------------------------------------------------------------
+  my %log;
+  for my $i (0 .. 1) {
+    # Compare the first file with the second one and then vice versa
+    my $j = ($i == 0) ? 1 : 0;
+
+    for my $branch (sort keys %{ $urls[$i] }) {
+      if (exists $urls[$j]{$branch}) {
+        # Same REPOS declarations in both files
+        for my $dir (sort keys %{ $urls[$i]{$branch} }) {
+          if (exists $urls[$j]{$branch}{$dir}) {
+            # Same SRC declarations in both files, only need to compare once
+            next if $i == 1;
+
+            my $this_url = $urls[$i]{$branch}{$dir};
+            my $that_url = $urls[$j]{$branch}{$dir};
+
+            # Check whether their last changed revisions are the same
+            my $this_rev = $this_url->svninfo (FLAG => 'Last Changed Rev');
+            my $that_rev = $that_url->svninfo (FLAG => 'Last Changed Rev');
+
+            # Make sure last changed revisions differ
+            next if $this_rev eq $that_rev;
+
+            # Not interested in the log before the minimum revision
+            my $min_rev = ($this_url->pegrev > $that_url->pegrev)
+                          ? $that_url->pegrev : $this_url->pegrev;
+
+            $this_rev = $min_rev if $this_rev < $min_rev;
+            $that_rev = $min_rev if $that_rev < $min_rev;
+
+            # Get list of changed revisions using the commit log
+            my $u   = ($this_rev > $that_rev) ? $this_url : $that_url;
+            my %revs = $u->svnlog (REV => [$this_rev, $that_rev]);
+
+            for my $rev (keys %revs) {
+              # Check if revision is already in the list
+              next if exists $log{$branch}{$rev};
+
+              # Not interested in the minimum revision
+              next if $rev == $min_rev;
+
+              # Get list of changed paths. Accept this revision only if it
+              # contains changes in the current branch
+              my %paths  = %{ $revs{$rev}{paths} };
+
+              for my $path (keys %paths) {
+                my $change_url = Fcm::CmUrl->new (URL => $u->root . $path);
+
+                if ($change_url->branch eq $u->branch) {
+                  $log{$branch}{$rev} = $u;
+                  last;
+                }
+              }
+            }
+
+          } else {
+            # Report SRC declaration in one file but not in another
+            print $urls[$i]{$branch}{$dir}->url_peg, ':', "\n";
+            print '  in    : ', $ARGV[$i], "\n";
+            print '  not in: ', $ARGV[$j], "\n\n";
+          }
+        }
+
+      } else {
+        # Report REPOS declaration in one file but not in another
+        print $branch, ':', "\n";
+        print '  in    : ', $ARGV[$i], "\n";
+        print '  not in: ', $ARGV[$j], "\n\n";
+      }
+    }
+  }
+
+  # Report modifications
+  # ----------------------------------------------------------------------------
+  print 'Revisions at which declared source directories are modified:', "\n\n"
+    if keys %log;
+
+  if (defined $wiki) {
+    # Output in wiki format
+    my $wiki_url  = Fcm::CmUrl->new (URL => &expand_url_keyword (URL => $wiki));
+    my $base_trac = $wiki
+                    ? &get_browser_url (URL => $wiki_url->project_url)
+                    : $wiki_url;
+    $base_trac    = $wiki_url if not $base_trac;
+
+    for my $branch (sort keys %log) {
+      # Name of the branch
+      my $branch_trac = &get_browser_url (URL => $branch);
+      $branch_trac =~ s#^$base_trac(?:/*|$)#source:#;
+
+      print '[', $branch_trac, ']:', "\n";
+
+      # Revision table
+      for my $rev (sort {$b <=> $a} keys %{ $log{$branch} }) {
+        print $log{$branch}{$rev}->display_svnlog ($rev, $base_trac), "\n";
+      }
+
+      print "\n";
+    }
+
+  } else {
+    my $separator = '-' x 80 . "\n";
+
+    for my $branch (sort keys %log) {
+      # Output in plain text format
+      print $branch, ':', "\n";
+
+      if ($verbose or &cfg->verbose > 1) {
+        # Verbose mode, print revision log
+        for my $rev (sort {$b <=> $a} keys %{ $log{$branch} }) {
+          print $separator, $log{$branch}{$rev}->display_svnlog ($rev), "\n";
+        }
+
+      } else {
+        # Normal mode, print list of revisions
+        print join (' ', sort {$b <=> $a} keys %{ $log{$branch} }), "\n";
+      }
+
+      print $separator, "\n";
+    }
+  }
+
+  return $rc;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_build_system ();
+#
+# DESCRIPTION
+#   Invoke the build system.
+# ------------------------------------------------------------------------------
+
+sub invoke_build_system {
+  my ($archive, $full, $ignore_lock, $jobs, $stage, @targets, $verbose);
+
+  GetOptions (
+    'archive|a'   => \$archive,     # switch on archive mode?
+    'full|f'      => \$full,        # full build?
+    'ignore-lock' => \$ignore_lock, # ignore lock file?
+    'jobs|j=i'    => \$jobs,        # number of parallel jobs in make
+    'stage|s=s'   => \$stage,       # build up to and including this stage
+    'targets|t=s' => \@targets,     # make targets
+    'verbose|v=i' => \$verbose,     # verbose level
+  );
+
+  # Verbose level
+  $config->verbose ($verbose) if defined $verbose;
+
+  # Invoke a new instance of the Fcm::Build class
+  my $bld = Fcm::Build->new (CFG_SRC  => @ARGV ? join (' ', @ARGV) : cwd ());
+
+  # Perform build
+  $bld->build (
+    ARCHIVE     => $archive,
+    FULL        => $full,
+    IGNORE_LOCK => $ignore_lock,
+    JOBS        => $jobs ? $jobs : 1,
+    STAGE       => $stage ? $stage : 5,
+    TARGETS     => (@targets ? [split (/:/, join (':', @targets))] : [qw/all/]),
+  );
+
+  return 1;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_extract_system ();
+#
+# DESCRIPTION
+#   Invoke the extract system.
+# ------------------------------------------------------------------------------
+
+sub invoke_extract_system {
+  my ($full, $ignore_lock, $verbose);
+
+  GetOptions (
+    'full|f'      => \$full,        # full extract?
+    'ignore-lock' => \$ignore_lock, # ignore lock file?
+    'verbose|v=i' => \$verbose,     # verbose level
+  );
+
+  $config->verbose ($verbose) if defined $verbose;
+
+  # Invoke a new instance of the Fcm::Extract class
+  my $ext = Fcm::Extract->new (CFG_SRC => @ARGV ? join (' ', @ARGV) : cwd ());
+
+  # Perform extract
+  $ext->extract (FULL => $full, IGNORE_LOCK => $ignore_lock);
+
+  return 1;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_cfg_printer ();
+#
+# DESCRIPTION
+#   Invoke the CFG file pretty printer.
+# ------------------------------------------------------------------------------
+
+sub invoke_cfg_printer {
+
+  use Fcm::CfgFile;
+
+  my $out_file;
+  GetOptions (
+    'output|o=s'  => \$out_file,  # output file for print
+  );
+
+  my $file = join (' ', @ARGV);
+  e_report $prog, ' ', $function, ': file not specified, abort.' if ! $file;
+
+  # Invoke a new Fcm::CfgFile instance
+  my $cfg = Fcm::CfgFile->new (SRC => $file);
+
+  # Read the cfg file
+  my $read = $cfg->read_cfg;
+  e_report if not $read;
+
+  # Pretty print CFG file
+  $cfg->print_cfg ($out_file);
+
+  return 1;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_cm_system ();
+#
+# DESCRIPTION
+#   Invoke a code management system command.
+# ------------------------------------------------------------------------------
+
+sub invoke_cm_system {
+
+  &cm_command ($function);
+
+  return 1;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_www_browser ();
+#
+# DESCRIPTION
+#   Invoke a web browser on the specified PATH.
+# ------------------------------------------------------------------------------
+
+sub invoke_www_browser {
+
+  # Options
+  my ($browser);
+  GetOptions (
+    'browser|b=s' => \$browser, # browser command
+  );
+
+  $browser = &cfg->setting (qw/MISC WEB_BROWSER/) unless $browser;
+
+  # Arguments
+  my ($arg) = @ARGV ? $ARGV[0] : (&is_wc () ? '.' : '');
+  e_report $prog, ' ', $function,
+           ': input URL not specified and . not a working copy, abort.'
+    if not $arg;
+
+  # Local PATH?
+  $arg = &expand_tilde ($arg);
+  $arg = &get_url_of_wc ($arg) if -e $arg;
+
+  # Expand URL and revision keywords
+  my $www_url = &expand_url_keyword (URL => $arg);
+  my $rev     = 'HEAD';
+
+  if ($www_url =~ m#^(\w+://\S+)@(\S+)$#) {
+    $www_url = $1;
+    $rev     = $2;
+  }
+
+  $rev = &expand_rev_keyword (URL => $www_url, REV => $rev, HEAD => 1)
+    unless uc ($rev) eq 'HEAD';
+
+  # Get web browser URL
+  $www_url = &get_browser_url (URL => $www_url);
+  die 'WWW URL not defined for "', $arg, '", abort' unless $www_url;
+
+  $www_url = $www_url . '?rev=' . $rev;
+
+  # Execute command
+  my @command = (split (/\s+/, $browser), $www_url);
+  &run_command (\@command, METHOD => 'exec', PRINT => 1);
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   &invoke_help ();
+#
+# DESCRIPTION
+#   Invoke help.
+# ------------------------------------------------------------------------------
+
+sub invoke_help {
+
+  my $cmd = @ARGV ? shift @ARGV : undef;
+
+  if ($cmd) {
+    if (grep {$_ eq $cmd} @{ $subcommand{BLD} }) {
+      print <<EOF;
+$prog $cmd: invoke the build system.
+usage: $prog $cmd [OPTIONS...] [CFGFILE]
+
+  The path to a CFG file may be provided. Otherwise, the build system
+  searches the default locations for a bld cfg file.
+
+  If no option is specified, the options "-s 5 -t all -j 1 -v 1" are assumed.
+
+  If the option for full build is specified, the sub-directories created by
+  previous builds will be removed, so that the current build can start cleanly.
+
+  The -s option can be used to limit the actions performed by the build system
+  up to a named stage. The stages are:
+    "1", "s" or "setup"                - stage 1, setup
+    "2", "pp" or "pre_process"         - stage 2, pre-process
+    "3", "gd" or "generate_dependency" - stage 3, generate dependency
+    "4", "gi" or "generate_interface"  - stage 4, generate Fortran 9X interface
+    "5", "m", "make"                   - stage 5, make
+
+  If a colon separated list of targets is specified using the -t option, the
+  default targets specified in the configuration file will not be used.
+
+  If archive mode is switched on, build sub-directories that are only used
+  in the build process will be archived to TAR files. The default is off.
+
+  If specified, the verbose level must be an integer greater than 0. Verbose
+  level 0 is the quiet mode. Increasing the verbose level will increase the
+  amount of diagnostic output.
+
+  When a build is invoked, it sets up a lock file in the build root directory.
+  The lock is normally removed at the end of the build. While the lock file is
+  in place, othe build commands invoked in the same root directory will fail.
+  If you need to bypass this check for whatever reason, you can invoke the
+  build system with the --ignore-lock option.
+
+Valid options:
+  -a [--archive]     : archive build sub-directories?
+  -f [--full]        : full build
+  --ignore-lock      : ignore lock files in build root directory
+  -j [--jobs] arg    : number of parallel jobs that "make" can handle
+  -s [--stage] arg   : perform build up to a named stage
+  -t [--targets] arg : build a colon (:) separated list of targets
+  -v [--verbose] arg : verbose level
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{EXT} }) {
+      print <<EOF;
+$prog $cmd: invoke the extract system.
+usage: $prog $cmd [OPTIONS...] [CFGFILE]
+
+  The path to a CFG file may be provided. Otherwise, the extract system
+  searches the default locations for an ext cfg file.
+
+  If no option is specified, the system will attempt an incremental extract
+  where appropriate.
+
+  If specified, the verbose level must be an integer greater than 0. Verbose
+  level 0 is the quiet mode. Increasing the verbose level will increase the
+  amount of diagnostic output.
+
+  When an extract is invoked, it sets up a lock file in the extract destination
+  root directory. The lock is normally removed at the end of the extract. While
+  the lock file is in place, othe extract commands invoked in the same
+  destination root directory will fail. If you need to bypass this check for
+  whatever reason, you can invoke the extract system with the --ignore-lock
+  option.
+
+Valid options:
+  -f [--full]        : perform a full/clean extract
+  --ignore-lock      : ignore lock files in build root directory
+  -v [--verbose] arg : verbose level
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{CFG} }) {
+      print <<EOF;
+$prog $cmd: invoke the CFG file pretty printer.
+usage: $prog $cmd [OPTIONS...] FILE
+
+  If no option is specified, the output will be sent to standard output.
+
+Valid options:
+  -o [--output] arg : send output to a file as specified by arg.
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{GUI} }) {
+      print <<EOF;
+$prog $cmd: invoke the GUI wrapper for CM commands.
+usage: $prog $cmd DIR
+
+  The optional argument DIR modifies the initial working directory.
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{CM} }) {
+      @ARGV = qw(--help);
+      cm_command ($cmd);
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{CMP} }) {
+      print <<EOF;
+$prog $cmd: compare two similar extract configuration files.
+usage: $prog $cmd [OPTIONS...] CFG1 CFG2
+
+  Compares the extract configurations of two similar extract configuration
+  files CFG1 and CFG2.
+
+Valid options:
+  -v [--verbose]  : print revision tables in verbose mode. In particular,
+                    display the change log of each revision.
+  -w [--wiki] arg : print revision tables in wiki format. The argument to this
+                    option must be the Subversion URL or FCM URL keyword of a
+                    FCM project associated with the intended Trac system. This
+                    option overrides the -v option.
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{WWW} }) {
+      print <<EOF;
+$prog $cmd: invoke the web repository browser on a Subversion URL.
+usage: $prog $cmd [OPTIONS...] [PATH]
+
+  If PATH is specified, it must be a FCM URL keyword, a Subversion URL or the
+  PATH to a local working copy. If not specified, the current working directory
+  is assumed to be a working copy. If the --browser option is specified, the
+  specified web browser command is used to launch the repository browser.
+  Otherwise, it attempts to use the default browser from the configuration
+  setting.
+
+Valid options:
+  -b [--browser] arg : specify a command arg for the web browser.
+$copyright
+EOF
+
+    } elsif (grep {$_ eq $cmd} @{ $subcommand{HLP} }) {
+      print <<EOF;
+help (?, h): Describe the usage of $prog or its subcommands.
+usage: $prog help [SUBCOMMAND...]
+$copyright
+EOF
+
+      &run_command ([qw/svn help/, $cmd, @ARGV], PRINT => 1);
+
+    } else {
+      warn $prog, ' help: "', $cmd, '" not recognised';
+      $cmd = undef;
+    }
+  }
+
+  if (not $cmd) {
+    # Get output from "svn help"
+    my @lines = &run_command (
+      [qw/svn help/], DEVNULL => 1, METHOD => 'qx', ERROR => 'ignore',
+    );
+
+    # Get release number, (and revision number from revision number file)
+    my $release  = &cfg->setting ('RELEASE');
+    my $rev_file = &cfg->setting ('REV_FILE');
+
+    if (-r $rev_file) {
+      open FILE, '<', $rev_file;
+      my $rev = readline 'FILE';
+      close FILE;
+
+      chomp $rev;
+      $release .= '-dev (r' . $rev . ')' if $rev;
+    }
+
+    # Print common help
+    print <<EOF;
+usage: $prog <subcommand> [options] [args]
+Flexible configuration management system, release $release.
+Type "$prog help <subcommand>" for help on a specific subcommand.
+
+Available subcommands:
+  help       (h, ?) - help
+  build      (bld)  - build system
+EOF
+
+    # The following are only available on platforms with "svn" installed
+    if (@lines) {
+      print <<EOF;
+  branch     (br)   - cm system: branch info & creation
+  cfg               - CFG file pretty printer
+  cmp-ext-cfg       - compare two similar extract configuration files
+  conflicts  (cf)   - cm system: resolve conflicts
+  extract    (ext)  - extract system
+  mkpatch           - create patches from specified revisions of a URL
+  trac       (www)  - cm system: browse a path using the web browser
+  <SVN COMMANDS>    - any Subversion sub-commands
+EOF
+    }
+
+    # Print FCM copyright notice
+    print $copyright;
+
+    # Print output from "svn help"
+    if (@lines) {
+      print "\n";
+      &print_command ([qw/svn help/]);
+      print @lines;
+    }
+  }
+
+  return 1;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   $ans = &main::get_input (MESSAGE => $mesg, TYPE => $type, DEFAULT => $def);
+#
+# DESCRIPTION
+#   Get an input string from the user and return it as $ans. MESSAGE is the
+#   main message printed on screen to prompt the user for an input.  If TYPE is
+#   'YN', print message to prompt user to enter either 'y' or 'n'. If TYPE is
+#   'YNA', then 'a' is given as a third option. If DEFAULT is set, print message
+#   to inform user that the return value will be set to the $def (if nothing is
+#   entered).
+# ------------------------------------------------------------------------------
+
+sub get_input {
+  my %args = @_;
+  my $type  = exists $args{TYPE}    ? $args{TYPE}    : '';
+  my $mesg  = exists $args{MESSAGE} ? $args{MESSAGE} : '';
+  my $def   = exists $args{DEFAULT} ? $args{DEFAULT} : '';
+
+  my $ans;
+
+  while (1) {
+    # Print the prompt
+    print $mesg;
+    print "\n", 'Enter "y" or "n"' if uc ($type) eq 'YN';
+    print "\n", 'Enter "y", "n" or "a"' if uc ($type) eq 'YNA';
+    print ' (or just press <return> for "', $def, '")' if $def;
+    print ': ';
+
+    # Get answer from STDIN
+    $ans = <STDIN>;
+    chomp $ans;
+
+    # Set answer to default, if necessary
+    $ans = $def if ($def and not $ans);
+
+    if ($type =~ /^yna?$/i) {
+      # For YN and YNA type dialog boxes,
+      # check that the answer is in the correct form
+      my $pat = (uc ($type) eq 'YN' ? 'y|n' : 'y|n|a');
+      last if $ans =~ /^(?:$pat)/i;
+
+    } else {
+      last;
+    }
+  }
+
+  return $ans;
+}
+
+# ------------------------------------------------------------------------------
+
+__END__
