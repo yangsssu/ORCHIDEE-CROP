@@ -1,0 +1,103 @@
+#==================================================================
+libIGCM_date
+This ksh library handles date calculs and convertions in different calendars.
+  types of calendars are possible :
+
+  - leap|gregorian|standard (other name leap) :
+      The normal calendar. The time origin for the
+      julian day in this case is 24 Nov -4713.
+  - noleap|365_day :
+      A 365 day year without leap years.
+  - all_leap|366_day :
+      A 366 day year with only leap years.
+  - 360d|360_day :
+      Year of 360 days with month of equal length.
+#==================================================================
+function IGCM_date_DaysInYear
+* Purpose: Return the number of days in a year
+* Usage: IGCM_date_DaysInYear yyyy
+         if there is no argument on the command line,
+         then assume that a yyyy is being piped in
+
+#==================================================================
+function IGCM_date_DaysInMonth
+* Purpose: Calculate the number of days in a month
+* Usage: IGCM_date_DaysInMonth yyyy mm
+         or IGCM_date_DaysInMonth yyyymmdd
+         if there are no command line arguments then
+         assume that a yyyymmdd is being piped in and read the value.
+         if there is only one argument assume it is a yyyymmdd on the command line
+         other wise it is a yyyy and mm on the command line
+#==================================================================
+function IGCM_date_ConvertGregorianDateToJulian
+* Purpose: Convert yyyymmdd to yyyyddd
+* Usage: IGCM_date_ConvertGregorianDateToJulian 19980429
+         if there is no command line argument, then assume that the date
+         is coming in on a pipe and use read to collect it
+
+#==================================================================
+function IGCM_date_ConvertJulianDateToGregorian()
+* Purpose: Convert yyyyddd to yyyymmdd
+* Usage: IGCM_date_ConvertJulianDateToGregorian 1998213
+         if there is no command line argument, assume one is being
+         piped in and read it
+
+#==================================================================
+function IGCM_date_AddDaysToJulianDate
+* Purpose: Add days to a yyyyddd formatted date
+* Usage: IGCM_date_AddDaysToJulianDate 1998312 { ,-}14
+         Read the difference from the command lines
+         and the date from the command line, or standard input
+
+#==================================================================
+function IGCM_date_AddDaysToGregorianDate
+* Purpose: Add days to a yyyymmdd formatted date
+* Usage: IGCM_date_AddDaysToGregorianDate 19980312 { ,-}14
+         Read the difference from the command lines
+         and the date from the command line, or standard input
+
+#==================================================================
+function IGCM_date_DaysBetweenJulianDate
+* Purpose: Calculate the days difference between two dates and reports
+           the number days as jul1 - jul2
+* Usage: IGCM_date_DaysBetweenJulianDate jul1 jul2
+         where julian date is in the form yyyyddd
+
+#==================================================================
+function IGCM_date_DaysBetweenGregorianDate ()
+* Purpose: Calculate the days difference between two dates and reports
+           the number days as grg1 - grg2
+* Usage: IGCM_date_DaysBetweenGregorianDate grg1 grg2
+         where gregorian date is in the form yyyymmdd
+
+#==================================================================
+function IGCM_date_DaysSinceJC ()
+* Purpose: Calculate the days difference between a date and 00010101
+* Usage: IGCM_date_DaysSinceJC grg1
+         where gregorian date is in the form yyyymmdd
+
+#==================================================================
+function IGCM_date_DaysInPreviousPeriod ()
+* Purpose: Give the numbers of days during the previous prd1 period from grg1 date # OLD create_ts_begin_date
+* Usage: IGCM_date_DaysInPreviousPeriod grg1 prd1 [end]
+         where grg1 gregorian date is in the form yyyymmdd
+         where prd1 period is in the form N[Yy], N[Mm], N[Dd]. N integer
+         where [end] is an optionnal keyword to specify grg1 is the end of prd1
+
+#==================================================================
+function IGCM_date_DaysInNextPeriod ()
+* Purpose: Give the numbers of days during the next prd1 period from grg1 date # OLD create_ts_next_date
+* Usage: IGCM_date_DaysInNextPeriod grg1 prd1
+         where grg1 gregorian date is in the form yyyymmdd
+         where prd1 period is in the form N[Yy], N[Mm], N[Dd]. N integer
+
+#==================================================================
+function IGCM_date_DaysInCurrentPeriod ()
+* Purpose: Give the numbers of days during the Current prd1 period from grg1 date
+* Usage: IGCM_date_DaysInCurrentPeriod grg1 prd1
+         where grg1 gregorian date is in the form yyyymmdd
+         where prd1 period is in the form N[Yy], N[Mm], N[Dd]. N integer
+
+#==================================================================
+function IGCM_date_Check
+ * Purpose: Check the present file by comparison with a reference file

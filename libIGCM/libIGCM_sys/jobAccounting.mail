@@ -1,0 +1,11 @@
+Dear ${LOGIN},
+
+this mail will be sent once for the simulation ${config_UserChoices_JobName} you recently submitted.
+
+The whole simulation will consume around ${consumeHoursPerWholeSimulation} hours. To be compared with your project allocation.
+
+For your case \(a job duration of ${jobWarningDelay} seconds\) the recommended PeriodNb is around ${recommendedPeriodNb}. To be compare with the current setting \(Job_${config_UserChoices_JobName} parameter\) : PeriodNb=${PeriodNb}
+
+Greetings!
+
+Check this out for more information : https://forge.ipsl.jussieu.fr/igcmg_doc/wiki/Doc

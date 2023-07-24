@@ -1,0 +1,3 @@
+ Get parameters text files updated by job (.def, namelist ...)
+ READ AND USE BY GCM AT EACH EXECUTION.
+ Initialize components.

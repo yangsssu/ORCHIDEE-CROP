@@ -1,0 +1,177 @@
+#==================================================
+LibIGCM_sys Default host
+#==================================================
+
+ This ksh library if a layer under some usefull
+environment variables and shell commands.
+All those definitions depend on host particularities.
+It manages a stack mechanism and test validity of operations.
+All function described bellow must be prefixed by IGCM_sys.
+
+#==================================================
+Program used in libIGCM
+#==================================================
+#==================================================
+function IGCM_sys_defineArchives
+* Purpose:
+* Define ARCHIVE : Dedicated to large files
+* Define STORAGE : Dedicated to small/medium files
+* Define R_OUT   : Output tree located on ARCHIVE
+* Define R_FIG   : Output tree located on STORAGE hosting figures (monitoring and atlas, and/or small files)
+* Define R_BUF   : Output tree located on STORAGE hosting files waiting for rebuild or pack processes
+* if SpaceName=TEST nothing special will hapen
+* Examples:
+
+#==================================================
+function IGCM_sys_RshArchive
+* Purpose: Archive rsh command
+* Examples:
+
+#==================================================
+function IGCM_sys_RshArchive_NoError
+* Purpose: Archive rsh command, without error
+*          used only in monitoring.job
+* Examples:
+
+#==================================================
+function IGCM_sys_MkdirArchive
+* Purpose: Mkdir on Archive
+* Examples:
+
+#==================================================
+function IGCM_sys_TestDirArchive
+* Purpose: Test Directory that must exists on Archive
+* Examples:
+
+#==================================================
+function IGCM_sys_IsFileArchived
+* Purpose: Test file that must NOT EXISTS on Archive based on filename only
+* Examples:
+
+#==================================================
+function IGCM_sys_TestFileArchive
+* Purpose: Test file that must NOT EXISTS on Archive
+* Examples:
+
+#==================================================
+function IGCM_sys_CountFileArchive
+* Purpose: Count files on Archive filesystem
+* Examples:
+
+#==================================================
+function IGCM_sys_Tree
+* Purpose: Tree directories with files on ${ARCHIVE}
+* Examples: IGCM_sys_Tree ${R_IN} ${R_OUT}
+
+#==================================================
+function IGCM_sys_Qsub
+* Purpose: Qsub new job
+* Examples:
+
+#==================================================
+function IGCM_sys_QsubPost
+* Purpose: Qsub new job on scalaire
+* Examples:
+
+*************************
+ File transfer functions
+*************************
+
+#==================================================
+function IGCM_sys_RmRunDir
+* Purpose: rm tmpdir (dummy function most of the time batch
+                      scheduler will do the job)
+* Examples:
+
+#==================================================
+function IGCM_sys_Put_Dir
+* Purpose: Copy a complete directory on $(ARCHIVE)
+* Examples:
+
+#==================================================
+function IGCM_sys_Get_Dir
+* Purpose: Copy a complete directory from ${ARCHIVE}
+* Examples:
+
+#==================================================
+function IGCM_sys_Put_Rest
+* Purpose: Put computied restarts on ${ARCHIVE}.
+           File and target directory must exist.
+* Examples:
+
+#==================================================
+function IGCM_sys_Put_Out
+* Purpose: Copy a file on ${ARCHIVE} after having chmod it in readonly
+* Examples:
+
+#==================================================
+function IGCM_sys_Get
+* Purpose: Get a file from ${ARCHIVE}
+* Examples: IGCM_sys_Get myfile /destpath/myfile_with_PREFIX
+            IGCM_sys_Get /l Array_contain_myfiles /destpath/
+#==================================================
+function IGCM_sys_GetDate_Monitoring
+* Purpose: get the last year for which the monitoring has been computed
+* Examples:
+
+#==================================================
+function IGCM_sys_Dods_Rm
+* Purpose: DO NOTHING ! Put ${ARCHIVE} files on DODS internet protocole.
+* Examples:
+
+#==================================================
+function IGCM_sys_Dods_Cp
+* Purpose: Copy $(ARCHIVE) files on DODS internet protocole.
+* Examples:
+
+#==================================================
+function IGCM_sys_Put_Dods
+* Purpose: Put ${ARCHIVE} files on DODS internet protocole. Dummy function here
+* Examples:
+
+#==================================================
+function IGCM_sys_sync
+* Purpose: flush buffer on disk (dummy function on Ada)
+* Examples:
+
+#==================================================
+function IGCM_sys_desactiv_variables
+* Purpose: set environement variables prior to execution
+* Examples:
+
+ MPI specifications
+ Other specifications
+#==================================================
+function IGCM_sys_desactiv_variables
+* Purpose: unset environement variables after execution
+* Examples:
+
+ MPI specifications
+ Other specifications
+#==================================================
+function IGCM_sys_build_run_file
+* Purpose: build run file (deprecated)
+* Examples:
+
+#==================================================
+function IGCM_sys_build_execution_scripts
+* Purpose: build execution scripts to be launch by ${HOST_MPIRUN_COMMAND}
+* Examples:
+
+#==================================================
+function IGCM_sys_check_path
+* Purpose: check that RUN_DIR_PATH that will be removed on some machine
+* do not point to an important use directory. Stop immediately in that case.
+* Examples:
+
+#==================================================
+function IGCM_sys_check_quota. Dummy call here
+* Purpose: check user quota. Stop the simulation if quota above 90%
+* Examples:
+
+#==================================================
+function IGCM_sys_CountJobInQueue
+* Purpose: Check if job_name is currently
+  running or in queue
+* Examples: IGCM_sys_CountJobInQueue ${JobName} NbRun
+
