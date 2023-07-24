@@ -1,0 +1,14 @@
+These calculations are only performed in the non bare soil PFTs ($j>1$), over the vegetated fraction $a_j$. 
+The maximum amount of water that can be added to the interception reservoir is:
+\begin{equation}\label{eq:interc1}
+I^\mathrm{add} = I^\mathrm{max} - [I]_\mathrm{old} - E_i \Delta t.
+\end{equation}
+The intercepted water amount $I$ is therefore updated with:
+\begin{equation}\label{eq:interc2}
+[I]_\mathrm{new} = [I]_\mathrm{old} - E_i \Delta t + \min (a_j P_L (1-f_j) \Delta t, I^\mathrm{add}),
+\end{equation}
+where $f_j$ is the fraction of rainfall that cannot be intercepted and necessarily falls to the ground.
+The throughfall $P_T$ is then calculated with:
+\begin{equation}\label{eq:interc3}
+P_T \Delta t = P_L (1-f_j) \Delta t - ([I]_\mathrm{new} - [I]_\mathrm{old}).
+\end{equation}

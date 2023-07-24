@@ -1,0 +1,12 @@
+! Yann Meurdesoif module for sequentiel tests.
+
+!-
+!< $HeadURL$ 
+!< $Date$
+!< $Author$
+!< $Revision$
+!-
+
+MODULE Write_Field
+  USE Orch_Write_Field
+END MODULE Write_Field

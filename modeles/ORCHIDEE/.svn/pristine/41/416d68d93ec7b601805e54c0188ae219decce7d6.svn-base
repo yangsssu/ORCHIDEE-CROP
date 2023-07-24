@@ -1,0 +1,3 @@
+\begin{equation}
+    Ri_{z} = z_g \frac {T_{V, a, surf}-T_{V, surf}}{\left( {\frac{\delta u}{\delta z}} \right) ^2  * T_{V, a, surf}}
+\end{equation}

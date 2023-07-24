@@ -1,0 +1,15 @@
+%COMPILER            gfortran
+%LINK                gfortran
+%AR                  ar
+%MAKE                make
+%FPP_FLAGS           -P -C -traditional
+%FPP_DEF             
+%BASE_FFLAGS         -fdefault-real-8
+%PROD_FFLAGS         -O3 -funroll-all-loops
+%DEV_FFLAGS          -O
+%DEBUG_FFLAGS        -ffpe-trap=invalid,zero,overflow -fbounds-check -g3 -O0 -fstack-protector-all
+%MPI_FFLAGS
+%OMP_FFLAGS          
+%BASE_LD      
+%MPI_LD
+%OMP_LD              

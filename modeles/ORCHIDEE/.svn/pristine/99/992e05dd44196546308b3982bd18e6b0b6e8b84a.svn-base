@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- =========================================================================================================== -->
+<!-- iodef.xml : Main configuration file for production of output files using XIOS                               -->
+<!--             A seperatate file context_orchidee.xml contains all specifications for ORCHIDEE                 -->
+<!-- =========================================================================================================== -->
+
+<simulation>
+
+  <!-- =========================================================================================================== -->
+  <!-- XIOS context                                                                                                -->
+  <!-- =========================================================================================================== -->
+  <context id="xios">
+    <variable_definition>
+	  <variable id="info_level"                type="int">1</variable>
+	  <variable id="using_server"              type="bool">false</variable>
+	  <variable id="using_oasis"               type="bool">false</variable>
+	  <variable id="oasis_codes_id"            type="string" >LMDZ,oceanx</variable>
+      </variable_definition>
+
+  </context>
+
+  <!-- =========================================================================================================== -->
+  <!-- ORCHIDEE context                                                                                            -->
+  <!-- The file context_orchidee.xml is included here. This file needs to exist during run time.                   -->
+  <!-- =========================================================================================================== -->
+  <context id="orchidee" src="./context_orchidee.xml"/>
+
+</simulation>

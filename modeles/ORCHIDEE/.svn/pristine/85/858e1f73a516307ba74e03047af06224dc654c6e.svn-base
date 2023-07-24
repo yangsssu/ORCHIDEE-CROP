@@ -1,0 +1,3 @@
+\begin{equation}
+    \beta_{v,3} = \beta_{v,3} + min \left\{ \beta_{v,23}, VEG zqs_{veg}^{rap} RH \frac {1} {1 + \frac{ r_{veg}^{pft} (r_{veg}^{et} + r_{sv}) }{r_a}} \right\}
+\end{equation}

@@ -1,0 +1,5 @@
+\begin{equation}
+A = A + A_{i} \cdot f_{i}
+\end{equation}
+where $A$ is the mean leaf age, $A_{i}$ is the leaf age in leaf age class $i$ and $f_{i}$
+is the fraction of leaves in that class.

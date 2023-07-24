@@ -1,0 +1,8 @@
+\begin{equation}
+moist_{c}=MIN(MAX(moist_{min}+0.5(moist_{max}-moist_{min}),moist_{Senesc}),moist_{noSenesc})
+\end{equation}
+where $moist_{c}$ is the moisture availability critical level, $moist_{min}$ and 
+$moist_{max}$ are the last years moisture availability extrema for this location. 
+$moist_{Senesc}$ is the PFT dependend critical moisture level for which there is senescence and 
+$moist_{noSenesc}$ the PFT dependend critical moisture level above which there is no humidity 
+related senescence.

@@ -1,0 +1,12 @@
+The interpolation the saturated humidity depends on the temperature $T$ (in Kelvin). 
+It is set by the following equation :
+\begin{equation}
+q_{sat}(T)= \dfrac{q_s(\lfloor T \rfloor +1) - q_s(\lfloor T \rfloor).\lbrace T \rbrace + q_s(\lfloor T \rfloor)}{P}
+\end{equation}
+where : \\
+\begin{itemize}
+ \item  $ \lfloor T \rfloor $ represents the largest integer not greater than $T$. 
+ \item  $ \lbrace T \rbrace = T -\lfloor T \rfloor $ is the fractional part of $T$.
+ \item  $q_s$ is the array caclulated in the subroutine qsfrict\_init. 
+\end{itemize}
+

@@ -1,0 +1,4 @@
+\begin{eqnarray}
+    IF \ (toveg) \ THEN: \ \beta_{v,1}=0, \ \beta_{v,4} = (veget), \ \beta_v = \beta_{v,4}, \ \alpha_v = 1 \\
+    IF \ (tosnow) \ THEN: \ \beta_{v,1}=1, \ \beta_{v,4} = 0, \ \beta_v =1, \ \alpha_v = 1       
+\end{eqnarray}

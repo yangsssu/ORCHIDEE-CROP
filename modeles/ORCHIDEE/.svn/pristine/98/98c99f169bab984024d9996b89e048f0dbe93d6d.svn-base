@@ -1,0 +1,69 @@
+#-
+#- $Id$
+#-
+PARAM_LIB = $(LIBDIR)/libparameters.a
+SXPARAM_LIB = $(PARAM_LIB)
+#-Q- sxnec  SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx6nec SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- eshpux SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx8brodie SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-
+MODS1 = grid.f90           \
+        solar.f90          \
+	interpol_help.f90  \
+	gauss_jordan_method.f90  
+
+OBJSMODS1 = $(MODS1:.f90=.o)
+#-
+.PRECIOUS : $(MODEL_LIB)
+#-Q- sxnec  .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx6nec .PRECIOUS : $(SXMODEL_LIB)
+#-Q- eshpux .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx8brodie .PRECIOUS : $(SXMODEL_LIB)
+#-
+all:
+	$(M_K) libparallel
+	$(M_K) libparameters
+	$(M_K) m_all
+	@echo orglob is OK
+
+m_all: $(MODEL_LIB)($(OBJSMODS1))
+
+libparallel:
+	(cd ../src_parallel; $(M_K) -f Makefile)
+
+libparameters:
+	(cd ../src_parameters; $(M_K) -f Makefile)
+
+$(MODEL_LIB)(%.o) : %.f90
+	$(F_C) $(F_O) -I$(NCDF_INC) $*.f90
+	$(A_C) $(MODEL_LIB) $*.o
+	$(A_C) $(ORCHIDEE_LIB) $*.o
+#-Q- sxnec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sxnec 	mv $*.mod $(MODDIR)
+#-Q- sx6nec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx6nec 	mv $*.mod $(MODDIR)
+#-Q- eshpux 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- eshpux 	mv $*.mod $(MODDIR)
+#-Q- sx8mercure 	mv $*.mod $(MODDIR)
+#-Q- sx9mercure 	mv $*.mod $(MODDIR)
+#-Q- sx8brodie	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx8brodie	mv $*.mod $(MODDIR)
+#-Q- solaris 	mv $*.mod $(MODDIR)
+	$(RM) $*.o
+
+config : 
+	$(BINDIR)/Fparser -name ORGLOB $(MODS1)
+	echo 'Configuration of ORGLOB done'
+
+clean:
+	$(RM) $(MODEL_LIB)
+
+$(MODEL_LIB)(grid.o): \
+  $(PARAM_LIB)(constantes.o)
+
+$(MODEL_LIB)(interpol_help.o): \
+  $(PARAM_LIB)(constantes.o)
+
+$(MODEL_LIB)(gauss_jordan_method.o): \
+  $(PARAM_LIB)(constantes.o)
