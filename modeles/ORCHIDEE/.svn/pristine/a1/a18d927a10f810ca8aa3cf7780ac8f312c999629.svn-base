@@ -1,0 +1,3 @@
+\begin{equation}
+moist_{avail} = \frac{moist_{avail} \times (tau_{hum} - \Delta t) + moist_{avail,daily} \times \Delta t}{tau_{hum}}
+\end{equation}

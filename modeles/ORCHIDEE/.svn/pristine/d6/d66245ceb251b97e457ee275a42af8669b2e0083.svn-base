@@ -1,0 +1,49 @@
+#-
+#- $Id$
+#-
+SHELL = /bin/sh
+#---------------------------------------------------------------------
+LIBDIR = ../../../lib
+MODDIR = $(LIBDIR)
+BINDIR = ../../../bin
+SCPDIR = ../../scripts
+ORDIR  = ..
+#---------------------------------------------------------------------
+MODEL_LIB = $(LIBDIR)/liborchidee.a
+SXMODEL_LIB = $(MODEL_LIB)
+#-Q- sxnec SXMODEL_LIB = $(LIBDIR)/libsxorchidee.a
+#-Q- sx6nec SXMODEL_LIB = $(LIBDIR)/libsxorchidee.a
+#-Q- sx8brodie SXMODEL_LIB = $(LIBDIR)/libsxorchidee.a
+#-
+IOIPSL_LIB = $(LIBDIR)/libioipsl.a
+SXIOIPSL_LIB = $(IOIPSL_LIB)
+#-
+PARAM_LIB = $(LIBDIR)/libparameters.a
+SXPARAM_LIB = $(PARAM_LIB)
+#-Q- sxnec SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx6nec SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx8brodie SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-
+PARALLEL_LIB = $(LIBDIR)/libparallel.a
+SXPARALLEL_LIB = $(PARALLEL_LIB)
+#-Q- sxnec SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx6nec SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx8brodie SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-
+ORGLOB_LIB = $(LIBDIR)/liborglob.a
+SXORGLOB_LIB = $(ORGLOB_LIB)
+#-Q- sxnec  SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx6nec SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx8brodie SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-
+SECHIBA_LIB = $(LIBDIR)/libsechiba.a
+SXSECHIBA_LIB = $(SECHIBA_LIB)
+#-Q- sxnec SXSECHIBA_LIB = $(LIBDIR)/libsxsechiba.a
+#-Q- sx6nec SXSECHIBA_LIB = $(LIBDIR)/libsxsechiba.a
+#-Q- sx8brodie SXSECHIBA_LIB = $(LIBDIR)/libsxsechiba.a
+#-
+STOMATE_LIB = $(LIBDIR)/libstomate.a
+SXSTOMATE_LIB = $(STOMATE_LIB)
+#-Q- sxnec SXSTOMATE_LIB = $(LIBDIR)/libsxstomate.a
+#-Q- sx6nec SXSTOMATE_LIB = $(LIBDIR)/libsxstomate.a
+#-Q- sx8brodie SXSTOMATE_LIB = $(LIBDIR)/libsxstomate.a

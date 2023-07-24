@@ -1,0 +1,4 @@
+\begin{equation}
+    {\lambda E} ^{evap} = ({\lambda E}_{evap}^{old} - {\lambda E} _{evap} ^{sns} \Delta \theta) + ({\lambda E}_{sub}^{old} - {\lambda E}_{sub}^{sns} \Delta \theta)
+\end{equation}
+

@@ -1,0 +1,302 @@
+#-
+#- $Id$
+#-
+PARALLEL_LIB = $(LIBDIR)/libparallel.a
+SXPARALLEL_LIB = $(PARALLEL_LIB)
+#-Q- sxnec  SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx6nec SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- eshpux SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx8brodie SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-
+PARAM_LIB = $(LIBDIR)/libparameters.a
+SXPARAM_LIB = $(PARAM_LIB)
+#-Q- sxnec  SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx6nec SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- eshpux SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-Q- sx8brodie SXPARAM_LIB = $(LIBDIR)/libsxparameters.a
+#-
+ORGLOB_LIB = $(LIBDIR)/liborglob.a
+SXORGLOB_LIB = $(ORGLOB_LIB)
+#-Q- sxnec  SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx6nec SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- eshpux SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-Q- sx8brodie SXORGLOB_LIB = $(LIBDIR)/libsxorglob.a
+#-
+MODS1 = stomate_data.f90      \
+        lpj_constraints.f90        \
+        lpj_cover.f90              \
+        lpj_crown.f90              \
+        lpj_establish.f90          \
+        lpj_spitfire.f90               \
+        lpj_gap.f90                \
+        lpj_kill.f90               \
+        lpj_light.f90              \
+        lpj_pftinout.f90           \
+        stomate_alloc.f90          \
+        stomate_data.f90           \
+        stomate_io.f90             \
+        stomate_litter.f90         \
+        stomate_npp.f90            \
+        stomate_phenology.f90      \
+        stomate_prescribe.f90      \
+        stomate_season.f90         \
+        stomate_soilcarbon.f90     \
+        stomate_turnover.f90       \
+        stomate_vmax.f90           \
+        stomate_lcchange.f90       \
+        stomate_glcchange_fh.f90       \
+        stomate_glcchange_SinAgeC_fh.f90       \
+        constantes_PaSim.f90         \
+        fonctions_PaSim.f90          \
+        Applic_Plantes.f90           \
+        Fauche_Orchidee.f90          \
+        Fertilisation_Orchidee.f90   \
+        Animals_Orchidee.f90         \
+        Grassland_Management.f90     \
+        stomate_lpj.f90            \
+        stomate_resp.f90           \
+        stomate_permafrost_soilcarbon.f90  \
+        stomate_wet_ch4_pt_ter_0.f90 \
+        stomate_wet_ch4_pt_ter_wet1.f90 \
+        stomate_wet_ch4_pt_ter_wet2.f90 \
+        stomate_wet_ch4_pt_ter_wet3.f90 \
+        stomate_wet_ch4_pt_ter_wet4.f90 \
+        stomate.f90
+
+OBJSMODS1 = $(MODS1:.f90=.o)
+#-
+.PRECIOUS : $(MODEL_LIB)
+#-Q- sxnec  .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx6nec .PRECIOUS : $(SXMODEL_LIB)
+#-Q- eshpux .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx8brodie .PRECIOUS : $(SXMODEL_LIB)
+#-
+all:
+	$(M_K) libparallel
+	$(M_K) libparameters
+	$(M_K) liborglob
+	$(M_K) m_all
+	@echo stomate is OK
+
+m_all: $(MODEL_LIB)($(OBJSMODS1))
+#-Q- intel m_all: WORK_MOD $(MODEL_LIB)($(OBJSMODS1))
+
+memory:
+#-Q- sxnec 	@echo maximum memory must be defined on Rhodes 
+#-Q- sxnec 	@echo in sh or ksh : ulimit -v unlimited 
+#-Q- sxnec 	@echo in csh or tcsh : limit vmemoryuse unlimited 
+#-Q- sxnec 	-/sbin/ulimit -v unlimited
+#-Q- sxnec 	-limit vmemoryuse unlimited
+
+libparallel:
+	(cd ../src_parallel; $(M_K) -f Makefile)
+
+libparameters:
+	(cd ../src_parameters; $(M_K) -f Makefile)
+
+liborglob:
+	(cd ../src_global; $(M_K) -f Makefile)
+
+$(MODEL_LIB)(%.o): %.f90
+	$(F_C) $(F_O) -I$(NCDF_INC) $*.f90
+	$(A_C) $(MODEL_LIB) $*.o
+	$(A_C) $(ORCHIDEE_LIB) $*.o
+#-Q- sxnec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sxnec 	mv $*.mod $(MODDIR)
+#-Q- sx6nec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx6nec 	mv $*.mod $(MODDIR)
+#-Q- eshpux 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- eshpux 	mv $*.mod $(MODDIR)
+#-Q- sx8mercure 	mv $*.mod $(MODDIR)
+#-Q- sx9mercure 	mv $*.mod $(MODDIR)
+#-Q- sx8brodie 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx8brodie 	mv $*.mod $(MODDIR)
+#-Q- solaris 	mv $*.mod $(MODDIR)
+	$(RM) $*.o
+#-Q- intel
+#-Q- intel WORK_MOD:
+#-Q- intel 	$(RM) work.pcl
+#-Q- intel 	@echo "work.pc" > work.pcl
+#-Q- intel 	@echo "../src_parameters/work.pc" >> work.pcl
+#-Q- intel 	@echo "../../IOIPSL/src/work.pc" >> work.pcl
+
+config: 
+	$(BINDIR)/Fparser -name STOMATE $(MODS1)
+	echo 'Configuration of STOMATE done'
+
+clean:
+	$(RM) $(MODEL_LIB)
+
+$(MODEL_LIB)(stomate.o):          \
+  $(PARAM_LIB)(pft_parameters.o)  \
+  $(MODEL_LIB)(stomate_io.o)      \
+  $(MODEL_LIB)(stomate_permafrost_soilcarbon.o)  \
+  $(MODEL_LIB)(stomate_lpj.o)
+
+$(MODEL_LIB)(stomate_permafrost_soilcarbon.o): \
+  $(MODEL_LIB)(stomate_data.o) \
+  $(PARAM_LIB)(pft_parameters.o) \
+  $(PARAM_LIB)(constantes_soil.o) \
+  $(PARAM_LIB)(constantes_soil_var.o) \
+  $(PARAM_LIB)(constantes_var.o)
+ 
+$(MODEL_LIB)(stomate_data.o): \
+  $(PARAM_LIB)(pft_parameters.o)	\
+  $(PARAM_LIB)(constantes.o)  
+
+$(MODEL_LIB)(lpj_constraints.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_cover.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_crown.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_establish.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_fire.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_gap.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_kill.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_light.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(lpj_pftinout.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_alloc.o): \
+  $(PARAM_LIB)(pft_parameters.o)	\
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_io.o): \
+  $(MODEL_LIB)(stomate_data.o) \
+  $(PARALLEL_LIB)(mod_orchidee_para.o)
+
+
+$(MODEL_LIB)(stomate_litter.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_npp.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_wet_ch4_pt_ter_0.o): \
+  $(PARAM_LIB)(pft_parameters.o)
+
+$(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet1.o): \
+  $(PARAM_LIB)(pft_parameters.o)
+
+$(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet2.o): \
+  $(PARAM_LIB)(pft_parameters.o)
+
+$(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet3.o): \
+  $(PARAM_LIB)(pft_parameters.o)
+
+$(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet4.o): \
+  $(PARAM_LIB)(pft_parameters.o)
+
+$(MODEL_LIB)(stomate_phenology.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_prescribe.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_resp.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_season.o): \
+  $(PARAM_LIB)(pft_parameters.o)	\
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_soilcarbon.o): \
+  $(MODEL_LIB)(stomate_data.o) \
+  $(ORGLOB_LIB)(grid.o)\
+  $(ORGLOB_LIB)(solar.o)
+
+$(MODEL_LIB)(stomate_turnover.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_vmax.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(stomate_lcchange.o): \
+  $(MODEL_LIB)(stomate_data.o)
+
+$(MODEL_LIB)(constantes_PaSim.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)
+
+$(MODEL_LIB)(fonctions_PaSim.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)
+
+$(MODEL_LIB)(Applic_Plantes.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)      \
+  $(MODEL_LIB)(fonctions_PaSim.o)
+
+$(MODEL_LIB)(Fertilisation_Orchidee.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)      \
+  $(MODEL_LIB)(fonctions_PaSim.o)
+
+$(MODEL_LIB)(Fauche_Orchidee.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)      \
+  $(MODEL_LIB)(fonctions_PaSim.o)
+
+$(MODEL_LIB)(Animals_Orchidee.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)      \
+  $(MODEL_LIB)(fonctions_PaSim.o)
+
+$(MODEL_LIB)(Grassland_Management.o): \
+  $(PARAM_LIB)(pft_parameters.o)        \
+  $(PARAM_LIB)(constantes.o)            \
+  $(MODEL_LIB)(constantes_PaSim.o)      \
+  $(MODEL_LIB)(fonctions_PaSim.o)       \
+  $(MODEL_LIB)(Animals_Orchidee.o)      \
+  $(MODEL_LIB)(Fauche_Orchidee.o)       \
+  $(MODEL_LIB)(Applic_Plantes.o)        \
+  $(MODEL_LIB)(Fertilisation_Orchidee.o)
+
+$(MODEL_LIB)(stomate_lpj.o):            \
+  $(MODEL_LIB)(lpj_constraints.o)       \
+  $(MODEL_LIB)(lpj_cover.o)             \
+  $(MODEL_LIB)(lpj_crown.o)             \
+  $(MODEL_LIB)(lpj_establish.o)         \
+  $(MODEL_LIB)(lpj_spitfire.o)          \
+  $(MODEL_LIB)(lpj_fire.o)              \
+  $(MODEL_LIB)(lpj_gap.o)               \
+  $(MODEL_LIB)(lpj_kill.o)              \
+  $(MODEL_LIB)(lpj_light.o)             \
+  $(MODEL_LIB)(lpj_pftinout.o)          \
+  $(MODEL_LIB)(stomate_alloc.o)         \
+  $(MODEL_LIB)(stomate_data.o)          \
+  $(MODEL_LIB)(stomate_litter.o)        \
+  $(MODEL_LIB)(stomate_npp.o)           \
+  $(MODEL_LIB)(stomate_phenology.o)     \
+  $(MODEL_LIB)(stomate_prescribe.o)     \
+  $(MODEL_LIB)(stomate_season.o)        \
+  $(MODEL_LIB)(stomate_soilcarbon.o)    \
+  $(MODEL_LIB)(stomate_turnover.o)      \
+  $(MODEL_LIB)(stomate_vmax.o)          \
+  $(MODEL_LIB)(stomate_resp.o)          \
+  $(MODEL_LIB)(stomate_wet_ch4_pt_ter_0.o)             \
+  $(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet1.o)          \
+  $(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet2.o)          \
+  $(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet3.o)          \
+  $(MODEL_LIB)(stomate_wet_ch4_pt_ter_wet4.o)          \
+  $(MODEL_LIB)(stomate_lcchange.o)      \
+  $(MODEL_LIB)(Grassland_Management.o)

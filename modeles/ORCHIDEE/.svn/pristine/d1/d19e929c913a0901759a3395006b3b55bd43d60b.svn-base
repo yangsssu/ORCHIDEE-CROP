@@ -1,0 +1,18 @@
+%\documentclass{article}
+%\usepackage[english]{babel}
+%\usepackage{amsmath}
+%\begin{document}
+\begin{equation}
+f(T) = 
+\begin{cases}
+0 & \text{if} \quad T < 273K \\
+1 - \dfrac{(T_{max} - T)^2}{(T_{max} - T_{min})^2} & \text{if} \quad 273K \leq T \leq 293K \\
+1 & \text{if} \quad T > 293K
+\end{cases} %\]
+\end{equation}
+where : \\
+\begin{itemize}
+ \item  $ T_{min} = 273K$ 
+ \item  $ T_{max} = 293K$
+\end{itemize}
+%\end{document}

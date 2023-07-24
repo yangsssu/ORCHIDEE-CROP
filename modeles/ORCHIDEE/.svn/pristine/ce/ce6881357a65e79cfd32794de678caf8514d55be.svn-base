@@ -1,0 +1,53 @@
+<!-- =========================================================================================================== -->
+<!-- ORCHIDEE context                                                                                            -->
+<!-- context_orchidee.xml : Configuration file for ORCHIDEE for production of output files using XIOS            -->
+<!-- =========================================================================================================== -->
+<context id="orchidee">
+  
+  
+  <!-- =========================================================================================================== -->
+  <!-- Definition of all existing variables                                                                        -->
+  <!-- DO NOT CHANGE THIS FILE                                                                                     -->
+  <!-- =========================================================================================================== -->
+  <field_definition src="./field_def_orchidee.xml"/>
+  
+  
+  <!-- =========================================================================================================== -->
+  <!-- Definition of output files                                                                                  -->
+  <!-- Definition of variables or groups included in the different files                                           -->
+  <!-- CHANGE THIS FILE BY ADDING THE FILES AND/OR VARIABLES YOU WANT TO PRODUCE                                   -->
+  <!-- Only variables and groups existing in field_def_orchidee.xml can be used                                    -->
+  <!-- =========================================================================================================== -->
+  <file_definition src="./file_def_orchidee.xml"/>
+  
+  
+  <!-- =========================================================================================================== -->
+  <!-- Definition of horizontal domain                                                                             -->
+  <!-- =========================================================================================================== -->
+  <domain_definition>
+    <domain id="domain_landpoints"/>
+  </domain_definition>
+  
+  <!-- =========================================================================================================== -->
+  <!-- Definition of vertical axis and extra dimensions                                                            -->
+  <!-- =========================================================================================================== -->
+  <axis_definition>
+    <!-- Vertical axis and extra dimensions in sechiba -->
+    <axis id="nvm" name="veget" standard_name="model_level_number" long_name="Vegetation types" unit="1"/>
+    <axis id="nlaip1" name="laiax" standard_name="model_level_number" long_name="Nb LAI" unit="1"/>
+    <axis id="ngrnd" name="solth" standard_name="model_level_number" long_name="Thermal soil levels" unit="m"/>
+    <axis id="nstm" name="soiltyp" standard_name="model_level_number" long_name="Soil tiles" unit="1"/>
+    <axis id="nnobio" name="nobio" standard_name="model_level_number" long_name="Other surface types" unit="1"/>
+    <axis id="albtyp" standard_name="model_level_number" long_name="Albedo types" unit="1"/>
+    <axis id="nslm" name="solay" standard_name="model_level_number" long_name="Hydrological soil levels" unit="1"/>
+    <axis id="nbdl" name="soildiag" standard_name="model_level_number" long_name="Diagnostic soil levels" unit="m"/>
+    <axis id="nsnow" name="snowlev" standard_name="model_level_number" long_name="Snow levels" unit="1"/>
+
+    <!-- Vertical axis and extra dimensions in stomate -->
+    <axis id="P10" standard_name="model_level_number" long_name="Pool 10 years" unit="1"/>
+    <axis id="P100" standard_name="model_level_number" long_name="Pool 100 years" unit="1"/>
+    <axis id="P11" standard_name="model_level_number" long_name="Pool 10 years + 1" unit="1"/>
+    <axis id="P101" standard_name="model_level_number" long_name="Pool 100 years + 1" unit="1"/>
+  </axis_definition>
+
+</context>

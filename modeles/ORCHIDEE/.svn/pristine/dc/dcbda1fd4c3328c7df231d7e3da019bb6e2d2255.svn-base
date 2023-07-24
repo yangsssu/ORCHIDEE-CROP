@@ -1,0 +1,3 @@
+\begin{equation}
+      q_{cdrag} = max   \left\{  cd_{tmp}, \frac{1 \times 10^{-4}}{max \left\{ U, (U_{wind})_{min} \right\} }  \right\}    
+\end{equation}

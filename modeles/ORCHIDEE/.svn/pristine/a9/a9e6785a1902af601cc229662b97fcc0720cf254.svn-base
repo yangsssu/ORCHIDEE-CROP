@@ -1,0 +1,19 @@
+#-
+#- $Id$
+#-
+#---------------------------------------------------------------------
+#- Creation des elements relatifs a SECHIBA
+#---------------------------------------------------------------------
+SHELL = /bin/sh
+#---------------------------------------------------------------------
+LIBDIR = ../../../lib
+BINDIR = ../../../bin
+MODDIR = $(LIBDIR)
+#---------------------------------------------------------------------
+ORCHIDEE_LIB = $(LIBDIR)/liborchidee.a
+MODEL_LIB = $(LIBDIR)/libsechiba.a
+SXMODEL_LIB = $(MODEL_LIB)
+#-Q- sxnec  SXMODEL_LIB = $(LIBDIR)/libsxsechiba.a
+#-Q- sx6nec SXMODEL_LIB = $(LIBDIR)/libsxsechiba.a
+#-Q- eshpux SXMODEL_LIB = $(LIBDIR)/libsxsechiba.a
+#-Q- sx8brodie SXMODEL_LIB = $(LIBDIR)/libsxsechiba.a

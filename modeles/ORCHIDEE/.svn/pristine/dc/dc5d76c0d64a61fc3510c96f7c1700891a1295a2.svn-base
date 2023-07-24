@@ -1,0 +1,3 @@
+\begin{equation}
+snowmelt=\frac{(temp\_sol\_new - tp\_00)*soilcap}{chalfu0}
+\end{equation}
