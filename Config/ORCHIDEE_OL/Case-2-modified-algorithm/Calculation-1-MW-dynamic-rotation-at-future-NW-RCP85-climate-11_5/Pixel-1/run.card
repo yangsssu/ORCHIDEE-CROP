@@ -1,0 +1,37 @@
+# $Revision:: 1052                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2014-09-11 16:23:32 +0200 (Thu, 11 Sep 2014) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+
+#========================================================================
+[Configuration]
+#Compute date of loop
+PeriodDateBegin= 2101-01-01
+PeriodDateEnd= 2101-12-31
+CumulPeriod= 3
+# State of Job "Start", "Running", "OnQueue", "Completed"
+PeriodState= Completed
+
+SubmitPath= /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/Config/ORCHIDEE_OL/Case-2-modified-algorithm/Calculation-1-MW-dynamic-rotation-at-future-NW-RCP85-climate-11_5/Pixel-1
+simuid= bc93676f-1878-4d32-9fc8-d4590ecdca03
+#========================================================================
+[PostProcessing]
+
+#RebuildRunning=y/n
+#RebuildToComplete=number of dir to rebuild
+#RebuildDateID=PeriodDateEnd correspondant au dernier flag de RebuildFrequency=true
+
+TimeSeriesRunning=n
+TimeSeriesCompleted=
+
+#========================================================================
+[Log]
+# Executables Size
+LastExeSize= ( 0, 0, 25171760 )
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# CumulPeriod | PeriodDateBegin |   PeriodDateEnd |        RunDateBegin |          RunDateEnd |     RealCpuTime |     UserCpuTime |      SysCpuTime | ExeDate
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#           1 |        20990101 |        20991231 | 2023-04-10T02:54:57 | 2023-04-10T02:55:15 |        18.87000 |        16.67000 |         0.87000 | OOL_Sep_8_2022
+#           2 |        21000101 |        21001231 | 2023-04-10T02:56:22 | 2023-04-10T02:56:33 |        11.70000 |        11.08000 |         0.55000 | OOL_Sep_8_2022

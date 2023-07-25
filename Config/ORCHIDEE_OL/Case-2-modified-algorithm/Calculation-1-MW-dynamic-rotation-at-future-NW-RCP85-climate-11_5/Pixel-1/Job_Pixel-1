@@ -1,0 +1,493 @@
+######################
+## OBELIX      LSCE ##
+######################
+#PBS -N Pixel-1
+#PBS -m n
+#PBS -j oe
+#PBS -q medium
+#PBS -o Script_Output_Pixel-1.000001
+#PBS -S /bin/ksh
+#PBS -v BATCH_NUM_PROC_TOT=1
+#PBS -l nodes=1:ppn=1
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1315                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-04-13 22:03:25 +0200 (Wed, 13 Apr 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#set -eu
+#set -vx
+
+date
+echo
+echo "#######################################"
+echo "#       ANOTHER GREAT SIMULATION      #"
+echo "#######################################"
+echo
+
+#D--------------------------------------------------------------------==
+#D-
+#D-                      Job to launch IGCM models
+#D-
+#D--------------------------------------------------------------------==
+#D-
+
+MODIPSL=/home/orchidee04/yangsu/Calibration/0_a_Final_calibration
+libIGCM=${MODIPSL}/libIGCM
+
+#D--------------------------------------------------------------------==
+#D- -1. PLACE FOR USER MODIFICATION
+#D-     - Job Verbosity
+#D-     - PeriodNb
+#D-     - Experience type : DEB(ug), DEV(elopment), RUN
+#D--------------------------------------------------------------------==
+
+#D- Task type (computing or post-processing)
+TaskType=computing
+
+#D- Increased verbosity (1, 2, 3)
+Verbosity=3
+
+#D- postProcessingStopLevel (0,1,2,3)
+#D- 3 stop the main job if any post-processing went wrong (atlas, monitoring, metrics, create_ts, create_se, rebuild or pack_*)
+#D- 2 stop only if create_ts, create_se or pack_* failed  (dont stop if atlas, monitoring or metrics failed)
+#D- 1 stop only if pack_* failed (dont stop if atlas, monitoring, metrics, create_ts or create_se failed)
+#D- 0 never stop the main job for post-processing that went wrong
+postProcessingStopLevel=1
+
+#D- Experience type : DEB(ug), DEV(elopment), RUN (default)
+#D- DEB : set -vx mode + output files are NOT read only
+#D- DEV : output files are NOT read only
+#D- RUN : output files ARE read only
+JobType=RUN
+
+#D- Number of execution in one job
+PeriodNb=1
+
+#D-
+#D- --------------------------------------------------------------------------------------------------#
+#D-                          ! OPTIONNAL FEATURES /!\ USE WITH CARE !                                 #
+#D- --------------------------------------------------------------------------------------------------#
+
+
+#D- Low level debug : to perform lib test checks, stack construction and IO functions instrumentation
+#D- Default=true
+#D-
+DEBUG_debug=true
+
+#D- Messaging : all activities and call stacks will be sent to ipsl servers
+#D- If true will imply DEBUG_debug=true
+#D- Default=false
+#D-
+BigBrother=true
+
+#D- Set DEBUG_sys to false to disable output calls of function
+#D- true when JobType=DEB # means DEB(ug)
+#D-
+#DEBUG_sys=false
+
+#D- Define running directory
+#D- Default=${TMPDIR} ie temporary batch directory
+#D-
+#RUN_DIR_PATH=/workdir/or/scratchdir/of/this/machine
+
+#D- Define submit directory
+#D- Default= where you launch qsub (variable from scheduler)
+#D-
+#SUBMIT_DIR=$( pwd )
+
+#D- Define input file root directory
+#D- Default=/IGCMG/common/account/of/this/machine
+#D-
+#R_IN=/u/rech/por/rpor111/DATA
+
+#D- Turn in dry run mode ? (0,1,2,3)
+#D- Default=0
+#D-
+#DRYRUN=3
+#D-# YOU HAVE TO COMPILE YOUR EXE FILES to USE DRYRUN MODE !
+#D-# -------------------------------------------------------------------------------------
+#D-# | DRYRUN=  |  Date computations, | sys_Get    |  Exe    | sys_Put_Out; sys_Put_Rest |
+#D-# |          |  Cp/Exe/param/files |            |         |                           |
+#D-# |          |  Chmod Qsub         |            |         |                           |
+#D-# -------------------------------------------------------------------------------------
+#D-# |    0     |       yes           |    yes     |  yes    |      yes                  |
+#D-# -------------------------------------------------------------------------------------
+#D-# |    1     |       yes           |    yes     |  yes    |      no                   |
+#D-# -------------------------------------------------------------------------------------
+#D-# |    2     |       yes           |    yes     |  no     |      no                   |
+#D-# -------------------------------------------------------------------------------------
+#D-# |    3     |       yes           |    no      |  no     |      no                   |
+#D-# -------------------------------------------------------------------------------------
+
+#D-
+# --------------------------------------------------------------------------------------------------#
+#D- ! END OF OPTIONNAL FEATURES /!\ DO NOT MODIFY ANYTHING BELOW UNLESS YOU KNOW WHAT YOU ARE DOING #
+# --------------------------------------------------------------------------------------------------#
+
+#D-
+#D--------------------------------------------------------------------==
+#D- 0.0 SYSTEM ENVIRONMENT
+#D-     - Define variables for Number of processors
+#D-     - Define MPI variables
+#D-     - Define batch scheduler variables
+#D-     - Source IGCM Library
+#D-     - Get RESOLution in .resol file (temporary)
+#D--------------------------------------------------------------------==
+
+#---------------------------------------------------------------------==
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+. ${libIGCM}/libIGCM_comp/libIGCM_comp.ksh
+. ${libIGCM}/libIGCM_post/libIGCM_post.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+#--------------------------------------------------------------------==
+
+#-- Resolution FLAG for oasis input
+#RESOL="ORCA2xLMD9671"
+[ -f ${SUBMIT_DIR}/../.resol ] && RESOL=$(head -1 ${SUBMIT_DIR}/../.resol)
+#-- Chemistrie FLAG to ease chemistries configurations management
+#CHEM="AER"
+[ -f ${SUBMIT_DIR}/../.chimie ] && eval $(grep CHEM ${SUBMIT_DIR}/../.chimie)
+
+#D-
+#D--------------------------------------------------------------------==
+#D- 0.1 COMMON ENVIRONMENT
+#D-     - Read libIGCM compatibility version in config.card
+#D-     - Read UserChoices section
+#D-     - Read Ensemble section
+#D-     - Read Post section
+#D-     - Define all netcdf output directories
+#D--------------------------------------------------------------------==
+IGCM_config_CommonConfiguration ${SUBMIT_DIR}/config.card
+
+if [ ! -r ${SUBMIT_DIR}/run.card ] ; then
+  #================================================#
+  #         The file run.card doesn't exist        #
+  #================================================#
+  FirstInitialize=true
+  #copy initial run.card
+  IGCM_sys_Cp ${SUBMIT_DIR}/run.card.init ${SUBMIT_DIR}/run.card
+  IGCM_debug_Print 2 "run.card copied from run.card.init"
+else
+  FirstInitialize=false
+  IGCM_debug_Print 2 "run.card exists"
+fi
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this simulation
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+#D-
+#D--------------------------------------------------------------------==
+#D- 1. INITIALIZE CONFIGURATION
+#D-    - Simulation configuration
+#D-    - Simulation parameters
+#D-    - Execution parameter
+#D-    - Define input files directory
+#D-    - Read or initialize CumulPeriod
+#D-    - run.card
+#D--------------------------------------------------------------------==
+IGCM_config_Initialize
+
+# --------------------------------------------------------------------==
+# Define, create and cd RUN_DIR
+# --------------------------------------------------------------------==
+RUN_DIR=${RUN_DIR_PATH}/${config_UserChoices_JobName}.${$}
+IGCM_sys_MkdirWork ${RUN_DIR}
+IGCM_sys_Cd ${RUN_DIR}
+
+# ------------------------------------------------------------------
+# Test if all was right before proceeding further
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+#D-
+#D---------------------------------------------------------------------==
+#D- 2. INITIALIZE ALL COMPONENT OF THE CONFIGURATION
+#D-    - Define component executable
+#D-    - Define Write Frequency by component "1M" "1D" ...
+#D-    - Source ${comp}.driver
+#D-    - Define Storage Places by component
+#D-    - ${comp}_Initialize :
+#D-    - Patterns to sed
+#D-    - Variables from namelist
+#D---------------------------------------------------------------------==
+IGCM_comp_Initialize
+
+#D-
+#D---------------------------------------------------------------------==
+#D- 3. PERFORM GENERAL VERIFICATION
+#D-    - Verify compatibility of period length, write frequencies, ...
+#D-    - Verify compatibility of rebuild choices and post-process choices
+#D-    - Will stop here if something is wrong
+#D---------------------------------------------------------------------==
+IGCM_config_Check
+
+# ------------------------------------------------------------------
+# Test if all was right before entering the period loop
+# ------------------------------------------------------------------
+IGCM_debug_Verif_Exit
+
+#D-
+#D---------------------------------------------------------------------==
+#D- 4. ENTER THE DEEP EXECUTION LOOP
+#D-    ! FASTEN YOUR SEAT BELTS PLEASE. !
+#D-    !   WE WILL CROSS TURBULENCES.   !
+#D---------------------------------------------------------------------==
+
+Period=1
+
+PeriodContinue=false
+if [ ${Period} -le ${PeriodNb} ]; then
+  PeriodContinue=true
+fi
+while ( ${PeriodContinue} ) ; do
+
+  echo
+  echo "Starting iteration ${Period} / ${PeriodNb}"
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.1 COMPUTE AND DEFINE DATE INFORMATION.
+  #D-       - ${PeriodDateBegin}
+  #D-       - ${PeriodDateEnd}
+  #D-       - ${CumulPeriod}
+  #D-       - ${DatesPeriod}=${PeriodDateBegin}_${PeriodDateEnd}
+  #D-       - ${PeriodLength} => JOURS=31 , 28, 29, 30 ; MOIS=0 ; ANS=0
+  #D-       - update run.card value
+  # ------------------------------------------------------------------
+  IGCM_config_PeriodStart
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.2 BEGIN COMPUTATION ONLY IF NEEDED
+  # ------------------------------------------------------------------
+  if [ ${SimulationLengthInDays} -gt ${ExperienceLengthInDays} ] ; then
+    IGCM_debug_Print 1 "break because '${SimulationLengthInDays} -gt ${ExperienceLengthInDays}' : ${SimulationLengthInDays} -gt ${ExperienceLengthInDays}"
+    break ;
+  fi
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.3 CALL OPTIONNAL FUNCTION WITHIN DRIVER
+  #D-       - to set special variables used in lists (Param, Init or Bc).
+  # ------------------------------------------------------------------
+  IGCM_comp_PeriodStart
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.4 GET PARAMETERS TEXT FILES UPDATED BY JOB
+  #D-       - (.def, namelist ...)
+  #D-       - READ AND USE BY GCM AT EACH EXECUTION.
+  # ------------------------------------------------------------------
+  IGCM_comp_GetInputParametersFiles
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.5 GET INITIAL STATE
+  #D-       - (Etat0, carteveg,relief...)
+  #D-       - NECESSARY ONLY IF CumulPeriod= (=> NUMERO) == 1
+  #D-       - AND ???_Restart=NO
+  #D-       - READ AND USE BY GCM FOR ONLY ONE EXECUTION.
+  # ------------------------------------------------------------------
+  IGCM_comp_GetInputInitialStateFiles
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.6 GET BOUNDARIES CONDITIONS
+  #D-       - (SST, WIND[X,Y,Z], LAI ...)
+  #D-       - READ AND USE BY GCM AT EACH EXECUTION.
+  # ------------------------------------------------------------------
+  IGCM_comp_GetInputBoundaryFiles
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.7 GET SmoothFiles CONDITIONS
+  #D-       - (SST, WIND[X,Y,Z], LAI ...)
+  #D-       - READ AND USE BY GCM AT EACH EXECUTION
+  #D-       - Do not change at each ${Period}
+  # ------------------------------------------------------------------
+  IGCM_comp_GetInputSmoothFiles
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.8 GET RESTART FILES
+  #D-       - (restartphy.nc, orca_restart.nc ...)
+  #D-       - READ AND USE BY GCM AT EACH EXECUTION.
+  #D-
+  #D-       - IF A COMPONENT DO NOT RESTART FROM PREVIOULSY COMPUTED RESTART
+  #D-       - ONLY IF CumulPeriod= (=> NUMERO) == 1
+  #D-       - MUST EXECUTE CREATE ETAT0_LIMIT (TYPICALLY LMDZ AND ./create_etat0_limit.e)
+  #D-
+  #D-       - IF CumulPeriod == 1
+  #D-       - AND A COMPONENT RESTART FROM PREVIOULSY COMPUTED RESTART
+  #D-       - MUST BRING THIS RESTART IN ${RUN_DIR_PATH}
+  #D-
+  #D-       - ELSE BRING RESTART FROM ${JobName} IN ${RUN_DIR_PATH}
+  # ------------------------------------------------------------------
+  IGCM_comp_GetInputRestartFiles
+
+  # ------------------------------------------------------------------
+  # Test if all was right before Update
+  # ------------------------------------------------------------------
+  IGCM_debug_Verif_Exit
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.9 ACTIVATE RUNNING ENVIRONNEMENT VARIABLES
+  # ------------------------------------------------------------------
+  IGCM_sys_activ_variables
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   4.10 UPDATE ParametersFiles
+  #D-        - (.def, namelist ...)
+  #D-        - with current value of (ORCA_NIT00, ORCA_LRSTAR, RAZ_DATE, ...)
+  # ------------------------------------------------------------------
+  IGCM_comp_Update
+
+  # ------------------------------------------------------------------
+  # Test if all was right before execution
+  # ------------------------------------------------------------------
+  IGCM_debug_Verif_Exit
+
+  #D-
+  #D---------------------------------------------------------------------==
+  #D- 5. EXECUTION
+  #D---------------------------------------------------------------------==
+
+  echo
+  echo "#######################################"
+  echo "#      DIR BEFORE RUN EXECUTION       #"
+  echo "#######################################"
+  echo
+  ls -lrt
+
+  echo "========================================================================"
+  if [ ${DRYRUN} -le 1 ] ; then
+    REAL_DATE_INIT=$( date )
+    echo                                                                                   > ${Exe_Output}
+    echo "#######################################"                                        >> ${Exe_Output}
+    echo "EXECUTION of : ${EXECUTION}"
+    echo "EXECUTION of : ${EXECUTION}"                                                    >> ${Exe_Output}
+    echo                                                                                  >> ${Exe_Output}
+    typeset RET
+    RUN_DATE_BEGIN=$( date '+%Y-%m-%dT%H:%M:%S' )
+    ${EXECUTION}  >> ${Exe_Output} 2>&1
+    RET=$?
+    RUN_DATE_END=$( date '+%Y-%m-%dT%H:%M:%S' )
+    if [ ${RET} -gt 0 ] ; then
+      echo "Return code of executable :" ${RET}
+      IGCM_debug_Exit "EXECUTABLE"
+      IGCM_sys_Mkdir ${SUBMIT_DIR}/Debug
+      IGCM_sys_Cp ${Exe_Output} ${SUBMIT_DIR}/Debug/${PREFIX}_${Exe_Output}_error
+      ExecutionFail=true
+    fi
+    echo                                            >> ${Exe_Output}
+    echo "#######################################"  >> ${Exe_Output}
+    echo "libIGCM RunDateBegin=${RUN_DATE_BEGIN}"   >> ${Exe_Output}
+    echo "libIGCM RunDateEnd=${RUN_DATE_END}"       >> ${Exe_Output}
+    echo                                            >> ${Exe_Output}
+  else
+    echo "EXECUTION of : ${EXECUTION} simulated for DRYRUN = " $DRYRUN
+    echo "EXECUTION of : ${EXECUTION} simulated for DRYRUN = " $DRYRUN > ${Exe_Output}
+    if ( $DEBUG_debug ) ; then
+      echo "FOR EXECUTION DRYRUN mode = " $DRYRUN >> stack
+    fi
+  fi
+  echo "========================================================================"
+
+  echo
+  echo "#######################################"
+  echo "#       DIR AFTER RUN EXECUTION       #"
+  echo "#######################################"
+  echo
+  ls -lrt
+
+  #D-
+  #D---------------------------------------------------------------------==
+  #D- 6. POST EXECUTION OPERATIONS
+  #D---------------------------------------------------------------------==
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   6.1. DESACTIVATE RUNNING ENVIRONNEMENT VARIABLES
+  # ------------------------------------------------------------------
+  IGCM_sys_desactiv_variables
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   6.2. SAVE OUTPUTS
+  #D-        - On archive/storage machine
+  #D-        - netcdf outputs, restarts and text files of models
+  # ------------------------------------------------------------------
+  IGCM_comp_Finalize
+
+  # ------------------------------------------------------------------
+  # Test if all was right after Finalize
+  # ------------------------------------------------------------------
+  IGCM_debug_Verif_Exit
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   6.3. CONFIGURE POST-PROCESSING
+  #D-        - asynchronous post-treatment (Level 0) when necessary (rebuild/pack)
+  #D-        - classic post-treatment      (Level 1) when necessary (TimeSeries/Seasonal)
+  # ------------------------------------------------------------------
+  IGCM_post_Configure
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   6.4. SUBMIT POST-PROCESSING
+  #D-        - remote rebuild or/and post-treatment process if necessary
+  # ------------------------------------------------------------------
+  IGCM_post_Submit
+
+  #D-
+  # ------------------------------------------------------------------
+  #D-   6.5. FINALYZE CURRENT LOOP AND PREPARE NEXT ONE
+  #D-        - Manage executable size to save only different binary
+  #D-        - Write in run.card user, system and elapse time
+  #D-        - Check that everything went well ! No ? then we stop.
+  #D-        - Determine next computed period
+  # ------------------------------------------------------------------
+  IGCM_config_PeriodEnd
+
+  echo "Ending iteration ${Period}"
+  (( Period = Period + 1 ))
+
+  # End loop if date end is reached
+  if [ ${SimulationLengthInDays} -ge ${ExperienceLengthInDays} ] ; then
+    break ;
+  fi
+
+  PeriodContinue=false
+  if [ ${Period} -le ${PeriodNb} ]; then
+    PeriodContinue=true
+  fi
+done
+
+#D-
+#D---------------------------------------------------------------------==
+#D- 7. SUBMIT NEXT JOB OR SEND MAIL IF SIMULATION IS OVER.
+#D---------------------------------------------------------------------==
+IGCM_config_Finalize
+
+date
