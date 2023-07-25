@@ -1,0 +1,40 @@
+#!/bin/ksh
+#-----------------------------------
+function IOS_Initialize
+{ 
+    IGCM_debug_PushStack "IOS_Initialize"
+
+    echo INITIALIZE IOS !!!
+
+    IGCM_debug_PopStack "IOS_Initialize"
+}
+
+#-----------------------------------
+function IOS_Update
+{
+    IGCM_debug_PushStack "IOS_Update"
+
+    echo UPDATE IOS !!!
+# Activate server mode
+    IGCM_comp_modifyXmlFile force iodef.xml using_server NONE true
+# If lmdz_UserChoices_XIOS=y add LMDZ as component id :
+    if [ X${lmdz_UserChoices_XIOS}  = Xy ] ; then
+	IGCM_comp_modifyXmlFile force iodef.xml oasis_codes_id NONE LMDZ,oceanx
+    fi 
+    if [ -f namcouple ] ; then
+	sed -e "s/2  LMDZ oceanx/3 LMDZ oceanx ${config_Executable_IOS[1]}/" namcouple > namcouple.tmp 
+	IGCM_sys_Mv namcouple.tmp namcouple
+    fi
+
+    IGCM_debug_PopStack "IOS_Update"
+}
+
+#-----------------------------------
+function IOS_Finalize
+{
+    IGCM_debug_PushStack "IOS_Finalize"
+
+    echo FINALIZE IOS !!!
+
+    IGCM_debug_PopStack "IOS_Finalize"
+}
