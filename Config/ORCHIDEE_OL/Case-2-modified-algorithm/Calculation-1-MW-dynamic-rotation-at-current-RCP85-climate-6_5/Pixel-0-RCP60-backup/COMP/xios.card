@@ -1,0 +1,29 @@
+[Compatibility]
+libIGCM=1.0
+
+[UserChoices]
+
+[InitialStateFiles]
+List=	()
+
+[BoundaryFiles]
+List=	()
+ListNonDel= ()
+
+[SmoothFiles]
+List=	()
+
+[ParametersFiles]
+List=	()
+
+[RestartFiles]
+List=	(NONE)
+
+[OutputText]
+List=   ()
+
+[OutputFiles]
+List=   ()
+
+
+
