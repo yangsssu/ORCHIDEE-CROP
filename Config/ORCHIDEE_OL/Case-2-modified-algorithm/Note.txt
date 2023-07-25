@@ -1,6 +1,6 @@
 Due to the big data size, here are just show the example, we run with single pixel, in total 841 pixels, when you run the 0_create_and_sub_all_jobs_and_collect_the_data_after_calculation.sh file, it will automatically create the Pixel-x folders. 
 
-We also run the year separately, because we need to do the correction with ML models. Year_x is maize, Year_x_5 is wheat, from year 1 to year 11_5, for double cropping, year from 1, 1_5, 2, 2_5,..., to 9, 9_5,  for single cropping, year from 1_5, 3_5, ..., to 11_5 (it includes maize-wheat 2 crops)
+We also run the year separately, because we need to do the correction with ML models. Year_x is maize, Year_x_5 is wheat, from year 1 to year 11_5, for double cropping, year from 1, 1_5, 2, 2_5,..., to 11, 11_5,  for single cropping, year from 1_5, 3_5, ..., to 11_5 (it includes maize-wheat 2 crops)
 
 Calculation-1-MW-dynamic-rotation-at-current-NW-RCP85-climate-1_5 is for single cropping with maize-wheat in rotation
 
