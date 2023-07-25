@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/ioserver/svn/!svn/ver/576/XIOS/branchs/xios-1.0/src/test
+END
+test.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test.cpp
+END
+test_cs.f90
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test_cs.f90
+END
+test_xios.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test_xios.cpp
+END
+test_complete.f90
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/565/XIOS/branchs/xios-1.0/src/test/test_complete.f90
+END
+parse_xml.f90
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ioserver/svn/!svn/ver/576/XIOS/branchs/xios-1.0/src/test/parse_xml.f90
+END
+test_client.f90
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test_client.f90
+END
+test_unstruct_complete.f90
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test_unstruct_complete.f90
+END
+test_xios_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/test/test_xios_interface.f90
+END
