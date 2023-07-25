@@ -1,0 +1,40 @@
+#D-- Compatibility -
+[Compatibility]
+libIGCM=1.0
+
+[UserChoices]
+# Use XIOS as output library instead of IOIPSL
+XIOS=n
+
+[InitialStateFiles]
+List=()
+
+[BoundaryFiles]
+#List=  (/home/satellites2/maignan/ORCHIDEE/FORCAGES/GSWP/halfdeg/GSWP3_halfdeg_3h_${year}.nc forcing_file.nc)
+#List=  (/home/orchideeshare/igcmg/IGCM/SRF/METEO/CRUJRA/v2.2/halfdeg/crujra_halfdeg_v2.2_${year}.nc forcing_file.nc)
+#List=  (/home/orchideeshare/igcmg/IGCM/SRF/METEO/CRUJRA/v2.2/twodeg/crujra_twodeg_v2.2_${year}.nc forcing_file.nc)
+#List=  (/home/orchideeshare/igcmg/IGCM/SRF/METEO/ISIMIP2B/ipsl_rcp85_onedeg/IPSL-CM5A-LR_rcp85_onedeg_daily_${year}.nc forcing_file.nc)
+#List=  (/home/surface4/jchang/ISIMIP2_forcing/ipsl_rcp60_onedeg/IPSL-CM5A-LR_rcp60_onedeg_daily_${year}.nc forcing_file.nc)
+#List=  (/home/orchideeshare/igcmg/IGCM/SRF/METEO/ISIMIP2B/ipsl_rcp26_onedeg/IPSL-CM5A-LR_rcp26_onedeg_daily_${year}.nc forcing_file.nc)
+#List=  (/home/orchidee04/yangsu/Other_datasets/Climate_data/ISIMIP2b-RCP85/IPSL-CM5A-LR_rcp85_onedeg_daily_${year}_bias_corrected.nc forcing_file.nc)
+#List=  (/home/orchidee04/yangsu/Other_datasets/Climate_data/ISIMIP2b-RCP60/IPSL-CM5A-LR_rcp60_onedeg_daily_${year}_bias_corrected.nc forcing_file.nc)
+List=  (/home/orchidee04/yangsu/Other_datasets/Climate_data/ISIMIP2b-RCP26/IPSL-CM5A-LR_rcp26_onedeg_daily_${year}_bias_corrected.nc forcing_file.nc)
+
+ListNonDel= ()
+
+[ParametersFiles]
+List=	(${SUBMIT_DIR}/PARAM/run.def, .) ,\
+        (${SUBMIT_DIR}/PARAM/iodef.xml, .)   ,\
+        (${SUBMIT_DIR}/PARAM/file_def_orchidee.xml, .)  ,\
+        (${MODIPSL}/modeles/ORCHIDEE/src_xml/context_orchidee.xml, .)   ,\
+        (${MODIPSL}/modeles/ORCHIDEE/src_xml/field_def_orchidee.xml, .)
+
+
+[RestartFiles]
+List=	(driver_rest_out.nc,  driver_rest.nc,  driver_rest_in.nc)
+
+[OutputText]
+List=   (run.def, used_run.def, out_orchidee_ol, iodef.xml, context_orchidee.xml, field_def_orchidee.xml, file_def_orchidee.xml, xios_client_*)
+
+[OutputFiles]
+List= ()
