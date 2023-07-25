@@ -1,0 +1,717 @@
+<!-- =========================================================================================================== -->
+<!-- field_def_orchidee.xml : Definition of all existing variables                                               -->
+<!-- This file must only be changed if a call xios_orchidee_send_field is added, changed or removed              -->
+<!-- =========================================================================================================== -->
+
+<field_definition id="orchidee" prec="4" operation="average" freq_op="1ts" enabled=".TRUE." default_value="9.96921e+36">
+
+
+  <!-- Definition of all variables in sechiba -->
+  <field_group id="sechiba" domain_ref="domain_landpoints">
+    <field id="areas" name="Areas" long_name="Mesh areas" unit="m2" operation="once"/>
+    <field id="LandPoints" name="LandPoints" long_name="Land Points" unit="1" operation="once"/>
+    <field id="contfrac" name="Contfrac" long_name="Continental fraction" unit="1" operation="once"/>
+    <field id="npp" name="npp" long_name="Net Primary Production" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="q_cdrag" name="cdrag" long_name="Drag coefficient for LE and SH" unit="?"/>
+    <field id="cdrag_pft" name="cdrag_pft" long_name="Drag coefficient for LE and SH for PFT" unit="?" axis_ref="nvm"/>
+    <field id="soilalb_vis" name="soilalb_vis" long_name="Soil Albedo visible" unit="1"/>
+    <field id="soilalb_nir" name="soilalb_nir" long_name="Soil Albedo near infrared" unit="1"/>
+    <field id="vegalb_vis" name="vegalb_vis" long_name="Vegetation Albedo visible" unit="1"/>
+    <field id="vegalb_nir" name="vegalb_nir" long_name="Vegetation Albedo near infrared" unit="1"/>
+    <field id="z0m" name="z0m" long_name="Surface roughness for momentum" unit="m"/>
+    <field id="z0h" name="z0h" long_name="Surface roughness for heat" unit="m"/>
+    <field id="albedo_vis" name="alb_vis" long_name="Albedo visible" unit="1"/>
+    <field id="albedo_nir" name="alb_nir" long_name="Albedo near infrared" unit="1"/>
+    <field id="albedo_glob" name="albedo_glob" long_name="Mean albedo" unit="1"> (albedo_vis + albedo_nir)*0.5 </field>
+    <field id="asoilcol" name="asoilcol" long_name="Availability of data for the soil color interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="aalb_bg" name="aalb_bg" long_name="Availability of data for the albedo interpolation from MODIS related data-set (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="atext" name="atext" long_name="Availability of data for the soil texture interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="areftemp" name="areftemp" long_name="Availability of data for the reftemp interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="vevapp" name="evap_sec" long_name="Total Evaporation" unit="kg/m^2/s"/>
+    <field id="vevapp_day" name="evap" field_ref="vevapp" long_name="Evaporation per day" unit="mm/d" > vevapp*86400  </field>
+    <field id="tsol_rad" name="tsol_rad" long_name="Radiative surface temperature" unit="C"/>
+    <field id="vevapnu" name="vevapnu" long_name="Bare soil evaporation" unit="mm/d"/>
+    <field id="vevapnu_pft" name="vevapnu_pft" long_name="Bare soil evaporation each pft" unit="mm/d" axis_ref="nvm"/>
+    <field id="temp_sol_new" name="AvgSurfT" long_name="Average surface temperature" unit="K"/>
+    <field id="temp_sol_new_C" name="temp_sol" field_ref="temp_sol_new" long_name="Average surface temperature" unit="C" > temp_sol_new - 273.15  </field>
+    <field id="tsol_max" name="tsol_max" field_ref="temp_sol_new_C" long_name="Maximum Surface Temperature" unit="C" operation="maximum"/>
+    <field id="tsol_min" name="tsol_min" field_ref="temp_sol_new_C" long_name="Minimum Surface Temperature" unit="C" operation="minimum"/>
+    <field id="qsurf" name="qsurf" long_name="Near surface specific humidity" unit="g/g"/>
+    <field id="fluxsens" name="fluxsens" long_name="Sensible Heat Flux" unit="W/m^2"/>
+    <field id="fluxlat" name="fluxlat" long_name="Latent Heat Flux" unit="W/m^2"/>
+    <field id="emis" name="emis" long_name="Surface emissivity" unit="1"/>
+    <field id="precip_rain" name="precip_rain" long_name="Rainfall rate" unit="mm/s"/>
+    <field id="precip_snow" name="precip_snow" long_name="Snowfall rate" unit="mm/s"/>
+    <field id="netrad" name="netrad" long_name="Net radiation" unit="W/m^2"/>
+    <field id="lai" name="lai" long_name="Leaf Area Index" unit="1" axis_ref="nvm"/>
+    <field id="alaimap" name="alaimap" long_name="Availability of data for the lai interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="reinf_slope" name="reinf_slope" long_name="Slope index for each grid box" unit="1" operation="once"/>
+    <field id="aslope" name="aslope" long_name="Availability of data for the slope interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="njsc" name="soilindex" long_name="Index of soil texture" unit="1" operation="once"/>
+    <field id="runoff" name="runoff_sec" long_name="Surface runoff" unit="mm/s" />
+    <field id="drainage" name="drainage_sec" long_name="Deep drainage" unit="mm/s"/>
+    <field id="mrro" name="mrro" long_name="Total Runoff" unit="kg m-2 s-1" > runoff + drainage </field>
+    <field id="evapnu_soil" name="evapnu_soil" long_name="Bare soil evap for soil type" unit="mm/d" axis_ref="nstm" /> 
+    <field id="drainage_soil" name="drainage_soil" long_name="Drainage for soil type" unit="mm/d" axis_ref="nstm" /> 
+    <field id="transpir_soil" name="transpir_soil" long_name="Transpir for soil type" unit="mm/d" axis_ref="nstm" />
+    <field id="runoff_soil" name="runoff_soil" long_name="Runoff for soil type" unit="mm/d" axis_ref="nstm" />
+    <field id="temp_air" name="tair" long_name="Air Temperature" unit="K"/>
+    <field id="qair" name="qair" long_name="Air Humidity" unit="g/g"/>
+    <field id="q2m" name="q2m" long_name="2m Air Humidity" unit="g/g"/>
+    <field id="t2m" name="t2m" long_name="2m Air temperature" unit="K"/>
+    <field id="roughheight" name="roughheight" long_name="Effective roughness height" unit="m"/>
+    <field id="transpir" name="transpir" long_name="Transpiration" unit="mm/d" axis_ref="nvm"/>
+    <field id="inter" name="inter" long_name="Interception loss" unit="mm/d" axis_ref="nvm"/>
+    <field id="evapnu" name="evapnu" long_name="Bare soil evaporation" unit="mm/d"/>
+    <field id="snow" name="snow" long_name="Snow mass" unit="kg/m^2"/>
+    <field id="snowmelt" name="snowmelt" long_name="Snow melt" unit="kg/m^2/s"/>
+    <field id="tot_melt" name="tot_melt" long_name="Total melt from ice and snow" unit="kg/m^2/s"/>
+    <field id="snowmelt_from_maxmass" name="snowmelt_from_maxmass" long_name="Snow melt above threshold" unit="kg/m^2"/>
+    <field id="soilcap" name="soilcap" long_name="Surface heat capacity considering snow and soil surface" unit="J/m^2/K"/>
+    <field id="soilcap_pft" name="soilcap_pft" long_name="soilcap each pft" unit="J/m^2/K" axis_ref="nvm"/>
+    <field id="snowage" name="snowage" long_name="Snow age" unit="?"/>
+    <field id="snownobio" name="snownobio" long_name="Snow on other surfaces" unit="kg/m^2" axis_ref="nnobio"/>
+    <field id="snownobioage" name="snownobioage" long_name="Snow age on other surfaces" unit="d" axis_ref="nnobio"/>
+    <field id="frac_snow" name="frac_snow" long_name="Snow fraction on total area including snow on vegetation and nobio" unit="1"/>
+    <field id="frac_snow_veg" name="frac_snow_veg" long_name="Snow fraction on vegeted area" unit="1"/>
+    <field id="frac_snow_nobio" name="frac_snow_nobio" long_name="Snow fraction on no vegeted area" unit="1" axis_ref="nnobio"/>
+    <field id="vegetfrac" name="vegetfrac" long_name="Fraction of vegetation" unit="1" axis_ref="nvm"/>
+    <field id="roughheight_pft" name="roughheight_pft" long_name="vegetation roughness height" unit="m" axis_ref="nvm"/>
+    <field id="maxvegetfrac" name="maxvegetfrac" long_name="Maximum fraction of vegetation" unit="1" axis_ref="nvm"/>
+    <field id="aveget" name="aveget" long_name="Availability of data for the vegetation fraction interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="aveget5k" name="aveget5k" long_name="Availability of data for the Olson vegetation fraction interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="tot_bare_soil" name="tot_bare_soil" long_name="Total Bare Soil Fraction" unit="%"/>
+    <field id="nobiofrac" name="nobiofrac" long_name="Fraction of other surface types" unit="1" axis_ref="nnobio"/>
+    <field id="frac_bare" name="frac_bare" long_name="Bare soil fraction for each PFT" unit="1" axis_ref="nvm"/>
+    <field id="soiltile" name="soiltile" long_name="Fraction of soil tiles" unit="%" axis_ref="nstm" operation="once"/>
+    <field id="dss" name="dss" long_name="Depth of dry soil in top reservoir" unit="m" axis_ref="nvm"/>
+    <field id="gqsb" name="gqsb" long_name="Upper Soil Moisture" unit="Kg/m^2"/>
+    <field id="bqsb" name="bqsb" long_name="Lower Soil Moisture" unit="Kg/m^2"/>
+    <field id="humtot_top" name="mrsos" long_name="Moisture in top 10cm (6 top soil layers with CWRR)" unit="kg m-2"/>
+    <field id="humtot" name="humtot" long_name="Total soil moisture" unit="Kg/m^2"/>
+    <field id="tmc" name="humtot_soil" long_name="Soil Moisture for soil tiles" unit="Kg/m^2" axis_ref="nstm"/>
+    <field id="irrig_fin" name="irrig_fin" long_name="application of irrigation" unit="Kg/m^2" axis_ref="nvm"/>
+    <field id="rstruct" name="rstruct" long_name="Structural resistance" unit="s/m" axis_ref="nvm"/>
+    <field id="gpp" name="gpp" long_name="Net assimilation of carbon by the vegetation" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="nee" name="nee" long_name="Net Ecosystem Exchange" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="maint_resp" name="maint_resp" long_name="Maintenance respiration" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="hetero_resp" name="hetero_resp" long_name="Heterotrophic respiration" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="growth_resp" name="growth_resp" long_name="Growth respiration" unit="gC/m^2/s" axis_ref="nvm"/>
+    <field id="precisol" name="precisol" long_name="Throughfall per PFT" unit="mm/d" axis_ref="nvm" />
+    <field id="drysoil_frac" name="drysoil_frac" long_name="Fraction of visibly dry soil" unit="1"/>
+    <field id="evapot" name="evapot" long_name="Potential evaporation" unit="mm/s"/>
+    <field id="evapot_corr" name="evapot_corr" long_name="Potential evaporation correction" unit="mm/s"/>
+    <field id="swnet" name="swnet" long_name="Net solar radiation" unit="W/m^2"/>
+    <field id="swdown" name="swdown" long_name="Incident solar radiation" unit="W/m^2"/>
+    <field id="lwdown" name="lwdown" long_name="Absorbed downward longwave radiation" unit="W/m^2"/>
+    <field id="lwnet" name="lwnet" long_name="Net surface longwave radiation" unit="W/m^2"/>
+    <field id="diffevap" name="diffevap" long_name="Difference betwence vevapp and composing fluxes in enerbil" unit="Kg/m^2/s"/>
+    <field id="tot_flux" name="TotWaterFlux" long_name="Total water flux" unit="mm/d" />
+    <field id="k_litt" name="k_litt" long_name="Litter cond" unit="mm/d"/>
+    <field id="beta" name="beta" long_name="Beta Function" unit="1"/>
+    <field id="beta_pft" name="beta_pft" long_name="Beta Function each pft" unit="1" axis_ref="nvm"/>
+    <field id="raero" name="raero" long_name="Aerodynamic resistance" unit="s/m"/>
+    <field id="wind" name="Wind" long_name="Wind speed" unit="m/s"/>
+    <field id="qsatt" name="qsatt" long_name="Surface saturated humidity" unit="g/g"/>
+    <field id="vbeta1" name="vbeta1" long_name="Beta for sublimation" unit="1"/>
+    <field id="vbeta4" name="vbeta4" long_name="Beta for bare soil" unit="1"/>
+    <field id="vbeta4_pft" name="vbeta4_pft" long_name="Beta for bare soil each pft" unit="1" axis_ref="nvm"/>
+    <field id="vbeta5" name="vbeta5" long_name="Beta for floodplains" unit="1"/>
+    <field id="gsmean" name="gsmean" long_name="beta for CO2" unit="mm/d" axis_ref="nvm"/>
+    <field id="humrel" name="humrel" long_name="Soil moisture stress for transpiration (it is not the relative humidity)" unit="1" axis_ref="nvm"/>
+    <field id="cimean" name="cimean" long_name="Stomatal CO2 concentation" unit="mmole/m2/s" axis_ref="nvm" enabled=".FALSE."/>
+    <field id="vbeta3" name="vbeta3" long_name="Beta for Transpiration" unit="mm/d" axis_ref="nvm"/>
+    <field id="rveget" name="rveget" long_name="Canopy resistance" unit="s/m" axis_ref="nvm"/>
+    <field id="rsol" name="rsol" long_name="Soil resistance" unit="s/m"/>
+    <field id="vbeta2" name="vbeta2" long_name="Beta for Interception loss" unit="mm/d" axis_ref="nvm"/>
+    <field id="qsintveg_tot" name="CanopInt" long_name="Water on canopy (grid-cell total)" unit="Kg/m^2"/>  
+    <field id="qsintveg" name="qsintveg" long_name="Water on canopy per PFT" unit="Kg/m^2" axis_ref="nvm"/>
+    <field id="qsintmax" name="qsintmax" long_name="Maximum Interception capacity per PFT" unit="Kg/m^2" axis_ref="nvm"/>
+    <field id="prveg" name="prveg" long_name="Rainfall interception by canopy" unit="kg m-2 s-1"/>
+    <field id="evspsblveg" name="evspsblveg" long_name="Evaporation from canopy" unit="kg m-2 s-1"/>
+    <field id="evspsblsoi" name="evspsblsoi" long_name="Water Evaporation from Soil" unit="kg m-2 s-1"/>
+    <field id="tran" name="tran" long_name="Transpiration" unit="kg m-2 s-1"/>
+    <field id="treeFrac" name="treeFrac" long_name="Tree Cover Fraction" unit="%"/>
+    <field id="grassFrac" name="grassFrac" long_name="Natural Grass Fraction" unit="%"/>
+    <field id="cropFrac" name="cropFrac" long_name="Crop Fraction" unit="%"/>
+    <field id="baresoilFrac" name="baresoilFrac" long_name="Fraction of bare soil PFT(pft=1)" unit="%"/>
+    <field id="residualFrac" name="residualFrac" long_name="Fraction of Grid Cell that is Land but Neither Vegetation-Covered nor Bare Soil" unit="%"/>
+    <field id="PAR" name="PAR" long_name="Photosynthetic active radiation, half of swdown" unit="umol phot/m^2/s"/>
+    <field id="PARsun" name="PARsun" long_name="PAR received by sun leaves" unit="umol phot/m^2/s" axis_ref="nvm"/>
+    <field id="PARsh" name="PARsh" long_name="PAR received by shaded leaves" unit="umol phot/m^2/s" axis_ref="nvm"/>
+    <field id="laisun" name="laisun" long_name="Sunlit Leaf Area Index" unit="1" axis_ref="nvm"/>
+    <field id="laish" name="laish" long_name="Shaded Leaf Area Index" unit="1" axis_ref="nvm"/>
+    <field id="Fdf" name="Fdf" long_name="Fdf" unit="1"/>
+    <field id="PARsuntab" name="PARsuntab" long_name="Sunlit Leaf PAR" unit="umol phot/m^2/s" axis_ref="nlaip1"/>
+    <field id="PARshtab" name="PARshtab" long_name="Shaded Leaf Area PAR" unit="umol phot/m^2/s" axis_ref="nlaip1"/>
+    <field id="coszang" name="coszang" long_name="Cosine of the solar zenith angle" unit="-"/>
+    <field id="PARdf" name="PARdf" long_name="PARdf" unit="1"/>
+    <field id="PARdr" name="PARdr" long_name="PARdr" unit="1"/>
+    <field id="Trans" name="Trans" long_name="Trans" unit="1"/>
+    <field id="Day" name="Day" long_name="Day" unit="1"/>
+    <field id="Year_length" name="Year_length" long_name="Year_length" unit="1"/>
+    <field id="flx_fertil_no" name="flx_fertil_no" long_name="flx_fertil_no" unit="ngN/m^2/s" axis_ref="nvm"/>
+    <field id="CRF" name="CRF" long_name="CRF" unit="1" axis_ref="nvm" />
+    <field id="flx_co2_bbg_year" name="flx_co2_bbg_year" long_name="flx_co2_bbg_year" unit="kgC/m^2/yr" operation="once"/>
+    <field id="N_qt_WRICE_year" name="N_qt_WRICE_year" long_name="N_qt_WRICE_year" unit="kgN/yr" operation="once"/>
+    <field id="N_qt_OTHER_year" name="N_qt_OTHER_year" long_name="N_qt_OTHER_year" unit="kgN/yr" operation="once"/>
+    <field id="achem_wrice" name="achem_wrice" long_name="Availability of data for the rice fertilizers interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="achem_other" name="achem_other" long_name="Availability of data for the other crops fertilizers interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="achem_co2" name="achem_co2" long_name="Availability of data for the co2 bbg interpolation (negative values if no data found)" unit="1"  operation="once"/>
+    <field id="ptnlev1" name="ptnlev1" long_name="ptnlev1" unit="K"/>
+    <field id="flx_iso" name="flx_iso" long_name="flx_iso" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_mono" name="flx_mono" long_name="flx_mono" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_ORVOC" name="flx_ORVOC" long_name="flx_ORVOC" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_MBO" name="flx_MBO" long_name="flx_MBO" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_methanol" name="flx_methanol" long_name="flx_methanol" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_acetone" name="flx_acetone" long_name="flx_acetone" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_acetal" name="flx_acetal" long_name="flx_acetal" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_formal" name="flx_formal" long_name="flx_formal" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_acetic" name="flx_acetic" long_name="flx_acetic" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_formic" name="flx_formic" long_name="flx_formic" unit="kgC/m^2/s" axis_ref="nvm"/>
+    <field id="flx_no_soil" name="flx_no_soil" long_name="flx_no_soil" unit="ngN/m^2/s" axis_ref="nvm"/>
+    <field id="flx_no" name="flx_no" long_name="flx_no" unit="ngN/m^2/s" axis_ref="nvm"/>
+    <field id="flx_apinen" axis_ref="nvm" />
+    <field id="flx_bpinen" axis_ref="nvm" />
+    <field id="flx_limonen" axis_ref="nvm" />
+    <field id="flx_myrcen" axis_ref="nvm" />
+    <field id="flx_sabinen" axis_ref="nvm" />
+    <field id="flx_camphen" axis_ref="nvm" />
+    <field id="flx_3caren" axis_ref="nvm" />
+    <field id="flx_tbocimen" axis_ref="nvm" />
+    <field id="flx_othermono" axis_ref="nvm" />
+    <field id="flx_sesquiter" axis_ref="nvm" />
+    <field id="fco2" axis_ref="nvm" />
+    <field id="cim" axis_ref="nvm" />
+    <field id="Psurf" name="Psurf" long_name="Surface pressure" unit="Pa"/>
+    <field id="slowflow" name="Qb" long_name="Slowflow hydrographs of gridbox outflow" unit="m^3/s"/> 
+    <field id="LAImean" name="LAImean" long_name="Mean Leaf Area Index" unit="-"/>
+    <field id="mcs" name="SoilSat" long_name="Mean volumetric water content at saturation" unit="m^3/m^3" axis_ref="nslm" operation="once"/>   
+    <field id="nroot" name="RootDist" long_name="Cumulative root density (grid-cell average)" unit="1"  axis_ref="nslm" operation="once"/>   
+    <field id="dh" name="SoilThick" long_name="Hydrological soil layer thickness" unit="m"  axis_ref="nslm" operation="once"/>   
+    <field id="water2infilt" name="water2infilt" long_name="Storage of surface runoff kept for future infiltration(already included in humtot)" unit="Kg/m^2" axis_ref="nstm"/>  
+
+    <!-- To improve, in enerbil -->
+    <field id="LWnet" name="LWnet" long_name="LWnet" unit="kg/m^2/s"/>
+    <field id="PotEvap" name="PotEvap" long_name="PotEvap" unit="kg/m^2/s"/>
+    <field id="PotEvapOld" name="PotEvapOld" long_name="PotEvapOld" unit="kg/m^2/s"/>
+    <field id="PotSurfT" name="PotSurfT" long_name="PotSurfT" unit="kg/m^2/s"/>
+
+    <!-- To improve, in hydrol -->
+    <field id="snowmelt" name="snowmelt" long_name="Snowmelt" unit="kg/m^2/s"/>
+    <field id="shumdiag_perma" name="shumdiag_perma" long_name="Shumdiag perma" unit="kg/m^2/s"/>
+    <field id="fsat" name="fsat" long_name="fsat" unit="kg/m^2/s"/>
+    <field id="fwet" name="fwet" long_name="fwet" unit="kg/m^2/s"/>
+    <field id="fwt1" name="fwt1" long_name="fwt1" unit="kg/m^2/s"/>
+    <field id="fwt2" name="fwt2" long_name="fwt2" unit="kg/m^2/s"/>
+    <field id="fwt3" name="fwt3" long_name="fwt3" unit="kg/m^2/s"/>
+    <field id="fwt4" name="fwt4" long_name="fwt4" unit="kg/m^2/s"/>
+    <field id="ZMIN" name="ZMIN" long_name="ZMIN" unit="kg/m^2/s"/>
+    <field id="ZMAX" name="ZMAX" long_name="ZMAX" unit="kg/m^2/s"/>
+    <field id="ZMEAN" name="ZMEAN" long_name="ZMEAN" unit="kg/m^2/s"/>
+    <field id="ZSTDT" name="ZSTDT" long_name="ZSTDT" unit="kg/m^2/s"/>
+    <field id="ZSKEW" name="ZSKEW" long_name="ZSKEW" unit="kg/m^2/s"/>
+    <field id="drunoff_tot" name="drunoff_tot" long_name="drunoff_tot" unit="kg/m^2/s"/>
+    <field id="profil_froz_hydro" name="profil_froz_hydro" long_name="profil_froz_hydro" unit="m3/m3" axis_ref="nslm"/>
+    <field id="temp_hydro" name="temp_hydro" long_name="temp hydro" unit="kg/m^2/s" axis_ref="nslm"/> 
+    <field id="kk_moy" name="kk_moy" long_name="kk_moy" unit="kg/m^2/s" axis_ref="nslm"/> 
+    <field id="Snowf" name="Snowf" long_name="Snowfall" unit="mm/d"/>
+    <field id="Rainf" name="Rainf" long_name="Rainfall" unit="mm/d"/>
+
+
+    <!-- To improve, in thermosoil -->
+    <field id="pkappa_snow" name="pkappa_snow" long_name="Snow thermal conductivity" unit="W/m/K" axis_ref="nsnow"/>  
+    <field id="pcapa_snow" name="pcapa_snow" long_name="Snow heat capacity" unit="J/m^3/K" axis_ref="nsnow"/>  
+    <field id="ptn_pftmean" name="ptn_pftmean" long_name="ptn_pftmean" unit="K" axis_ref="ngrnd"/>
+    <field id="SoilTemp" name="SoilTemp" long_name="SoilTemp" unit="K" axis_ref="ngrnd"/>
+
+    <!-- to improve, sechiba -->
+    <field id="grndflux" name="grndflux" long_name="grndflux" unit="K"/>
+    <field id="snowtemp" name="snowtemp" long_name="snowtemp" unit="K" axis_ref="nsnow"/>
+    <field id="snowliq" name="snowliq" long_name="snowliq" unit="K" axis_ref="nsnow"/>
+    <field id="snowdz" name="snowdz" long_name="snowdz" unit="K" axis_ref="nsnow"/>
+    <field id="snowrho" name="snowrho" long_name="snowrho" unit="K" axis_ref="nsnow"/>
+    <field id="snowgrain" name="snowgrain" long_name="snowgrain" unit="K" axis_ref="nsnow"/>
+    <field id="snowheat" name="snowheat" long_name="snowheat" unit="K" axis_ref="nsnow"/>
+    <field id="pgflux" name="pgflux" long_name="pgflux" unit="K"/> 
+    <field id="ESoil" name="ESoil" long_name="ESoil" unit="K"/> 
+    <field id="EWater" name="EWater" long_name="EWater" unit="K"/> 
+    <field id="SWE" name="SWE" long_name="SWE" unit="K"/> 
+    <field id="SnowFrac" name="SnowFrac" long_name="SnowFrac" unit="K"/> 
+    <field id="Z0" name="Z0" long_name="Z0" unit="K"/> 
+    <field id="EffectHeight" name="EffectHeight" long_name="EffectHeight" unit="K"/> 
+    <field id="NEE" name="NEE" long_name="NEE" unit="K" axis_ref="nvm"/> 
+
+    <!-- intersurf -->
+    <field id="temp_sol" name="temp_sol" long_name="temp_sol" unit="C"/> 
+    <field id="temp_sol_pft" name="temp_sol_pft" long_name="temp_sol each pft" unit="C" axis_ref="nvm"/> 
+    <field id="Evap" name="Evap" long_name="Evap" unit="C"/> 
+    <field id="SWnet" name="SWnet" long_name="SWnet" unit="C"/> 
+    <field id="Qh" name="Qh" long_name="Qh" unit="C"/> 
+    <field id="Qle" name="Qle" long_name="Qle" unit="C"/> 
+    <field id="AvgSurfT" name="AvgSurfT" long_name="AvgSurfT" unit="C"/> 
+    <field id="RadT" name="RadT" long_name="RadT" unit="C"/> 
+    <field id="Tair" name="Tair" long_name="Tair" unit="C"/> 
+    <field id="Qair" name="Qair" long_name="Qair" unit="C"/> 
+    
+    <!-- for crops xuhui -->
+    <field id="udevair" name="udevair" long_name="udev unit for crop phenology" unit="1" axis_ref="nvm"/>
+    <field id="turfac" name="turfac" long_name="soil water stress for crop phenology" unit="1" axis_ref="nvm"/>
+    <field id="swfac" name="swfac" long_name="soil water stress for crop phenology" unit="1" axis_ref="nvm"/>
+    <field id="senfac" name="senfac" long_name="soil water stress for senescence" unit="1" axis_ref="nvm"/>
+    <field id="shumrel" name="shumrel" long_name="soil water stress for germination" unit="1" axis_ref="nvm"/>
+
+
+    <!-- Routing -->
+    <field id="basinmap" name="basinmap" long_name="Aproximate map of the river basins" operation="once"/>
+    <field id="nbrivers" name="nbrivers" long_name="Number or rivers in the outflow grid box" operation="once"/>
+    <field id="swampmap" name="swampmap" long_name="Map of swamp areas" unit="m^2" operation="once"/>
+    <field id="irrigmap" name="irrigmap" long_name="Map of irrigated areas" unit="m^2" operation="once"/>
+    <field id="floodmap" name="floodmap" long_name="Map of floodplains areas" unit="m^2" operation="once"/>
+    <field id="mask_coast" name="mask_coast" long_name="Mask of coastal gridcell which can recieve coastalflow" unit="" operation="once"/>
+    <field id="coastalflow" name="coastalflow" long_name="Diffuse coastal flow" unit="m^3/s"/>
+    <field id="riverflow" name="riverflow" long_name="River flow to the oceans" unit="m^3/s"/>
+    <field id="hydrographs" name="hydrographs" long_name="Hydrographs of gridbox outflow" unit="m^3/s"/>
+    <field id="fastr" name="fastr" long_name="Fast flow reservoir" unit="kg/m^2"/>
+    <field id="slowr" name="slowr" long_name="Slow flow reservoir" unit="kg/m^2"/>
+    <field id="streamr" name="streamr" long_name="Stream flow reservoir" unit="kg/m^2"/>
+    <field id="lake_overflow" name="lake_overflow" long_name="Water overflow when lake reservoir exceeds maximum capacity" unit="kg/m2/s"/>
+    <field id="lake_overflow_coast" name="lake_overflow_coast" long_name="Water overflow when lake reservoir exceeds maximum capacity distributed on coast grid cells" unit="m3/s"/>
+    <field id="laker" name="laker" long_name="Endorheic lake flow reservoir" unit="kg/m^2"/>
+    <field id="pondr" name="pondr" long_name="Pond flow reservoir" unit="kg/m^2"/>
+    <field id="delfastr" name="delfastr" long_name="Accumulated storage change for fast flow reservoir" unit="kg/m^2" operation="accumulate"/>
+    <field id="delfastr_daily" field_ref="delfastr" name="delfastr_daily" long_name="Mean of storage change in fast flow reservoir accumulated over each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delfastr </field>
+    <field id="delslowr" name="delslowr" long_name="Accumulated storage change for slow flow reservoir" unit="kg/m^2" operation="accumulate" />
+    <field id="delslowr_daily" field_ref="delslowr" name="delslowr_daily" long_name="Mean of storage change for slow flow reservoir accumulated over each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delslowr </field>
+    <field id="delstreamr" name="delstreamr" long_name="Accumulated storage change for stream flow reservoir" unit="kg/m^2" operation="accumulate" />
+    <field id="delstreamr_daily" field_ref="delstreamr" name="delstreamr_daily" long_name="Mean of storage change in stream flow reservoir accumulated each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delstreamr </field>
+    <field id="dellaker" name="dellakevol" long_name="Accumulated storage change for lake reservoir" unit="kg/m^2" operation="accumulate"/>
+    <field id="dellaker_daily" field_ref="dellaker" name="dellakevol_daily" long_name="Mean of storage change for lake reservoir accumulated each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @dellaker </field>
+    <field id="delpondr" name="delpondr" long_name="Accumulated storage change for ponds reservoir" unit="kg/m^2" operation="accumulate"/>
+    <field id="delpondr_daily" field_ref="delpondr"  name="delpondr_daily" long_name="Mean of storage change for ponds reservoir accumulated over each day" freq_op="1d" unit="kg/m^2/d" operation="average" > @delpondr </field>
+    <field id="delfloodr" name="delfloodr" long_name="Accumulated storage change for floodplains reservoir" unit="kg/m^2" operation="accumulate" />
+    <field id="delfloodr_daily" field_ref="delfloodr" name="delfloodr_daily" long_name="Mean of storage change for floodplains reservoir accumulated over each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delfloodr </field>
+    <field id="delstock_routing" name="delstock_routing" long_name="Mean of storage change in all routing reservoirs accumulated each day" unit="kg/m^2"> delstreamr_daily + delfastr_daily + delslowr_daily + delfloodr_daily + delpondr_daily + dellaker_daily </field> 
+    <field id="wbr_fast" name="wbr_fast" long_name="Water budget residu of the fast reservoir" unit="kg/m^2/s"/>
+    <field id="wbr_slow" name="wbr_slow" long_name="Water budget residu of the slow reservoir" unit="kg/m^2/s"/>
+    <field id="wbr_stream" name="wbr_stream" long_name="Water budget residu of the stream reservoir" unit="kg/m^2/s"/>
+    <field id="wbr_lake" name="wbr_lake" long_name="Water budget residu of the lake reservoir" unit="kg/m^2/s"/>
+    <field id="irrigation" name="irrigation_sec" long_name="Irrigation" unit="mm/s"/>
+    <field id="netirrig" name="netirrig_sec" long_name="Irrigation requirement" unit="mm/s"/>
+    <field id="floodh" name="floodh" long_name="Floodplains height" unit="mm"/>
+    <field id="floodr" name="floodr" long_name="Floodplains flow reservoir" unit="kg/m^2"/>
+    <field id="floodout" name="floodout" long_name="Flow out of floodplains" unit="mm/d" />
+    <field id="evapflo" name="evapflo" long_name="Floodplains evaporation" unit="mm/d"/>
+    <field id="riversret" name="riversret" long_name="Water flow return from lakes and swamps into the soil" unit="mm/d" />
+    <field id="reinfiltration" name="reinfiltration" long_name="Reinfiltration from floodplains and ponds" unit="mm/d" />
+
+    <!-- ALMA -->
+    <field id="twbr" name="TWBR" long_name="Total water budget residu" unit="Kg/m^2/s"/>
+    <field id="soilflx" name="Qg" long_name="Ground heat flux" unit="W/m^2"/>
+    <field id="Qg" name="Qg" long_name="Ground heat flux" unit="W/m^2"/>
+    <field id="Qf" name="Qf" long_name="Energy of fusion" unit="W/m^2"/>
+    <field id="Qv" name="Qv" long_name="Energy of sublimation" unit="W/m^2"/>
+    <field id="surfheat_incr" name="DelSurfHeat" long_name="Accumulated change in surface layer heat" unit="J/m^2" operation="accumulate"/>
+    <field id="coldcont_incr" name="DelColdCont" long_name="Accumulated change in snow surface layer cold content" unit="J/m^2" operation="accumulate"/>
+    <field id="dr_corrnum" name="Qsb_corrnum" long_name="Adjustement flux added to drainage (numerical errors in tridiag)" unit="kg/m^2/s"/>
+    <field id="delsoilmoist" name="DelSoilMoist" long_name="Accumulated change in soil moisture (grid-cell total)" unit="kg/m^2" operation="accumulate"/>
+    <field id="delsoilmoist_daily" field_ref="delsoilmoist"  name="DelSoilMoist_daily" long_name="Change in soil moisture acumulated over each day (grid-cell total)" unit="kg/m^2/d" freq_op="1d" operation="average" > @delsoilmoist </field>
+    <field id="delintercept" name="DelIntercept" long_name="Accumulated change in interception storage (grid-cell total)" unit="kg/m^2" operation="accumulate"/>
+    <field id="delintercept_daily" field_ref="delintercept" name="DelIntercept_daily" long_name="Change in interception storage accumulated over each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delintercept </field>
+
+    <field id="delswe" name="DelSWE" long_name="Accumulated change in Snow Water Equivalent (grid-cell total)" unit="kg/m^2" operation="accumulate"/>
+    <field id="delswe_daily" field_ref="delswe" name="DelSWE_daily" long_name="Change in Snow Water Equivalent accumulated over each day" unit="kg/m^2/d" freq_op="1d" operation="average" > @delswe </field>
+    <field id="PotSurfT" name="PotSurfT" long_name="Potential (Unstressed) surface temperature" unit="K"/>
+    <field id="SurfStor" name="SurfStor" long_name="Surface water Storage" unit="Kg/m^2"> laker+pondr+floodr </field>
+    <field id="soilmoist" name="SoilMoist" long_name="3D average layer soil moisture" unit="kg/m^2" axis_ref="nslm"/>
+    <field id="soilwet" name="SoilWet" long_name="Total soil wetness" unit="1"/>
+    <field id="evapot_corr_alma" name="PotEvap" long_name="Potential evapotranspiration" unit="kg/m^2/s"/>
+    <field id="evapot_alma" name="PotEvapOld" long_name="Potential evapotranspiration old method" unit="kg/m^2/s"/>
+    <field id="ECanop" name="ECanop" long_name="Interception evaporation" unit="kg/m^2/s"/>
+    <field id="TVeg" name="TVeg" long_name="Transpiration" unit="kg/m^2/s"/>
+    <field id="vevapnu_alma" name="ESoil" long_name="Bare soil evaporation" unit="kg/m^2/s"/>
+    <field id="evapflo_alma" name="EWater" long_name="Floodplains evaporation" unit="kg/m^2/s"/>
+    <field id="vevapsno" name="vevapsno" long_name="Snow sublimation" unit="kg/m^2/s"/>
+    <field id="ACond" name="ACond" long_name="Aerodynamic conductance" unit="m/s"/>
+    <field id="ACond_pft" name="ACond_pft" long_name="Aerodynamic conductance each pft" unit="m/s" axis_ref="nvm"/>
+    <field id="albedo_snow" name="SAlbedo" long_name="Snow albedo" unit="1"/>
+    <field id="SnowDepth" name="SnowDepth" long_name="3D snow depth" unit="m"/>
+    <field id="wtd" name="WaterTableD" long_name="Water Table Depth" unit="m"/>
+    <field id="undermcr" name="undermcr" long_name="Number of soiltiles under residual moisture" unit="-"/>
+    <field id="tws" name="TWS" long_name="Total Water Storage" unit="Kg/m^2"> humtot+snow+qsintveg_tot+fastr+slowr+streamr+laker+pondr </field>
+    <field id="check_infilt" name="check_infilt" long_name="check water conservation of infilt" unit="mm/s"/>
+    <field id="check_tr" name="check_tr" long_name="check water conservation of tridiag with diag_tr2" unit="mm/s"/>
+    <field id="check_over" name="check_over" long_name="check water conservation of smooth_over_mcs" unit="mm/s"/>
+    <field id="check_under" name="check_under" long_name="check water conservation of smooth_under_mcs" unit="mm/s"/>
+    <field id="ru_corr" name="Qs_corr" long_name="Adjustement flux added to surface runoff" unit="kg/m^2/s"/>
+    <field id="ru_corr2" name="Qs_corr2" long_name="Adjustement flux added to surface runoff (case of negative surface runoff)" unit="kg/m^2/s"/>
+    <field id="dr_corr" name="Qsb_corr" long_name="Adjustement flux added to drainage" unit="kg/m^2/s"/>
+    <field id="dr_force" name="Qforce" long_name="Adjustement flux added to drainage to sustain a forced water table depth" unit="kg/m^2/s"/>
+    <field id="ru_infilt" name="Qs_infilt" long_name="Surface runoff from hydrol_soil_infilt" unit="kg/m^2/s"/>
+    <field id="qinfilt" name="Infilt" long_name="Infiltration flux" unit="kg/m^2/s"/>
+    <field id="temp_hydro" name="temp_hydro" long_name="Temperature profile on hydrological levels" unit="K" axis_ref="nslm"/>
+    <field id="kk_moy" name="kk_moy" long_name="Mean hydraulic conductivity over soiltiles" unit="mm/d" axis_ref="nslm"/>
+    <field id="profil_froz_hydro" name="profil_froz_hydro" long_name="Frozen fraction for each hydrological soil layer average over soil types" unit="1" axis_ref="nslm"/>
+    
+  </field_group>
+
+
+  <!-- Definition of all variables in stomate -->
+  <field_group id="stomate" domain_ref="domain_landpoints">
+    <field id="T2M_MONTH" name="T2M_MONTH" long_name="Monthly 2 m temperature" unit="K"/>
+    <field id="T2M_WEEK" name="T2M_WEEK" long_name="Weekly 2 m temperature" unit="K"/>
+    <field id="TSEASON" name="TSEASON" long_name="Seasonal 2 m temperature" unit="K"/>
+    <field id="TMIN_SPRING_TIME" name="TMIN_SPRING_TIME" long_name="Number of days after onset" unit="-" axis_ref="nvm"/>
+    <field id="ONSET_DATE" name="ONSET_DATE" long_name="The day in the year when leaves start to grow" unit="days" axis_ref="nvm"/>
+    <field id="FPC_MAX" name="FPC_MAX" long_name="Foliage projective cover" unit="-" axis_ref="nvm"/>
+    <field id="MAXFPC_LASTYEAR" name="MAXFPC_LASTYEAR" long_name="Foliage projective cover of last year" unit="-" axis_ref="nvm"/>
+    <field id="HET_RESP" name="HET_RESP" long_name="heterotr. resp. from ground" unit="gC/m^2 tot/pft/day" axis_ref="nvm"/>
+    <field id="firefrac" name="FIREFRAC" long_name="Fire fraction on ground " unit="1/day" axis_ref="nvm"/>
+    <field id="CO2_FIRE" name="CO2_FIRE" long_name="Output CO2 flux from fire " unit="gC/day/m^2/pft" axis_ref="nvm"/>
+    <field id="CO2_TAKEN" name="CO2_TAKEN" long_name="CO2 taken from atmosphere for initiate growth " unit="gC/day/m^2/pft" axis_ref="nvm"/>
+    <field id="LAI" name="LAI" long_name="Leaf Area Index " unit="-" axis_ref="nvm"/>
+    <field id="VEGET_MAX" name="VEGET_MAX" long_name="Maximum vegetation fraction (LAI -&gt; infinity) " unit="-" axis_ref="nvm"/>
+    <field id="NPP_STOMATE" name="NPP" long_name="Net primary productivity " unit="gC/day/(m^2 tot)" axis_ref="nvm"/>
+    <field id="GPP" name="GPP" long_name="Gross primary productivity " unit="gC/day/m^2" axis_ref="nvm"/>
+    <field id="LEAF_M" name="LEAF_M" long_name="Leaf mass" unit="gC/m^2 " axis_ref="nvm"/>
+    <field id="SAP_M_AB" name="SAP_M_AB" long_name="Sap mass above ground" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="SAP_M_BE" name="SAP_M_BE" long_name="Sap mass below ground" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="HEART_M_AB" name="HEART_M_AB" long_name="Heartwood mass above ground" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="HEART_M_BE" name="HEART_M_BE" long_name="Heartwood mass below ground" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="ROOT_M" name="ROOT_M" long_name="Root mass" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="FRUIT_M" name="FRUIT_M" long_name="Fruit mass" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="RESERVE_M" name="RESERVE_M" long_name="Carbohydrate reserve mass" unit="gC/m^2" axis_ref="nvm"/>
+    
+    <!-- crop variables -->
+    <field id="CROPYIELD" name="CROPYIELD" long_name="crop yield" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="BIOMYIELD" name="BIOMYIELD" long_name="crop biomass yield" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="CROP_EXPORT" name="CROP_EXPORT" long_name="crop residual export" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="NLEV" name="NLEV" long_name="leaf germination date" unit="DOY" axis_ref="nvm"/>
+    <field id="NFLO" name="NFLO" long_name="flowring date" unit="DOY" axis_ref="nvm"/>
+    <field id="NDRP" name="NDRP" long_name="grain filling date" unit="DOY" axis_ref="nvm"/>
+    <field id="NMAT" name="NMAT" long_name="maturity date" unit="DOY" axis_ref="nvm"/>
+    <field id="NREC" name="NREC" long_name="harvest date" unit="DOY" axis_ref="nvm"/>
+    <field id="REPRAC" name="REPRAC" long_name="root/shoot allocation ratio" unit="1" axis_ref="nvm"/>
+    <field id="DLTLAI" name="DLTLAI" long_name="lai increment" unit="1" axis_ref="nvm"/>
+    <field id="DLTLAISEN" name="DLTLAISEN" long_name="lai senescence" unit="1" axis_ref="nvm"/>
+    <field id="IRCARB" name="IRCARB" long_name="dynamic harvest index" unit="1" axis_ref="nvm"/>
+    <field id="PlantDate" name="PlantDate" long_name="crop planting date" unit="1" axis_ref="nvm"/>
+    <field id="N_add" name="N_add" long_name="nitrogen application rate" unit="1" axis_ref="nvm"/>
+    
+
+    <field id="MAINT_RESP" name="MAINT_RESP" long_name="Maintenance respiration" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="GROWTH_RESP" name="GROWTH_RESP" long_name="Growth respiration" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="IND" name="IND" long_name="Density of individuals" unit="1/ m^2" axis_ref="nvm"/>
+    <field id="ADAPTATION" name="ADAPTATION" long_name="Adaptation to climate (DGVM)" unit="-" axis_ref="nvm"/>
+    <field id="REGENERATION" name="REGENERATION" long_name="Probability from regenerative (DGVM)" unit="-" axis_ref="nvm"/>
+    <field id="CN_IND" name="CN_IND" long_name="crown area of individuals" unit="m^2" axis_ref="nvm"/>
+    <field id="WOODMASS_IND" name="WOODMASS_IND" long_name="Woodmass of individuals" unit="gC/pft" axis_ref="nvm"/>
+    <field id="MOISTRESS" name="MOISTRESS" long_name="weekly moisture stress" unit="-" axis_ref="nvm"/>
+    <field id="LEAF_TURN" name="LEAF_TURN" long_name="Leaf turnover" unit="gC/m^2/day " axis_ref="nvm"/>
+    <field id="SAP_AB_TURN" name="SAP_AB_TURN" long_name="Sap turnover above" unit="gC/m^2/day " axis_ref="nvm"/>
+    <field id="ROOT_TURN" name="ROOT_TURN" long_name="Root turnover" unit="gC/m^2/day " axis_ref="nvm"/>
+    <field id="FRUIT_TURN" name="FRUIT_TURN" long_name="Fruit turnover" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="TOTAL_BM_LITTER" name="TOTAL_BM_LITTER" long_name="total conversion of biomass to litter" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="LEAF_BM_LITTER" name="LEAF_BM_LITTER" long_name="Leaf death" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="SAP_AB_BM_LITTER" name="SAP_AB_BM_LITTER" long_name="Sap death above ground" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="SAP_BE_BM_LITTER" name="SAP_BE_BM_LITTER" long_name="Sap death below ground" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="HEART_AB_BM_LITTER" name="HEART_AB_BM_LITTER" long_name="Heartwood death above ground" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="HEART_BE_BM_LITTER" name="HEART_BE_BM_LITTER" long_name="Heartwood death below ground" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="ROOT_BM_LITTER" name="ROOT_BM_LITTER" long_name="Root death" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="FRUIT_BM_LITTER" name="FRUIT_BM_LITTER" long_name="Fruit death" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="RESERVE_BM_LITTER" name="RESERVE_BM_LITTER" long_name="Carbohydrate reserve death" unit="gC/m^2/day" axis_ref="nvm"/>
+    <field id="LITTER_STR_AB" name="LITTER_STR_AB" long_name="structural litter above ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="LITTER_MET_AB" name="LITTER_MET_AB" long_name="metabolic litter above ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="LITTER_STR_BE" name="LITTER_STR_BE" long_name="structural litter below ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="LITTER_MET_BE" name="LITTER_MET_BE" long_name="metabolic litter below ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="DEADLEAF_COVER" name="DEADLEAF_COVER" long_name="fraction of soil covered by dead leaves" unit="-"/>
+    <field id="TOTAL_SOIL_CARB" name="TOTAL_SOIL_CARB" long_name="total soil and litter carbon" unit="gC/m^2" axis_ref="nvm"/>
+    <field id="CARBON_ACTIVE" name="CARBON_ACTIVE" long_name="active soil carbon in ground " unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="CARBON_SLOW" name="CARBON_SLOW" long_name="slow soil carbon in ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="CARBON_PASSIVE" name="CARBON_PASSIVE" long_name="passive soil carbon in ground" unit="gC/m^2/pft" axis_ref="nvm"/>
+    <field id="LITTERHUM" name="LITTERHUM" long_name="Litter humidity" unit="-"/>
+    <field id="BM_ALLOC_LEAF" name="BM_ALLOC_LEAF" long_name="biomass allocated to leaves" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="BM_ALLOC_SAP_AB" name="BM_ALLOC_SAP_AB" long_name="biomass allocated to sapwood above ground" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="BM_ALLOC_SAP_BE" name="BM_ALLOC_SAP_BE" long_name="biomass allocated to sapwood below ground" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="BM_ALLOC_ROOT" name="BM_ALLOC_ROOT" long_name="biomass allocated to roots" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="BM_ALLOC_FRUIT" name="BM_ALLOC_FRUIT" long_name="biomass allocated to fruits" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="BM_ALLOC_RES" name="BM_ALLOC_RES" long_name="biomass allocated to carbohydrate reserve" unit="gC/m**2/pft/dt" axis_ref="nvm"/>
+    <field id="HERBIVORES" name="HERBIVORES" long_name="time constant of herbivore activity" unit="days" axis_ref="nvm"/>
+    <field id="TURNOVER_TIME" name="TURNOVER_TIME" long_name="turnover time for grass leaves" unit="days" axis_ref="nvm"/>
+    <field id="CONVFLUX" name="CONVFLUX" long_name="annual release right after deforestation" unit="gC/m**2/day" axis_ref="nwp" />
+    <field id="CFLUX_PROD10" name="CFLUX_PROD10" long_name="annual release from all 10 year wood product pools" unit="gC/m**2/day" axis_ref="nwp" />
+    <field id="CFLUX_PROD100" name="CFLUX_PROD100" long_name="annual release from all 100 year wood product pools" unit="gC/m**2/day" axis_ref="nwp" />
+    <field id="HARVEST_ABOVE" name="HARVEST_ABOVE" long_name="annual release product after harvest" unit="gC/m**2/day"/>
+    <field id="RESOLUTION_X" name="RESOLUTION_X" long_name="E-W resolution" unit="m" operation="once"/>
+    <field id="RESOLUTION_Y" name="RESOLUTION_Y" long_name="N-S resolution" unit="m" operation="once"/>
+    <field id="CONTFRAC_STOMATE" name="CONTFRAC" long_name="Continental fraction" unit="1" operation="once"/>
+    <field id="VCMAX" name="VCMAX" long_name="Maximum rate of carboxylation" unit="-" axis_ref="nvm"/>
+    <field id="LEAF_AGE" name="LEAF_AGE" long_name="leaf age" unit="days" axis_ref="nvm"/>
+    <field id="mortality" name="MORTALITY" long_name="Fraction of trees that dies (gap)" unit="1/day" axis_ref="nvm"/>
+    <field id="firedeath" name="FIREDEATH" long_name="Fraction of plants killed by fire" unit="1/day" axis_ref="nvm"/>
+    <field id="IND_ESTAB" name="IND_ESTAB" long_name="Density of newly established saplings" unit="1/day" axis_ref="nvm"/>
+    <field id="ESTABTREE" name="ESTABTREE" long_name="Rate of tree establishement" unit="1/day"/>
+    <field id="ESTABGRASS" name="ESTABGRASS" long_name="Rate of grass establishement" unit="1/day"/>
+    <field id="light_death" name="LIGHT_DEATH" long_name="Fraction of plants that dies (light competition)" unit="1/day" axis_ref="nvm"/>
+    <field id="AGE" name="AGE" long_name="age" unit="years" axis_ref="nvm"/>
+    <field id="HEIGHT" name="HEIGHT" long_name="height" unit="m" axis_ref="nvm"/>
+    <field id="WHEN_GROWTHINIT" name="WHEN_GROWTHINIT" long_name="Time elapsed from season beginning" unit="d" axis_ref="nvm"/>
+    <field id="PFTPRESENT" name="PFTPRESENT" long_name="PFT exists" unit="d" axis_ref="nvm"/>
+    <field id="GDD_MIDWINTER" name="GDD_MIDWINTER" long_name="Growing degree days, since midwinter" unit="degK" axis_ref="nvm"/>
+    <field id="GDD_M5_DORMANCE" name="GDD_M5_DORMANCE" long_name="Growing degree days threshold" unit="degK" axis_ref="nvm"/>
+    <field id="NCD_DORMANCE" name="NCD_DORMANCE" long_name="Number of chilling days, since leaves were lost" unit="d" axis_ref="nvm"/>
+    <field id="ALLOW_INITPHENO" name="ALLOW_INITPHENO" long_name="Allow to declare beginning of the growing season" unit="-" axis_ref="nvm"/>
+    <field id="BEGIN_LEAVES" name="BEGIN_LEAVES" long_name="Signal to start putting leaves on" unit="-" axis_ref="nvm"/>
+    <field id="t2m_longterm" name="T2M_LONGTERM" long_name="Longterm(3 years) 2 m temperature" unit="K"/>
+    <field id="FIREINDEX" name="FIREINDEX" long_name="Fire index on ground" unit="-" axis_ref="nvm"/>
+    <field id="LITTER_STR_AVAIL" name="LITTER_STR_AVAIL" long_name="Structural litter available for grazing" unit="gC/m**2" axis_ref="nvm"/>
+    <field id="LITTER_MET_AVAIL" name="LITTER_MET_AVAIL" long_name="Metabolic litter available for grazing" unit="gC/m**2" axis_ref="nvm"/>
+    <field id="LITTER_STR_NAVAIL" name="LITTER_STR_NAVAIL" long_name="Structural litter not available for grazing" unit="gC/m**2" axis_ref="nvm"/>
+    <field id="LITTER_MET_NAVAIL" name="LITTER_MET_NAVAIL" long_name="Metabolic litter not available for grazing" unit="gC/m**2" axis_ref="nvm"/>
+    <field id="LITTER_STR_AVAILF" name="LITTER_STR_AVAILF" long_name="Structural litter available fraction for grazing" unit="%" axis_ref="nvm"/>
+    <field id="LITTER_MET_AVAILF" name="LITTER_MET_AVAILF" long_name="Metabolic litter available fraction for grazing" unit="%" axis_ref="nvm"/>
+    <field id="N_LIMFERT" name="N_LIMFERT" long_name="Nitrogen limitation factor on vcmax" unit="-" axis_ref="nvm"/>
+    <field id="SLA_CALC" name="SLA_CALC" long_name="sla calculated by leaf age" unit="m**2/gC" axis_ref="nvm"/>
+    <field id="NPP_ABOVE" name="NPP_ABOVE" long_name="Net above primary productivity" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="NPP_BELOW" name="NPP_BELOW" long_name="Net below primary productivity" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="WSHTOT" name="WSHTOT" long_name="total shoot structure mass" unit="kgDM/m**2" axis_ref="nvm"/>
+    <field id="WRTOT" name="WRTOT" long_name="total root structure mass" unit="kgDM/m**2" axis_ref="nvm"/>
+    <field id="WSHTOTSUM" name="WSHTOTSUM" long_name="cumulated harvest biomass" unit="kgDM/m**2" axis_ref="nvm"/>
+    <field id="SR_UGB" name="SR_UGB" long_name="instantaneous stocking rate" unit="HeadorLSU/m**2" axis_ref="nvm"/>
+    <field id="FCORGFERTMET" name="FCORGFERTMET" long_name="metabolic C in organic fertilizer" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="FCORGFERTSTR" name="FCORGFERTSTR" long_name="strictural C in organic fertilizer" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="LOSSC" name="LOSSC" long_name="C lost in harvest" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="C_CUTYEARLY" name="C_CUTYEARLY" long_name="C in harvest" unit="gC/m**2/yr" axis_ref="nvm"/>
+    <field id="FREQUENCY_CUT" name="FREQUENCY_CUT" long_name="harvest frequency" unit="-" axis_ref="nvm"/>
+    <field id="NFERT_TOTAL" name="NFERT_TOTAL" long_name="Total Nitrogen input" unit="kgN/ha" axis_ref="nvm"/>
+    <field id="NDEP" name="NDEP" long_name="Nitrogen deposition from atmosphere" unit="kgN/ha" axis_ref="nvm"/>
+    <field id="TMCGRASS_DAILY" name="TMCGRASS_DAILY" long_name="daily mean 10 cm soil moisture" unit="m**3/m**3"/>
+    <field id="GRAZINGC" name="GRAZINGC" long_name="Grazing C" unit="kgC/m**2/day" axis_ref="nvm"/>
+    <field id="NANIMALTOT" name="NANIMALTOT" long_name="stocking rate" unit="hearorLU/km**2" axis_ref="nvm"/>
+    <field id="INTAKE_ANIMAL" name="INTAKE_ANIMAL" long_name="Animal daily intake" unit="kgDM/day" axis_ref="nvm"/>
+    <field id="INTAKE" name="INTAKE" long_name="grazing animal intake" unit="kgDM/m**2/day" axis_ref="nvm"/>
+    <field id="TRAMPLING" name="TRAMPLING" long_name="litter from trample by animals" unit="kgC/m**2/day" axis_ref="nvm"/>
+    <field id="CT_DRY" name="CT_DRY" long_name="counter for soil dry enough for grazing" unit="-" axis_ref="nvm"/>
+    <field id="INTAKE_ANIMAL_LITTER" name="INTAKE_ANIMAL_LITTER" long_name="Animal daily intake for litter" unit="kgDM/day" axis_ref="nvm"/>
+    <field id="INTAKE_LITTER" name="INTAKE_LITTER" long_name="grazing animal litter intake" unit="kgDM/m**2/day" axis_ref="nvm"/>
+    <field id="SR_WILD" name="SR_WILD" long_name="wild animal stocking rate" unit="hearorLU/km**2" axis_ref="nvm"/>
+    <field id="MILK" name="MILK" long_name="milk production" unit="kgMilk/day" axis_ref="nvm"/>
+    <field id="MILKC" name="MILKC" long_name="C in milk production" unit="kgC/day" axis_ref="nvm"/>
+    <field id="METHANE" name="METHANE" long_name="C in enteric fermentation CH4 emission" unit="kgC/day" axis_ref="nvm"/>
+    <field id="RANIMAL" name="RANIMAL" long_name="animal respiration" unit="kgC/day" axis_ref="nvm"/>
+    <field id="URINEC" name="URINEC" long_name="C in animal urine" unit="kgC/day" axis_ref="nvm"/>
+    <field id="FAECESC" name="FAECESC" long_name="C in animal faeces" unit="kgC/day" axis_ref="nvm"/>
+    <field id="GRAZED_FRAC" name="GRAZED_FRAC" long_name="optimal grazed fraction" unit="%" axis_ref="nvm"/>
+    <field id="NB_ANI" name="NB_ANI" long_name="optimal ruminant density" unit="hearorLU/km**2" axis_ref="nvm"/>
+    <field id="IMPORT_YIELD" name="IMPORT_YIELD" long_name="potential annual harvest yield of grassland" unit="kgDM/yr" axis_ref="nvm"/>
+    <field id="NB_GRAZINGDAYS" name="NB_GRAZINGDAYS" long_name="number of days that animal grazing on grassland" unit="days" axis_ref="nvm"/>
+    <field id="OUTSIDE_FOOD" name="OUTSIDE_FOOD" long_name="feedstuff required from outside of system (e.g., crops or residuals)" unit="kgDM/m**2/yr" axis_ref="nvm"/>
+    <field id="CINPUT_GM" name="CINPUT_GM" long_name="organic carbon input to managed grassland" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="HARVEST_GM" name="HARVEST_GM" long_name="harvested carbon from mown grassland" unit="gC/m**2/day" axis_ref="nvm"/>
+    <field id="AFTER_SNOW" name="AFTER_SNOW" long_name="days before allowing grazing after snow melt" unit="days"/>
+    <field id="AFTER_WET" name="AFTER_WET" long_name="days before allowing grazing after wet soil" unit="days"/>
+    <field id="WET1DAY" name="WET1DAY" long_name="the 1st day with wet soil in the past five days" unit="days"/>
+    <field id="WET2DAY" name="WET2DAY" long_name="the 2nd day with wet soil in the past five days" unit="days"/>
+    <field id="FERT_SN" name="FERT_SN" long_name="N in mineral fertilizers" unit="gN/m**2/day" axis_ref="nvm"/>
+    <field id="FERT_ON" name="FERT_ON" long_name="N in organic fertilizers" unit="gN/m**2/day" axis_ref="nvm"/>
+    <field id="FERT_PRP" name="FERT_PRP" long_name="N in grazing animal excreta" unit="gN/m**2/day" axis_ref="nvm"/>
+    <field id="N2O_PFT_GM" name="N2O_PFT_GM" long_name="N2O-N emission from grassland field" unit="gN/m**2/day" axis_ref="nvm"/>
+    <field id="CO2_GM" name="CO2_GM" long_name="Mean CO2 fluxes over grassland" unit="gC/m**2/day"/>
+    <field id="CH4_GM" name="CH4_GM" long_name="Mean CH4-C fluxes over grassland" unit="gC/m**2/day"/>
+    <field id="N2O_GM" name="N2O_GM" long_name="Mean N2O-N fluxes over grassland" unit="gN/m**2/day"/>
+    <field id="FC_GRAZING" name="FC_GRAZING" long_name="Saturated soil moisture" unit="m**3/m**3"/>
+    <field id="cVeg" name="cVeg" long_name="Carbon in Vegetation" unit="kg C m-2"/>
+    <field id="cLitter" name="cLitter" long_name="Carbon in Litter Pool" unit="kg C m-2"/>
+    <field id="cSoil" name="cSoil" long_name="Carbon in Soil Pool" unit="kg C m-2"/>
+    <field id="cProduct" name="cProduct" long_name="Carbon in Products of Land Use Change" unit="kg C m-2"/>
+    <field id="cMassVariation" name="cMassVariation" long_name="Terrestrial Carbon Mass Variation" unit="kg C m-2 s-1"/>
+    <field id="lai_ipcc" name="lai" long_name="Leaf Area Fraction" unit="1"/>
+    <field id="gpp_ipcc" name="gpp" long_name="Gross Primary Production" unit="kg C m-2 s-1"/>
+    <field id="ra" name="ra" long_name="Autotrophic Respiration" unit="kg C m-2 s-1"/>
+    <field id="npp_ipcc" name="npp" long_name="Net Primary Production" unit="kg C m-2 s-1"/>
+    <field id="rh" name="rh" long_name="Heterotrophic Respiration" unit="kg C m-2 s-1"/>
+    <field id="fFire" name="fFire" long_name="CO2 Emission from Fire" unit="kg C m-2 s-1"/>
+    <field id="fHarvest" name="fHarvest" long_name="CO2 Flux to Atmosphere from Crop Harvesting" unit="kg C m-2 s-1"/>
+    <field id="fLuc" name="fLuc" long_name="CO2 Flux to Atmosphere from Land Use Change" unit="kg C m-2 s-1"/>
+    <field id="nbp" name="nbp" long_name="Net Biospheric Production" unit="kg C m-2 s-1"/>
+    <field id="fVegLitter" name="fVegLitter" long_name="Total Carbon Flux from Vegetation to Litter" unit="kg C m-2 s-1"/>
+    <field id="fLitterSoil" name="fLitterSoil" long_name="Total Carbon Flux from Litter to Soil" unit="kg C m-2 s-1"/>
+    <field id="cLeaf" name="cLeaf" long_name="Carbon in Leaves" unit="kg C m-2"/>
+    <field id="cWood" name="cWood" long_name="Carbon in Wood" unit="kg C m-2"/>
+    <field id="cRoot" name="cRoot" long_name="Carbon in Roots" unit="kg C m-2"/>
+    <field id="cMisc" name="cMisc" long_name="Carbon in Other Living Compartments" unit="kg C m-2"/>
+    <field id="cLitterAbove" name="cLitterAbove" long_name="Carbon in Above-Ground Litter" unit="kg C m-2"/>
+    <field id="cLitterBelow" name="cLitterBelow" long_name="Carbon in Below-Ground Litter" unit="kg C m-2"/>
+    <field id="cSoilFast" name="cSoilFast" long_name="Carbon in Fast Soil Pool" unit="kg C m-2"/>
+    <field id="cSoilMedium" name="cSoilMedium" long_name="Carbon in Medium Soil Pool" unit="kg C m-2"/>
+    <field id="cSoilSlow" name="cSoilSlow" long_name="Carbon in Slow Soil Pool" unit="kg C m-2"/>
+    <field id="landCoverFrac" name="landCoverFrac" long_name="Fractional Land Cover of PFT" unit="%" axis_ref="nvm"/>
+    <field id="treeFracPrimDec" name="treeFracPrimDec" long_name="Total Primary Deciduous Tree Cover Fraction" unit="%"/>
+    <field id="treeFracPrimEver" name="treeFracPrimEver" long_name="Total Primary Evergreen Tree Cover Fraction" unit="%"/>
+    <field id="c3PftFrac" name="c3PftFrac" long_name="Total C3 PFT Cover Fraction" unit="%"/>
+    <field id="c4PftFrac" name="c4PftFrac" long_name="Total C4 PFT Cover Fraction" unit="%"/>
+    <field id="rGrowth" name="rGrowth" long_name="Growth Autotrophic Respiration" unit="kg C m-2 s-1"/>
+    <field id="rMaint" name="rMaint" long_name="Maintenance Autotrophic Respiration" unit="kg C m-2 s-1"/>
+    <field id="nppLeaf" name="nppLeaf" long_name="CO2 Flux from Atmosphere due to NPP Allocation to Leaf" unit="kg C m-2 s-1"/>
+    <field id="nppWood" name="nppWood" long_name="CO2 Flux from Atmosphere due to NPP Allocation to Wood" unit="kg C m-2 s-1"/>
+    <field id="nppRoot" name="nppRoot" long_name="CO2 Flux from Atmosphere due to NPP Allocation to Root" unit="kg C m-2 s-1"/>
+    <field id="nep" name="nep" long_name="Net Carbon Mass Flux out of Atmophere due to Net Ecosystem Productivity." unit="kg C m-2 s-1"/>
+
+    <field id="T2M_14" name="T2M_14" long_name="14days 2 m temperature." unit="Degree"/>
+    <field id="LITTER_STR_AVAIL" name="LITTER_STR_AVAIL" long_name="Structural litter available for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="LITTER_MET_AVAIL" name="LITTER_MET_AVAIL" long_name="Metabolic litter available for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="LITTER_STR_NAVAIL" name="LITTER_STR_NAVAIL" long_name="Structural litter not available for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="LITTER_MET_NAVAIL" name="LITTER_MET_NAVAIL" long_name="Metabolic litter not available for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="LITTER_STR_AVAILF" name="LITTER_STR_AVAILF" long_name="Structural litter available fraction for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="LITTER_MET_AVAILF" name="LITTER_MET_AVAILF" long_name="Metabolic litter available fraction for grazing" unit="gC/day/(m^2 (n/a))" axis_ref="nvm"/>
+    <field id="N_LIMFERT" name="N_LIMFERT" long_name="Nitrogen limitation factor on vcmax" unit="-" axis_ref="nvm"/>
+
+    <!-- to improve, stomate -->
+    <field id="resp_hetero_litter" name="resp_hetero_litter" long_name="resp hetero litter" unit="kg/m^2/s" axis_ref="nvm"/> 
+    <field id="resp_hetero_soil" name="resp_hetero_soil" long_name="resp hetero soil" unit="kg/m^2/s" axis_ref="nvm"/> 
+    <field id="NONBIOFRAC" name="NONBIOFRAC" long_name="NONBIOFRAC" unit="K"/> 
+
+    <!-- to improve, lpj_constraints-->
+    <field id="T2M_MIN_DAILY" name="T2M_MIN_DAILY" long_name="T2M_MIN_DAILY" unit="K"/> 
+
+    <!-- to improve, stomate_npp -->
+    <field id="SLA_CALC" name="SLA_CALC" long_name="SLA_CALC" unit="K" axis_ref="nvm"/>
+    <field id="NPP_ABOVE" name="NPP_ABOVE" long_name="NPP_ABOVE" unit="K" axis_ref="nvm"/>
+    <field id="NPP_BELOW" name="NPP_BELOW" long_name="NPP_BELOW" unit="K" axis_ref="nvm"/>
+
+    <!-- to improve, stomate_turnover -->
+    <field id="SENESCENCE" name="SENESCENCE" long_name="SENESCENCE" unit="K" axis_ref="nvm"/>
+   
+    <!-- to improve, stomate_lpj -->
+    <field id="CONTFRAC_LPJ" name="CONTFRAC_LPJ" long_name="CONTFRAC_LPJ" unit="K"/>
+    <field id="CARBON_ACTIVE_SURF" name="CARBON_ACTIVE_SURF" long_name="CARBON_ACTIVE_SURF" unit="K" axis_ref="nvm"/>
+    <field id="CARBON_SLOW_SURF" name="CARBON_SLOW_SURF" long_name="CARBON_SLOW_SURF" unit="K" axis_ref="nvm"/>
+    <field id="CARBON_PASSIVE_SURF" name="CARBON_PASSIVE_SURF" long_name="CARBON_PASSIVE_SURF" unit="K" axis_ref="nvm"/>
+
+<!--    <field id="TOTAL_M" name="TOTAL_M" long_name="TOTAL_M" unit="K" axis_ref="nvm"/>
+    <field id="TOTAL_TURN" name="TOTAL_TURN" long_name="TOTAL_TURN" unit="K" axis_ref="nvm"/> -->
+
+    <field id="CH4_FLUX_TOT_0" name="CH4_FLUX_TOT_0" long_name="CH4_FLUX_TOT_0" unit="K"/>
+    <field id="CH4_FLUX_DIF_0" name="CH4_FLUX_DIF_0" long_name="CH4_FLUX_DIF_0" unit="K"/>
+    <field id="CH4_FLUX_BUB_0" name="CH4_FLUX_BUB_0" long_name="CH4_FLUX_BUB_0" unit="K"/>
+    <field id="CH4_FLUX_PLA_0" name="CH4_FLUX_PLA_0" long_name="CH4_FLUX_PLA_0" unit="K"/>
+    <field id="CH4_FLUX_TOT_wet1" name="CH4_FLUX_TOT_wet1" long_name="CH4_FLUX_TOT_wet1" unit="K"/>
+    <field id="CH4_FLUX_DIF_wet1" name="CH4_FLUX_DIF_wet1" long_name="CH4_FLUX_DIF_wet1" unit="K"/>
+    <field id="CH4_FLUX_BUB_wet1" name="CH4_FLUX_BUB_wet1" long_name="CH4_FLUX_BUB_wet1" unit="K"/>
+    <field id="CH4_FLUX_PLA_wet1" name="CH4_FLUX_PLA_wet1" long_name="CH4_FLUX_PLA_wet1" unit="K"/>
+    <field id="CH4_FLUX_TOT_wet2" name="CH4_FLUX_TOT_wet2" long_name="CH4_FLUX_TOT_wet2" unit="K"/>
+    <field id="CH4_FLUX_DIF_wet2" name="CH4_FLUX_DIF_wet2" long_name="CH4_FLUX_DIF_wet2" unit="K"/>
+    <field id="CH4_FLUX_BUB_wet2" name="CH4_FLUX_BUB_wet2" long_name="CH4_FLUX_BUB_wet2" unit="K"/>
+    <field id="CH4_FLUX_PLA_wet2" name="CH4_FLUX_PLA_wet2" long_name="CH4_FLUX_PLA_wet2" unit="K"/>
+    <field id="CH4_FLUX_TOT_wet3" name="CH4_FLUX_TOT_wet3" long_name="CH4_FLUX_TOT_wet3" unit="K"/>
+    <field id="CH4_FLUX_DIF_wet3" name="CH4_FLUX_DIF_wet3" long_name="CH4_FLUX_DIF_wet3" unit="K"/>
+    <field id="CH4_FLUX_BUB_wet3" name="CH4_FLUX_BUB_wet3" long_name="CH4_FLUX_BUB_wet3" unit="K"/>
+    <field id="CH4_FLUX_PLA_wet3" name="CH4_FLUX_PLA_wet3" long_name="CH4_FLUX_PLA_wet3" unit="K"/>
+    <field id="CH4_FLUX_TOT_wet4" name="CH4_FLUX_TOT_wet4" long_name="CH4_FLUX_TOT_wet4" unit="K"/>
+    <field id="CH4_FLUX_DIF_wet4" name="CH4_FLUX_DIF_wet4" long_name="CH4_FLUX_DIF_wet4" unit="K"/>
+    <field id="CH4_FLUX_BUB_wet4" name="CH4_FLUX_BUB_wet4" long_name="CH4_FLUX_BUB_wet4" unit="K"/>
+    <field id="CH4_FLUX_PLA_wet4" name="CH4_FLUX_PLA_wet4" long_name="CH4_FLUX_PLA_wet4" unit="K"/>
+    <field id="TSURF_YEAR" name="TSURF_YEAR" long_name="TSURF_YEAR" unit="K"/>
+    <field id="CONVFLUX_LCC" name="CONVFLUX_LCC" long_name="CONVFLUX_LCC" unit="K"/>
+    <field id="CONVFLUX_HAR" name="CONVFLUX_HAR" long_name="CONVFLUX_HAR" unit="K"/>
+    <field id="CFLUX_PROD10_LCC" name="CFLUX_PROD10_LCC" long_name="CFLUX_PROD10_LCC" unit="K"/>
+    <field id="CFLUX_PROD10_HAR" name="CFLUX_PROD10_HAR" long_name="CFLUX_PROD10_HAR" unit="K"/>
+    <field id="CFLUX_PROD100_LCC" name="CFLUX_PROD100_LCC" long_name="CFLUX_PROD100_LCC" unit="K"/>
+    <field id="CFLUX_PROD100_HAR" name="CFLUX_PROD100_HAR" long_name="CFLUX_PROD100_HAR" unit="K"/>
+    <!--<field id="HARVEST_ABOVE" name="HARVEST_ABOVE" long_name="HARVEST_ABOVE" unit="K"/>-->
+    <field id="PROD10_LCC" name="PROD10_LCC" long_name="PROD10_LCC" unit="K" axis_ref="P11"/>
+    <field id="PROD10_HAR" name="PROD10_HAR" long_name="PROD10_HAR" unit="K" axis_ref="P11"/>
+    <field id="PROD100_LCC" name="PROD100_LCC" long_name="PROD100_LCC" unit="K" axis_ref="P101"/>
+    <field id="PROD100_HAR" name="PROD100_HAR" long_name="PROD100_HAR" unit="K" axis_ref="P101"/>
+    <field id="FLUX10_LCC" name="FLUX10_LCC" long_name="FLUX10_LCC" unit="K" axis_ref="P10"/>
+    <field id="FLUX10_HAR" name="FLUX10_HAR" long_name="FLUX10_HAR" unit="K" axis_ref="P10"/>
+    <field id="FLUX100_LCC" name="FLUX100_LCC" long_name="FLUX100_LCC" unit="K" axis_ref="P100"/>
+    <field id="FLUX100_HAR" name="FLUX100_HAR" long_name="FLUX100_HAR" unit="K" axis_ref="P100"/>
+    <field id="DefLitSurplus" name="DefLitSurplus" long_name="DefLitSurplus" unit="K" axis_ref="nvm"/>
+    <field id="DefBioSurplus" name="DefBioSurplus" long_name="DefBioSurplus" unit="K" axis_ref="nvm"/>
+    <field id="bound_spa" name="bound_spa" long_name="bound_spa" unit="K" axis_ref="nvm"/>
+
+    <!-- to improve, stomate_permafrost_soilcarbon -->
+    <field id="tsurf" name="tsurf" long_name="tsurf" unit="C"/> 
+    <field id="fluxCH4" name="fluxCH4" long_name="fluxCH4" unit="K" axis_ref="nvm"/>
+    <field id="febul" name="febul" long_name="febul" unit="K" axis_ref="nvm"/>
+    <field id="flupmt" name="flupmt" long_name="flupmt" unit="K" axis_ref="nvm"/>
+    <field id="alt" name="alt" long_name="alt" unit="K" axis_ref="nvm"/>
+    <field id="altmax" name="altmax" long_name="altmax" unit="K" axis_ref="nvm"/>
+    <field id="sfluxCH4_deep" name="sfluxCH4_deep" long_name="sfluxCH4_deep" unit="C"/> 
+    <field id="sfluxCO2_deep" name="sfluxCO2_deep" long_name="sfluxCO2_deep" unit="C"/> 
+    <field id="pb" name="pb" long_name="pb" unit="C"/> 
+
+    <field id="deepC_a_pftmean" name="deepC_a_pftmean" long_name="deepC_a_pftmean" unit="K" axis_ref="ndeep"/>
+    <field id="deepC_s_pftmean" name="deepC_s_pftmean" long_name="deepC_s_pftmean" unit="K" axis_ref="ndeep"/>
+    <field id="deepC_p_pftmean" name="deepC_p_pftmean" long_name="deepC_p_pftmean" unit="K" axis_ref="ndeep"/>
+
+
+    <field id="wtd" name="WaterTableD" long_name="Water Table Depth" unit="m"/>
+    <field id="undermcr" name="undermcr" long_name="Number of soiltiles under residual moisture" unit="-"/>
+    <field id="tws" name="TWS" long_name="Total Water Storage" unit="Kg/m^2"> humtot+snow+qsintveg_tot+fastr+slowr+streamr+laker+pondr </field>
+    <field id="check_infilt" name="check_infilt" long_name="check water conservation of infilt" unit="mm/s"/>
+    <field id="check_tr" name="check_tr" long_name="check water conservation of tridiag with diag_tr2" unit="mm/s"/>
+    <field id="check_over" name="check_over" long_name="check water conservation of smooth_over_mcs" unit="mm/s"/>
+    <field id="check_under" name="check_under" long_name="check water conservation of smooth_under_mcs" unit="mm/s"/>
+    <field id="ru_corr" name="Qs_corr" long_name="Adjustement flux added to surface runoff" unit="kg/m^2/s"/>
+    <field id="ru_corr2" name="Qs_corr2" long_name="Adjustement flux added to surface runoff (case of negative surface runoff)" unit="kg/m^2/s"/>
+    <field id="dr_corr" name="Qsb_corr" long_name="Adjustement flux added to drainage" unit="kg/m^2/s"/>
+    <field id="dr_force" name="Qforce" long_name="Adjustement flux added to drainage to sustain a forced water table depth" unit="kg/m^2/s"/>
+    <field id="ru_infilt" name="Qs_infilt" long_name="Surface runoff from hydrol_soil_infilt" unit="kg/m^2/s"/>
+    <field id="qinfilt" name="Infilt" long_name="Infiltration flux" unit="kg/m^2/s"/>
+  </field_group>
+
+  <!-- Add here all 4D variables. Those are not compatible with field_group definition 
+       There is an incompatibility between grid_ref and domain_landpoints -->
+  <!-- stomate 4D -->
+  <field id="deepC_a" name="deepC_a" long_name="deepC_a" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deepC_s" name="deepC_s" long_name="deepC_s" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deepC_p" name="deepC_p" long_name="deepC_p" unit="K" grid_ref="grid_ndeepnvm"/>
+
+  <field id="O2_soil" name="O2_soil" long_name="O2_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="CH4_soil" name="CH4_soil" long_name="CH4_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="O2_snow" name="O2_snow" long_name="O2_snow" unit="K" grid_ref="grid_nsnownvm"/>
+  <field id="CH4_snow" name="CH4_snow" long_name="CH4_snow" unit="K" grid_ref="grid_nsnownvm"/>
+
+  <field id="deltaCH4g" name="deltaCH4g" long_name="deltaCH4g" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaCH4" name="deltaCH4" long_name="deltaCH4" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaC1" name="deltaC1" long_name="deltaC1" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaC2" name="deltaC2" long_name="deltaC2" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaC3" name="deltaC3" long_name="deltaC3" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="heat_Zimov" name="heat_Zimov" long_name="heat_Zimov" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaC_litter_act" name="deltaC_litter_act" long_name="deltaC_litter_act" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="deltaC_litter_slo" name="deltaC_litter_slo" long_name="deltaC_litter_slo" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="totpor02_soil" name="totpor02_soil" long_name="totpor02_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="diff02_soil" name="diff02_soil" long_name="diff02_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="alpha02_soil" name="alpha02_soil" long_name="alpha02_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="beta02_soil" name="beta02_soil" long_name="beta02_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="totporCH4_soil" name="totporCH4_soil" long_name="totporCH4_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="diffCH4_soil" name="diffCH4_soil" long_name="diffCH4_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="alphaCH4_soil" name="alphaCH4_soil" long_name="alphaCH4_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="betaCH4_soil" name="betaCH4_soil" long_name="betaCH4_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="totporO2_soil" name="totporO2_soil" long_name="totporO2_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="diffO2_soil" name="diffO2_soil" long_name="diffO2_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="alphaO2_soil" name="alphaO2_soil" long_name="alphaO2_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+  <field id="betaO2_soil" name="betaO2_soil" long_name="betaO2_soil" unit="K" grid_ref="grid_ndeepnvm"/>
+
+  <field id="PROD10" name="PROD10" long_name="10 year wood product pool" unit="gC/m**2" grid_ref="grid_P11nwp"/> 
+  <field id="FLUX10" name="FLUX10" long_name="annual flux for each 10 year wood product pool" unit="gC/m**2/yr" grid_ref="grid_P10nwp"/> 
+  <field id="PROD100" name="PROD100" long_name="100 year wood product pool" unit="gC/m**2" grid_ref="grid_P101nwp" />
+  <field id="FLUX100" name="FLUX100" long_name="annual flux for each 100 year wood product pool" unit="gC/m**2/yr" grid_ref="grid_P100nwp"/> 
+
+  <!-- sechiba 4D -->
+  <field id="profil_froz_hydro_ns" name="profil_froz_hydro_ns" long_name="profil_froz_hydro_ns" unit="m3/m3" grid_ref="grid_nslmnstm"/> 
+  <field id="mc" name="moistc" long_name="Soil Moisture profile for soil type 6" unit="m3/m3" grid_ref="grid_nslmnstm"/>
+  <field id="kfact_root" name="kfactroot" long_name="Root fraction profile for soil type 2" unit="%" grid_ref="grid_nslmnstm"/>
+  <field id="vegetmax_soil" name="vegetsoil" long_name="Fraction of vegetation on soil type 1" unit="%" grid_ref="grid_nvmnstm"/>
+
+  <field id="ptn" name="ptn" long_name="ptn" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="pkappa" name="pkappa" long_name="pkappa" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="pcapa" name="pcapa" long_name="pcapa" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="pcappa_supp" name="pcappa_supp" long_name="pcappa_supp" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="shum_ngrnd_perma" name="shum_ngrnd_perma" long_name="shum_ngrnd_perma" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="shum_ngrnd_prmlng" name="shum_ngrnd_prmlng" long_name="shum_ngrnd_prmlng" unit="K" grid_ref="grid_ngrndnvm"/>
+  <field id="ptn_beg" name="ptn_beg" long_name="ptn_beg" unit="K" grid_ref="grid_ngrndnvm"/> 
+</field_definition>
+
