@@ -1,23 +1,22 @@
 # ORCHIDEE-CROP
-This is the initial version of the ORCHIDEE-CROP used in the paper, "Datasets used in the paper Global warming increases the chance of success of maize-wheat double cropping in Europe", which is in review in Nature Communications.
+This is the initial version of the ORCHIDEE-CROP used in the paper, "Future warming increases the chance of success of maize-wheat double cropping in Europe", which is in review in Nature Communications.
 
-Authors 
+Authors
+Yang Su a, b, c, Ronny Lauerwald a, David Makowski d, Nicolas Viovy b, Nicolas Guilpart e, Peng Zhu b, f, Benoit Gabrielle a, Philippe Ciais b
 
-Yang Su a, b, Ronny Lauerwald a, David Makowski c, Nicolas Viovy b, Nicolas Guilpart d, Peng Zhu b, e, Benoit Gabrielle a, Philippe Ciais b 
+Affiliations
+a UMR ECOSYS, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
+b Laboratoire des Sciences du Climat et de l’Environnement, CEA CNRS UVSQ Orme des Merisiers, 91190 Gif-sur-Yvette, France
+c Département d'Informatique, École normale supérieure – PSL, 45 Rue d'Ulm, 75005 Paris, France
+d Unit Applied mathematics and computer science (MIA 518), INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
+e UMR Agronomie, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
+f Department of Geography, The University of Hong Kong, Hong Kong SAR, China
 
-Affiliations 
-a UMR ECOSYS, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France 
-b Laboratoire des Sciences du Climat et de l’Environnement, CEA CNRS UVSQ Orme des Merisiers, 91190 Gif-sur-Yvette, France 
-c Unit Applied mathematics and computer science (MIA 518), INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France 
-d UMR Agronomie, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France 
-e Department of Geography, The University of Hong Kong, Hong Kong SAR, China 
-
-Corresponding Author 
-
+Corresponding Author
 Yang Su 
-yang.su@inrae.fr 
+yang.su@ens.fr 
 +33 1 89 10 07 67 
-INRAE AgroParisTech 
+École normale supérieure - PSL
 
 To use the model and data, please contact the correspondin author for more details.
 
