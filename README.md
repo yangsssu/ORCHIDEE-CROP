@@ -1,8 +1,8 @@
 # ORCHIDEE-CROP-RES
-This version is created by Ke Yu, which included the crop residue inside the model. This version of ORCHIDEE-CROP-RES model is used in the study, "Quantifying albedo impact and radiative forcing of management practices in European wheat cropping systems"
+This version is created by Ke Yu, which included the crop residue inside the model. This version of ORCHIDEE-CROP-RES model is used in the study, "Resolving effects of leaf pigmentation changes and plant residue on the energy balance of winter wheat cultivation in a land surface model"
 
 Authors:
-Ke Yu, Yang Su, Philippe Ciais, Ronny Lauerwald, Eric Ceschia, David Makowski, Yidi Xu, Ezzeddine Abbessi, Hassan Bazzi, Tiphaine Tallec, Aurore Brut, Bernard Heinesch, Christian Brümmer, Marius Schmidt, Manuel Acosta, Pauline Buysse, Thomas Gruenwald and Daniel S Goll
+Ke Yu*, Yang Su, Ronny Lauerwald, Philippe ciais,  Yi Xi, Haoran Xu, Xianglin Zhang, Nicolas Viovy, Amie Pickering, Marie Collard, Daniel S. Goll
 
 Corresponding author: Ke Yu, ke.yu@lsce.ipsl.fr
 
