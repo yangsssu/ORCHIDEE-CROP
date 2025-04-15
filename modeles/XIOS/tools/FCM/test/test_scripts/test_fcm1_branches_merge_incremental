@@ -1,3 +1,0 @@
-cfg_name="fcm1_base fcm1_branches_merge"
-test_name=test_fcm1_branches_merge_incremental
-. ./perform_test

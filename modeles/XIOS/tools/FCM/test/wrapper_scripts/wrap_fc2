@@ -1,2 +1,0 @@
-echo "wrap_fc2 $@" | sed "s#$RUN_DIR##g" >>$command_file
-ifort  "$@"

@@ -1,3 +1,0 @@
-cfg_name="fcm1_base fcm1_exe_rename"
-test_name=test_fcm1_exe_rename_incremental
-. ./perform_test

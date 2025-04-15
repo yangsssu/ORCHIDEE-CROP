@@ -1,4 +1,0 @@
-cfg_name=fcm1_var_hpc
-test_name=test_$cfg_name
-mirror=remote
-. ./perform_test

@@ -1,3 +1,0 @@
-cfg_name="fcm1_base fcm1_cflags fcm1_base"
-test_name=test_fcm1_cflags_incremental
-. ./perform_test
