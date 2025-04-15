@@ -1,4 +1,4 @@
-# ORCHIDEE-CROP
+# ORCHIDEE-CROP-RES
 This is the initial version of the ORCHIDEE-CROP used in the paper, "Future warming increases the chance of success of maize-wheat double cropping in Europe", which is in review in Nature Communications.
 
 Authors
