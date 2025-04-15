@@ -1,3 +1,0 @@
-\begin{equation}
-\mathit{rpc}=\frac{1}{1-e^{-{\frac{\mathit{z\_soil}\left(nbdl\right)}{\mathit{rprof}}}}}
-\end{equation}

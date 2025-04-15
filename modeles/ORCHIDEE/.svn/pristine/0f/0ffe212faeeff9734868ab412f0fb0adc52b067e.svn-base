@@ -1,3 +1,0 @@
-\begin{equation}
-    \delta _c = \rho . max\{ (q_{sat} - q_{a}), 0 \}
-\end{equation}

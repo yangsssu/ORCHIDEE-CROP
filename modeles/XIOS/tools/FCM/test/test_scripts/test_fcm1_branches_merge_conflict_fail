@@ -1,4 +1,0 @@
-cfg_name=fcm1_branches_merge_conflict_fail
-test_name=test_$cfg_name
-extract_1=fail
-. ./perform_test

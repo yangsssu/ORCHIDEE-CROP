@@ -1,3 +1,0 @@
-\begin{equation}
-snowAlb=snowaIni+snowaDec \times \exp{\frac{-snowAge}{tsctSnowa}}
-\end{equation}
