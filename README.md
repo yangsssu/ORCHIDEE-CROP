@@ -1,22 +1,7 @@
-# ORCHIDEE-CROP
-This is the version of the ORCHIDEE-CROP used in the paper, "Future warming increases the chance of success of maize-wheat double cropping in Europe". Other versions of ORCHIDEE-CROP model like ORCHIDEE-CROP-RES, which included crop residue in the model, can be found in other branches. 
+# ORCHIDEE-CROP-SOJ
+This version is created by Xianglin Zhang, which included the soybean inside the model. 
 
-Authors
-Yang Su a, b, c, Ronny Lauerwald a, David Makowski d, Nicolas Viovy b, Nicolas Guilpart e, Peng Zhu b, f, Benoit Gabrielle a, Philippe Ciais b
-
-Affiliations
-a UMR ECOSYS, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
-b Laboratoire des Sciences du Climat et de l’Environnement, CEA CNRS UVSQ Orme des Merisiers, 91190 Gif-sur-Yvette, France
-c Département d'Informatique, École normale supérieure – PSL, 45 Rue d'Ulm, 75005 Paris, France
-d Unit Applied mathematics and computer science (MIA 518), INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
-e UMR Agronomie, INRAE AgroParisTech, Université Paris-Saclay, 91120 Palaiseau, France
-f Department of Geography, The University of Hong Kong, Hong Kong SAR, China
-
-Corresponding Author
-Yang Su 
-yang.su@ens.fr 
-+33 1 89 10 07 67 
-École normale supérieure - PSL
+Corresponding author: Xianglin Zhang, xianglin.zhang@inrae.fr
 
 To use the model and data, please contact the corresponding author for more details.
 
