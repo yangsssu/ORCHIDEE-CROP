@@ -1,5 +1,7 @@
 # ORCHIDEE-CROP-RES
-This version included the crop residue inside
+This version is created by Ke Yu, which included the crop residue inside the model.
+
+
 
 
 
