@@ -1,5 +1,5 @@
 # ORCHIDEE-CROP
-This is the version of the ORCHIDEE-CROP used in the paper, "Future warming increases the chance of success of maize-wheat double cropping in Europe".
+This is the version of the ORCHIDEE-CROP used in the paper, "Future warming increases the chance of success of maize-wheat double cropping in Europe". Other version of ORCHIDEE-CROP model like ORCHIDEE-CROP-RES can be found in other branches. 
 
 Authors
 Yang Su a, b, c, Ronny Lauerwald a, David Makowski d, Nicolas Viovy b, Nicolas Guilpart e, Peng Zhu b, f, Benoit Gabrielle a, Philippe Ciais b
@@ -17,8 +17,6 @@ Yang Su
 yang.su@ens.fr 
 +33 1 89 10 07 67 
 École normale supérieure - PSL
-
-Other version of ORCHIDEE-CROP model like ORCHIDEE-CROP-RES can be found in other branches. 
 
 To use the model and data, please contact the corresponding author for more details.
 
