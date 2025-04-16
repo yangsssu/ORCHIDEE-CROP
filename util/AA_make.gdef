@@ -277,39 +277,6 @@ UTIL_DIR = '??'
 #-Q- ifort_CICLAD   #-
 #-Q- ifort_CICLAD   NCDF_INC = /opt/netcdf42/ifort/include
 #-Q- ifort_CICLAD   NCDF_LIB = -L/opt/netcdf42/ifort/lib -lnetcdf -lnetcdff
-
-#-Q- ifort_LSCE   #-
-#-Q- ifort_LSCE   #- Global definitions for LSCE, ifort
-#-Q- ifort_LSCE LIB_MPI = MPI1
-#-Q- ifort_LSCE LIB_MPI_BIS = MPI1
-#-Q- ifort_LSCE FCM_ARCH = ifort_LSCE
-#-Q- ifort_LSCE   M_K = gmake
-#-Q- ifort_LSCE   P_C = cpp
-#-Q- ifort_LSCE   P_O = -P -C $(P_P)
-#-Q- ifort_LSCE   F_C = mpif90 -c -cpp
-#-Q- ifort_LSCE   #-D- MD    F_D = -g
-#-Q- ifort_LSCE   #-D- MN    F_D =
-#-Q- ifort_LSCE   #-P- I4R4  F_P = -i4
-#-Q- ifort_LSCE   #-P- I4R8  F_P = -i4 -r8
-#-Q- ifort_LSCE   #-P- I8R8  F_P = -i8 -r8
-#-Q- ifort_LSCE   F_D =
-#-Q- ifort_LSCE   F_P = -i4 -r8
-#-Q- ifort_LSCE   F_O = -DCPP_PARA -O3 $(F_D) $(F_P) -I$(MODDIR) -module $(MODDIR) -fp-model precise
-#-Q- ifort_LSCE   F_L = mpif90
-#-Q- ifort_LSCE   M_M = 0
-#-Q- ifort_LSCE   L_X = 0
-#-Q- ifort_LSCE   L_O = -Vaxlib
-#-Q- ifort_LSCE   A_C = ar -rs
-#-Q- ifort_LSCE   A_G = ar -x
-#-Q- ifort_LSCE   C_C = cc -c
-#-Q- ifort_LSCE   C_O =
-#-Q- ifort_LSCE   C_L = cc
-#-Q- ifort_LSCE   #-
-#-Q- ifort_LSCE   NCDF_INC = /usr/local/install/netcdf-4.3.2p/include
-#-Q- ifort_LSCE   NCDF_LIB = -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf
-
-
-
 #-Q- gfortran_CICLAD   #-
 #-Q- gfortran_CICLAD   #- Global definitions for ciclad, gfortran
 #-Q- gfortran_CICLAD LIB_MPI = MPI1
