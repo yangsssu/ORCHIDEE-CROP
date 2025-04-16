@@ -1,0 +1,43 @@
+Sapling biomass for grasses : \\
+
+\begin{equation}
+\alpha_{grass} = 0.5
+\end{equation}
+
+\begin{equation}
+SAPL_{leaf}
+\begin{cases}
+\dfrac{0.1}{SLA} & \\
+\dfrac{1}{SLA} & \text{if PFT crop}
+\end{cases} %\]
+\end{equation}
+
+\begin{equation}
+SAPL_{sapabove} = 0
+\end{equation}
+
+\begin{equation}
+SAPL_{sapbelow} = 0
+\end{equation}
+
+
+\begin{equation}
+SAPL_{heartabove} = 0
+\end{equation}
+
+\begin{equation}
+SAPL_{heartbelow} = 0
+\end{equation}
+
+\begin{equation}
+SAPL_{root} = 0.1 \cdot \frac{1}{\alpha_{grass}} \cdot SAPL_{leaf} 
+\end{equation}
+
+\begin{equation}
+SAPL_{fruit} = 0.3 \cdot SAPL_{leaf} 
+\end{equation}
+
+\begin{equation}
+SAPL_{reserve} = 5 \cdot SAPL_{leaf}  
+\end{equation}
+

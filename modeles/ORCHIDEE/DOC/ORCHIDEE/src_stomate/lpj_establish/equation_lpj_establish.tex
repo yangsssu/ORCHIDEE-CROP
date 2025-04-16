@@ -1,0 +1,37 @@
+\begin{equation}
+FPC = \frac{CN \cdot IND}{FRAC} \cdot \left[ 1 - \exp \left( -1 \cdot 
+    LM_{\rm max} \cdot SLA \cdot coff \right) \right]
+\end{equation}
+where $FPC$ is foliage projective cover (``fpc\_nat'' in source code),
+$CN$ crown area (cn\_ind; m$^{2}$), $IND$ number of individuals (ind;
+m$^{-2}$), $FRAC$ total fraction occupied by natual vegetation
+(fracnat), $LM_{\rm max}$ maximum leaf mass in last year
+(lm\_lastyearmax; g C m$^{-2}$), $SLA$ specific leaf area (sla;
+m$^{2}$ (g C)$^{-1}$), and $coff$ coefficient (ext\_coeff).
+
+\begin{equation}
+  EST_{\rm tree} = EST_{clm} \left[1 - \exp \left( -5 \cdot (1 - FPC_{\rm woody}) 
+    \right) \right] \cdot (1 - FPC_{\rm woody})
+\end{equation}
+where $EST_{\rm tree}$ is maximum tree establishment rate
+(estab\_rate\_max\_tree), $EST_{clm}$ maximum tree establishment rate
+controled by climate (estab\_rate\_\\max\_climate\_tree), $FPC_{\rm
+  woody}$ total woody FPC (sumfpc\_wood).
+
+\begin{equation}
+  EST_{\rm grass} = \max \left[  \min \left[ EST_{clm}, 0.98 - FPC_{\rm sum} \right], 
+    0 \right]
+\end{equation}
+where $EST_{\rm grass}$ is maximum grass establishment rate
+(estab\_rate\_max\_grass) and $FPC_{\rm sum}$ total natural fpc
+(sumfpc).
+
+\begin{equation}
+FPC = \min \left[ 1, CN \right] \cdot IND \cdot \max \left[ 1 - \exp 
+  \left( -coff \cdot LAI \right), MIN_{\rm cover} \right]
+\end{equation}
+where $MIN_{\rm cover}$ is fraction of crown area invaded by other
+trees (min\_cover = 0.05)
+
+
+

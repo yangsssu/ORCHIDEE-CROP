@@ -1,0 +1,13 @@
+The SLA is calculated for each different PFT by the following equation :
+\begin{equation}
+SLA =
+\begin{cases}
+ 2.10^{-4}\times 10^{2.29 - 0.4\log(\frac{12}{a_{leaf}})} & \text{if PFT needle-leaf} \\
+ 2.10^{-4}\times 10^{2.41 - 0.38\log(\frac{12}{a_{leaf}})}
+\end{cases} %\]
+\end{equation}
+where : \\
+\begin{itemize}
+ \item  $a_{leaf}$ is a PFT-specific value for leaf longevity in days.
+\end{itemize}
+
