@@ -1,0 +1,92 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+# Documentation :
+# This script gives an analyse of LAST configuration from mod.def downloaded by model command.
+#
+# It will create shell variables :
+# The list of components of the configuration : ModelComponents / NbComponents
+# And for each components :
+# - The tags or branch name : ModelTags
+# - The version control system name : ModelSystems
+# - The version control server address and login : ModelServers
+# - The version control server directory for this version : ModelDirectories
+# - The modipsl local directory : ModelLocalDirs
+
+
+typeset sizelog thedate logfile mymodel i  NbModelCommands NbModelNames
+
+logfile=${MODIPSL}/util/log
+
+set -A ListModelCommands -- $( cat ${logfile} | grep '\./model' | sed -e 's& &::&g')
+printDebugArray ListModelCommands
+
+NbModelCommands=${#ListModelCommands[@]}
+
+set -A ListModelNames -- $( cat ${logfile} | grep '\-\-\-\ Model' | sed -e 's&.*: *&&' )
+printDebugArray ListModelNames
+
+NbModelNames=${#ListModelNames[@]}
+
+if [ ${NbModelCommands} -ne ${NbModelNames} ] ; then
+    echo "Error with $0 script. number of model calls ${NbModelCommands} is not equal to model name ${NbModelNames} in util/log file."
+    exit 1
+fi
+
+set -A ListModelDates -- $( cat ${logfile} | grep '\./model' | sed -e 's&\ \./model .*&&' | sed -e 's&/&-&g' | sed -e 's& &_&g' )
+printDebugArray ListModelDates
+#set -A ListModelDates -- $( cat ${logfile} | grep '\./model' | sed -e 's&\ \./model .*&&' | sed -e 's&^\(.*\)&"\1"&g' | xargs date +%g-%m-%d_%R:%S -d )
+
+
+
+# We only use the last call to model here !
+(( ModelNum = NbModelCommands - 1 ))
+
+
+
+
+(( i = 0 ))
+for mymodel in ${ListModelNames[@]}; do
+    thedate=$( echo ${ListModelDates[$i]} | sed -e "s&_& &g" | sed -e "s&-&/&g")
+#    echo $model $i ${ListModelDates[$i]} $thedate
+    ListLineModels[$i]=$( grep -ni "${thedate}" ${logfile} | sed -e "s&^\([0-9]*\):.*&\1&" )
+    (( i = i + 1 ))
+done
+printDebugArray ListLineModels
+
+sizelog=$( wc -l ${logfile} | sed -e 's&^\([0-9]*\).*&\1&' )
+
+LastModelFile=log_${ModelNum}
+tail --lines=$(( sizelog - ListLineModels[${ModelNum}] + 1 )) ${logfile} > ${LastModelFile}
+
+set -A ModelComponents -- $( cat ${LastModelFile} | grep '\-\-\-\ Component *: ' | sed -e 's&--- Component *: \(.*\)&\1&' )
+printDebugArray ModelComponents
+
+NbComponents=${#ModelComponents[@]}
+
+set -A ModelTags -- $( cat ${LastModelFile} | grep '\-\-\-\ Tag *: ' | sed -e 's&--- Tag *: \(.*\)&\1&' )
+printDebugArray ModelTags
+
+set -A ModelSystems -- $( cat ${LastModelFile} | grep '\-\-\-\ System *: ' | sed -e 's&--- System *: \(.*\)&\1&' )
+printDebugArray ModelSystems
+
+set -A ModelServers -- $( cat ${LastModelFile} | grep '\-\-\-\ Server *: ' | sed -e 's&--- Server *: \(.*\)&\1&' | sed -e 's& &:_:&g' )
+printDebugArray ModelServers
+
+set -A ModelDirectories -- $( cat ${LastModelFile} | grep '\-\-\-\ Directory *: ' | sed -e 's&--- Directory *: \(.*\)&\1&' )
+printDebugArray ModelDirectories
+
+set -A ModelLocalDirs -- $( cat ${LastModelFile} | grep '\-\-\-\ Local Dir *: ' | sed -e 's&--- Local Dir *: \(.*\)&\1&' )
+printDebugArray ModelLocalDirs
+
+rm ${LastModelFile}

@@ -1,0 +1,449 @@
+#!/bin/ksh
+#- $Id: model 5481 2020-10-30 08:56:57Z aclsce $
+#---------------------------------------------------------------------
+# @(#)Actions concerning IPSL models
+#---------------------------------------------------------------------
+#set -xv
+MAIL_ADDRESS=arnaud.caubel@lsce.ipsl.fr
+MAIL_COM=mail
+#MAIL_COM=Mail
+#-
+#     Dirname     and      Basename
+#-
+d_n=$(dirname ${0}); b_n=$(basename ${0});
+#-
+# Retrieve and validate the options
+#-
+m_n=""; m_a="checkout"; m_v='silencious'; no_tag='false';
+# Option -d to take default set up without asking
+changeok='yes'
+while getopts :hevdH V
+  do
+    case $V in
+      (h)  m_a='help';;
+      (e)  m_a='checkout';;
+      (v)  m_v='verbose';;
+      (d)  changeok='no';;
+      (H)  no_tag='true';;
+      (:)  echo ${b_n}" : option $OPTARG : missing value" 1>&2;
+           exit 2;;
+      (\?) echo ${b_n}" : option $OPTARG : not supported" 1>&2;
+           exit 2;;
+    esac
+  done
+shift $(($OPTIND-1));
+#-
+# Validate the action
+#-
+[[ ${m_a} = help || ${m_a} = checkout ]] || \
+ {
+  echo 'Action '"${m_a}"' not supported' 1>&2;
+  echo 'Try "'${b_n}' -h [model-name]"' 1>&2;
+  exit 4;
+ }
+#-
+# Retrieve the model name
+#-
+[[ ${#} -gt 1 ]] && \
+  { echo 'Only one model can be specified' 1>&2; exit 3; }
+[[ ${#} -eq 1 ]] && { m_n="${1}"; }
+[[ ${m_a} != 'help' && -z ${m_n} ]] && \
+ {
+  echo 'Model not specified' 1>&2;
+  echo 'Try "'${b_n}' -h [model-name]"' 1>&2;
+  exit 3;
+ }
+#-
+# Test availability of the definition file
+#-
+F_DEF=${d_n}'/mod.def'
+[[ ! -f "${F_DEF}" ]] && { echo "${F_DEF} unreachable ..."; exit 3; }
+#-
+# Extract the names of the supported models
+#-
+qi=0;
+while read v0 v1 v2
+  do
+    [[ -n "${v0}" && "${v0}" = '#-C-' ]] && \
+     {
+      i_m=-1;
+      qa=0; while (( ${qa} < ${#m_x[@]} ))
+       do
+         ((qa=qa+1));
+         [[ -n "${v1}" && "${v1}" = ${m_x[${qa}]} ]] && \
+          { i_m=${qa}; break; };
+       done
+      (( ${i_m} < 0 )) && { ((qi=qi+1)); m_x[${qi}]=${v1}; };
+     }
+  done <${F_DEF}
+unset v0 v1 v2;
+#-
+# Model name validation and data retrieving
+#-
+[[ -n "${m_n}" ]] && \
+  {
+    #- Validate the model name
+    i_m=-1;
+    qi=0; while (( ${qi} < ${#m_x[@]} ))
+      do
+        ((qi=qi+1));
+        [[ ${m_n} = ${m_x[${qi}]} ]] && { i_m=${qi}; break; };
+      done
+    (( ${i_m} < 0 )) && \
+     { echo 'Model '"${m_n}"' unknown' 1>&2;
+       echo 'Try "'${b_n}' -h"' 1>&2; exit 3; }
+    #- Extract the repository informations
+    #- ( index, repository system, servers address )
+    while read v0 v1 v2 v3
+      do
+        [[ -n "${v0}" && "${v0}" = '#-S-' ]] && \
+         { r_p[${v1}]=${v2}; r_s[${v1}]=${v3}; }
+      done <${F_DEF}
+    unset v0 v1 v2 v3;
+    #- Extract the model informations
+    qi=0;
+    while read v0 v1 v2 v3 v4 v5 v6
+      do
+        [[ -n "${v1}" && "${v1}" = "${m_n}" ]] && \
+         {
+          #- model manager email address
+          [[ "${v0}" = '#-M-' ]] && { m_m=${v2}; continue; }
+          #- elements for the model component
+          [[ "${v0}" = '#-C-' ]] && \
+           {
+            ((qi=qi+1));
+            [[ -z "${v2}" ]] && \
+             {
+              echo 'Component not found for '${m_n};
+              exit 3;
+             }
+            m_c[${qi}]=${v2};
+            [[ -z "${v3}" ]] && \
+             {
+              echo 'Tag not found for component '${v2}' of '${m_n};
+              exit 3;
+             }
+            [[ ${no_tag} = 'false' ]] && \
+             { m_t[${qi}]=${v3}; }    || \
+             { m_t[${qi}]='?'; }
+            [[ -z "${v4}" ]] && \
+             {
+              echo 'Repository index not found for '${m_n};
+              exit 3;
+             }
+            m_p[${qi}]=${r_p[${v4}]};
+            [[ ${m_p[${qi}]} = svn || ${m_p[${qi}]} = cvs ]] || \
+             {
+              echo 'Control system '"${m_p[${qi}]}"' not supported' 1>&2;
+              exit 3;
+             }
+            m_s[${qi}]=${r_s[${v4}]};
+            [[ -z "${m_s[${qi}]}" ]] && \
+             {
+              echo 'Server '${v4}'  not found for '${m_n};
+              exit 3;
+             }
+            m_d[${qi}]=${v5};
+            [[ -z "${m_d[${qi}]}" ]] && { m_d[${qi}]="."; }
+            m_l[${qi}]=${v6};
+            [[ -z "${m_l[${qi}]}" ]] && { m_l[${qi}]="modeles"; }
+           }
+         }
+      done <${F_DEF}
+    unset v0 v1 v2 v3 v4 v5 v6
+    #- Validate the model informations
+    #- model manager email address
+    [[ -z "${m_m}" ]] && \
+     { echo 'Manager email address not found for '${m_n}; exit 3; }
+    #- model components
+    [[ ${#m_c[@]} = 0 ]] && \
+     { echo 'Components not found for '${m_n}; exit 3; }
+  }
+#-
+# send an email at the first use of modipsl
+# ie directory ~/.modipsl does not exist
+#-
+D_LOG=${HOME}/.modipsl
+[[ -d "${D_LOG}" ]] || \
+ {
+  mkdir "${D_LOG}";
+  echo $(date +"%D %T") $(whoami) $(uname -m) \
+    first use of model | \
+    ${MAIL_COM} -s "first use of modipsl" \
+    ${MAIL_ADDRESS} >/dev/null 2>&1;
+   echo $(date +"%D %T") creation >"${D_LOG}"/first;
+  }
+#-
+# "help" action
+#-
+[[ ${m_a} = 'help' ]] && \
+ {
+  echo ' ';
+  if [ -z "${m_n}" ]; then
+    echo ${b_n} ': This script is used to extract one configuration';
+    echo ' ';
+    echo 'Usage    :';
+    echo './'${b_n} '[-h]';
+    echo './'${b_n} '[-h] ConfName';
+    echo './'${b_n} '[-v] ConfName';
+    echo ''
+    echo 'Arguments :'
+    echo 'ConfName       : name of configuration to be extracted';
+    echo '-h             : this help';
+    echo '-h ConfName    : description of configuration ConfName';
+# Meaningless option    echo '-e                : extract model';
+# Does not work    echo 'H                : suppress the tags and take the HEAD version';
+    echo '-v             : verbose mode';
+#    echo 'd                : extract default components without option to change';
+    echo ' ';
+    echo 'Possible configurations are :';
+    qi=0; while (( ${qi} < ${#m_x[@]} ));
+      do ((qi=qi+1)); echo ${m_x[${qi}]}; done
+  else
+    echo 'model : '${m_n};
+    echo ' ';
+    while read v0 v1 v2
+     do
+       [[ -n "${v0}" && "${v0}" = '#-H-' && \
+          -n "${v1}" && "${v1}" = "${m_n}" ]] && { echo ${v2}; }
+     done <${F_DEF}
+    unset v0 v1 v2;
+    echo ' ';
+    echo 'model manager email address : '${m_m};
+    echo ' ';
+    qi=0; while (( ${qi} < ${#m_c[@]} ))
+      do
+        ((qi=qi+1));
+        echo 'Component '${qi}' : '${m_c[${qi}]};
+        echo 'Revision  '${qi}' : '${m_t[${qi}]};
+        echo 'System    '${qi}' : '${m_p[${qi}]};
+        echo 'Server    '${qi}' : '${m_s[${qi}]};
+        echo 'Directory '${qi}' : '${m_d[${qi}]};
+        echo 'Local Dir '${qi}' : '${m_l[${qi}]};
+      done
+  fi
+  echo ' ';
+  exit 0;
+ }
+#-
+# Record information about the action in the "log" file
+#-
+F_LOG=${d_n}'/log'
+echo "${F_LOG}"
+echo $(date +"%D %T") $0 $* >>"${F_LOG}"
+#-
+# Verbose mode
+#-
+[ ${m_v} = 'verbose' ] && \
+ { echo '--- Model        : '${m_n};
+   echo '--- Action       : '${m_a};
+   echo '--- Mode         : '${m_v}; }
+#-
+# Record information about the action in the "log" file
+#-
+{ echo '--- Model        : '${m_n};
+  echo '--- Action       : '${m_a};
+  echo '--- Mode         : '${m_v};
+  echo '--- Mail address : '${m_m}; } >>"${F_LOG}"
+#-
+# Components root directory
+#-
+d_m=${d_n}'/..';
+#-
+# send an email at the first use of this IPSL model
+# ie file ~/.modipsl/log.${m_n} does not exist
+#-
+M_LOG=${D_LOG}/log.${m_n}
+[[ -f "${M_LOG}" ]] || \
+  {
+   echo $(date +"%D %T") $(whoami) $(uname -m) \
+    first usage of model ${m_n} | \
+   ${MAIL_COM} -s "first usage of model ${m_n}" \
+    ${m_m} >/dev/null 2>&1;
+   echo $(date +"%D %T") model ${m_n} >"${M_LOG}";
+  }
+#-
+# Extract the model components
+#-
+qi=0; while (( ${qi} < ${#m_c[@]} ))
+  do
+    ((qi=qi+1));
+    zc=${m_c[${qi}]}; zt=${m_t[${qi}]};
+    zp=${m_p[${qi}]}; zs=${m_s[${qi}]};
+    zd=${m_d[${qi}]}; zl=${m_l[${qi}]};
+
+# Maybe change some information marked with DEFAULT. 
+# Check if key word DEFAULT is used in component name
+    defcomp=$(echo ${zc} | awk -FDEFAULT: '{print $2}')
+    if [ X$defcomp != X ] ; then
+	if [ $changeok == 'yes' ] ; then
+	    echo "=> Default component $defcomp can be changed."
+	    echo "   Do you want to change this path ? Type new path or return for the above default."
+	    read newcomp
+	    echo "   Type revision number for chosen component version or return for $zt default value"
+	    read newrev
+	    if [ X$newcomp == X ] ; then
+		zc=$defcomp
+	    else
+		zc=$newcomp
+	    fi
+
+	    if [ X$newrev != X ] ; then
+		zt=$newrev
+	    fi
+	else
+	    # changeok=no : Take default value#
+	    zc=$defcomp
+	fi
+    fi
+    [[ ${m_v} = 'verbose' ]] && \
+     { echo '---';
+       echo '--- Component  : '${zc};
+       echo '--- Tag        : '${zt};
+       echo '--- System     : '${zp};
+       echo '--- Server     : '${zs};
+       echo '--- Directory  : '${zd};
+       echo '--- Local Dir  : '${zl}; }
+#-----
+#----  Record information about the action in the "log" file
+#-----
+     { echo '---';
+       echo '--- Component  : '${zc};
+       echo '--- Tag        : '${zt};
+       echo '--- System     : '${zp};
+       echo '--- Server     : '${zs};
+       echo '--- Directory  : '${zd};
+       echo '--- Local Dir  : '${zl}; } >>"${F_LOG}"
+#---
+    [[ ${zp} = 'cvs' ]] && \
+     {
+      c_c='(cd '${d_m}/${zl}'; '${zp}' -d :pserver:'${zs}' '${m_a};
+      [[ ${zt} != '?' ]] && { c_c=${c_c}' -r '${zt}; }
+      [[ ${zd} != '.' ]] && { c_c=${c_c}' -d '${zd}; }
+      c_c=${c_c}' '${zc}')';
+      grep "${zs%%/*}"'.*/'"${zs#*/}" ~/.cvspass > /dev/null;
+      [[ ${?} != 0 ]] && \
+       {
+        c_z='cvs -d :pserver:'${zs}' login';
+        [[ ${m_v} = 'verbose' ]] && { echo ${c_z}; }
+        eval ${c_z};
+       }
+     }
+#---
+    [[ ${zp} = 'svn' ]] && \
+     {
+      c_c='(cd '${d_m}/${zl}'; '${zp}' '${m_a};
+      [[ ${zt} != '?' ]] && { c_c=${c_c}' -r '${zt}; }
+      c_c=${c_c}' '${zs}'/'${zc}@${zt};
+      [[ ${zd} != '.' ]] && { c_c=${c_c}' '${zd}; }
+      c_c=${c_c}')';
+     }
+#---
+    [[ ${m_v} = 'verbose' ]] && { echo '--- Command    : '${c_c}; }
+    eval ${c_c};
+  done
+
+#-
+# Actions related to NEMOGCM 
+#-
+
+case ${m_n} in
+     ( NEMO_v* | IPSLCM6* | IPSLESM6 | IPSLCM7* )
+    d_m1=${d_m}/modeles/NEMOGCM/CONFIG
+    cfg_file=${d_m1}/cfg.txt
+    list_cfg='ORCA1_LIM3_PISCES ORCA025_LIM3_PISCES ORCA1_OFF_PISCES eORCA025_LIM3 eORCA025_LIM3_PISCES_CRS'
+    # Creates configuration ORCA1_LIM3_PISCES
+    # (see https://forge.ipsl.jussieu.fr/shaconemo/wiki/README_ORCA1_LIM3_PISCES )
+    for cfg in ${list_cfg}
+       do 
+        if [[ -d ${d_m1}/${cfg} ]] ; then
+           grep ${cfg} ${cfg_file} > /dev/null 2>&1
+           err=${?}
+           if [[ ${err} = 1 ]] ; then
+              pis=`echo ${cfg} | grep "PISCES" | wc -l`
+              off=`echo ${cfg} | grep "OFF"    | wc -l`
+              if [[ ${pis} = 1 ]] ; then
+                 if [[ ${off} = 1 ]] ; then
+                    echo "${cfg} OPA_SRC OFF_SRC TOP_SRC" >> ${cfg_file}
+		 else
+                    echo "${cfg} OPA_SRC LIM_SRC_3 NST_SRC TOP_SRC" >> ${cfg_file}
+	         fi
+              else
+                echo "${cfg} OPA_SRC LIM_SRC_3 NST_SRC" >> ${cfg_file}
+             fi
+           fi
+        fi
+     done
+esac
+
+#-
+# Actions related to the WORK directory for the OPA models
+#-
+case ${m_n} in
+  ( IPSLCM4_LOOP )
+    d_m1=${d_m}/modeles/OPA  ;
+    [ -d ${d_m1}/WORK ] && \rm -rf ${d_m1}/WORK;
+    mkdir ${d_m1}/WORK;
+    cd ${d_m1}/WORK;
+#-- Getting the configuration files to build the Makefile
+    ln -sf ../../../*/${m_n}/scripts/BB_make AA_make;
+    ln -sf ../../../*/${m_n}/scripts/BB_make.ldef AA_make.ldef ;
+    [ "${m_n}" = "IPSLCM4_LOOP" ] && \
+	echo " Creation du catalogue OPA/WORK = ORCA + LIM + TRC" || \
+	echo " Creation du catalogue OPA/WORK = ORCA + LIM"
+    ln -sf ../SRC_ORCA/*.[Ffh] .
+    [ "${m_n}" = "IPSLCM4_LOOP" ] && \rm *.passivetrc.h
+    [ "${m_n}" = "IPSLCM4_LOOP" ] && \
+	ln -sf ../SRC_TRC/*.[Ffh] ../SRC_TRC/trc_sms/*.[Ffh] .
+    ln -sf ../SRC_UCL/[a-z]* .
+#-- Building the standard list of source files
+    cat >.patron <<"EOF"
+CVS
+SRC_PARAM
+SRC_FILE_LIST
+tmplist
+AA_make
+KEY_CPP
+Makefile
+*?.o
+ i.?*
+*?.L
+.patron
+bloc.com
+para.com
+defcst.f
+fontbc.f
+icdyna.f
+thersf.f
+EOF
+    ls -1 | fgrep -v -f .patron  >SRC_FILE_LIST;
+    cp SRC_FILE_LIST SRC_FILE_LIST.temp;
+    KEY=$(grep P_P AA_make.ldef);
+    [ -f "KEY_CPP" ] || echo $KEY > KEY_CPP;
+  ;;
+  ( IPSLCM5A )
+  ../modeles/UTIL/fait_config IPSLCM5A ;;
+  ( IPSLCM5A_C )
+  ../modeles/UTIL/fait_config IPSLCM5A_C ;;
+  ( IPSLCM5B )
+  ../modeles/UTIL/fait_config IPSLCM5B ;;
+  ( IPSLCM5_v5 )
+  ../modeles/UTIL/fait_config IPSLCM5_v5 ;;
+  ( IPSLCM5CHS_v5 )
+  ../modeles/UTIL/fait_config IPSLCM5CHS_v5 ;;
+  ( IPSLCM5CHT_v5 )
+  ../modeles/UTIL/fait_config IPSLCM5CHT_v5 ;;
+esac
+
+#--- Create Makefiles using the script ins_make
+#    ins_make will detect target machine among predefined targets in AA_make.gdef and 
+#    create Makefiles to the corresponding target.
+#    ins_make can be re-run afterwards using another target or after editing the 
+#    AA_make.gdef. ins_make will then overwrite Makefiles already created.
+#
+./ins_make
+
+#---
+#- That's all folks
+#---
+exit 0;

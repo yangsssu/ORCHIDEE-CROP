@@ -1,0 +1,93 @@
+#!/bin/bash
+# $Id: w_i_h 4976 2020-02-25 10:06:58Z aclsce $
+#-----------------------------------------------#
+#--- What is host ?  -  w_i_h  -  21/07/2009 ---#
+#-----------------------------------------------#
+w_z=$(uname -s -n -r -m 2>/dev/null);
+[[ ${?} != 0 ]] && { exit 1; }
+read u_s u_n u_r u_m <<< ${w_z}
+unset w_z;
+#-
+d_n=$(dirname ${0});
+#-
+case ${u_s} in
+ ( AIX ) \
+  { case ${u_n} in
+    ( zahir* )                 DSYS="aix";;
+    ( vargas* )                DSYS="aix6";;
+    ( * )                      DSYS="ax_mono";
+    esac
+  };;
+ ( AIXESA )                    DSYS="aixesa";;
+ ( ConvexOS )                  DSYS="convex";;
+ ( CP486 | dev )               DSYS="sco";;
+ ( Darwin )                    DSYS="Darwin";;
+ ( HP-UX ) \
+  { case ${u_n} in
+    ( moon )                   DSYS="eshpux";;
+    ( * )                      DSYS="hpux";;
+    esac
+  };;
+ ( IRIX ) \
+  { case ${u_r} in
+    ( 4\.* )                   DSYS="sgi4";;
+    ( * )                      DSYS="sgi5";;
+    esac
+  };;
+ ( IRIX64 )                    DSYS="sgi6";;
+ ( Linux ) \
+  { case ${u_n} in
+    ( ada* )                   DSYS="ada";;
+    ( asterix* | obelix* )     DSYS="lxiv8";;
+    ( ciclad* )                DSYS="ifort_CICLAD";;
+    ( camelot*|loholt*|merlin*)DSYS="ifort_CICLAD";;
+    ( argent[0-9]* )           DSYS="argent";;
+    ( cesium[0-9]* )           DSYS="cesium";;
+    ( platine[0-9]* )          DSYS="platine";;
+    ( titane[0-9]* )           DSYS="titane";;
+    ( mercure* ) \
+     {                         DSYS="sx8mercure"
+      u_l=$(/usr/bin/modulecmd bash list -t 2>&1)
+      for h in ${u_l}
+       do
+        [[ ${h} = 'SX9' ]] && { DSYS="sx9mercure"; break; }
+       done
+      unset u_l h
+     };;
+    ( brodie )                 DSYS="sx8brodie";;
+    ( ulam )                   DSYS="ulam";;
+    ( ds[0-9]* )               DSYS="sxdkrz";;
+    ( babel* )                 DSYS="babel";;
+    ( curie* )                 DSYS="curie";;
+    ( irene170 | irene171 | irene190 | irene191 | irene192 | irene193 )                 DSYS="irene";;
+    ( irene172 | irene173 | irene194 | irene195 )                 DSYS="irene-amd";;    
+    ( jean-zay* )              DSYS="jeanzay";;
+    ( occigen* )               DSYS="occigen";;
+    ( * )                      DSYS="linux";;
+    esac
+  };;
+ ( MIPS )                      DSYS="mips";;
+ ( OSF1 )                      DSYS="osf1";;
+ ( SunOS ) \
+  { case ${u_r} in
+    ( 5\.* )                   DSYS="solaris";;
+    ( * )                      DSYS="sun";;
+    esac
+  };;
+ ( SUPER-UX )                  DSYS="nec";;
+ ( ULTRIX )                    DSYS="ultrix";;
+ ( UNICOS | sn4803 | sn4602 )  DSYS="cray";;
+ ( UNIX_System_V )             DSYS="fjvpp";;
+ (*) \
+  { case ${u_m} in
+    ( "CRAY T3E" )             DSYS="t3e";;
+    ( * )                      DSYS="Unknown";;
+    esac
+  };;
+esac
+#-
+echo "$DSYS";
+unset u_s u_n u_r u_m;
+#-
+exit 0;
+

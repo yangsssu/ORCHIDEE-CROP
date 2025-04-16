@@ -1,0 +1,95 @@
+#!/bin/ksh
+# $Id: ins_m_prec 293 2008-03-21 13:11:17Z bellier $
+#---------------------------------------------------------------------
+#- ins_m_prec - Installation of the precision module
+#---------------------------------------------------------------------
+function ins_m_prec_Usage
+{
+echo "
+ins_m_prec install the precision module in IOIPSL/src
+
+Usage :
+  ${b_n} [-h] | [-v] [-i i_prec] [-r r_prec]
+
+Options :
+  -h        : help
+  -v        : verbose mode
+  -i i_prec : integer precision 4/8
+  -r r_prec : real    precision 4/8
+
+Defaults :
+  -i 4 -r 8
+
+Example for default precision :
+  ins_m_prec
+
+Example for INTEGER 4 and REAL 4 precision :
+  ins_m_prec -i 4 -r 4
+"
+}
+#-    dirname     and      basename
+d_n=$(dirname ${0}); b_n=$(basename ${0});
+#- Retrieving and validation of the options
+x_v='silencious'; x_i=""; x_r="";
+while getopts :hvi:r: V
+  do
+    case ${V} in
+      (h)  ins_m_prec_Usage; exit 0;;
+      (v)  x_v='verbose';;
+      (i)  x_i=${OPTARG};;
+      (r)  x_r=${OPTARG};;
+      (:)  echo ${b_n}" : -"${OPTARG}" option : missing value" 1>&2;
+           exit 2;;
+      (\?) echo ${b_n}" : -"${OPTARG}" option : not supported" 1>&2;
+           exit 2;;
+    esac
+  done
+shift $(($OPTIND-1));
+#-
+# INTEGER and REAL precision
+#-
+case ${x_i} in
+  ( 4 | 8 ) ;;
+  ("") x_i='4';;
+  (*)
+    echo 'Invalid INTEGER precision requested' 1>&2;
+    echo ${x_i}' (must be 4 or 8)' 1>&2;
+    exit 1;;
+esac
+case ${x_r} in
+  ( 4 | 8 ) ;;
+  ("") x_r='8';;
+  (*)
+    echo 'Invalid REAL precision requested' 1>&2;
+    echo ${x_r}' (must be 4 or 8)' 1>&2;
+    exit 1;;
+esac
+#-
+[[ ${x_v} = 'verbose' ]] && \
+  { echo "\nInstallation of the precision module";
+    echo '--- Integer precision  : '${x_i};
+    echo '--- Real    precision  : '${x_r}; }
+#-
+dp_d=${d_n}'/../modeles/IOIPSL/src';
+#-
+dp_b="${dp_d}"'/def.prec'
+[[ ! -f "${dp_b}" ]] && { echo "${dp_b} unreachable ..."; exit 3; }
+sed -e "s/i_std=i_?/i_std=i_${x_i}/" \
+    -e "s/r_std=r_?/r_std=r_${x_r}/" ${dp_b} > wmpf.$$;
+#-
+# Create the module "defprec.f90" or update it
+# if the default precision has been modified
+#-
+dp_p="${dp_d}"'/defprec.f90';
+diff -q wmpf.$$ ${dp_p} > /dev/null 2>&1; r_c=${?};
+[[ ${r_c} != 0 ]] && cp -p wmpf.$$ ${dp_p};
+[[ ${x_v} = 'verbose' ]] && \
+ { echo " ";
+  { [[ ${r_c} = 0 ]] && echo ${dp_p} 'already up to date'; } || \
+  { [[ ${r_c} = 1 ]] && echo 'Update '${dp_p}; } || \
+  { [[ ${r_c} = 2 ]] && echo 'Create '${dp_p}; }
+  echo " "; }
+#-
+unset dp_d dp_b dp_p x_v x_i x_r; rm -f wmpf.$$;
+#-
+exit 0;

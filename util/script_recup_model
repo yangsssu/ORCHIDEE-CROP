@@ -1,0 +1,220 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision::                                          $ Revision of last commit
+# $Author::                                            $ Author of last commit
+# $Date::                                              $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+# Documentation :
+# This script creates a tree of last configuration modipsl from a tar file previously produced by script_diff_model.
+#
+# After you have downloaded modipsl, you can copy a modipsl_name_of_the_save directory tree (from a saved tar file) in modipsl.
+# (Please, see script_diff_model documentation for information of how to get this file.)
+# You may use this script to download the same configuration with new files and modifications linked with this tarball.
+#
+# usage (in modipsl path) :
+# modipsl_path> util/script_recup_model modipsl_name_of_the_save
+#
+# After this whole configuration is backuped, you must use as usual ins_make and ins_job script 
+# to installed all files depended on this new modipsl and the computer.
+#
+# Note :
+# It may not compile because of special post-installation (not versionning) for some component in model.
+# See "Actions related to the WORK directory for the OPA models" in model script to reproduce this post-installation.
+#-
+
+
+MODIPSL_SAVE_NAME=$1
+
+MODIPSL=${MODIPSL:=$(pwd)}
+
+DEBUG_mode=false
+
+function printDebugArray {
+    if ( ${DEBUG_mode} ); then
+	typeset nb_line i
+	eval nb_line=\${#$1[@]}
+	eval echo "$1 : " ${nb_line}
+	(( i = 0 ))
+	while [ $i -lt $nb_line ] ; do
+	    eval echo \${$1[$i]}
+	    (( i = i + 1 ))
+	done
+    fi
+}
+
+MODIPSL_SAVE=${MODIPSL}/${MODIPSL_SAVE_NAME}
+
+#typeset NbComponents ModelComponents ModelTags ModelSystems ModelServers ModelDirectories ModelLocalDirs ListPathComp ListPathFile ListPathRev ListPathBranch ListNewFiles ListModifFiles ListModifFilesDate Maxfiledate
+
+if [ ! -f ${MODIPSL_SAVE}/Last_log ] ; then
+    echo "You need to give a valid tree in argument of this script."
+    echo "usage (in modipsl path) :"
+    echo "modipsl_path> util/script_recup_model modipsl_name_of_the_save"
+    exit 1
+fi
+
+((i=1))
+while read line ; do
+    case $i in
+	1)
+	    echo $line | sed -e 's&Last Model in log : *&&g'
+	    ;;
+	2)
+	    NbComponents=$( echo $line | sed -e"s/ *components ://" )
+	    echo $NbComponents
+	    ;;
+	3)
+	    set +A ModelComponents -- $line
+	    printDebugArray ModelComponents
+	    ;;
+	4)
+	    set +A ModelTags -- $line
+	    printDebugArray ModelTags
+	    ;;
+	5)
+	    set +A ModelSystems -- $line
+	    printDebugArray ModelSystems
+	    ;;
+	6)
+	    (( j = 0 ))
+	    set +A ModelServersProtect -- $line
+	    for comp in ${ModelComponents[@]}; do
+		ModelServers[$j]=$( echo ${ModelServersProtect[$j]} | sed -e 's&:_:& &g' ) 
+		(( j = j + 1 ))
+	    done
+	    printDebugArray ModelServers
+	    ;;
+	7)
+	    set +A ModelDirectories -- $line
+	    printDebugArray ModelDirectories
+	    ;;
+	8)
+	    set +A ModelLocalDirs -- $line
+	    printDebugArray ModelLocalDirs
+	    ;;
+	9)
+	    set +A ListPathComp -- $line
+	    printDebugArray ListPathComp
+	    ;;
+	10)
+	    set +A ListPathFile -- $line
+	    printDebugArray ListPathFile
+	    ;;
+	11)
+	    set +A ListPathRev -- $( echo $line | sed -e 's%\([0-9][0-9]/[0-9][0-9]/[0-9][0-9]\) \([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\)%\1_\2%g' )
+	    printDebugArray ListPathRev
+	    ;;
+	12)
+	    set +A ListPathBranch -- $line
+	    printDebugArray ListPathBranch
+	    ;;
+	13)
+	    set +A ListNewFiles -- $line
+	    printDebugArray ListNewFiles
+	    ;;
+	14)
+	    set +A ListModifFiles -- $line
+	    printDebugArray ListModifFiles
+	    ;;
+	15)
+	    set +A ListModifFilesDate -- $line
+	    printDebugArray ListModifFilesDate
+	    ;;
+	16)
+	    Maxfiledate=$line
+	    printDebugArray Maxfiledate
+	    ;;
+	*)
+	    break
+	    ;;
+    esac
+    ((i=i+1))
+done < ${MODIPSL_SAVE}/Last_log
+
+echo
+echo "read Last_log OK !"
+echo
+
+(( i = 0 ))
+for comp in ${ModelComponents[@]}; do
+    tag=${ModelTags[$i]}
+    echo $i $comp " : " $tag
+
+    if [ X${ListPathComp[$i]} != Xerror ] ; then
+	pathComp=${ListPathComp[$i]}
+	filecomp=$( echo ${ListPathFile[$i]} | sed -e "s/_empty_//" )
+	SpathComp=${MODIPSL_SAVE}/${pathComp}
+	echo "Path/file :" ${pathComp}/${filecomp}
+
+	case ${ModelSystems[$i]} in
+	    svn)
+		svn co -r ${ListPathRev[$i]} ${ModelServers[$i]}/${ListPathBranch[$i]}/${filecomp} ${pathComp}/${filecomp}
+		;;
+	    cvs)
+		
+		cd ${ModelLocalDirs[i]}
+		if [ X${ModelDirectories[$i]} = X. ] ; then
+#		rev=$( echo ${ListPathRev[$i]} | sed -e 's%\([0-9][0-9]\)/\([0-9][0-9]\)/\([0-9][0-9]\)_\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\)%\3/\1/\2 \4%g' )
+		    rev=$( echo ${ListPathRev[$i]} | sed -e 's%:"[0-9][0-9]/[0-9][0-9]/[0-9][0-9]_[0-9][0-9]:[0-9][0-9]:[0-9][0-9]"%%g' )
+		    eval cvs -d :pserver:${ModelServers[$i]} co -r "${rev}" ${comp}
+		else
+		    rev=$( echo ${ListPathRev[$i]} | sed -e 's%:"[0-9][0-9]/[0-9][0-9]/[0-9][0-9]_[0-9][0-9]:[0-9][0-9]:[0-9][0-9]"%%g' )
+		    echo cvs -d :pserver:${ModelServers[$i]} co -r ${rev} -d ${ModelDirectories[$i]} ${comp}
+		    cvs -d :pserver:${ModelServers[$i]} co -r ${rev} -d ${ModelDirectories[$i]} ${comp}
+		fi
+		cd ${MODIPSL}
+		
+		;;
+	    *)
+		echo "error ${ModelSystems[$i]} is not recognized as a valid control version system for ${MODIPSL_SAVE}/Last_log."
+		exit 1
+		;;
+	esac
+    fi
+    ((i=i+1))
+done
+
+set +A ListRep -- $( find ${MODIPSL_SAVE} -mindepth 1 -type d \
+    -exec bash -c " echo "'{}'" | sed -e 's&"${MODIPSL_SAVE}"/&&' | tee -a >( sed -e 's&\(.*\)&"${MODIPSL}"/\1&' | xargs mkdir -p >> out_mkdir 2>&1 ) " \; )
+printDebugArray ListRep
+rm out_mkdir
+
+(( i = 0 ))
+for comp in ${ModelComponents[@]}; do
+
+    if [ X${ListPathComp[$i]} != Xerror ] ; then
+	tag=${ModelTags[$i]}
+	echo $i $comp " : " $tag
+
+	pathComp=${ListPathComp[$i]}
+	filecomp=$( echo ${ListPathFile[$i]} | sed -e "s/_empty_//" )
+	SpathComp=${MODIPSL_SAVE}/${pathComp}
+	echo "Patch :" $( ls ${SpathComp} )
+
+        # Patch this model
+	cd ${pathComp}
+	case ${ModelSystems[$i]} in
+	    svn)
+		patch -p0 -i ${SpathComp}/svn_diff	    
+		;;
+	    cvs)
+		patch -p0 -i ${SpathComp}/cvs_diff
+		;;
+	esac
+	cd ${MODIPSL}
+    fi
+    ((i=i+1))
+done
+
+# copy new files
+for file in ${ListNewFiles[@]} ; do
+    echo "copy New file : " ${MODIPSL_SAVE}/$file $file
+    cp -p ${MODIPSL_SAVE}/$file $file
+done 
