@@ -1,0 +1,17 @@
+The specific humidity  $q_s$ is a function of temperature $T$. Its values are : 
+\begin{equation}
+q_s(T) = 
+\begin{cases}
+0 & \text{if} \quad T < 100K \\
+\dfrac{M_{air}}{M_{vapor}} \cdot 10^{2.07203 - 0.0032099T - \frac{2484.896}{T} + 3.56654\log{T}} & \text{if} \quad 100K \leq T < 273K \\
+\dfrac{M_{air}}{M_{vapor}} \cdot 10^{23.819 - \frac{2948.964}{T} -
+  5.028\log{T} - 29910.16\exp(-0.0699832\times T) + 25.21935\exp(-\frac{2999.924}{T}) } & \text{if} \quad 273K \leq T \leq 370K \\
+\end{cases} %\]
+\end{equation}
+where : \\
+\begin{itemize}
+ \item  $\dfrac{M_{air}}{M_{vapor}} = \dfrac{18.02 \times 10^{-3}}{28.964 \times 10^{-3}} \simeq 0.622 $ is the ratio between the molecular weight of dry air and \\ 
+the molecular weight of water vapor.
+ \item  $\log(T) = \dfrac{\ln T}{\ln 10}$
+\end{itemize}
+
