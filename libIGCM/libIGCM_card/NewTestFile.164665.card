@@ -1,0 +1,26 @@
+
+[Messages]
+Option1= "Hello Earth"
+Option2= "Hello Mercure"
+ListVal1= ( 1, 2, 3 )
+ListVal2= (Sebastien, Martial, Patrick)
+ListVal3= ( one, two, three, four )
+
+# My comments
+[Recipes]
+Cake= "file1.doc"
+Starter= "file2.doc"
+
+[ColorValues]
+Red= 120
+Blue= 230
+Green= 178
+AnotherRed= 234
+
+[Couples]
+List1=   (up, down), \
+         (humid, dry), \
+         (hot, cold), \
+         (far, close)
+List2=   (ice, fire, air, water)
+
