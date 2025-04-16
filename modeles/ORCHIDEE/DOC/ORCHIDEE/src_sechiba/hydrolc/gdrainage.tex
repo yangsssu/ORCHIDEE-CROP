@@ -1,0 +1,10 @@
+It is slower when the top soil moisture $W_t$ is low, and accelerates above a threshold moisture $W_t^\mathrm{lim}$: 
+\begin{equation}\label{eq:dr1}
+D_t = D_t^\mathrm{min}\frac{W_t}{W_t^\mathrm{max}}, \,\, \mathrm{if} \,\, W_t < W_t^\mathrm{lim},
+\end{equation}
+\begin{equation}\label{eq:dr2}
+D_t = D_t^\mathrm{min}\frac{W_t}{W_t^\mathrm{max}} + (D_t^\mathrm{max} - D_t^\mathrm{min})\left(
+\frac{W_t \,-\, W_t^\mathrm{lim}}{W_t^\mathrm{max}\, - \,W_t^\mathrm{lim}} \right)^{\alpha_t},
+\,\, \mathrm{if}\,\,W_i \geq W_i^{lim}
+\end{equation}
+where $D_t^\mathrm{min}$, $D_t^\mathrm{max}$, and $\alpha_t$ are specific parameters.

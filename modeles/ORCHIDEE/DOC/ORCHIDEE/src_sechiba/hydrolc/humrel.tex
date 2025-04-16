@@ -1,0 +1,15 @@
+If only one soil layer is present, then  $h_t^d = h_b^d$, and we define: 
+\begin{equation}\label{eq:us1}
+U_s=  \exp (-c_j \, h_t^d )
+\end{equation}
+If there are two soil layers, we compute $U_s$ as the average of the values defined by the two dry soil depths $h_t^d$ and  $h_b^d$. The weights depend on $a_j^\mathrm{sat}$, which defines the "transpiring" fraction of the top soil layer:
+\begin{equation}\label{eq:us2}
+U_s= a_j^\mathrm{sat} \exp (-c_j \, h_t^d ) + (\mathrm{1}-a_j^\mathrm{sat})  \exp (-c_j \, h_b^d )
+\end{equation}
+
+The "transpiring" fraction is defined by redistributing the top layer's moisture $W_t$ in a virtual layer of depth $h_t^\mathrm{sub}$ (set to 1 mm in hydrolc), what defines a totally dry and a totally saturated fraction ($a_j^\mathrm{sat}$):
+\begin{itemize}
+\item if  $W_t > h_t^\mathrm{sub} \, \theta^\mathrm{max}$, then $a_j^\mathrm{sat}$=1, and $U_s$ depends on $h_t^d$ only (Eq. \ref{eq:us1}), % $U_s=\exp (-c_j \, h_t^d )$,
+\item if $W_t$ is very small, $a_j^\mathrm{sat}$ decreases from 1 to 0 as the top layer's moisture vanishes, and it serves to describe a smooth transition to the case where the top soil layer has vanished and $U_s$ depends on  $h_t^d = h_b^d$.
+\end{itemize}
+
