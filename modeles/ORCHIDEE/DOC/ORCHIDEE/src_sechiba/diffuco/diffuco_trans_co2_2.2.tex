@@ -1,0 +1,24 @@
+% \documentclass[onecolumn,a4paper]{article}
+% \usepackage[english]{babel}
+% \usepackage{amsmath}
+% \newcommand[1]{{\mathversion{normal}$#1$}}
+% \begin{document}
+$T_0$ (tp\_00) = 273.15 0 degree Celsius expressed in degree Kelvin defined in constantes.f90
+
+$k_T$ temperature-dependent pseudo-first-order rate constant of assimilation response to CO2
+
+\begin{equation}
+{k_{{T}}=0{.}7\cdot 0{.}{177}\cdot e^{{0{.}{069}\cdot (T_{{{{air}}}}-T_{{0}})}}\cdot {10}^{6}}\nonumber
+\end{equation}
+
+$R_T$ temperature-dependent non-photosynthetic respiration
+
+\begin{equation}
+{R_{{T}}=0{.}8\cdot {\frac{0{.}{177}\cdot e^{{0{.}{069}\cdot (T_{{{{air}}}}-T_{{0}})}}}{(1+e^{1{.}3(T_{{{{air}}}}-T_{{{max}}})}{)}}}}\nonumber
+\end{equation}
+
+\begin{equation}
+{V_{{c}}=V_{{c{max}}}\cdot 0{.}{39}\frac{0{.}{177}\cdot e^{{0{.}{069}\cdot (T_{{{{air}}}}-T_{{0}})}}}{(1+e^{0{.}3\cdot (T_{{{min}}}-T_{{{{air}}}})}{)(1+e^{0{.}3\cdot (T_{{{{air}}}}-T_{{{{opt}}}})}}{)}}W_{{lim}}}\nonumber
+\end{equation}
+
+% \end{document}

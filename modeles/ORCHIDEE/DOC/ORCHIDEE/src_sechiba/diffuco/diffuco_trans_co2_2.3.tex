@@ -1,0 +1,26 @@
+Tlim temperature limitation factor
+
+\begin{equation}
+{T_{{{lim}}}=\frac{(T_{{{{air}}}}-T_{{{min}}})\cdot (T_{{{{air}}}}-T_{{{max}}})}{(T_{{{{air}}}}-T_{{{min}}})\cdot (T_{{{{air}}}}-T_{{{max}}})-(T_{{{{air}}}}-T_{{{{opt}}}})^{{2}}}}
+\end{equation}
+Tmin, Tmax and Topt are local variables that are initialized through the assim\_param array.
+
+Kc Michaelis-Menten constant for the rubisco enzyme catalytic activity for CO2 (ppm)
+
+\begin{equation}
+{K_{{c}}={39}{.}{09}\cdot e^{{0{.}{085}\cdot (T_{{{{air}}}}-T_{{0}})}}}
+\end{equation}
+Ko Michaelis-Menten constant for the rubisco enzyme catalytic activity for O2 (ppm)
+
+\begin{equation}
+{K_{{o}}=\frac{2{.}{412}\cdot {210000}\cdot e^{{0{.}{085}\cdot (T_{{{{air}}}}-T_{{{min}}})}}}{(T_{{{air}}}{-T_{{min}}}{)}}}
+\end{equation}
+\begin{equation}
+{\Gamma ^{{?}}={42}\cdot e^{{9{.}{46}\frac{T_{{{{air}}}}-T_{{0}}-{25}}{T_{{{{air}}}}}}}}
+\end{equation}
+\begin{equation}
+{V_{{c}}=V_{{c{max}}}\cdot T_{{{lim}}}\cdot W_{{{lim}}}}
+\end{equation}
+\begin{equation}
+{V_{{j}}=V_{{j{max}}}\cdot T_{{{lim}}}\cdot W_{{{lim}}}}
+\end{equation}

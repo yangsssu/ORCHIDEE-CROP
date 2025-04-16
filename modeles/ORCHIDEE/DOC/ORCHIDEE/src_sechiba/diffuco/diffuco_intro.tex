@@ -1,0 +1,100 @@
+%
+% \documentclass[11pt]{amsart}
+% \usepackage{helvet}
+% \usepackage{geometry}    
+% \geometry{a4paper} 
+% \usepackage[parfill]{parskip}  \usepackage{graphicx}
+% \usepackage{amssymb}
+% \usepackage{epstopdf}
+% 
+% 
+% 
+% \begin{document}
+
+As is outlined in Guimberteau (2010), evaporation in ORCHIDEE is calculated as a function of evaporation potential $E_{pot}$, limited by the resistances. Evaporation potential is defined as below:
+
+ \hspace{0.5cm}    \lefteqn{E_{pot} = \frac{\rho}{r_a}(q_{sat}(T_s)-q_{air})}
+
+{\it where $q_{sat}(T_s)$ is the saturation humidity corresponding to a particular surface temperature and $q_{air}$ is the specific humidity in the atmosphere immediately above the surface.}
+
+A conventional way to describe evaporation in surface layer modelling is via the means of the resistance analogy. Below we demonstrate how the $\beta$ coefficients within ORCHIDEE may be re-written in terms of this analogy.
+
+{\bf Evaporation of water intercepted by canopy}
+
+In ORCHIDEE, $\beta_2$, the water interception resistance, is defined as:
+
+\hspace{0.5cm} \lefteqn{E=\beta_{2} E_{pot}}
+
+\hspace{0.5cm} \lefteqn{\beta_{2} = \frac{1}{1+\frac{r_{s_v}}{r_a}}}
+
+{\it where E represents the evapotranspiration, $r_{s_v}$ is the structural resistance of the canopy and $r_a$ is the aerodynamic resistance. }
+
+This can be reformulated in terms of the 'traditional' circuitry analogy, where evapotranspiration represents (in the analogy) the current and the voltage (or potential difference) is represented by the difference in humidity between the saturated surface and the atmosphere just above the ground.
+
+ \hspace{0.5cm} \lefteqn{E\left( 1+\frac{r_{s_v}}{r_a}  \right) = \frac{\rho}{r_a}(q_{sat}(T_s) - q_{air})}
+
+ \hspace{0.5cm} \lefteqn{     \overbrace{   E}^I  \overbrace{ (r_a+r_{s_v})}^R = \overbrace { \rho (q_{sat}(T_s) - q_{air})  }^V }
+
+
+\includegraphics[scale=0.45]{diffuco_schematic2.png}
+
+{\bf Figure 1:} resistance chain for the evaporation of intercepted water
+
+
+\vspace{1cm}
+
+{\bf Transpiration of the canopy}
+
+
+$\beta_3$, the canopy transpiration resistance, is defined as:
+
+
+\hspace{0.5cm} \lefteqn{E=\beta_{3} E_{pot}}
+
+\hspace{0.5cm} \lefteqn{\beta_{3} = \left(  \frac{1}{1+\frac{r_{s_v} + r_{sto_v}}{r_a}}  \right) U_{s_v} }
+
+{\it where E represents the evapotranspiration, $U_{S_v}$ is the potential for extraction from the plant roots, $r_{s_v}$ is the structural resistance of the canopy, $r_{sto_v}$ is the stomatal resistance of the surface cover and $r_a$ is the aerodynamic resistance. }
+
+so:
+
+ \hspace{0.5cm}  \lefteqn{ \frac{E}{\beta_{3}} = \frac{\rho}{r_a}(q_{sat}(T_s)-q_{air})}
+
+\hspace{0.5cm}   \lefteqn{E\left( 1+   \frac{r_{s_v}+r_{sto_v}}{r_a}   \right) U_{sv} = \frac{\rho}{r_a}(q_{sat}(T_s) - q_{air})}
+
+\hspace{0.5cm}   \lefteqn{   \overbrace {  E  }^I   \overbrace{ (r_a + (r_{s_v}+ r_{sto_v}))U_{s_v} }  ^R =   \overbrace { \rho (q_{sat}(T_s) - q_{air}   )   } ^V  }
+
+\includegraphics[scale=0.5]{diffuco_schematic1.png}
+
+{\bf Figure 2:} resistance chain for canopy transpiration
+
+
+\vspace{1cm}
+
+{\bf Evaporation of the bare soil}
+
+$\beta_4$, the bare soil evaporation resistance, is defined as:
+
+
+\hspace{0.5cm} \lefteqn{E=\beta_{4} E_{pot}}
+
+\hspace{0.5cm} \lefteqn{\beta_{4} = \left(  \frac{1}{1+\frac{r_1}{r_a}}  \right) U_{s_1} }
+
+{\it where E represents the evapotranspiration, $U_{S_1}$ is the relative humidity in equilibrium with the bare soil, $r_{1}$ is the resistance of bare soil to evaporation and $r_a$ is the aerodynamic resistance. }
+
+so we can again convert the expression to the resistance analogy:
+
+ \hspace{0.5cm}  \lefteqn{\frac{E}{\beta_{4}} = \frac{\rho}{r_a}(q_{sat}(T_s)-q_{air})}
+
+ \hspace{0.5cm} \lefteqn{E\left( 1+   \frac{r_1}{r_a}   \right) U_{s_1} = \frac{\rho}{r_a}(q_{sat}(T_s) - q_{air})}
+
+ \hspace{0.5cm} \lefteqn{   \overbrace {E}^I    \overbrace  {(r_a + r_1)U_{s_1}}^R = \overbrace {\rho (q_{sat}(T_s) - q_{air}   )} ^V }
+
+
+\includegraphics[scale=0.45]{diffuco_schematic3.png}
+
+{\bf Figure 3:} resistance chain for bare soil evaporation
+
+% 
+% 
+% 
+% \end{document}

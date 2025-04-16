@@ -1,0 +1,36 @@
+The photosynthesis is defined by a pair of nested quadratic equations:
+
+M flux determined by the Rubisco and light limited capacities
+
+${\Phi}$ fixed equal to 0.83
+
+${\beta}$ fixed equal to 0.93
+
+M smaller root of
+
+\begin{equation}
+{\Phi \cdot M^{{2}}-M\cdot (V_{{c}}(l)+\alpha \cdot Q)+V_{{c}}(l)\cdot \alpha \cdot Q=0}
+\end{equation}
+Ci(l) (leaf\_ci) global variable declared in diffuco module
+
+W smaller root of
+
+\begin{equation}
+{\beta \cdot W^{{2}}-W\cdot (M+k_{{T}}\cdot C_{{i}}(l)\cdot {10}^{{-6}})+M\cdot k_{{T}}\cdot C_{{i}}(l)\cdot {10}^{{-6}}=0}
+\end{equation}
+${\alpha}$ quantum efficiency
+
+\begin{equation}
+{\alpha \cdot Q=0{.}{092}\cdot 2{.}3\cdot {{SWdown}}\cdot k\cdot e^{{-k\cdot {{LAI}}(l)}}}
+\end{equation}
+
+\begin{equation}
+{M=\frac{V_{{c}}(l)+\alpha \cdot Q-\sqrt{(V_{{c}}(l)+\alpha \cdot Q)^{{2}}-4\cdot \Phi \cdot V_{{c}}(l)\cdot \alpha \cdot Q}}{2\cdot \Phi }}
+\end{equation}
+
+\begin{equation}
+{W=\frac{M+k_{{T}}\cdot C_{{i}}(l){.}{10}^{{-6}}-\sqrt{(M+k_{{T}}\cdot C_{{i}}(l){.}{10}^{{-6}})^{{2}}-4\cdot \beta \cdot M\cdot k_{{T}}\cdot C_{{i}}(l){.}{10}^{{-6}}}}{2\cdot \beta }}
+\end{equation}
+\begin{equation}
+{A=W-R_{{T}}}
+\end{equation}

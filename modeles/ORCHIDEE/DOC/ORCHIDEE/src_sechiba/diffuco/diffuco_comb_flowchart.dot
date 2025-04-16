@@ -1,0 +1,51 @@
+digraph test {
+ratio=1.060
+node [style=filled]
+"START diffuco_comb" -> "- sum vbeta2 over all nvm
+- sum vbeta3 over all nvm"
+"- vbeta = 1
+- valpha = 1" -> "is snow lower than critical value
+IF (snow LT snowcri)?"
+"is snow lower than critical value
+IF (snow LT snowcri)?" -> "vbeta = vbeta4 + vbeta2sum + vbeta3sum"
+"is snow lower than critical value
+IF (snow LT snowcri)?" -> "is saturation point less than air moisture?
+IF (qsatt LT qair)?"
+"IF (qsatt LT qair)?" -> "END diffuco_comb"
+"- sum vbeta2 over all nvm
+- sum vbeta3 over all nvm" -> "- vbeta = 1
+- valpha = 1"
+"vbeta = vbeta4 + vbeta2sum + vbeta3sum" -> "is vbeta less than min_sechiba
+IF (vbeta LT min_sechiba)?"
+"is vbeta less than min_sechiba
+IF (vbeta LT min_sechiba)?" -> "vbeta = zero"
+"is saturation point less than air moisture?
+IF (qsatt LT qair)?" -> "is air temperature above zero?
+IF (temp_air GT 0)?"
+"is air temperature above zero?
+IF (temp_air GT 0)?" -> "toveg = TRUE"
+"is air temperature above zero?
+IF (temp_air GT 0)?" -> "tosnow = TRUE"
+"tosnow = TRUE" -> "vbeta1 = 1
+vbeta4 = 0
+vbeta = 1
+valpha = 1"
+"IF (toveg)?" -> "vbeta1 = 0
+vbeta4 = veget
+vbeta = vbeta4
+valpha = 1"
+"vbeta1 = 0
+vbeta4 = veget
+vbeta = vbeta4
+valpha = 1" -> "IF (qsintmax GT min_sechiba)?"
+"vbeta1 = 1
+vbeta4 = 0
+vbeta = 1
+valpha = 1" -> "IF (toveg)?"
+"IF (tosnow)?" -> "vbeta2 = 0"
+"IF (qsintmax GT min_sechiba)?" -> "IF (LAI GT min_sechiba)"
+"IF (qsintmax GT min_sechiba)?" -> "vbeta2 = 0"
+"vbeta2 = 0" -> "vbeta = vbeta + vbeta2"
+"vbeta = vbeta + vbeta2" -> "IF (tosnow)?"
+"IF (LAI GT min_sechiba)" -> "IF (LAI GT 1.5)"
+"IF (LAI GT min_sechiba)" -> "coeff_dew_veg = 0"
