@@ -1,0 +1,81 @@
+#==================================================================
+libIGCM_card
+This ksh library handles extraction of information from configuration file
+called "card" file (en français fichier "carte").
+All function described bellow must be prefixed by IGCM_card.
+A card file is organized as follows :
+ ---------------------
+[Messages]
+Option1= "Hello Earth"
+Option2= "Hello Mars"
+
+# My comments 
+[Recipes]
+Cake= "file1.doc" 
+Starter= "file2.doc" 
+
+[ColorValues]
+Red= 120
+Blue= 230 
+Green= 178 
+
+[Couples]
+List1=   (up, down), \
+         (humid, dry), \
+         (hot, cold), \
+         (far, close)
+List2=   (ice, fire, air, water)
+ ---------------------
+
+#==================================================================
+function IGCM_card_PrintOption
+* Purpose: Print an option from a given file.card and section
+* Usage: IGCM_card_PrintOption file.card section option
+* Only used by IGCM_card_Test.ksh
+
+#==================================================================
+function IGCM_card_PrintSection
+* Purpose: Print all options from a given file.card and section
+* Usage: IGCM_card_PrintSection file.card section
+* Only used by IGCM_card_Test.ksh
+
+#==================================================================
+function IGCM_card_DefineVariableFromOption
+* Purpose: Define a variable from a given file.card, section and option
+*          Variable name is automatically defined as file_section_option
+* Usage: IGCM_card_DefineVariableFromOption file.card section option
+
+#==================================================================
+function IGCM_card_DefineArrayFromOption
+* Purpose: Define an array variable from a given file.card, section and option
+*          Array variable is automatically defined as file_section_option
+* Usage: IGCM_card_DefineArrayFromOption file.card section option
+
+#==================================================================
+function IGCM_card_DefineArrayFromSection
+* Purpose: Define an array variable from a given file.card and section
+*          Array variable is automatically defined as file_section
+* Usage: IGCM_card_DefineArrayFromSection file.card section
+
+#==================================================================
+function IGCM_card_WriteOption
+* Purpose: Write an option in a given file.card and section
+* Usage: IGCM_card_WriteOption file.card section newvalue
+* Examples: IGCM_card_WriteOption file.card Recipes Red 150
+            IGCM_card_WriteOption file.card Messages Option2 '"Hello Mercure"'
+            IGCM_card_WriteOption file.card Messages ListVal1 '( 1, 2, 3 )'
+            listname="(Sebastien, Martial, Patrick)"
+            IGCM_card_WriteOption NewTestFile.card Messages ListVal2 "${listname}"
+
+#==================================================================
+function IGCM_card_WriteArrayOption
+* Purpose: Write an array option a given file.card and section
+* Usage: IGCM_card_WriteArrayOption file.card section option newarray
+* Examples: set -A MyArray -- 1 2 3
+            IGCM_card_WriteArrayOption file.card Recipes List MyArray
+
+#==================================================================
+function IGCM_card_Check
+* Purpose: Check the present file by comparison with a reference file
+* Usage: IGCM_card_Check
+

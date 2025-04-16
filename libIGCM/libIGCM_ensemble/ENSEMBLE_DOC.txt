@@ -1,0 +1,151 @@
+04/06/2014 - N.LEBAS
+
+**********************************
+ENSEMBLE JOB CREATION
+**********************************
+
+Updates 04/06/2014
+------------------
+1) Updates of Ensemble DATE:
+   Fix minor bug: periodic member names start to 0 as for non-periodic
+
+   Create new files "Qclean.month.ENSNAME.sh" and "Qclean.year.ENSNAME.sh" which allow 
+   user to use clean_month and clean_year scripts for all members.
+   
+   New option "INITFROM_NONPERIODIC" is avalaible in ensemble.card to use different 
+   simulations for restart (use INITFROM option for all if it is not fill).
+   
+2) Updates of Ensemble PERTURB:
+   Create new files "Qclean.month.ENSNAME.sh" and "Qclean.year.ENSNAME.sh" which allow 
+   user to use clean_month and clean_year scripts for all members.
+   
+3) Updates for ins_job:
+   When a new directory is created from config.card, ensemble.card is copy inside if it 
+   exists.
+   
+   If -e option is used, ins_job also works when a new directory is created. But it is 
+   still only consider the ensemble.card present in the directory where the command was
+   used (it doesn't look for all ensemble.card present in configuration).
+      
+   Update variable name for "ensemble.card" from $FileName to $F_CFG_ENS to be coherent 
+   with $F_CFG for 'config.card'.
+  
+
+Updates 11/04/2014
+------------------
+1) Updates of libIGCM_ensemble.ksh:
+  New function "IGCM_ensemble_Init" to read the "active" parameter for each 
+  ensemble type. Ins_job could then call only functions link to active ensemble.
+  
+  Function "IGCM_ensemble_SetAlpha" fill Alpha and AlphaMonth vectors used to create 
+  member name suffix (A,B...). Actually return Alpha= A to Z vector and AlphaMonth=a to l
+  but it could be adapted later to return n suffixes (n = members number). 
+  
+  11/04/2014: QsubXXX.txt file become QsubXXX.sh (seems more coherent to it content).
+
+2) Updates of Ensemble PERTURB
+  In "ensemble.card" all parameters are in english, so as comments over each param.
+  Read "JobName" in "config.card" directly, so ensemble.card NAME could be different.
+  Creation of symbolic link to DRIVER directory for each member (mandatory with IPSLCM5_v5).
+  Check if directories for each member exist. If this is the case, there is no modification 
+  of it (don't touch config.car and Jobxxx inside). Create it else and add command line to
+  Qsub.xxx.txt file.
+  
+3) Ensemble DATE
+  Create automatically a set of experiments with defined length and restart file. The 
+  descritpion could be defined in a periodic or non-periodic way (or a mix of both). 
+  11/04/2014: Update subdir names as ${ENSNAME}${restartnb}A/ and add "_per" suffix for 
+  periodic directories.
+    
+4) Ensemble PARAMETRIC
+  Test active parameter in ins_job and print "not implemented yet".
+
+
+Usage
+-----
+First of all you need to add a new section called "Ensemble" in config.card - ignored if 
+ins_job script is not using for creating an ensemble - as below:
+[Ensemble]
+#D- Ensemble run ? 'y' or 'n'
+#D- If 'y', fill in ensemble.card !!
+EnsembleRun= y
+EnsembleName=
+EnsembleDate=
+EnsembleType=
+
+Note that all empty fields will be filled automatically with the ensemble. All of them 
+are only to help you to remind the conditions of the run, they don't change the run of 
+the Job.
+
+All parameters for ensemble description are in "ensemble.card" and global template of 
+simulations are in the "config.card".
+
+Check that you get COMP, POST, PARAM and DRIVER (for IPSLCM5_v5) directories in experiment
+folder.
+Once "ensemble.card" and "config.card" are correctly written,  to create an ensemble 
+simply type: 
+
+       ins_job -e
+
+This will create all the directories of the ensemble and Qsub.xxx.sh, a shell file 
+containing all command to submit all jobs (PeriodNb=60 for all simulations).
+
+The Qclean.month/year.xxx.sh are bash files to use clean_month or clean_year script for
+all simulations.
+
+NOTE: If a directory exists, ins_job won't modify it. If only some directories of 
+the ensemble are presents, it will create the missing one and complete Qsub.xxx.sh 
+shell file.
+
+NOTE: If you put ensemble.card and config.card directly in [...]/modipsl/config/IPSLCM5_v5
+folder, it will create a new directory from config.card "JobName" value. Then copy the 2 
+card files and generate the ensemble structure.
+
+Configuration
+-------------
+
+1) Peturb ensembles
+   To be done by S. Nguyen.
+
+2) Date restart ensembles
+   
+   In ensemble.card all configuration of this ensemble are in [Ens_DATE] section.
+   Available options for this section are:
+   	   active*: 'y' for using date ensemble, 'n' else.
+	   NAME*: name of the ensemble (used to create root directory)
+	   LENGTH*: default length of the simulation for non periodic and duration 
+	   	   for all periodic
+	   INITFROM*: Restart name to find all restart files (also use as prefix for
+	   	     all simulations)
+	   INITPATH*: Restart global directory  
+   
+	   BEGIN_INIT(1): start date of the first periodic simulation 
+	   END_INIT(1): start date of the last periodic simulation
+	   PERIODICITY(1): duration between the start of 2 periodic simulations
+	   BEGIN_RESTART(1): date of the first restart file (next files will be 
+	   		     determined adding periodicity length conform to 
+			     config.card calendar).
+	   
+	   NONPERIODIC(2): list of start dates for all simulations
+	   RESTART_NONPERIODIC(2): list of corresponding restart dates
+	   INITFROM_NONPERIODIC(2): simulation name to restart for each simulation. 
+	   			    IF empty all simulations will use INITFROM one.
+	   LENGTH_NONPERIODIC: lenght of each simulation. IF empty all simulations
+	   		       duration will be the default LENGTH option.
+	   	   
+   All parameters with * must be filled.
+   All parameters with (1) must be filled for periodic description are empty else.
+   All parameters with (2) must be filled for non periodic description are empty else.
+   
+   WARNING: For list variables, use space between values (no coma).
+   
+   ins_job -e will create a "NAME" root ensemble directory containing all periodic and 
+   non periodics simulations subdir. Subdir names, such as Jobs, are build by concatening
+   <NAME><RESTART_NB>A (ex: ensNino0A, ensNino1A...) for non periodic and add suffix 
+   "_per" for periodic (ex: ensNino0A_per). 
+   
+3) Parametric ensembles
+  Not implemented yet.
+
+
+

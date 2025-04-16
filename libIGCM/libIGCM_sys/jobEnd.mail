@@ -1,0 +1,17 @@
+Dear ${LOGIN},
+
+Simulation ${config_UserChoices_JobName} ${status} on supercomputer $( hostname )
+Simulation started : ${DateBegin}
+Simulation ended   : ${DateEnd}
+
+Output files are available in ${R_SAVE}
+
+Files to be rebuild are temporarily available in ${REBUILD_DIR}
+
+Pre-packed files are temporarily available in ${R_BUFR}
+
+Script files, Script Outputs and Debug files \(if necessary\) are available in ${SUBMIT_DIR}
+
+Greetings!
+
+Check this out for more information : https://forge.ipsl.jussieu.fr/igcmg_doc/wiki/Doc

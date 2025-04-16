@@ -1,0 +1,65 @@
+#==================================================================
+function IGCM_debug_getDate_ms
+ * Purpose: Give number of milliseconds since 01-jan-1970
+#==================================================================
+function IGCM_debug_sizeOfTabContent
+ * Purpose: Give sumed size of a list of files
+ * Usage: IGCM_debug_sizeOfTabContent entityList destination
+ *        where entityList is a list of files or directory
+ *        where dest is either a directory or a file name
+#==================================================================
+function IGCM_debug_send_AMQP_msg__MAILTUNNEL
+ * Purpose: Take over AMQP C client using mail as a message recipient
+ * One argument : base64 encoded message
+ * Attach encoded config.card when starting the simulation
+#==================================================================
+function IGCM_debug_sendAMQP_Metrics
+ * Purpose: Take over AMQP C client using mail as a message recipient
+ * Two arguments : - Directory where metrics.json files can be found
+ *                 - Metrics Group Name. metrics will be added to this group
+ * Attach encoded metrics.json files.
+#==================================================================
+function IGCM_debug_SendAMQP
+ * Purpose: Send body; encoded body and config.card to rabbitMQ
+#==================================================================
+function IGCM_debug_CallStack
+* Purpose: Print the call stack tree from the oldest to the youngest (opposite of the display standard)
+
+#==================================================================
+function IGCM_debug_PushStack
+* Purpose: Push a function name in the stack
+
+#==================================================================
+function IGCM_debug_PopStack
+* Purpose: Pop a function name in the stack
+
+#==================================================================
+function IGCM_debug_BigBro_Initialize
+* Purpose: switch rabbitMQ on
+
+#==================================================================
+function IGCM_debug_BigBro_Finalize
+* Purpose: Finalize rabbitMQ messages exchanges
+
+#==================================================================
+function IGCM_debug_Exit
+* Purpose: Print Call Stack and set ExitFlag to true
+
+#==================================================
+function IGCM_debug_Verif_Exit
+* Purpose: exit with number 1 if ExitFlag is true
+
+#==================================================================
+function IGCM_debug_Print
+* Purpose: Print arguments according to a level of verbosity.
+
+#==================================================================
+function IGCM_debug_PrintVariables
+* Purpose: Print arguments when match a pattern
+           according to a level of verbosity.
+#==================================================================
+function IGCM_debug_PrintInfosActions
+* Purpose: Print information related to instrumentation
+#==================================================================
+function IGCM_debug_Check
+ * Purpose: Check the present file by comparison with a reference file

@@ -1,0 +1,193 @@
+-------------------------------------------------------------------==
+
+                      Job to launch IGCM models
+
+-------------------------------------------------------------------==
+
+-------------------------------------------------------------------==
+ -1. PLACE FOR USER MODIFICATION
+     - Job Verbosity
+     - PeriodNb
+     - Experience type : DEB(ug), DEV(elopment), RUN
+-------------------------------------------------------------------==
+ Task type (computing or post-processing)
+ Increased verbosity (1, 2, 3)
+ Experience type : DEB(ug), DEV(elopment), RUN (default)
+ Number of execution in one job
+
+ --------------------------------------------------------------------------------------------------#
+                          ! OPTIONNAL FEATURES /!\ USE WITH CARE !                                 #
+ --------------------------------------------------------------------------------------------------#
+ Low level debug : to bypass lib test checks and stack construction
+ Default=true
+
+ Messaging : all activities and call stacks will be sent to ipsl servers
+ If true will imply DEBUG_debug=true
+ Default=false
+
+ Set DEBUG_sys to false to disable output calls of function
+ true when JobType=DEB # means DEB(ug)
+
+ Define running directory
+ Default=${TMPDIR} ie temporary batch directory
+
+ Define submit directory
+ Default= where you launch qsub (variable from scheduler)
+
+ Define input file root directory
+ Default=/IGCMG/common/account/of/this/machine
+
+ Turn in dry run mode ? (0,1,2,3)
+ Default=0
+
+# YOU HAVE TO COMPILE YOUR EXE FILES to USE DRYRUN MODE !
+# -------------------------------------------------------------------------------------
+# | DRYRUN=  |  Date computations, | sys_Get    |  Exe    | sys_Put_Out; sys_Put_Rest |
+# |          |  Cp/Exe/param/files |            |         |                           |
+# |          |  Chmod Qsub         |            |         |                           |
+# -------------------------------------------------------------------------------------
+# |    0     |       yes           |    yes     |  yes    |      yes                  |
+# -------------------------------------------------------------------------------------
+# |    1     |       yes           |    yes     |  yes    |      no                   |
+# -------------------------------------------------------------------------------------
+# |    2     |       yes           |    yes     |  no     |      no                   |
+# -------------------------------------------------------------------------------------
+# |    3     |       yes           |    no      |  no     |      no                   |
+# -------------------------------------------------------------------------------------
+
+ ! END OF OPTIONNAL FEATURES /!\ DO NOT MODIFY ANYTHING BELOW UNLESS YOU KNOW WHAT YOU ARE DOING #
+
+-------------------------------------------------------------------==
+ 0.0 SYSTEM ENVIRONMENT
+     - Define variables for Number of processors
+     - Define MPI variables
+     - Define batch scheduler variables
+     - Source IGCM Library
+     - Get RESOLution in .resol file (temporary)
+-------------------------------------------------------------------==
+
+-------------------------------------------------------------------==
+ 0.1 COMMON ENVIRONMENT
+     - Read libIGCM compatibility version in config.card
+     - Read UserChoices section
+     - Read Ensemble section
+     - Read Post section
+     - Define all netcdf output directories
+-------------------------------------------------------------------==
+
+-------------------------------------------------------------------==
+ 1. INITIALIZE CONFIGURATION
+    - Simulation configuration
+    - Simulation parameters
+    - Execution parameter
+    - Define input files directory
+    - Read or initialize CumulPeriod
+    - run.card
+-------------------------------------------------------------------==
+
+--------------------------------------------------------------------==
+ 2. INITIALIZE ALL COMPONENT OF THE CONFIGURATION
+    - Define component executable
+    - Define Write Frequency by component "1M" "1D" ...
+    - Source ${comp}.driver
+    - Define Storage Places by component
+    - ${comp}_Initialize :
+    - Patterns to sed
+    - Variables from namelist
+--------------------------------------------------------------------==
+
+--------------------------------------------------------------------==
+ 3. PERFORM GENERAL VERIFICATION
+    - Verify compatibility of period length, write frequencies, ...
+    - Verify compatibility of rebuild choices and post-process choices
+    - Will stop here if something is wrong
+--------------------------------------------------------------------==
+
+--------------------------------------------------------------------==
+ 4. ENTER THE DEEP EXECUTION LOOP
+    ! FASTEN YOUR SEAT BELTS PLEASE. !
+    !   WE WILL CROSS TURBULENCES.   !
+--------------------------------------------------------------------==
+
+   4.1 COMPUTE AND DEFINE DATE INFORMATION.
+       - ${PeriodDateBegin}
+       - ${PeriodDateEnd}
+       - ${CumulPeriod}
+       - ${DatesPeriod}=${PeriodDateBegin}_${PeriodDateEnd}
+       - ${PeriodLength} => JOURS=31 , 28, 29, 30 ; MOIS=0 ; ANS=0
+       - update run.card value
+
+   4.2 BEGIN COMPUTATION ONLY IF NEEDED
+
+   4.3 CALL OPTIONNAL FUNCTION WITHIN DRIVER
+       - to set special variables used in lists (Param, Init or Bc).
+
+   4.4 GET PARAMETERS TEXT FILES UPDATED BY JOB
+       - (.def, namelist ...)
+       - READ AND USE BY GCM AT EACH EXECUTION.
+
+   4.5 GET INITIAL STATE
+       - (Etat0, carteveg,relief...)
+       - NECESSARY ONLY IF CumulPeriod= (=> NUMERO) == 1
+       - AND ???_Restart=NO
+       - READ AND USE BY GCM FOR ONLY ONE EXECUTION.
+
+   4.6 GET BOUNDARIES CONDITIONS
+       - (SST, WIND[X,Y,Z], LAI ...)
+       - READ AND USE BY GCM AT EACH EXECUTION.
+
+   4.7 GET SmoothFiles CONDITIONS
+       - (SST, WIND[X,Y,Z], LAI ...)
+       - READ AND USE BY GCM AT EACH EXECUTION
+       - Do not change at each ${Period}
+
+   4.8 GET RESTART FILES
+       - (restartphy.nc, orca_restart.nc ...)
+       - READ AND USE BY GCM AT EACH EXECUTION.
+
+       - IF A COMPONENT DO NOT RESTART FROM PREVIOULSY COMPUTED RESTART
+       - ONLY IF CumulPeriod= (=> NUMERO) == 1
+       - MUST EXECUTE CREATE ETAT0_LIMIT (TYPICALLY LMDZ AND ./create_etat0_limit.e)
+
+       - IF CumulPeriod == 1
+       - AND A COMPONENT RESTART FROM PREVIOULSY COMPUTED RESTART
+       - MUST BRING THIS RESTART IN ${RUN_DIR_PATH}
+
+       - ELSE BRING RESTART FROM ${JobName} IN ${RUN_DIR_PATH}
+
+   4.9 ACTIVATE RUNNING ENVIRONNEMENT VARIABLES
+
+   4.10 UPDATE ParametersFiles
+        - (.def, namelist ...)
+        - with current value of (ORCA_NIT00, ORCA_LRSTAR, RAZ_DATE, ...)
+
+--------------------------------------------------------------------==
+ 5. EXECUTION
+--------------------------------------------------------------------==
+
+--------------------------------------------------------------------==
+ 6. POST EXECUTION OPERATIONS
+--------------------------------------------------------------------==
+
+   6.1. DESACTIVATE RUNNING ENVIRONNEMENT VARIABLES
+
+   6.2. SAVE OUTPUTS
+        - On archive/storage machine
+        - netcdf outputs, restarts and text files of models
+
+   6.3. CONFIGURE POST-PROCESSING
+        - asynchronous post-treatment (Level 0) when necessary (rebuild/pack)
+        - classic post-treatment      (Level 1) when necessary (TimeSeries/Seasonal)
+
+   6.4. SUBMIT POST-PROCESSING
+        - remote rebuild or/and post-treatment process if necessary
+
+   6.5. FINALYZE CURRENT LOOP AND PREPARE NEXT ONE
+        - Manage executable size to save only different binary
+        - Write in run.card user, system and elapse time
+        - Check that everything went well ! No ? then we stop.
+        - Determine next computed period
+
+--------------------------------------------------------------------==
+ 7. SUBMIT NEXT JOB OR SEND MAIL IF SIMULATION IS OVER.
+--------------------------------------------------------------------==
