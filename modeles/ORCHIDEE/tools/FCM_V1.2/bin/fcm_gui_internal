@@ -1,0 +1,272 @@
+#!/usr/bin/perl
+# ------------------------------------------------------------------------------
+# NAME
+#   fcm_gui_internal
+#
+# SYNOPSIS
+#   fcm_gui_internal POS FUNCTION
+#
+# DESCRIPTION
+#   The fcm_gui_internal command is part of a simple graphical user interface
+#   for some of the commands of the FCM system. The argument POS is a geometry
+#   string used by the &Main::get_input method to determine the location of the
+#   pop up window. The argument FUNCTION must be a keyword recognised by the
+#   &Fcm::Cm::cm_command function.
+#
+# COPYRIGHT
+#   (C) Crown copyright Met Office. All rights reserved.
+#   For further details please refer to the file COPYRIGHT.txt
+#   which you should have received as part of this distribution.
+# ------------------------------------------------------------------------------
+
+# Standard pragmas
+use warnings;
+use strict;
+
+# Standard modules
+use Tk;
+use File::Basename;
+use File::Spec::Functions;
+
+# FCM component modules:
+use lib catfile (dirname (dirname ($0)), 'lib');
+use Fcm::Cm;
+use Fcm::Config;
+
+# ------------------------------------------------------------------------------
+
+# Get configuration settings
+my $config = Fcm::Config->new ();
+$config->get_config ();
+
+my $pos      = shift @ARGV;
+my $function = shift @ARGV;
+cm_command $function;
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   $cfg = &main::cfg ();
+#
+# DESCRIPTION
+#   Return the $config variable.
+# ------------------------------------------------------------------------------
+
+sub cfg {
+  return $config;
+}
+
+# ------------------------------------------------------------------------------
+# SYNOPSIS
+#   $ans = &main::get_input (
+#     TITLE   => $title,
+#     MESSAGE => $mesg,
+#     TYPE    => $type,
+#     DEFAULT => $def,
+#   );
+#
+# DESCRIPTION
+#   Get an input string from the user and return it as $ans. If TYPE is 'YN', a
+#   'YesNo' type message box will be displayed to prompt the user to click
+#   either the 'yes' or 'no' button. If TYPE is 'YNA', then an 'all' button is
+#   provided as a third option. Otherwise, a dialog box with an entry box for
+#   the user to type in a string will be displayed. TITLE is the title of the
+#   dialog box, and MESSAGE is the main message of the dialog box. If DEFAULT is
+#   set, $ans is set to the default value when the dialog box is invoked.
+# ------------------------------------------------------------------------------
+
+sub get_input {
+  my %args  = @_;
+  my $title = exists $args{TITLE}   ? $args{TITLE}   : '';
+  my $mesg  = exists $args{MESSAGE} ? $args{MESSAGE} : '';
+  my $type  = exists $args{TYPE}    ? $args{TYPE}    : '';
+  my $def   = exists $args{DEFAULT} ? $args{DEFAULT} : '';
+  my $ans   = '';
+
+  # Create a main window
+  my $mw = MainWindow->new;
+  $mw->title ($title);
+
+  # Define the default which applies if the dialog box is just closed or
+  # the user selects 'cancel'
+  $ans = $def ? $def : '';
+
+  if ($type =~ /^yn/i) {
+    # Create a yes-no(-all) dialog box
+
+    # If TYPE is YNA then add a third button: 'all'
+    my $buttons;
+    if ($type =~ /a$/i) {
+      $buttons = 3;
+
+    } else {
+      $buttons = 2;
+    }
+
+    # Message of the dialog box
+    $mw->Label ('-text' => $mesg)->grid (
+      '-row'        => 0,
+      '-column'     => 0,
+      '-columnspan' => $buttons,
+      '-padx'       => 10,
+      '-pady'       => 10,
+    );
+
+    # The "yes" button
+    my $y_b = $mw->Button (
+      '-text'      => 'Yes',
+      '-underline' => 0,
+      '-command'   => sub {$ans = 'y'; $mw->destroy},
+    )->grid (
+      '-row'    => 1,
+      '-column' => 0,
+      '-padx'   => 5,
+      '-pady'   => 5,
+    );
+
+    # The "no" button
+    my $n_b = $mw->Button (
+      '-text'      => 'No',
+      '-underline' => 0,
+      '-command'   => sub {$ans = 'n'; $mw->destroy},
+    )->grid (
+      '-row'    => 1,
+      '-column' => 1,
+      '-padx'   => 5,
+      '-pady'   => 5,
+    );
+
+    # The "all" button
+    my $a_b;
+    if ($buttons == 3) {
+      $a_b = $mw->Button (
+        '-text'      => 'All',
+        '-underline' => 0,
+        '-command'   => sub {$ans = 'a'; $mw->destroy},
+      )->grid (
+        '-row'    => 1,
+        '-column' => 2,
+        '-padx'   => 5,
+        '-pady'   => 5,
+      );
+    }
+
+    # Keyboard binding
+    if ($buttons == 3) {
+      $mw->bind ('<Key>' => sub {
+	if ($Tk::event->K eq 'Y' or $Tk::event->K eq 'y') {
+	  $y_b->invoke;
+
+	} elsif ($Tk::event->K eq 'N' or $Tk::event->K eq 'n') {
+	  $n_b->invoke;
+
+	} elsif ($Tk::event->K eq 'A' or $Tk::event->K eq 'a') {
+	  $a_b->invoke;
+	}
+      });
+
+    } else {
+      $mw->bind ('<Key>' => sub {
+	if ($Tk::event->K eq 'Y' or $Tk::event->K eq 'y') {
+	  $y_b->invoke;
+
+	} elsif ($Tk::event->K eq 'N' or $Tk::event->K eq 'n') {
+	  $n_b->invoke;
+	}
+      });
+    }
+
+    # Handle the situation when the user attempts to quit the window
+    $mw->protocol ('WM_DELETE_WINDOW', sub {
+      $ans = $def if $def;
+      $mw->destroy;
+    });
+
+  } else {
+    # Create a dialog box to obtain an input string
+
+    # Message of the dialog box
+    $mw->Label ('-text' => $mesg)->grid (
+      '-row'    => 0,
+      '-column' => 0,
+      '-padx'   => 5,
+      '-pady'   => 5,
+    );
+
+    # Entry box for the user to type in the input string
+    my $entry   = $ans;
+    my $input_e = $mw->Entry (
+      '-textvariable'    => \$entry,
+      '-width'           => 40,
+    )->grid (
+      '-row'    => 0,
+      '-column' => 1,
+      '-sticky' => 'ew',
+      '-padx'   => 5,
+      '-pady'   => 5,
+    );
+
+    my $b_f = $mw->Frame->grid (
+      '-row'        => 1,
+      '-column'     => 0,
+      '-columnspan' => 2,
+      '-sticky'     => 'e',
+    );
+
+    # An OK button to accept the input string
+    my $ok_b = $b_f->Button (
+      '-text' => 'OK',
+      '-command' => sub {$ans = $entry; $mw->destroy},
+    )->grid (
+      '-row'        => 0,
+      '-column'     => 0,
+      '-padx'       => 5,
+      '-pady'       => 5,
+    );
+
+    # A Cancel button to reject the input string
+    my $cancel_b = $b_f->Button (
+      '-text' => 'Cancel',
+      '-command' => sub {$ans = undef; $mw->destroy},
+    )->grid (
+      '-row'        => 0,
+      '-column'     => 1,
+      '-padx'       => 5,
+      '-pady'       => 5,
+    );
+
+    # Keyboard binding
+    $mw->bind ('<Key>' => sub {
+      if ($Tk::event->K eq 'Return' or $Tk::event->K eq 'KP_Enter') {
+        $ok_b->invoke;
+
+      } elsif ($Tk::event->K eq 'Escape') {
+        $cancel_b->invoke;
+      }
+    });
+
+    # Allow the entry box to expand
+    $mw->gridColumnconfigure (1, '-weight' => 1);
+
+    # Set initial focus on the entry box
+    $input_e->focus;
+    $input_e->icursor ('end');
+  }
+
+  $mw->geometry ($pos);
+
+  # Switch on "always on top" property for $mw
+  $mw->property (
+    qw/set _NET_WM_STATE ATOM/,
+    32,
+    ['_NET_WM_STATE_STAYS_ON_TOP'],
+    ($mw->toplevel->wrapper)[0],
+  );
+
+  MainLoop;
+
+  return $ans;
+}
+
+# ------------------------------------------------------------------------------
+
+__END__

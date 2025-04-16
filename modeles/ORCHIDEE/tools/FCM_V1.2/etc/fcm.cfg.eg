@@ -1,0 +1,266 @@
+# ------------------------------------------------------------------------------
+# FCM central configuration file
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# Standard repository locations
+# ------------------------------------------------------------------------------
+
+# AMV repository
+set::url::amv                svn://fcm7/AMV_svn/AMV
+
+set::trac::amv               http://fcm7/projects/AMV/browser/AMV
+
+# ANCIL repository
+set::url::ancil              svn://fcm8/ANCIL_svn/ANCIL
+
+set::trac::ancil             http://fcm8/projects/ANCIL/browser/ANCIL
+
+# ATSR repository
+set::url::atsr               svn://fcm7/ATSR_svn/ATSR
+
+set::trac::atsr              http://fcm7/projects/ATSR/browser/ATSR
+
+# CICE repository
+set::url::cice               svn://fcm3/CICE_svn/CICE
+
+set::trac::cice              http://fcm3/projects/CICE/browser/CICE
+
+# CVC repository
+set::url::cvc_admin          svn://fcm6/CVC_svn/Admin
+set::url::bullseye           svn://fcm6/CVC_svn/Bullseye
+set::url::cat                svn://fcm6/CVC_svn/CAT
+set::url::deicing            svn://fcm6/CVC_svn/Deicing
+set::url::ea                 svn://fcm6/CVC_svn/EA  
+set::url::ensemble           svn://fcm6/CVC_svn/Ensemble
+set::url::gales              svn://fcm6/CVC_svn/Gales
+set::url::ifv                svn://fcm6/CVC_svn/IFV
+set::url::mogreps            svn://fcm6/CVC_svn/MOGREPS
+set::url::openroad           svn://fcm6/CVC_svn/OpenRoad
+set::url::powertable         svn://fcm6/CVC_svn/PowerTable
+set::url::qnh                svn://fcm6/CVC_svn/QNH
+
+set::trac::cvc_admin         http://fcm6/projects/CVC/browser/Admin
+set::trac::bullseye          http://fcm6/projects/CVC/browser/Bullseye
+set::trac::cat               http://fcm6/projects/CVC/browser/CAT
+set::trac::deicing           http://fcm6/projects/CVC/browser/Deicing
+set::trac::ea                http://fcm6/projects/CVC/browser/EA
+set::trac::ensemble          http://fcm6/projects/CVC/browser/Ensemble
+set::trac::gales             http://fcm6/projects/CVC/browser/Gales
+set::trac::ifv               http://fcm6/projects/CVC/browser/IFV
+set::trac::mogreps           http://fcm6/projects/CVC/browser/MOGREPS
+set::trac::openroad          http://fcm6/projects/CVC/browser/OpenRoad
+set::trac::powertable        http://fcm6/projects/CVC/browser/PowerTable
+set::trac::qnh               http://fcm6/projects/CVC/browser/QNH
+
+# DA repository
+set::url::da                 svn://fcm5/DA_svn/DA
+
+set::trac::da                http://fcm5/projects/DA/browser/DA
+
+# ENS repository
+set::url::ens                svn://fcm9/ENS_svn/ENS
+
+set::trac::ens               http://fcm9/projects/ENS/browser/ENS
+
+# FCM repository
+set::url::fcm                svn://fcm1/FCM_svn/FCM
+set::url::fcm_admin          svn://fcm1/FCM_svn/Admin
+
+set::trac::fcm               http://fcm1/projects/FCM/browser/FCM
+set::trac::fcm_admin         http://fcm1/projects/FCM/browser/Admin
+
+# FLUME repository
+set::url::flume_metadata     svn://fcm2/FLUME_svn/metadata
+
+set::trac::flume_metadata    http://fcm2/projects/FLUME/browser/metadata
+
+# GEN repository
+set::url::gen                svn://fcm1/GEN_svn/GEN
+
+set::trac::gen               http://fcm1/projects/GEN/browser/GEN
+
+# LEM repository
+set::url::lem                svn://fcm2/LEM_svn/LEM
+
+set::trac::lem               http://fcm2/projects/LEM/browser/LEM
+
+# LINK repository
+set::url::link               svn://fcm1/LINK_svn/LINK
+
+set::trac::link              http://fcm1/projects/LINK/browser/LINK
+
+# NEMO repository
+set::url::nemosys            svn://fcm3/NEMO_svn/NEMOSYS
+
+set::trac::nemosys           http://fcm3/projects/NEMO/browser/NEMOSYS
+
+# NWPWEB repository
+set::url::www_nwp            svn://fcm1/NWPWEB_svn/www_nwp
+
+set::trac::www_nwp           http://fcm1/projects/NWPWEB_svn/browser/www_nwp
+
+# obsmon repository
+set::url::obsmon_dc          svn://fcm4/obsmon_svn/DC
+set::url::obsmon_rtm         svn://fcm4/obsmon_svn/RTM
+
+set::trac::obsmon_dc         http://fcm4/projects/obsmon/browser/DC
+set::trac::obsmon_rtm        http://fcm4/projects/obsmon/browser/RTM
+
+# OCN repository
+set::url::polcoms            svn://fcm3/OCN_svn/POLCOMS
+
+set::trac::polcoms           http://fcm3/projects/OCN/browser/POLCOMS
+
+# OPFC repository
+set::url::opfc               svn://fcm9/OPFC_svn/OPFC
+
+set::trac::opfc              http://fcm9/projects/OPFC/browser/OPFC
+
+# OPS repository
+set::url::ops                svn://fcm4/OPS_svn/OPS
+set::url::ops_admin          svn://fcm4/OPS_svn/Admin
+set::url::ops_data           svn://fcm4/OPS_svn/Data
+
+set::trac::ops               http://fcm4/projects/OPS/browser/OPS
+set::trac::ops_admin         http://fcm4/projects/OPS/browser/Admin
+set::trac::ops_data          http://fcm4/projects/OPS/browser/Data
+
+# OSTIA repository
+set::url::ostia              svn://fcm3/OSTIA_svn/OSTIA
+
+set::trac::ostia             http://fcm3/projects/OSTIA/browser/OSTIA
+
+# PF repository
+set::url::pf                 svn://fcm5/PF_svn/PF
+
+set::trac::pf                http://fcm5/projects/PF/browser/PF
+
+# PostProc repository
+set::url::pp                 svn://fcm9/PostProc_svn/PostProc
+set::url::ppancil            svn://fcm9/PostProc_svn/PostProcAncil
+
+set::trac::pp                http://fcm9/projects/PostProc/browser/PostProc
+set::trac::ppancil           http://fcm9/projects/PostProc/browser/PostProcAncil
+
+# PRISM repository
+set::url::oasis4             svn://fcm2/PRISM_svn/oasis4
+
+set::trac::oasis4            http://fcm2/projects/PRISM/browser/oasis4
+
+# radarnet repository
+set::url::radarnet4          svn://fcm9/radarnet_svn/radarnet4
+
+set::trac::radarnet4         http://fcm7/projects/radarnet/browser/radarnet4
+
+# ROPP repository
+set::url::ropp_doc           svn://fcm7/ROPP_svn/ropp_doc
+set::url::ropp_src           svn://fcm7/ROPP_svn/ropp_src
+set::url::ropp_test          svn://fcm7/ROPP_svn/ropp_test
+set::url::ropp_web           svn://fcm7/ROPP_svn/ropp_web
+
+set::trac::ropp_doc          http://fcm7/projects/ROPP/browser/ropp_doc
+set::trac::ropp_src          http://fcm7/projects/ROPP/browser/ropp_src
+set::trac::ropp_test         http://fcm7/projects/ROPP/browser/ropp_test
+set::trac::ropp_web          http://fcm7/projects/ROPP/browser/ropp_web
+
+# RTTOV repository
+set::url::rttov8             svn://fcm7/RTTOV_svn/RTTOV8
+set::url::rttov9             svn://fcm7/RTTOV_svn/RTTOV9
+
+set::trac::rttov8            http://fcm7/projects/RTTOV/browser/RTTOV8
+set::trac::rttov9            http://fcm7/projects/RTTOV/browser/RTTOV9
+
+# SAUtils repository
+set::url::autoscat_global      svn://fcm7/SAUtils_svn/AUTOSCAT_Global
+set::url::autoscat_nae         svn://fcm7/SAUtils_svn/AUTOSCAT_NAE
+set::url::gpsiwv_mon           svn://fcm7/SAUtils_svn/GPSIWV_Mon
+set::url::gpsro_mon            svn://fcm7/SAUtils_svn/GPSRO_Mon
+set::url::iasi_mon             svn://fcm7/SAUtils_svn/IASI_Mon
+set::url::metstrike            svn://fcm7/SAUtils_svn/METSTRIKE
+set::url::scatwind_mon         svn://fcm7/SAUtils_svn/Scatwind_Mon
+
+set::trac::autoscat_global     http://fcm7/projects/SAUtils/browser/AUTOSCAT_Global
+set::trac::autoscat_nae        http://fcm7/projects/SAUtils/browser/AUTOSCAT_NAE
+set::trac::gpsiwv_mon          http://fcm7/projects/SAUtils/browser/GPSIWV_Mon
+set::trac::gpsro_mon           http://fcm7/projects/SAUtils/browser/GPSRO_Mon
+set::trac::iasi_mon            http://fcm7/projects/SAUtils/browser/IASI_Mon
+set::trac::metstrike           http://fcm7/projects/SAUtils/browser/METSTRIKE
+set::trac::scatwind_mon        http://fcm7/projects/SAUtils/browser/Scatwind_Mon
+
+# SBV repository
+set::url::sbv                svn://fcm6/SBV_svn/SBV
+set::url::sbv_admin          svn://fcm6/SBV_svn/Admin
+
+set::trac::sbv               http://fcm6/projects/SBV/browser/SBV
+set::trac::sbv_admin         http://fcm6/projects/SBV/browser/Admin
+
+# SCS repository
+set::url::scs                svn://fcm1/SCS_svn/SCS
+set::url::tik                svn://fcm1/SCS_svn/TIK
+set::url::tt                 svn://fcm1/SCS_svn/TT
+
+set::trac::scs               http://fcm1/projects/SCS/browser/SCS
+set::trac::tik               http://fcm1/projects/SCS/browser/TIK
+set::trac::tt                http://fcm1/projects/SCS/browser/TT
+
+# SPS repository
+set::url::sps                svn://fcm7/SPS_svn/SPS
+set::url::sps_archive        svn://fcm7/SPS_svn/Archive
+
+set::trac::sps               http://fcm7/projects/SPS/browser/SPS
+set::trac::sps_archive       http://fcm7/projects/SPS/browser/Archive
+
+# SURF repository
+set::url::surf               svn://fcm8/SURF_svn/SURF
+
+set::trac::surf              http://fcm8/projects/SURF/browser/SURF
+
+# test repository
+set::url::test               svn://fcm1/test_svn/OPS
+
+set::trac::test              http://fcm1/projects/test/browser/OPS
+
+# tutorial repository
+set::url::tutorial           svn://fcm1/tutorial_svn/tutorial
+
+set::trac::tutorial          http://fcm1/projects/tutorial/browser/tutorial
+
+# TRUI repository
+set::url::trui               svn://fcm1/TRUI_svn/TRUI
+
+set::trac::trui              http://fcm1/projects/TRUI/browser/TRUI
+
+# UM repository
+set::url::um                 svn://fcm2/UM_svn/UM
+set::url::um_admin           svn://fcm2/UM_svn/Admin
+set::url::gcom               svn://fcm2/UM_svn/GCOM
+
+set::trac::um                http://fcm2/projects/UM/browser/UM
+set::trac::um_admin          http://fcm2/projects/UM/browser/Admin
+set::trac::gcom              http://fcm2/projects/UM/browser/GCOM
+
+# UM tutorial repository
+set::url::um_tutorial        svn://fcm2/UM_TUTORIAL_svn/UM
+
+set::trac::um_tutorial       http://fcm2/projects/UM_TUTORIAL/browser/UM
+
+# VAR repository
+set::url::var                svn://fcm5/VAR_svn/VAR
+set::url::var_admin          svn://fcm5/VAR_svn/Admin
+set::url::var_data           svn://fcm5/VAR_svn/Data
+
+set::trac::var               http://fcm5/projects/VAR/browser/VAR
+set::trac::var_admin         http://fcm5/projects/VAR/browser/Admin
+set::trac::var_data          http://fcm5/projects/VAR/browser/Data
+
+# VER repository
+set::url::ver                svn://fcm6/VER_svn/VER
+set::url::ver_admin          svn://fcm6/VER_svn/Admin
+set::url::ver_archive        svn://fcm6/VER_svn/Archive
+
+set::trac::ver               http://fcm6/projects/VER/browser/VER
+set::trac::ver_admin         http://fcm6/projects/VER/browser/Admin
+set::trac::ver_archive       http://fcm6/projects/VER/browser/Archive
+
+# EOF
