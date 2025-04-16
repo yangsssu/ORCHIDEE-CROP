@@ -1,0 +1,37 @@
+# $Revision:: 1052                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2014-09-11 16:23:32 +0200 (Thu, 11 Sep 2014) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+
+#========================================================================
+[Configuration]
+#Compute date of loop
+PeriodDateBegin= 2016-01-01
+PeriodDateEnd= 2016-12-31
+CumulPeriod= 3
+# State of Job "Start", "Running", "OnQueue", "Completed"
+PeriodState= Completed
+
+SubmitPath= /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat
+simuid=
+#========================================================================
+[PostProcessing]
+
+#RebuildRunning=y/n
+#RebuildToComplete=number of dir to rebuild
+#RebuildDateID=PeriodDateEnd correspondant au dernier flag de RebuildFrequency=true
+
+TimeSeriesRunning=n
+TimeSeriesCompleted=
+
+#========================================================================
+[Log]
+# Executables Size
+LastExeSize= ( 0, 0, 25231312 )
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# CumulPeriod | PeriodDateBegin |   PeriodDateEnd |        RunDateBegin |          RunDateEnd |     RealCpuTime |     UserCpuTime |      SysCpuTime | ExeDate
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#           1 |        20140101 |        20141231 | 2025-04-01T15:28:51 | 2025-04-01T15:29:31 |        39.81000 |        34.79000 |         4.85000 | OOL_Apr_1_15:27
+#           2 |        20150101 |        20151231 | 2025-04-01T15:30:51 | 2025-04-01T15:31:31 |        40.79000 |        36.04000 |         4.54000 | OOL_Apr_1_15:27

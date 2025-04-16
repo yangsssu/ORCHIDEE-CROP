@@ -1,0 +1,616 @@
+Tue Apr  1 15:30:12 CEST 2025
+
+#######################################
+#       ANOTHER GREAT SIMULATION      #
+#######################################
+
+
+====================================================
+Where do we run ? obelix10
+Linux obelix10 3.10.0-1160.119.1.el7.x86_64 #1 SMP Tue Jun 4 14:43:51 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+Check libIGCM_debug ..............................................[ OK ]
+Check libIGCM_card ...............................................[ OK ]
+Check libIGCM_date ...............................................[ OK ]
+
+2025-04-01 15:30:13 --Debug1--> IGCM_config_CommonConfiguration
+2025-04-01 15:30:13 --Debug1--> /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/config.card
+
+2025-04-01 15:30:13 --Debug1--> DefineArrayFromOption : config_UserChoices
+2025-04-01 15:30:13 --------------Debug3--> JobName : belon2015resz0-true3-test
+2025-04-01 15:30:13 --------------Debug3--> LongName : NewCrop_PNT_fullirrig1
+2025-04-01 15:30:13 --------------Debug3--> TagName : OL2
+2025-04-01 15:30:13 --------------Debug3--> SpaceName : DEVT
+2025-04-01 15:30:13 --------------Debug3--> ExperimentName : WW-test-res-yel-belon2015resz0=root
+2025-04-01 15:30:13 --------------Debug3--> CalendarType : noleap
+2025-04-01 15:30:13 --------------Debug3--> DateBegin : 2014-01-01
+2025-04-01 15:30:13 --------------Debug3--> DateEnd : 2015-12-31
+2025-04-01 15:30:13 --------------Debug3--> PeriodLength : 1Y
+2025-04-01 15:30:13 --------------Debug3--> ARCHIVE : /home/orchidee01/yuke
+
+2025-04-01 15:30:13 --Debug1--> DefineArrayFromOption : config_Ensemble
+
+2025-04-01 15:30:13 --Debug1--> Warning with readding of config_Ensemble variable in /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/config.card.
+2025-04-01 15:30:13 --Debug1--> Warning: Section Ensemble not found
+
+2025-04-01 15:30:13 --Debug1--> DefineArrayFromOption : config_Post
+2025-04-01 15:30:13 --------------Debug3--> PackFrequency : 10Y
+2025-04-01 15:30:13 --------------Debug3--> RebuildFrequency : NONE
+2025-04-01 15:30:13 --------------Debug3--> TimeSeriesFrequency : 10Y
+2025-04-01 15:30:13 --------------Debug3--> IgnoreNonMonotonic : TRUE
+2025-04-01 15:30:13 --------------Debug3--> SeasonalFrequency : 10Y
+2025-04-01 15:30:13 --------------Debug3--> SeasonalFrequencyOffset : 0
+
+2025-04-01 15:30:13 --Debug1--> R_OUT has been defined = /home/orchidee01/yuke/IGCM_OUT
+2025-04-01 15:30:13 --Debug1--> R_BUF has been defined = /home/orchidee01/yuke/IGCM_OUT
+2025-04-01 15:30:13 --Debug1--> R_FIG has been defined = /home/orchidee01/yuke/IGCM_OUT
+IGCM_sys_MkdirWork : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/REBUILD
+2025-04-01 15:30:13 --------Debug2--> run.card exists
+
+2025-04-01 15:30:13 --Debug1--> IGCM_config_Initialize
+IGCM_sys_TestDir : /home/orchidee01/yuke/orchidee-CROP
+IGCM_sys_TestDir : /home/orchidee01/yuke/orchidee-CROP/libIGCM
+IGCM_sys_TestDir : /home/orchidee01/yuke/orchidee-CROP/bin
+IGCM_sys_TestDir : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat
+Keep trace of inital SUBMIT_DIR : 
+total 100
+drwxrwxrwx 4 yuke orchidee  4096 Apr  1 15:30 .
+-rw------- 1 yuke lsce     44315 Apr  1 15:30 Script_Output_belon2015resz0-true3-test.000001
+-rwxr-xr-x 1 yuke lsce      1815 Apr  1 15:30 run.card.bak
+-rw-r--r-- 1 yuke lsce      1815 Apr  1 15:30 run.card
+-rw-r--r-- 1 yuke lsce     19203 Apr  1 15:27 Job_belon2015resz0-true3-test
+-rwxrwxrwx 1 yuke orchidee  1546 Apr  1 15:27 run.card.init
+-rwxrwxrwx 1 yuke orchidee  4224 Apr  1 15:23 config.card
+drwxr-xr-x 7 yuke lsce      4096 Feb  7 00:59 ..
+drwxrwxrwx 3 yuke orchidee  4096 Apr 20  2024 PARAM
+drwxrwxrwx 3 yuke orchidee  4096 Aug 26  2022 COMP
+
+2025-04-01 15:30:14 --Debug1--> DefineArrayFromSection : ListOfComponents
+2025-04-01 15:30:14 --------------Debug3--> SRF
+2025-04-01 15:30:14 --------------Debug3--> SBG
+2025-04-01 15:30:14 --------------Debug3--> OOL
+
+2025-04-01 15:30:14 --Debug1--> DefineArrayFromOption : config_Restarts
+2025-04-01 15:30:14 --------------Debug3--> OverRule : n
+2025-04-01 15:30:14 --------------Debug3--> RestartDate : ...
+2025-04-01 15:30:14 --------------Debug3--> RestartJobName : ...
+2025-04-01 15:30:14 --------------Debug3--> RestartPath : ...
+
+2025-04-01 15:30:14 --------Debug2--> Define Script_Output_Prefix and Exe_Output
+2025-04-01 15:30:14 --------------Debug3--> Script_Output_Prefix = Script_Output
+2025-04-01 15:30:14 --------------Debug3--> Exe_Output = out_execution
+
+2025-04-01 15:30:14 --------Debug2--> (Re)Define R_INIT, R_BC and PeriodNb
+2025-04-01 15:30:14 --------------Debug3--> R_INIT=/home/orchideeshare/igcmg/IGCM/INIT
+2025-04-01 15:30:14 --------------Debug3--> R_BC=/home/orchideeshare/igcmg/IGCM/BC
+2025-04-01 15:30:14 --------------Debug3--> Loop in main Job with 1 period(s)
+IGCM_sys_TestDirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test
+IGCM_sys_MkdirWork : /scratch/yuke.6057057.obelix0/belon2015resz0-true3-test.12543
+IGCM_sys_Cd : /scratch/yuke.6057057.obelix0/belon2015resz0-true3-test.12543
+
+2025-04-01 15:30:15 --Debug1--> IGCM_comp_Initialize
+
+2025-04-01 15:30:15 --Debug1--> Initialize SRF : sechiba component.
+2025-04-01 15:30:15 --------------Debug3--> DefineArrayFromSection : SRF
+2025-04-01 15:30:15 --------------Debug3--> Found in section config_SRF : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2025-04-01 15:30:15 --Debug1--> Write frequency for sechiba : 1D
+2025-04-01 15:30:15 --------Debug2--> Initialize following component library
+2025-04-01 15:30:15 --------Debug2--> /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/sechiba.driver
+2025-04-01 15:30:15 --------------Debug3--> With tag : orchidee
+2025-04-01 15:30:15 --------------Debug3--> Initialize SRF output directory.
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Output
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Restart
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug
+2025-04-01 15:30:15 --------Debug2--> DefineArrayFromSection : sechiba_UserChoices /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/sechiba.card
+2025-04-01 15:30:15 --------------Debug3--> sechiba_UserChoices_values:
+2025-04-01 15:30:15 --------------Debug3--> LAIMAP=n
+2025-04-01 15:30:15 --------------Debug3--> IMPOSE_VEG=y
+2025-04-01 15:30:15 --------------Debug3--> VEGET_UPDATE=1Y
+2025-04-01 15:30:15 --------------Debug3--> ROUTING=n
+2025-04-01 15:30:15 --------------Debug3--> NEWHYDROL=y
+2025-04-01 15:30:15 --------------Debug3--> OKCO2=y
+2025-04-01 15:30:15 --------------Debug3--> HARVEST_AGRI=y
+2025-04-01 15:30:15 --------Debug2--> DefineArrayFromOption : sechiba_OutputFiles /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/sechiba.card
+2025-04-01 15:30:15 --------------Debug3--> 2D time series activated for Post_1M_sechiba_history
+2025-04-01 15:30:16 --------------Debug3--> 3D time series activated with chunck for Post_1M_sechiba_history
+2025-04-01 15:30:16 --------------Debug3--> Initialize sechiba with driver.
+
+2025-04-01 15:30:16 --Debug1--> Initialize SBG : stomate component.
+2025-04-01 15:30:16 --------------Debug3--> DefineArrayFromSection : SBG
+2025-04-01 15:30:16 --------------Debug3--> Found in section config_SBG : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2025-04-01 15:30:16 --Debug1--> Write frequency for stomate : 1D
+2025-04-01 15:30:16 --------Debug2--> Initialize following component library
+2025-04-01 15:30:16 --------Debug2--> /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/stomate.driver
+2025-04-01 15:30:16 --------------Debug3--> With tag : orchidee
+2025-04-01 15:30:16 --------------Debug3--> Initialize SBG output directory.
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Output
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Restart
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Debug
+2025-04-01 15:30:16 --------Debug2--> DefineArrayFromSection : stomate_UserChoices /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/stomate.card
+2025-04-01 15:30:16 --------------Debug3--> stomate_UserChoices_values:
+2025-04-01 15:30:16 --------------Debug3--> SPINUP_ANALYTIC=n
+2025-04-01 15:30:16 --------Debug2--> DefineArrayFromOption : stomate_OutputFiles /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/stomate.card
+2025-04-01 15:30:16 --------------Debug3--> 2D time series activated for Post_1M_stomate_history
+2025-04-01 15:30:16 --------------Debug3--> 3D time series activated with chunck for Post_1M_stomate_history
+2025-04-01 15:30:16 --------------Debug3--> Initialize stomate with driver.
+
+2025-04-01 15:30:16 --Debug1--> Initialize OOL : orchidee_ol component.
+2025-04-01 15:30:17 --------------Debug3--> DefineArrayFromSection : OOL
+2025-04-01 15:30:17 --------------Debug3--> Found in section config_OOL : WriteFrequency Restart RestartDate RestartJobName RestartPath
+2025-04-01 15:30:17 --Debug1--> Write frequency for orchidee_ol :
+2025-04-01 15:30:17 --------Debug2--> Initialize following component library
+2025-04-01 15:30:17 --------Debug2--> /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/orchidee_ol.driver
+2025-04-01 15:30:17 --------------Debug3--> With tag : orchidee
+2025-04-01 15:30:17 --------------Debug3--> Initialize OOL output directory.
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Output
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Restart
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+2025-04-01 15:30:17 --------Debug2--> DefineArrayFromSection : orchidee_ol_UserChoices /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/orchidee_ol.card
+2025-04-01 15:30:17 --------------Debug3--> orchidee_ol_UserChoices_values:
+2025-04-01 15:30:17 --------------Debug3--> XIOS=n
+2025-04-01 15:30:17 --------Debug2--> DefineArrayFromOption : orchidee_ol_OutputFiles /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/COMP/orchidee_ol.card
+2025-04-01 15:30:17 --------------Debug3--> Initialize orchidee_ol with driver.
+
+
+2025-04-01 15:30:17 --Debug1--> IGCM_config_Check
+
+2025-04-01 15:30:17 --Debug1--> Asynchronous rebuild has not been activated
+2025-04-01 15:30:17 --Debug1--> Proceed with standard post-treatment pathway
+
+2025-04-01 15:30:17 --Debug1--> Check coherence between TimeSeriesFrequency and PeriodLength
+2025-04-01 15:30:17 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=10Y Slave=1Y
+2025-04-01 15:30:17 --Debug1--> Check coherence between SeasonalFrequency and PeriodLength
+2025-04-01 15:30:17 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=10Y Slave=1Y
+2025-04-01 15:30:17 --Debug1--> Check coherence between Post_1M_sechiba_history Chunck3D frequency and TimeSeriesFrequency
+2025-04-01 15:30:17 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=100Y Slave=10Y
+2025-04-01 15:30:17 --Debug1--> Check coherence between Post_1M_stomate_history Chunck3D frequency and TimeSeriesFrequency
+2025-04-01 15:30:17 --------Debug2--> IGCM_post_CheckModuloFrequency : Master=100Y Slave=10Y
+
+2025-04-01 15:30:17 --Debug1--> Check if there is enough space on temporary filesystem
+IGCM_sys_check_quota
+
+2025-04-01 15:30:17 --Debug1--> Check where RUN_DIR_PATH variable is pointing to
+IGCM_sys_check_path
+
+Starting iteration 1 / 1
+
+2025-04-01 15:30:17 --Debug1--> IGCM_config_PeriodStart
+
+IGCM_sys_Cd : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat
+2025-04-01 15:30:18 --------Debug2--> Save previous ksh job output
+IGCM_sys_Cp : Script_Output_belon2015resz0-true3-test.000001 /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/Script_Output_belon2015resz0-true3-test.000001.12543
+2025-04-01 15:30:18 --------Debug2--> Save current run.card
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/run.card /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/run.card
+IGCM_sys_Cd : /scratch/yuke.6057057.obelix0/belon2015resz0-true3-test.12543
+
+2025-04-01 15:30:18 --------Debug2--> Number of years for PeriodLength : 1
+
+2025-04-01 15:30:18 --Debug1--> IGCM_config_DateCoherency
+
+
+2025-04-01 15:30:19 --Debug1--> CyclicYear wont be use without adding CyclicBegin and CyclicEnd in config.card
+
+2025-04-01 15:30:19 --Debug1--> IGCM_config_PeriodStart : Before Execution
+2025-04-01 15:30:19 --Debug1--> Year of simulation : 2015
+2025-04-01 15:30:19 --Debug1--> Month of simulation : 01
+2025-04-01 15:30:19 --Debug1--> PeriodLengthInDays : 365
+2025-04-01 15:30:19 --Debug1--> PeriodDateBegin : 20150101
+2025-04-01 15:30:19 --Debug1--> PeriodDateEnd : 20151231
+2025-04-01 15:30:19 --Debug1--> SimulationLengthInDays : 730
+2025-04-01 15:30:19 --Debug1--> ExperienceLengthInDays : 730
+2025-04-01 15:30:19 --Debug1--> IGCM_config_ConfigureExecution
+2025-04-01 15:30:19 --Debug1--> OOL
+2025-04-01 15:30:19 --------Debug2--> 1MPI
+2025-04-01 15:30:19 --Debug1--> MPI/OMP treatment coreNumber = 1
+2025-04-01 15:30:19 --Debug1--> MPI/OMP treatment mpiTasks = 1
+2025-04-01 15:30:19 --Debug1--> MPI/OMP treatment openMPthreads = 1
+2025-04-01 15:30:19 --Debug1--> MPI/OMP treatment executionType = 4
+IGCM_sys_build_execution_scripts 
+IGCM_sys_Chmod : u+x script_orchidee_ol.ksh
+2025-04-01 15:30:19 --Debug1--> sys Obelix : script_orchidee_ol.ksh contains
+#!/bin/ksh
+
+./orchidee_ol > out_orchidee_ol.out.${OMPI_COMM_WORLD_RANK} 2>out_orchidee_ol.err.${OMPI_COMM_WORLD_RANK}
+2025-04-01 15:30:19 --Debug1--> sys Obelix : execution command is
+2025-04-01 15:30:19 --Debug1--> time mpirun ./script_orchidee_ol.ksh
+
+2025-04-01 15:30:20 --Debug1--> IGCM_comp_PeriodStart
+
+2025-04-01 15:30:20 --------------Debug3--> PeriodStart sechiba Driver Function (if any).
+2025-04-01 15:30:20 --------------Debug3--> PeriodStart stomate Driver Function (if any).
+2025-04-01 15:30:20 --------------Debug3--> PeriodStart orchidee_ol Driver Function (if any).
+
+2025-04-01 15:30:20 --Debug1--> IGCM_comp_GetInputParametersFiles
+
+2025-04-01 15:30:20 --------------Debug3--> Parameters sechiba
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/PARAM/run.def .
+2025-04-01 15:30:20 --------------Debug3--> Parameters stomate
+IGCM_sys_Cp : /home/orchideeshare/igcmg/IGCM/ATM/IPCC_AR5/RCPs/RCP85/CO2_1765_2500.txt CO2.nc
+2025-04-01 15:30:20 --------------Debug3--> Parameters orchidee_ol
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/PARAM/run.def .
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/PARAM/iodef.xml .
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/config/ORCHIDEE_OL/Wheat/PARAM/file_def_orchidee.xml .
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/src_xml/context_orchidee.xml .
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/src_xml/field_def_orchidee.xml .
+
+2025-04-01 15:30:21 --Debug1--> IGCM_comp_GetInputInitialStateFiles
+
+
+2025-04-01 15:30:21 --Debug1--> IGCM_comp_GetInputBoundaryFiles
+
+2025-04-01 15:30:21 --------------Debug3--> Boundary files sechiba
+IGCM_sys_IsFileArchived : /home/orchidee04/bgabriel/Other_datasets/FPT/PFTmap_2015.nc
+IGCM_sys_Cp : /home/orchidee04/bgabriel/Other_datasets/FPT/PFTmap_2015.nc PFTmap.nc
+2025-04-01 15:30:22 --------------Debug3--> Boundary files stomate
+IGCM_sys_IsFileArchived : /home/orchidee01/yangsu/Other_datasets_backup/Crop_calendar/Crop_calendar.nc
+IGCM_sys_Cp : /home/orchidee01/yangsu/Other_datasets_backup/Crop_calendar/Crop_calendar.nc PlantingDate.nc
+IGCM_sys_IsFileArchived : /home/orchideeshare/igcmg/IGCM/SRF/reftemp.nc
+IGCM_sys_Cp : /home/orchideeshare/igcmg/IGCM/SRF/reftemp.nc .
+2025-04-01 15:30:23 --------------Debug3--> Boundary files orchidee_ol
+IGCM_sys_IsFileArchived : /home/orchidee03/yuke/halfdeg/crujra_halfdeg_v2.4_2015.nc
+IGCM_sys_Cp : /home/orchidee03/yuke/halfdeg/crujra_halfdeg_v2.4_2015.nc forcing_file.nc
+
+2025-04-01 15:30:46 --Debug1--> IGCM_comp_GetInputSmoothFiles
+
+2025-04-01 15:30:46 --------------Debug3--> Smooth files sechiba
+2025-04-01 15:30:46 --------------Debug3--> Smooth files stomate
+2025-04-01 15:30:46 --------------Debug3--> Smooth files orchidee_ol
+
+2025-04-01 15:30:47 --Debug1--> IGCM_comp_GetInputRestartFiles
+
+2025-04-01 15:30:47 --------------Debug3--> restart sechiba
+2025-04-01 15:30:47 --------------Debug3--> Archived restart /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Restart/belon2015resz0-true3-test_20141231_sechiba_rest.nc
+IGCM_sys_Get : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Restart/belon2015resz0-true3-test_20141231_sechiba_rest.nc sechiba_rest_in.nc
+2025-04-01 15:30:47 --------------Debug3--> restart stomate
+2025-04-01 15:30:47 --------------Debug3--> Archived restart /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Restart/belon2015resz0-true3-test_20141231_stomate_rest.nc
+IGCM_sys_Get : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Restart/belon2015resz0-true3-test_20141231_stomate_rest.nc stomate_rest_in.nc
+2025-04-01 15:30:47 --------------Debug3--> restart orchidee_ol
+2025-04-01 15:30:47 --------------Debug3--> Archived restart /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Restart/belon2015resz0-true3-test_20141231_driver_rest.nc
+IGCM_sys_Get : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Restart/belon2015resz0-true3-test_20141231_driver_rest.nc driver_rest_in.nc
+IGCM_sys_Chmod : u+rw CO2.nc PFTmap.nc PlantingDate.nc context_orchidee.xml driver_rest_in.nc field_def_orchidee.xml file_def_orchidee.xml forcing_file.nc iodef.xml reftemp.nc run.def script_orchidee_ol.ksh sechiba_rest_in.nc stomate_rest_in.nc
+IGCM_sys_activ_variables
+
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_Update
+
+2025-04-01 15:30:48 --Debug1--> Update sechiba Parameter Files.
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def STOMATE_OK_STOMATE y
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_OK_STOMATE=y
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def XIOS_ORCHIDEE_OK n
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: XIOS_ORCHIDEE_OK is set by the user. Nothing done.
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def WRITE_STEP 86400
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: In run.def set WRITE_STEP=86400
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SECHIBA_HISTFILE2 n
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: SECHIBA_HISTFILE2 is not set in run.def. This is a nonblocker call so nothing is done.
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: Default value for SECHIBA_HISTFILE2 from the model will be used.
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: SECHIBA_HISTFILE2 is set by the user. Nothing done.
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_OK_CO2 y
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_OK_CO2=y
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def LAI_MAP n
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: In run.def set LAI_MAP=n
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def RIVER_ROUTING n
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: RIVER_ROUTING is set by the user. Nothing done.
+2025-04-01 15:30:48 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def HYDROL_CWRR y
+2025-04-01 15:30:48 --Debug1--> IGCM_comp_modifyDefFile: HYDROL_CWRR is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def IMPOSE_VEG y
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: IMPOSE_VEG is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def VEGET_UPDATE 0Y
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: VEGET_UPDATE is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def SECHIBA_restart_in sechiba_rest_in.nc
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: In run.def set SECHIBA_restart_in=sechiba_rest_in.nc
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def RIVER_DESC n
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: RIVER_DESC is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Update stomate Parameter Files.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SPINUP_ANALYTIC n
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_ANALYTIC is not set in run.def. This is a nonblocker call so nothing is done.
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: Default value for SPINUP_ANALYTIC from the model will be used.
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_ANALYTIC is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def SPINUP_PERIOD -1
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_PERIOD is not set in run.def. This is a nonblocker call so nothing is done.
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: Default value for SPINUP_PERIOD from the model will be used.
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: SPINUP_PERIOD is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_HIST_DT 1
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_HIST_DT=1
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_IPCC_HIST_DT 1
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: STOMATE_IPCC_HIST_DT is set by the user. Nothing done.
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def STOMATE_RESTART_FILEIN stomate_rest_in.nc
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_RESTART_FILEIN=stomate_rest_in.nc
+2025-04-01 15:30:49 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def STOMATE_CFORCING_NAME NONE
+2025-04-01 15:30:49 --Debug1--> IGCM_comp_modifyDefFile: In run.def set STOMATE_CFORCING_NAME=NONE
+IGCM_sys_Cp : /home/orchidee01/yuke/orchidee-CROP/bin/orchidee_ol orchidee_ol
+IGCM_sys_Chmod : +rx /scratch/yuke.6057057.obelix0/belon2015resz0-true3-test.12543/orchidee_ol
+2025-04-01 15:30:50 --Debug1--> Update orchidee_ol Parameter Files.
+2025-04-01 15:30:50 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def TIME_LENGTH 1Y
+2025-04-01 15:30:50 --Debug1--> IGCM_comp_modifyDefFile: In run.def set TIME_LENGTH=1Y
+2025-04-01 15:30:50 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def TIME_SKIP 0D
+2025-04-01 15:30:50 --Debug1--> IGCM_comp_modifyDefFile: In run.def set TIME_SKIP=0D
+2025-04-01 15:30:50 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: blocker run.def RESTART_FILEIN driver_rest_in.nc
+2025-04-01 15:30:50 --Debug1--> IGCM_comp_modifyDefFile: In run.def set RESTART_FILEIN=driver_rest_in.nc
+2025-04-01 15:30:50 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def DRIVER_reset_time n
+2025-04-01 15:30:50 --Debug1--> IGCM_comp_modifyDefFile: In run.def set DRIVER_reset_time=n
+2025-04-01 15:30:50 --Debug1--> Entering IGCM_comp_modifyDefFile with arguments: nonblocker run.def ATM_CO2 DEFAULT
+2025-04-01 15:30:50 --Debug1--> IGCM_comp_modifyDefFile: In run.def set ATM_CO2= 350.
+
+#######################################
+#      DIR BEFORE RUN EXECUTION       #
+#######################################
+
+total 2332660
+-rwxr--r-- 1 yuke lsce        118 Apr  1 15:30 script_orchidee_ol.ksh
+-rwxr-xr-x 1 yuke lsce      19136 Apr  1 15:30 CO2.nc
+-rwxr-xr-x 1 yuke lsce       1640 Apr  1 15:30 iodef.xml
+-rw-r--r-- 1 yuke lsce       4119 Apr  1 15:30 context_orchidee.xml
+-rw-r--r-- 1 yuke lsce      37495 Apr  1 15:30 field_def_orchidee.xml
+-rw-r--r-- 1 yuke lsce   62226912 Apr  1 15:30 PFTmap.nc
+-rwxr-xr-x 1 yuke lsce   17626416 Apr  1 15:30 PlantingDate.nc
+-rwxr-xr-x 1 yuke lsce     615116 Apr  1 15:30 reftemp.nc
+-rw-r--r-- 1 yuke lsce 2282440160 Apr  1 15:30 forcing_file.nc
+-rw-r--r-- 1 yuke lsce     165240 Apr  1 15:30 sechiba_rest_in.nc
+-rw-r--r-- 1 yuke lsce     187404 Apr  1 15:30 stomate_rest_in.nc
+-rw-r--r-- 1 yuke lsce       2480 Apr  1 15:30 driver_rest_in.nc
+-rwxr-xr-x 1 yuke lsce   25231312 Apr  1 15:30 orchidee_ol
+-rw-r--r-- 1 yuke lsce      16002 Apr  1 15:30 run.def
+-rw-r--r-- 1 yuke lsce      30675 Apr  1 15:30 file_def_orchidee.xml
+========================================================================
+EXECUTION of : time mpirun ./script_orchidee_ol.ksh
+========================================================================
+
+#######################################
+#       DIR AFTER RUN EXECUTION       #
+#######################################
+
+total 2598240
+-rwxr--r-- 1 yuke lsce        118 Apr  1 15:30 script_orchidee_ol.ksh
+-rwxr-xr-x 1 yuke lsce      19136 Apr  1 15:30 CO2.nc
+-rwxr-xr-x 1 yuke lsce       1640 Apr  1 15:30 iodef.xml
+-rw-r--r-- 1 yuke lsce       4119 Apr  1 15:30 context_orchidee.xml
+-rw-r--r-- 1 yuke lsce      37495 Apr  1 15:30 field_def_orchidee.xml
+-rw-r--r-- 1 yuke lsce   62226912 Apr  1 15:30 PFTmap.nc
+-rwxr-xr-x 1 yuke lsce   17626416 Apr  1 15:30 PlantingDate.nc
+-rwxr-xr-x 1 yuke lsce     615116 Apr  1 15:30 reftemp.nc
+-rw-r--r-- 1 yuke lsce 2282440160 Apr  1 15:30 forcing_file.nc
+-rw-r--r-- 1 yuke lsce     165240 Apr  1 15:30 sechiba_rest_in.nc
+-rw-r--r-- 1 yuke lsce     187404 Apr  1 15:30 stomate_rest_in.nc
+-rw-r--r-- 1 yuke lsce       2480 Apr  1 15:30 driver_rest_in.nc
+-rwxr-xr-x 1 yuke lsce   25231312 Apr  1 15:30 orchidee_ol
+-rw-r--r-- 1 yuke lsce      16002 Apr  1 15:30 run.def
+-rw-r--r-- 1 yuke lsce      30675 Apr  1 15:30 file_def_orchidee.xml
+-rw-r--r-- 1 yuke lsce        134 Apr  1 15:30 out_orchidee_ol.err.0
+-rw-r--r-- 1 yuke lsce         25 Apr  1 15:31 Load_balance_orchidee.dat
+-rw-r--r-- 1 yuke lsce       8515 Apr  1 15:31 out_orchidee_ol.out.0
+-rw-r--r-- 1 yuke lsce   12132048 Apr  1 15:31 sechiba_history_0000.nc
+-rw-r--r-- 1 yuke lsce      24560 Apr  1 15:31 stomate_ipcc_history_0000.nc
+-rw-r--r-- 1 yuke lsce     172580 Apr  1 15:31 stomate_history_0000.nc
+-rw-r--r-- 1 yuke lsce     165348 Apr  1 15:31 sechiba_rest_out.nc
+-rw-r--r-- 1 yuke lsce       2480 Apr  1 15:31 driver_rest_out.nc
+-rw-r--r-- 1 yuke lsce     187404 Apr  1 15:31 stomate_rest_out.nc
+-rw-r--r-- 1 yuke lsce     162700 Apr  1 15:31 used_run.def
+-rw-r--r-- 1 yuke lsce  259071879 Apr  1 15:31 out_orchidee_0000
+-rw-r--r-- 1 yuke lsce        358 Apr  1 15:31 out_execution
+IGCM_sys_desactiv_variables
+
+2025-04-01 15:31:31 --Debug1--> IGCM_comp_Finalize
+
+2025-04-01 15:31:31 --Debug1--> Finalize SRF : sechiba component.
+2025-04-01 15:31:31 --------Debug2--> Save Output Text files for SRF : sechiba component.
+IGCM_sys_Put_Out : used_run.def /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug/belon2015resz0-true3-test_20150101_20151231_used_run.def
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug
+IGCM_sys_Chmod : 444 used_run.def
+IGCM_sys_UnTar : 0
+2025-04-01 15:31:32 --------Debug2--> Parallelism of Text Output with 3 files.
+2025-04-01 15:31:32 --------Debug2--> Compact files in belon2015resz0-true3-test_20150101_20151231_out_orchidee :
+2025-04-01 15:31:32 --------Debug2--> out_orchidee_0000
+2025-04-01 15:31:32 --------Debug2--> out_orchidee_ol.err.0
+2025-04-01 15:31:32 --------Debug2--> out_orchidee_ol.out.0
+IGCM_sys_Put_Out : belon2015resz0-true3-test_20150101_20151231_out_orchidee /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug/belon2015resz0-true3-test_20150101_20151231_out_orchidee
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug
+IGCM_sys_Chmod : 444 belon2015resz0-true3-test_20150101_20151231_out_orchidee
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : river_desc.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Debug/belon2015resz0-true3-test_20150101_20151231_river_desc.nc
+WARNING : IGCM_sys_Put_Out river_desc.nc DOES NOT EXIST .
+2025-04-01 15:31:52 --------Debug2--> Save Restart files for SRF : sechiba component.
+IGCM_sys_Put_Rest : sechiba_rest_out.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Restart/belon2015resz0-true3-test_20151231_sechiba_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Restart/belon2015resz0-true3-test_20151231_sechiba_rest.nc
+IGCM_sys_Mv : sechiba_rest_out.nc sechiba_rest_in.nc
+2025-04-01 15:31:53 --------Debug2--> Save Output files for SRF : sechiba component.
+2025-04-01 15:31:53 --------Debug2--> Parallelism with 1 file. Rebuilding sechiba_history.nc not needed
+IGCM_sys_Mv : sechiba_history_0000.nc sechiba_history.nc
+IGCM_sys_Put_Out : sechiba_history.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Output/MO/belon2015resz0-true3-test_20150101_20151231_1M_sechiba_history.nc
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Output/MO
+IGCM_sys_Chmod : 444 sechiba_history.nc
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : sechiba_out_2.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SRF/Output/HF/belon2015resz0-true3-test_20150101_20151231_HF_sechiba_out_2.nc
+WARNING : IGCM_sys_Put_Out sechiba_out_2.nc DOES NOT EXIST .
+
+2025-04-01 15:31:53 --Debug1--> Finalize SBG : stomate component.
+2025-04-01 15:31:53 --------Debug2--> Save Output Text files for SBG : stomate component.
+2025-04-01 15:31:53 --------Debug2--> Save Restart files for SBG : stomate component.
+IGCM_sys_Put_Rest : stomate_rest_out.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Restart/belon2015resz0-true3-test_20151231_stomate_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Restart/belon2015resz0-true3-test_20151231_stomate_rest.nc
+IGCM_sys_Mv : stomate_rest_out.nc stomate_rest_in.nc
+2025-04-01 15:31:53 --------Debug2--> Save Output files for SBG : stomate component.
+2025-04-01 15:31:53 --------Debug2--> Parallelism with 1 file. Rebuilding stomate_history.nc not needed
+IGCM_sys_Mv : stomate_history_0000.nc stomate_history.nc
+IGCM_sys_Put_Out : stomate_history.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Output/MO/belon2015resz0-true3-test_20150101_20151231_1M_stomate_history.nc
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/SBG/Output/MO
+IGCM_sys_Chmod : 444 stomate_history.nc
+IGCM_sys_UnTar : 0
+
+2025-04-01 15:31:54 --Debug1--> Finalize OOL : orchidee_ol component.
+2025-04-01 15:31:54 --------Debug2--> Save Output Text files for OOL : orchidee_ol component.
+IGCM_sys_Put_Out : run.def /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_run.def
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 run.def
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : used_run.def /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_used_run.def
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 used_run.def
+IGCM_sys_UnTar : 0
+2025-04-01 15:31:54 --------Debug2--> Parallelism of Text Output with 2 files.
+2025-04-01 15:31:54 --------Debug2--> Compact files in belon2015resz0-true3-test_20150101_20151231_out_orchidee_ol :
+2025-04-01 15:31:54 --------Debug2--> out_orchidee_ol.err.0
+2025-04-01 15:31:54 --------Debug2--> out_orchidee_ol.out.0
+IGCM_sys_Put_Out : belon2015resz0-true3-test_20150101_20151231_out_orchidee_ol /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_out_orchidee_ol
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 belon2015resz0-true3-test_20150101_20151231_out_orchidee_ol
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : iodef.xml /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_iodef.xml
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 iodef.xml
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : context_orchidee.xml /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_context_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 context_orchidee.xml
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : field_def_orchidee.xml /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_field_def_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 field_def_orchidee.xml
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : file_def_orchidee.xml /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_file_def_orchidee.xml
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug
+IGCM_sys_Chmod : 444 file_def_orchidee.xml
+IGCM_sys_UnTar : 0
+IGCM_sys_Put_Out : xios_client_* /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Debug/belon2015resz0-true3-test_20150101_20151231_xios_client_*
+WARNING : IGCM_sys_Put_Out xios_client_* DOES NOT EXIST .
+2025-04-01 15:31:55 --------Debug2--> Save Restart files for OOL : orchidee_ol component.
+IGCM_sys_Put_Rest : driver_rest_out.nc /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Restart/belon2015resz0-true3-test_20151231_driver_rest.nc
+IGCM_sys_Chmod : 444 /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/OOL/Restart/belon2015resz0-true3-test_20151231_driver_rest.nc
+IGCM_sys_Mv : driver_rest_out.nc driver_rest_in.nc
+2025-04-01 15:31:56 --------Debug2--> Save Output files for OOL : orchidee_ol component.
+
+
+2025-04-01 15:31:56 --Debug1--> IGCM_post_Configure
+
+2025-04-01 15:31:56 --------Debug2--> IGCM_post_ModuloRuntimeFrequency : Master=10Y Slave=1Y CumulPeriod=2
+2025-04-01 15:31:56 --Debug1--> TimeSeriesFrequency flag value : true
+
+2025-04-01 15:31:56 --------Debug2--> IGCM_post_ModuloRuntimeFrequency : Master=10Y Slave=1Y CumulPeriod=2
+2025-04-01 15:31:56 --Debug1--> SeasonalFrequency flag value : false
+2025-04-01 15:31:56 --------Debug2--> POST-TREATEMENT flag value : true
+
+2025-04-01 15:31:56 --Debug1--> IGCM_post_Submit
+
+2025-04-01 15:31:56 --------Debug2--> POST_DIR = /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out
+2025-04-01 15:31:56 --Debug1--> TIME SERIES POST-PROCESSING ACTIVATED
+
+2025-04-01 15:31:56 --Debug1--> TIME SERIES POST-PROCESSING 2D ACTIVATED
+
+IGCM_sys_RshPost :
+
+====================================================
+Where do we run ? obelix10
+Linux obelix10 3.10.0-1160.119.1.el7.x86_64 #1 SMP Tue Jun 4 14:43:51 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+IGCM_sys_MkdirWork : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out
+IGCM_sys_QsubPost : create_ts
+qsub: cannot send environment with the job
+2025-04-01 15:31:56 --------Debug2--> IGCM_sys_QsubPost -o /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/create_ts.20151231.2D.out -v DEBUG_debug,BigBrother,postProcessingStopLevel,MODIPSL,libIGCM,libIGCM_SX,SUBMIT_DIR,POST_DIR,Script_Post_Output,MASTER,RebuildFrequency,DateBegin,PeriodDateEnd,StandAlone,CompletedFlag,TsTask,CompToRead,FlagToRead,RESOL_ATM,RESOL_OCE,RESOL_ICE,RESOL_MBG,RESOL_SRF,RESOL_SBG /home/orchidee01/yuke/orchidee-CROP/libIGCM/create_ts.job : error code 1
+IGCM_debug_Exit :  IGCM_sys_QsubPost
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!   ERROR TRIGGERED    !!
+!!   EXIT FLAG SET      !!
+!------------------------!
+
+0 - IGCM_sys_QsubPost (create_ts)
+ 1 - IGCM_debug_Exit (_0_)
+2025-04-01 15:31:56 --Debug1--> TIME SERIES POST-PROCESSING 3D WITH CHUNCK ACTIVATED
+
+IGCM_sys_RshPost :
+
+====================================================
+Where do we run ? obelix10
+Linux obelix10 3.10.0-1160.119.1.el7.x86_64 #1 SMP Tue Jun 4 14:43:51 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+IGCM_sys_MkdirWork : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out
+IGCM_sys_QsubPost : create_ts
+qsub: cannot send environment with the job
+2025-04-01 15:31:56 --------Debug2--> IGCM_sys_QsubPost -o /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/create_ts.20151231.Chunck3D.SRF.Post_1M_sechiba_history.out -v DEBUG_debug,BigBrother,postProcessingStopLevel,MODIPSL,libIGCM,libIGCM_SX,SUBMIT_DIR,POST_DIR,Script_Post_Output,MASTER,RebuildFrequency,DateBegin,PeriodDateEnd,StandAlone,CompletedFlag,TsTask,CompToRead,FlagToRead,RESOL_ATM,RESOL_OCE,RESOL_ICE,RESOL_MBG,RESOL_SRF,RESOL_SBG /home/orchidee01/yuke/orchidee-CROP/libIGCM/create_ts.job : error code 1
+IGCM_debug_Exit :  IGCM_sys_QsubPost
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!   ERROR TRIGGERED    !!
+!!   EXIT FLAG SET      !!
+!------------------------!
+
+0 - IGCM_sys_QsubPost (create_ts)
+ 1 - IGCM_debug_Exit (_0_)
+IGCM_sys_RshPost :
+
+====================================================
+Where do we run ? obelix10
+Linux obelix10 3.10.0-1160.119.1.el7.x86_64 #1 SMP Tue Jun 4 14:43:51 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+IGCM_sys_MkdirWork : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out
+IGCM_sys_QsubPost : create_ts
+qsub: cannot send environment with the job
+2025-04-01 15:31:57 --------Debug2--> IGCM_sys_QsubPost -o /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/create_ts.20151231.Chunck3D.SBG.Post_1M_stomate_history.out -v DEBUG_debug,BigBrother,postProcessingStopLevel,MODIPSL,libIGCM,libIGCM_SX,SUBMIT_DIR,POST_DIR,Script_Post_Output,MASTER,RebuildFrequency,DateBegin,PeriodDateEnd,StandAlone,CompletedFlag,TsTask,CompToRead,FlagToRead,RESOL_ATM,RESOL_OCE,RESOL_ICE,RESOL_MBG,RESOL_SRF,RESOL_SBG /home/orchidee01/yuke/orchidee-CROP/libIGCM/create_ts.job : error code 1
+IGCM_debug_Exit :  IGCM_sys_QsubPost
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!   ERROR TRIGGERED    !!
+!!   EXIT FLAG SET      !!
+!------------------------!
+
+0 - IGCM_sys_QsubPost (create_ts)
+ 1 - IGCM_debug_Exit (_0_)
+
+2025-04-01 15:31:57 --Debug1--> IGCM_config_PeriodEnd
+
+2025-04-01 15:31:57 --Debug1--> Check components binary : size and creation date
+2025-04-01 15:31:57 --------------Debug3--> SRF
+2025-04-01 15:31:57 --------------Debug3--> SBG
+2025-04-01 15:31:57 --------------Debug3--> OOL
+IGCM_sys_Put_Out : out_execution /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out/belon2015resz0-true3-test_20150101_20151231_out_execution
+IGCM_sys_MkdirArchive : /home/orchidee01/yuke/IGCM_OUT/OL2/DEVT/WW-test-res-yel-belon2015resz0=root/belon2015resz0-true3-test/Out
+IGCM_sys_Chmod : 444 out_execution
+IGCM_sys_UnTar : 0
+
+2025-04-01 15:31:57 --Debug1--> Files that will be deleted before next period-run :
+-r--r--r-- 1 yuke lsce 16002 Apr  1 15:30 run.def
+-rwxr-xr-x 1 yuke lsce 19136 Apr  1 15:30 CO2.nc
+-r--r--r-- 1 yuke lsce 1640 Apr  1 15:30 iodef.xml
+-r--r--r-- 1 yuke lsce 30675 Apr  1 15:30 file_def_orchidee.xml
+-r--r--r-- 1 yuke lsce 4119 Apr  1 15:30 context_orchidee.xml
+-r--r--r-- 1 yuke lsce 37495 Apr  1 15:30 field_def_orchidee.xml
+-r--r--r-- 1 yuke lsce 162700 Apr  1 15:31 used_run.def
+-rw-r--r-- 1 yuke lsce 259071879 Apr  1 15:31 out_orchidee_0000
+-rw-r--r-- 1 yuke lsce 134 Apr  1 15:30 out_orchidee_ol.err.0
+-rw-r--r-- 1 yuke lsce 8515 Apr  1 15:31 out_orchidee_ol.out.0
+-r--r--r-- 1 yuke lsce 262919605 Apr  1 15:31 belon2015resz0-true3-test_20150101_20151231_out_orchidee
+-r--r--r-- 1 yuke lsce 12132048 Apr  1 15:31 sechiba_history.nc
+-r--r--r-- 1 yuke lsce 172580 Apr  1 15:31 stomate_history.nc
+-r--r--r-- 1 yuke lsce 9272 Apr  1 15:31 belon2015resz0-true3-test_20150101_20151231_out_orchidee_ol
+-rw-r--r-- 1 yuke lsce 358 Apr  1 15:31 out_execution_tail.txt
+-r--r--r-- 1 yuke lsce 358 Apr  1 15:31 out_execution
+
+2025-04-01 15:31:58 --------Debug2--> Number of years for PeriodLength : 1
+
+2025-04-01 15:31:58 --Debug1--> IGCM_config_PeriodEnd : Preparing Next Execution
+2025-04-01 15:31:58 --Debug1--> PeriodDateBegin : 20160101
+2025-04-01 15:31:58 --Debug1--> PeriodDateEnd : 20161231
+2025-04-01 15:31:58 --Debug1--> PeriodLengthInDays : 365
+
+2025-04-01 15:31:58 --------------Debug3--> PeriodDateBegin Human : 2016-01-01
+2025-04-01 15:31:58 --------------Debug3--> PeriodDateEnd Human : 2016-12-31
+2025-04-01 15:31:58 --------------Debug3--> CumulPeriod : 3
+Ending iteration 1
+
+2025-04-01 15:31:59 --Debug1--> IGCM_config_Finalize
+
+/var/spool/pbs/mom_priv/jobs/6057057.obelix0.SC[491]: IGCM_config_Finalize[1297]: IGCM_sys_SendMail: not found [No such file or directory]
+2025-04-01 15:31:59 --Debug1--> Normal End of computation.
+IGCM_sys_Cd : ..
+IGCM_sys_RmRunDir : -rf /scratch/yuke.6057057.obelix0
+Dummy call, let the scheduler do that.
+Tue Apr  1 15:31:59 CEST 2025
