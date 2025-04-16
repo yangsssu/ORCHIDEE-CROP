@@ -1,0 +1,75 @@
+#-
+#- $Id: AA_make 3057 2015-12-04 08:41:30Z albert.jornet $
+#-
+IOIPSL_LIB = $(LIBDIR)/libioipsl.a
+SXIOIPSL_LIB = $(IOIPSL_LIB)
+#-Q- sxnec SXIOIPSL_LIB = $(LIBDIR)/libsxioipsl.a
+#-Q- sx6nec SXIOIPSL_LIB = $(LIBDIR)/libsxioipsl.a
+#-Q- eshpux SXIOIPSL_LIB = $(LIBDIR)/libsxioipsl.a
+#-Q- sx8brodie SXIOIPSL_LIB = $(LIBDIR)/libsxioipsl.a
+#-
+PARALLEL_LIB = $(LIBDIR)/libparallel.a
+SXPARALLEL_LIB = $(PARALLEL_LIB)
+#-Q- sxnec  SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx6nec SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- eshpux SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-Q- sx8brodie SXPARALLEL_LIB = $(LIBDIR)/libsxparallel.a
+#-
+MODS1 = constantes.f90 \
+	constantes_soil.f90   \
+	constantes_mtc.f90   \
+	pft_parameters.f90 
+#
+OBJSMODS1 = $(MODS1:.f90=.o)
+#-
+.PRECIOUS : $(MODEL_LIB)
+#-Q- sxnec  .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx6nec .PRECIOUS : $(SXMODEL_LIB)
+#-Q- eshpux .PRECIOUS : $(SXMODEL_LIB)
+#-Q- sx8brodie .PRECIOUS : $(SXMODEL_LIB)
+#-
+all:
+	$(M_K) libioipsl
+	$(M_K) libparallel
+	$(M_K) m_all
+	@echo parameter is OK
+
+m_all: $(MODEL_LIB)($(OBJSMODS1))
+
+libioipsl:
+	(cd ../../IOIPSL/src; $(M_K) -f Makefile)
+
+libparallel:
+	(cd ../src_parallel; $(M_K) -f Makefile)
+
+$(MODEL_LIB)(%.o): %.f90
+	$(F_C) $(F_O) $*.f90
+	$(A_C) $(MODEL_LIB) $*.o
+#-Q- sxnec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sxnec 	mv $*.mod $(MODDIR)
+#-Q- sx6nec 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx6nec 	mv $*.mod $(MODDIR)
+#-Q- eshpux 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- eshpux 	mv $*.mod $(MODDIR)
+#-Q- sx8mercure 	mv $*.mod $(MODDIR)
+#-Q- sx9mercure 	mv $*.mod $(MODDIR)
+#-Q- sx8brodie 	$(A_X) $(SXMODEL_LIB) $*.o
+#-Q- sx8brodie 	mv $*.mod $(MODDIR)
+#-Q- solaris 	mv $*.mod $(MODDIR)
+	$(RM) $*.o
+
+config:
+	$(BINDIR)/Fparser -name PARAMETERS  $(MODS1)
+	echo 'Configuration of PARAMETERS done'
+ 
+clean:
+	$(RM) $(MODEL_LIB)
+ 
+$(MODEL_LIB)(pft_parameters.o): \
+  $(MODEL_LIB)(constantes_mtc.o)
+$(MODEL_LIB)(constantes_soil.o): \
+  $(MODEL_LIB)(constantes.o)
+$(MODEL_LIB)(constantes.o): \
+  $(PARALLEL_LIB) \
+  $(IOIPSL_LIB)
+

@@ -1,0 +1,66 @@
+#-
+#- $Id: AA_make 1042 2012-10-26 14:32:10Z josefine.ghattas $
+#-
+MODS1 = dim2_driver.f90 \
+        weather.f90 \
+        readdim2.f90 \
+        teststomate.f90 \
+        forcesoil.f90 \
+        getprec.f90
+
+all : orchidee_ol teststomate forcesoil
+
+orchidee_ol:
+	$(M_K) m_orchidee_ol
+	@echo orchidee_ol is OK
+
+m_orchidee_ol: $(BINDIR)/orchidee_ol
+$(BINDIR)/orchidee_ol: \
+  $(SXIOIPSL_LIB) $(SXPARAM_LIB) $(SXPARALLEL_LIB) $(SXORGLOB_LIB) $(SXSTOMATE_LIB) $(SXSECHIBA_LIB) \
+  $(MODEL_LIB)(weather.o) $(MODEL_LIB)(readdim2.o) \
+  $(MODEL_LIB)(dim2_driver.o)
+	$(A_G) $(MODEL_LIB) dim2_driver.o
+	$(F_L) -o $(BINDIR)/orchidee_ol dim2_driver.o $(L_O) \
+          $(SXMODEL_LIB) $(SXSECHIBA_LIB) $(SXSTOMATE_LIB) \
+          $(SXPARALLEL_LIB) $(SXORGLOB_LIB) $(SXPARAM_LIB) $(SXIOIPSL_LIB) $(NCDF_LIB) 
+	$(RM) dim2_driver.o
+
+teststomate:
+	$(M_K) m_teststomate
+	@echo teststomate is OK
+
+m_teststomate: $(BINDIR)/teststomate
+$(BINDIR)/teststomate: \
+  $(SXIOIPSL_LIB) $(SXPARALLEL_LIB) $(SXPARAM_LIB) $(SXORGLOB_LIB) $(SXSTOMATE_LIB) $(SXSECHIBA_LIB) \
+  $(MODEL_LIB)(teststomate.o)
+	$(A_G) $(MODEL_LIB) teststomate.o
+	$(F_L) -o $(BINDIR)/teststomate teststomate.o $(L_O) \
+          $(SXMODEL_LIB) $(SXSECHIBA_LIB) $(SXSTOMATE_LIB) \
+          $(SXPARALLEL_LIB) $(SXORGLOB_LIB) $(SXPARAM_LIB) $(SXIOIPSL_LIB) $(NCDF_LIB)
+	$(RM) teststomate.o
+
+forcesoil:
+	$(M_K) m_forcesoil
+	@echo m_forcesoil is OK
+
+m_forcesoil: $(BINDIR)/forcesoil
+$(BINDIR)/forcesoil: \
+  $(SXIOIPSL_LIB) $(SXPARALLEL_LIB) $(SXPARAM_LIB) $(SXORGLOB_LIB) $(SXSTOMATE_LIB) $(SXSECHIBA_LIB) \
+  $(MODEL_LIB)(forcesoil.o)
+	$(A_G) $(MODEL_LIB) forcesoil.o
+	$(F_L) -o $(BINDIR)/forcesoil forcesoil.o $(L_O) \
+          $(SXMODEL_LIB) $(SXSECHIBA_LIB) $(SXSTOMATE_LIB) \
+          $(SXPARALLEL_LIB) $(SXORGLOB_LIB) $(SXPARAM_LIB) $(SXIOIPSL_LIB) $(NCDF_LIB)
+	$(RM) forcesoil.o
+
+libioipsl:
+	(cd ../../IOIPSL/src; $(M_K) -f Makefile)
+
+clean:
+	$(RM) $(MODEL_LIB)
+
+$(MODEL_LIB)(%.o): %.f90
+	$(F_C) $(F_O) -I$(NCDF_INC) $*.f90
+	$(A_C) $(MODEL_LIB) $*.o
+	$(RM) $*.o
+
