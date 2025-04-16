@@ -1,0 +1,458 @@
+(cd ../../modeles/IOIPSL/src ; gmake clean ; )
+gmake[1]: Entering directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+rm -f ../../../lib/libioipsl.a
+rm -f *.*~ Makefile~ core *.o *.mod i.*.L *.L i.*.f90
+rm -f ../../../lib/*.mod ../../../lib/*.M *.M
+gmake[1]: Leaving directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+(cd ../../modeles/ORCHIDEE ; ./makeorchidee_fcm -clean ; )
+(rm -rf ../../modeles/XIOS/bin/ ../../modeles/XIOS/inc ../../modeles/XIOS/obj ../../modeles/XIOS/lib ; )
+(rm -f ../../bin/orchidee_ol ; rm -f ../../bin/teststomate ; rm -f ../../bin/forcesoil ; rm -f ../../bin/xios_server.exe ; )
+(cd ../../modeles/IOIPSL/src ; gmake ; )
+gmake[1]: Entering directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  defprec.f90
+ar -r ../../../lib/libioipsl.a defprec.o
+ar: creating ../../../lib/libioipsl.a
+rm -f defprec.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  errioipsl.f90
+ar -r ../../../lib/libioipsl.a errioipsl.o
+rm -f errioipsl.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  stringop.f90
+ar -r ../../../lib/libioipsl.a stringop.o
+rm -f stringop.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  mathelp.f90
+ar -r ../../../lib/libioipsl.a mathelp.o
+rm -f mathelp.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  getincom.f90
+ar -r ../../../lib/libioipsl.a getincom.o
+rm -f getincom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  calendar.f90
+ar -r ../../../lib/libioipsl.a calendar.o
+rm -f calendar.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  fliocom.f90
+ar -r ../../../lib/libioipsl.a fliocom.o
+rm -f fliocom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  flincom.f90
+ar -r ../../../lib/libioipsl.a flincom.o
+rm -f flincom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  histcom.f90
+ar -r ../../../lib/libioipsl.a histcom.o
+rm -f histcom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  restcom.f90
+ar -r ../../../lib/libioipsl.a restcom.o
+rm -f restcom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  ioipsl.f90
+ar -r ../../../lib/libioipsl.a ioipsl.o
+rm -f ioipsl.o
+IOIPSL is OK
+gmake[1]: Leaving directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+(cd ../../modeles/ORCHIDEE ; ./makeorchidee_fcm        -j 8 -parallel mpi -prod -arch ifort_LSCE -driver ; )
+parallel_mode = mpi
+Build command started on Sat Oct  5 11:55:04 2024.
+->Setup              : start
+# Config file (bld): /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/bld.cfg
+# Config file (bld): arch.fcm
+# Config file (bld): config.fcm
+Make directory: /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/.cache
+->Setup              : 2 seconds
+->Pre-process        : start
+Warning: no make rule file for source package: ext_src
+Number of pre-processed files: 112
+->Pre-process        : 3 seconds
+->Scan dependency    : start
+Scanned files in 7 package(s) for dependency
+Updated make rules for 7 package(s).
+Updated Makefile: /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/bld/Makefile
+->Scan dependency    : 4 seconds
+->Generate interface : start
+->Generate interface : 0 second
+->Make               : start
+gmake[1]: Circular orch_write_field.o <- orch_write_field.o dependency dropped.
+gmake[1]: Circular orch_write_field.done <- orch_write_field.done dependency dropped.
+mpif90 -o reprac_calc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/reprac_calc.f90
+mpif90 -o constantes_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_var.f90
+mpif90 -o gammad_inc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/gammad_inc.f90
+mpif90 -o pft_parameters_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/pft_parameters_var.f90
+mpif90 -o vertical_soil_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/vertical_soil_var.f90
+mpif90 -o mod_orchidee_para_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_para_var.f90
+mpif90 -o constantes_soil_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_soil_var.f90
+mpif90 -o mod_orchidee_omp_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_omp_data.f90
+mpif90 -o timer.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/timer.f90
+mpif90 -o tools_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/tools_para.f90
+mpif90 -o mod_orchidee_mpi_transfert.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_mpi_transfert.f90
+mpif90 -o mod_orchidee_omp_transfert.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_omp_transfert.f90
+mpif90 -o mod_orchidee_transfert_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_transfert_para.f90
+mpif90 -o ioipsl_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/ioipsl_para.f90
+mpif90 -o vertical_soil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/vertical_soil.f90
+mpif90 -o xios_orchidee.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/xios_orchidee.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/xios_orchidee.f90(109): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [COMM_LOCAL]
+  SUBROUTINE xios_orchidee_comm_init(comm_local)
+-------------------------------------^
+mpif90 -o mod_orchidee_mpi_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_mpi_data.f90
+mpif90 -o mod_orchidee_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_para.f90
+mpif90 -o orch_write_field.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/orch_write_field.f90
+mpif90 -o constantes.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes.f90
+mpif90 -o matrix_resolution.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/gauss_jordan_method.f90
+mpif90 -o solar.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/solar.f90
+mpif90 -o constantes_soil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_soil.f90
+mpif90 -o constantes_pasim.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/constantes_PaSim.f90
+mpif90 -o constantes_mtc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_mtc.f90
+mpif90 -o grid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/grid.f90
+mpif90 -o sechiba_io_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba_io_p.f90
+mpif90 -o fonctions_pasim.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/fonctions_PaSim.f90
+mpif90 -o pft_parameters.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/pft_parameters.f90
+mpif90 -o qsat_moisture.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/qsat_moisture.f90
+mpif90 -o hydro_subgrid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydro_subgrid.f90
+mpif90 -o stics.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics.f90
+mpif90 -o interpol_help.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/interpol_help.f90
+mpif90 -o weather.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/orchidee_ol/weather.f90
+mpif90 -o write_field.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/write_field.f90
+mpif90 -o divers_develop.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Divers_develop.f90
+mpif90 -o besoins_en_froid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Besoins_en_froid.f90
+mpif90 -o calculnombredefeuilles.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/CalculNombreDeFeuilles.f90
+mpif90 -o divers_water.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/F_humirac.f90
+mpif90 -o recolte.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Recolte.f90
+mpif90 -o divers_gel.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/gel.f90
+mpif90 -o stress.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/stress.f90
+mpif90 -o orch_write_field_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/orch_write_field_p.f90
+mpif90 -o sechiba_io.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba_io.f90
+mpif90 -o calai_.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Calcul_LAI.f90
+mpif90 -o develop2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Develop.f90
+mpif90 -o laidev.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Lai_Developpement.f90
+mpif90 -o levee.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Levee.f90
+mpif90 -o grain.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/grain.f90
+mpif90 -o senescen.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/senescen.f90
+mpif90 -o write_field_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/write_field_p.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparallel.a ioipsl_para.o mod_orchidee_mpi_data.o mod_orchidee_mpi_transfert.o mod_orchidee_omp_data.o mod_orchidee_omp_transfert.o mod_orchidee_para.o mod_orchidee_para_var.o mod_orchidee_transfert_para.o orch_write_field.o orch_write_field_p.o timer.o tools_para.o write_field.o write_field_p.o xios_orchidee.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparallel.a
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborglob.a grid.o interpol_help.o matrix_resolution.o solar.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborglob.a
+mpif90 -o thermosoilc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/thermosoilc.f90
+mpif90 -o thermosoil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/thermosoil.f90
+mpif90 -o readdim2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/orchidee_ol/readdim2.f90
+mpif90 -o control.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/control.f90
+mpif90 -o explicitsnow.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/explicitsnow.f90
+mpif90 -o condveg.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/condveg.f90
+mpif90 -o ioipslctrl.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/ioipslctrl.f90
+mpif90 -o chemistry.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/chemistry.f90
+mpif90 -o enerbil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/enerbil.f90
+mpif90 -o init_top.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/init_top.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/condveg.f90(1957): warning #5117: Bad # preprocessor line
+                           # a=0
+-----------------------------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/condveg.f90(1958): warning #5117: Bad # preprocessor line
+                           # albedo(jp,ks) = alb_bare(jp,ks)*(1-a)  
+-----------------------------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/condveg.f90(1959): warning #5117: Bad # preprocessor line
+                           # alb_veget(jp,ks) = 0
+-----------------------------^
+mpif90 -o routing.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/routing.f90
+mpif90 -o stomate_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_data.f90
+mpif90 -o fertilisation.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Fertilisation_Orchidee.f90
+mpif90 -o crop_alloc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/crop_alloc.f90
+mpif90 -o stomate_wet_ch4_pt_ter_0.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_0.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet1.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet1.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet2.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet3.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet3.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet4.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet4.f90
+mpif90 -o stomate_permafrost_soilcarbon.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_permafrost_soilcarbon.f90
+mpif90 -o stomate_resp.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_resp.f90
+mpif90 -o stomate_season.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_season.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparameters.a constantes.o constantes_mtc.o constantes_soil.o constantes_soil_var.o constantes_var.o control.o pft_parameters.o pft_parameters_var.o vertical_soil.o vertical_soil_var.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparameters.a
+mpif90 -o stics_init.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_init.f90
+mpif90 -o diffuco.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/diffuco.f90
+mpif90 -o hydrol.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90
+mpif90 -o hydrolc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrolc.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8207): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---delsoilmoist in hydrol', delsoilmoist
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8208): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---tot_watsoil_beg in hydrol', tot_watsoil_beg
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8209): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---realtive in hydrol', delsoilmoist/tot_watsoil_beg*100
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(4666): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [FRAC_RES]
+  SUBROUTINE hydrol_vegupd(kjit, kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare, frac_res) !! add by Ke
+-----------------------------------------------------------------------------------------------------^
+mpif90 -o stomate_io.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CONVFLUX]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+----------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CFLUX_PROD10]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+--------------------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CFLUX_PROD100]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+----------------------------------^
+mpif90 -o stomate_litter.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_litter.f90
+mpif90 -o animaux.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Animals_Orchidee.f90
+mpif90 -o fauche.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Fauche_Orchidee.f90
+mpif90 -o applic_plant.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Applic_Plantes.f90
+mpif90 -o lpj_constraints.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_constraints.f90
+mpif90 -o lpj_cover.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_cover.f90
+mpif90 -o lpj_crown.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_crown.f90
+mpif90 -o lpj_establish.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_establish.f90
+mpif90 -o lpj_fire.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_fire.f90
+mpif90 -o lpj_gap.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_gap.f90
+mpif90 -o lpj_kill.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_kill.f90
+ifort: error #10236: File not found:  '/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_kill.f90'
+ifort: command line error: no files specified; for help type "ifort -help"
+mpif90 -o lpj_light.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_light.f90
+fcm_internal compile failed (256)
+gmake[1]: *** [lpj_kill.o] Error 1
+gmake[1]: *** Waiting for unfinished jobs....
+ifort: error #10236: File not found:  '/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_light.f90'
+ifort: command line error: no files specified; for help type "ifort -help"
+fcm_internal compile failed (256)
+gmake[1]: *** [lpj_light.o] Error 1
+gmake -s -j 8 all failed (512) at /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tools/FCM_V1.2/lib/Fcm/Build.pm line 1922.
+Build command failed on Sat Oct  5 11:56:51 2024.
+->Make               : 98 seconds
+->TOTAL              : 107 seconds
+ERROR IN COMPILING ORCHIDEE : 1
+make: *** [driver] Error 1
+(cd ../../modeles/IOIPSL/src ; gmake clean ; )
+gmake[1]: Entering directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+rm -f ../../../lib/libioipsl.a
+rm -f *.*~ Makefile~ core *.o *.mod i.*.L *.L i.*.f90
+rm -f ../../../lib/*.mod ../../../lib/*.M *.M
+gmake[1]: Leaving directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+(cd ../../modeles/ORCHIDEE ; ./makeorchidee_fcm -clean ; )
+(rm -rf ../../modeles/XIOS/bin/ ../../modeles/XIOS/inc ../../modeles/XIOS/obj ../../modeles/XIOS/lib ; )
+(rm -f ../../bin/orchidee_ol ; rm -f ../../bin/teststomate ; rm -f ../../bin/forcesoil ; rm -f ../../bin/xios_server.exe ; )
+(cd ../../modeles/IOIPSL/src ; gmake ; )
+gmake[1]: Entering directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  defprec.f90
+ar -r ../../../lib/libioipsl.a defprec.o
+ar: creating ../../../lib/libioipsl.a
+rm -f defprec.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  errioipsl.f90
+ar -r ../../../lib/libioipsl.a errioipsl.o
+rm -f errioipsl.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  stringop.f90
+ar -r ../../../lib/libioipsl.a stringop.o
+rm -f stringop.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  mathelp.f90
+ar -r ../../../lib/libioipsl.a mathelp.o
+rm -f mathelp.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  getincom.f90
+ar -r ../../../lib/libioipsl.a getincom.o
+rm -f getincom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  calendar.f90
+ar -r ../../../lib/libioipsl.a calendar.o
+rm -f calendar.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  fliocom.f90
+ar -r ../../../lib/libioipsl.a fliocom.o
+rm -f fliocom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  flincom.f90
+ar -r ../../../lib/libioipsl.a flincom.o
+rm -f flincom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  histcom.f90
+ar -r ../../../lib/libioipsl.a histcom.o
+rm -f histcom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  restcom.f90
+ar -r ../../../lib/libioipsl.a restcom.o
+rm -f restcom.o
+mpif90 -c -cpp -DCPP_PARA -O3  -i4 -r8 -I../../../lib -module ../../../lib -fp-model precise -I/usr/local/install/netcdf-4.3.2p/include  ioipsl.f90
+ar -r ../../../lib/libioipsl.a ioipsl.o
+rm -f ioipsl.o
+IOIPSL is OK
+gmake[1]: Leaving directory `/home/orchidee01/yuke/orchidee-CROP/modeles/IOIPSL/src'
+(cd ../../modeles/ORCHIDEE ; ./makeorchidee_fcm        -j 8 -parallel mpi -prod -arch ifort_LSCE -driver ; )
+parallel_mode = mpi
+Build command started on Tue Oct 22 21:29:57 2024.
+->Setup              : start
+# Config file (bld): /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/bld.cfg
+# Config file (bld): arch.fcm
+# Config file (bld): config.fcm
+Make directory: /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/.cache
+->Setup              : 1 second
+->Pre-process        : start
+Warning: no make rule file for source package: ext_src
+Number of pre-processed files: 112
+->Pre-process        : 2 seconds
+->Scan dependency    : start
+Scanned files in 7 package(s) for dependency
+Updated make rules for 7 package(s).
+Updated Makefile: /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/bld/Makefile
+->Scan dependency    : 5 seconds
+->Generate interface : start
+->Generate interface : 0 second
+->Make               : start
+gmake[1]: Circular orch_write_field.o <- orch_write_field.o dependency dropped.
+gmake[1]: Circular orch_write_field.done <- orch_write_field.done dependency dropped.
+mpif90 -o reprac_calc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/reprac_calc.f90
+mpif90 -o vertical_soil_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/vertical_soil_var.f90
+mpif90 -o pft_parameters_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/pft_parameters_var.f90
+mpif90 -o mod_orchidee_para_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_para_var.f90
+mpif90 -o gammad_inc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/gammad_inc.f90
+mpif90 -o constantes_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_var.f90
+mpif90 -o tools_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/tools_para.f90
+mpif90 -o mod_orchidee_omp_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_omp_data.f90
+mpif90 -o timer.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/timer.f90
+mpif90 -o constantes_soil_var.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_soil_var.f90
+mpif90 -o mod_orchidee_mpi_transfert.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_mpi_transfert.f90
+mpif90 -o mod_orchidee_omp_transfert.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_omp_transfert.f90
+mpif90 -o mod_orchidee_transfert_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_transfert_para.f90
+mpif90 -o ioipsl_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/ioipsl_para.f90
+mpif90 -o vertical_soil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/vertical_soil.f90
+mpif90 -o xios_orchidee.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/xios_orchidee.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/xios_orchidee.f90(109): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [COMM_LOCAL]
+  SUBROUTINE xios_orchidee_comm_init(comm_local)
+-------------------------------------^
+mpif90 -o mod_orchidee_mpi_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_mpi_data.f90
+mpif90 -o mod_orchidee_para.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/mod_orchidee_para.f90
+mpif90 -o constantes.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes.f90
+mpif90 -o orch_write_field.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/orch_write_field.f90
+mpif90 -o grid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/grid.f90
+mpif90 -o matrix_resolution.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/gauss_jordan_method.f90
+mpif90 -o solar.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/solar.f90
+mpif90 -o constantes_mtc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_mtc.f90
+mpif90 -o constantes_soil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/constantes_soil.f90
+mpif90 -o constantes_pasim.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/constantes_PaSim.f90
+mpif90 -o sechiba_io_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba_io_p.f90
+mpif90 -o fonctions_pasim.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/fonctions_PaSim.f90
+mpif90 -o pft_parameters.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/pft_parameters.f90
+mpif90 -o qsat_moisture.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/qsat_moisture.f90
+mpif90 -o hydro_subgrid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydro_subgrid.f90
+mpif90 -o write_field.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/write_field.f90
+mpif90 -o interpol_help.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/global/interpol_help.f90
+mpif90 -o stics.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics.f90
+mpif90 -o weather.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/orchidee_ol/weather.f90
+mpif90 -o orch_write_field_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/orch_write_field_p.f90
+mpif90 -o divers_develop.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Divers_develop.f90
+mpif90 -o besoins_en_froid.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Besoins_en_froid.f90
+mpif90 -o calculnombredefeuilles.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/CalculNombreDeFeuilles.f90
+mpif90 -o divers_water.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/F_humirac.f90
+mpif90 -o recolte.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Recolte.f90
+mpif90 -o divers_gel.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/gel.f90
+mpif90 -o stress.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/stress.f90
+mpif90 -o write_field_p.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parallel/write_field_p.f90
+mpif90 -o sechiba_io.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba_io.f90
+mpif90 -o calai_.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Calcul_LAI.f90
+mpif90 -o develop2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Develop.f90
+mpif90 -o laidev.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Lai_Developpement.f90
+mpif90 -o levee.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_Levee.f90
+mpif90 -o grain.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/grain.f90
+mpif90 -o senescen.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/senescen.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparallel.a ioipsl_para.o mod_orchidee_mpi_data.o mod_orchidee_mpi_transfert.o mod_orchidee_omp_data.o mod_orchidee_omp_transfert.o mod_orchidee_para.o mod_orchidee_para_var.o mod_orchidee_transfert_para.o orch_write_field.o orch_write_field_p.o timer.o tools_para.o write_field.o write_field_p.o xios_orchidee.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparallel.a
+mpif90 -o thermosoilc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/thermosoilc.f90
+mpif90 -o thermosoil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/thermosoil.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborglob.a grid.o interpol_help.o matrix_resolution.o solar.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborglob.a
+mpif90 -o readdim2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/orchidee_ol/readdim2.f90
+mpif90 -o enerbil.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/enerbil.f90
+mpif90 -o chemistry.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/chemistry.f90
+mpif90 -o ioipslctrl.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/ioipslctrl.f90
+mpif90 -o condveg.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/condveg.f90
+mpif90 -o init_top.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/init_top.f90
+mpif90 -o control.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/parameters/control.f90
+mpif90 -o explicitsnow.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/explicitsnow.f90
+mpif90 -o routing.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/routing.f90
+mpif90 -o stomate_data.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_data.f90
+mpif90 -o fertilisation.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Fertilisation_Orchidee.f90
+mpif90 -o crop_alloc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/crop_alloc.f90
+mpif90 -o stomate_wet_ch4_pt_ter_0.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_0.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet1.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet1.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet2.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet2.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet3.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet3.f90
+mpif90 -o stomate_wet_ch4_pt_ter_wet4.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_wet_ch4_pt_ter_wet4.f90
+mpif90 -o stomate_permafrost_soilcarbon.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_permafrost_soilcarbon.f90
+mpif90 -o stomate_resp.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_resp.f90
+mpif90 -o stomate_season.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_season.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparameters.a constantes.o constantes_mtc.o constantes_soil.o constantes_soil_var.o constantes_var.o control.o pft_parameters.o pft_parameters_var.o vertical_soil.o vertical_soil_var.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libparameters.a
+mpif90 -o stics_init.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sticslai/Stics_init.f90
+mpif90 -o diffuco.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/diffuco.f90
+mpif90 -o hydrol.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90
+mpif90 -o hydrolc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrolc.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8207): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---delsoilmoist in hydrol', delsoilmoist
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8208): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---tot_watsoil_beg in hydrol', tot_watsoil_beg
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(8209): warning #5117: Bad # preprocessor line
+  #  WRITE(numout,*) 'ke---realtive in hydrol', delsoilmoist/tot_watsoil_beg*100
+----^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/hydrol.f90(4666): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [FRAC_RES]
+  SUBROUTINE hydrol_vegupd(kjit, kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare, frac_res) !! add by Ke
+-----------------------------------------------------------------------------------------------------^
+mpif90 -o stomate_io.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CONVFLUX]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+----------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CFLUX_PROD10]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+--------------------^
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_io.f90(81): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [CFLUX_PROD100]
+       &  convflux, cflux_prod10, cflux_prod100, bm_to_litter, carb_mass_total,&
+----------------------------------^
+mpif90 -o stomate_litter.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_litter.f90
+mpif90 -o animaux.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Animals_Orchidee.f90
+mpif90 -o fauche.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Fauche_Orchidee.f90
+mpif90 -o applic_plant.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Applic_Plantes.f90
+mpif90 -o lpj_constraints.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_constraints.f90
+mpif90 -o lpj_cover.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_cover.f90
+mpif90 -o lpj_crown.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_crown.f90
+mpif90 -o lpj_establish.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_establish.f90
+mpif90 -o lpj_fire.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_fire.f90
+mpif90 -o lpj_gap.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_gap.f90
+mpif90 -o lpj_kill.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_kill.f90
+mpif90 -o lpj_light.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_light.f90
+mpif90 -o lpj_pftinout.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_pftinout.f90
+mpif90 -o lpj_spitfire.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/lpj_spitfire.f90
+mpif90 -o stomate_alloc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_alloc.f90
+mpif90 -o stomate_glcchange_sinagec_fh.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_glcchange_SinAgeC_fh.f90
+mpif90 -o stomate_glcchange_fh.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_glcchange_fh.f90
+mpif90 -o stomate_lcchange.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_lcchange.f90
+mpif90 -o stomate_npp.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_npp.f90
+mpif90 -o stomate_phenology.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_phenology.f90
+mpif90 -o stomate_prescribe.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_prescribe.f90
+mpif90 -o stomate_soilcarbon.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_soilcarbon.f90
+mpif90 -o stomate_turnover.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_turnover.f90
+mpif90 -o stomate_vmax.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_vmax.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libsticslai.a besoins_en_froid.o calai_.o calculnombredefeuilles.o crop_alloc.o develop2.o divers_develop.o divers_gel.o divers_water.o grain.o laidev.o levee.o recolte.o reprac_calc.o senescen.o stics.o stics_init.o stress.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libsticslai.a
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborchidee_ol.a readdim2.o weather.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborchidee_ol.a
+mpif90 -o grassland_management.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/Grassland_Management.f90
+mpif90 -o stomate_lpj.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate_lpj.f90
+mpif90 -o stomate.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/stomate/stomate.f90(1096): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [DATE_S2]
+         soilc_total, heat_Zimov,           temp_growth,havlen,date_s2) !! add by Ke
+---------------------------------------------------------------^
+mpif90 -o slowproc.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/slowproc.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libstomate.a animaux.o applic_plant.o constantes_pasim.o fauche.o fertilisation.o fonctions_pasim.o grassland_management.o lpj_constraints.o lpj_cover.o lpj_crown.o lpj_establish.o lpj_fire.o lpj_gap.o lpj_kill.o lpj_light.o lpj_pftinout.o lpj_spitfire.o stomate.o stomate_alloc.o stomate_data.o stomate_glcchange_fh.o stomate_glcchange_sinagec_fh.o stomate_io.o stomate_lcchange.o stomate_litter.o stomate_lpj.o stomate_npp.o stomate_permafrost_soilcarbon.o stomate_phenology.o stomate_prescribe.o stomate_resp.o stomate_season.o stomate_soilcarbon.o stomate_turnover.o stomate_vmax.o stomate_wet_ch4_pt_ter_0.o stomate_wet_ch4_pt_ter_wet1.o stomate_wet_ch4_pt_ter_wet2.o stomate_wet_ch4_pt_ter_wet3.o stomate_wet_ch4_pt_ter_wet4.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libstomate.a
+mpif90 -o sechiba.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba.f90
+/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/sechiba.f90(778): warning #6843: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [T2M_MIN]
+       & rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC,nrec_trans,havlen,raero,t2m_min,date_s2,veget_init,alb_veg_init,tot_residue)  !! add by Ke)
+-----------------------------------------------------------------------------------------------------------^
+mpif90 -o intersurf.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/sechiba/intersurf.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libsechiba.a chemistry.o condveg.o diffuco.o enerbil.o explicitsnow.o gammad_inc.o hydro_subgrid.o hydrol.o hydrolc.o init_top.o intersurf.o ioipslctrl.o qsat_moisture.o routing.o sechiba.o sechiba_io.o sechiba_io_p.o slowproc.o thermosoil.o thermosoilc.o
+mpif90 -o driver.o -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -c /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/ppsrc/orchidee_ol/dim2_driver.f90
+ar rs /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborchidee.a animaux.o applic_plant.o besoins_en_froid.o calai_.o calculnombredefeuilles.o chemistry.o condveg.o constantes.o constantes_mtc.o constantes_pasim.o constantes_soil.o constantes_soil_var.o constantes_var.o control.o crop_alloc.o develop2.o diffuco.o divers_develop.o divers_gel.o divers_water.o enerbil.o explicitsnow.o fauche.o fertilisation.o fonctions_pasim.o gammad_inc.o grain.o grassland_management.o grid.o hydro_subgrid.o hydrol.o hydrolc.o init_top.o interpol_help.o intersurf.o ioipsl_para.o ioipslctrl.o laidev.o levee.o lpj_constraints.o lpj_cover.o lpj_crown.o lpj_establish.o lpj_fire.o lpj_gap.o lpj_kill.o lpj_light.o lpj_pftinout.o lpj_spitfire.o matrix_resolution.o mod_orchidee_mpi_data.o mod_orchidee_mpi_transfert.o mod_orchidee_omp_data.o mod_orchidee_omp_transfert.o mod_orchidee_para.o mod_orchidee_para_var.o mod_orchidee_transfert_para.o orch_write_field.o orch_write_field_p.o pft_parameters.o pft_parameters_var.o qsat_moisture.o readdim2.o recolte.o reprac_calc.o routing.o sechiba.o sechiba_io.o sechiba_io_p.o senescen.o slowproc.o solar.o stics.o stics_init.o stomate.o stomate_alloc.o stomate_data.o stomate_glcchange_fh.o stomate_glcchange_sinagec_fh.o stomate_io.o stomate_lcchange.o stomate_litter.o stomate_lpj.o stomate_npp.o stomate_permafrost_soilcarbon.o stomate_phenology.o stomate_prescribe.o stomate_resp.o stomate_season.o stomate_soilcarbon.o stomate_turnover.o stomate_vmax.o stomate_wet_ch4_pt_ter_0.o stomate_wet_ch4_pt_ter_wet1.o stomate_wet_ch4_pt_ter_wet2.o stomate_wet_ch4_pt_ter_wet3.o stomate_wet_ch4_pt_ter_wet4.o stress.o thermosoil.o thermosoilc.o timer.o tools_para.o vertical_soil.o vertical_soil_var.o weather.o write_field.o write_field_p.o xios_orchidee.o
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/libsechiba.a
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/liborchidee.a
+ar: creating /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/tmp_src/lib__fcm__dim2_driver.a
+mpif90 -o dim2_driver.exe /home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/.config/obj/driver.o -L/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/lib -l__fcm__dim2_driver -i4 -r8 -O3 -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf -L/usr/local/install/hdf5-1.8.9p/lib -lhdf5_hl -lhdf5 -lhdf5 -lz -lcurl -lstdc++ -L/home/orchidee01/yuke/orchidee-CROP/modeles/ORCHIDEE/../../lib -lioipsl -lnetcdf
+->Make               : 236 seconds
+->TOTAL              : 244 seconds
+Build command finished on Tue Oct 22 21:34:01 2024.
+ls -lrt ../../bin
+total 24600
+-rwxr-xr-x 1 yuke lsce 25184504 Oct 22 21:34 orchidee_ol
+
+====================================================
+Where do we run ? obelix2
+Linux obelix2 3.10.0-1160.119.1.el7.x86_64 #1 SMP Tue Jun 4 14:43:51 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+====================================================
+
+sys source obelix or asterix lib.
+No option for Header regarding ProjectID, ProjectNode, ProjectCore or MPIEnvironment because we are not on curie or ada
+5165853.obelix0
+./0_create_and_sub_all_jobs_1_to_500_loop.sh: line 1: syntax error near unexpected token `$'do\r''
+./0_create_and_sub_all_jobs_1_to_500_loop.sh: line 1: `for year in {2020}; do'
