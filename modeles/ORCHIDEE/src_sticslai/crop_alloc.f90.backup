@@ -1,0 +1,331 @@
+! This subrutine is addressing the Carbon allocation for crops in combination with STICS
+! Author: Xiuchen Wu
+! Date: 1/08/2013
+
+module crop_alloc
+
+! use modules
+
+USE ioipsl
+USE pft_parameters
+USE constantes
+USE netcdf
+
+IMPLICIT NONE
+
+CONTAINS
+
+subroutine crop_bmalloc(in_cycle,         &
+                      deltai,           &
+                      dltaisen,         &
+                      ssla,             &
+                      pgrain,           &
+                      deltgrain,          &
+                      reprac,           &
+                      nger,             &
+                      nlev,             &
+                      ndrp,             &
+                      nlax,             &    ! input 
+                      nrec,             &
+                      bm_alloc_tot,     &    ! input
+                      biomass,          &
+                      c_reserve,        &    ! out
+                      c_leafb,          &    ! out
+                      bm_alloc,         &    ! inout
+                      P_densitesem,     &
+                      P_pgrainmaxi,     &
+                      P_tigefeuil,     &
+                      P_slamax,        &
+                      slai)               ! parameter
+
+   !USE ioipsl
+   !USE pft_parameters
+   !USE constantes
+   
+   ! Declaration part
+   
+   ! 0.0 INPUT PART
+   LOGICAL, INTENT(IN)                 :: in_cycle            
+   REAL(r_std),  INTENT(IN)            :: deltai         ! lai increment  // unit in m2 m-2
+   REAL(r_std),  INTENT(IN)            :: dltaisen       ! lai senescence  // unit in m2 m-2
+   REAL(r_std),  INTENT(IN)            :: ssla           ! sla from STICS // unit in g cm -2
+   REAL(r_std),  INTENT(IN)            :: pgrain         ! weight per grain (dry matter, but not carbon)  // g
+   REAL(r_std),  INTENT(IN)            :: deltgrain        ! grain yield increment (dry matter but not carbon)  // unit g c / m2
+   REAL(r_std),  INTENT(IN)            :: reprac 
+   INTEGER(i_std),  INTENT(IN)            :: nger
+   INTEGER(i_std),  INTENT(IN)            :: nlev 
+   INTEGER(i_std),  INTENT(IN)            :: ndrp
+   INTEGER(i_std), INTENT(IN)            :: nlax
+   INTEGER(i_std), INTENT(IN)            :: nrec
+   REAL(r_std), INTENT(IN)             :: bm_alloc_tot   ! unit in g m-2 
+   REAL(r_std),  INTENT(IN)            :: P_densitesem
+   REAL(r_std),  INTENT(IN)            :: P_pgrainmaxi
+   REAL(r_std),  INTENT(IN)            :: P_tigefeuil
+   REAL(r_std),  INTENT(IN)            :: P_slamax
+
+   REAL(r_std), DIMENSION(nparts), INTENT(INOUT)             :: biomass   ! unit in g m-2 
+   
+   ! 1.0 INOUT PART
+
+   REAL(r_std), INTENT(INOUT)            ::c_reserve  ! crop reserve 
+   REAL(r_std), INTENT(INOUT)            ::c_leafb ! crop leaf biomass derived from STICS
+   REAL(r_std), INTENT(INOUT)            ::slai ! stics simulated lai
+
+   REAL(r_std), DIMENSION(nparts), INTENT(INOUT)            ::bm_alloc ! crop leaf biomass derived from STICS
+   
+   ! 2.0 local 
+   REAL             ::  grainrem   ! daily grain minus reservoir, the remaining carbon
+   REAL             ::  deltmagrain   ! daily grain/ (unit in carbon)
+   INTEGER          :: ipart
+
+
+    ! Part one: conversion from biomass(dry matter) to carbon
+    deltmagrain = deltgrain*0.48
+
+    ! STRATEGY: 
+    ! We keep the leaf biomass, grain and reprac from STICS 
+    ! Total available biomass for allocation is dltams and cropreserv. 
+
+    !IF (bavard .GE. 3) WRITE(numout,*) 'Entering crop alloc'
+    
+    ! 1. whether or not necessary to enter into this process
+    
+    if (.not. in_cycle) return   ! if not yet into the crop cycle or finish the cycle
+
+    ! 1. initialize the bm_alloc (biomass allocation)
+    !
+
+    bm_alloc(:) = 0.      ! 8 parts
+       
+    ! 2.  leaf biomass from STICS 
+    ! in this subroutine, we USED the Leaf biomass and GRAIN yield, the leaf biomass and grain production is adjusted accoring to different stages (in detail see leaf and grain processes)
+
+    c_leafb = 0.
+    if (in_cycle) then
+       if (deltai > 0.) then  ! just for leaf growth period
+           c_leafb = deltai/ssla*10000.0*0.48
+       else
+           c_leafb = 0.
+       endif
+    else
+       c_leafb = 0.
+    endif
+  
+    
+    ! 3. reinitialization of leaf and fruit biomass
+ 
+    bm_alloc(ileaf) = c_leafb
+    bm_alloc(ifruit)= deltmagrain
+    !bm_alloc(icarbres) = c_reserve
+   
+ 
+    ! 4.  real allocation for each grid and each pft
+
+    ! STRATEGY: 
+    ! 1. carbon allocation priority is different for different parts;
+    ! 2. even for the same pool, the priority is changing along with time (stage revolution) 
+    
+    ! 3.1 FOR STAGE [nger, nlev]
+
+    ! the c_reserve starts to decreasing because the root growth
+    ! and we allocate all carbon into root
+
+    if ((nger .gt. 0) .and. (nlev .eq. 0)) then ! germination occured but did not emerge, during this stage only root and reserve pools
+       if ( biomass(icarbres) > 0.) then  ! adjust the reserve dynamics
+          ! addressing the c_reserve dynamics
+          bm_alloc(iroot) = biomass(icarbres)*reprac 
+          bm_alloc(icarbres) = 0. - biomass(icarbres)*reprac 
+       else
+          !c_reserve = 0.
+          bm_alloc(icarbres) = 0.
+          bm_alloc(iroot) = 0.
+       endif
+    endif
+    
+    ! 3.2 FOR STAGE [NLEV, NDRP]
+    if ((nlev .gt. 0) .and. (ndrp .eq. 0)) then 
+    ! emergence and photosynthese, whereas grain is not filling
+    ! in this stage, we keep the leaf and grain biomass
+    ! root with the higher priority
+
+       ! in this stage, the allocation of leaf and root is with higher priority
+       bm_alloc(ileaf) = c_leafb
+       bm_alloc(iroot) = reprac*bm_alloc_tot   ! root biomass
+       !bm_alloc(icarbres) = c_reserve       
+ 
+       if (c_leafb >= bm_alloc_tot) then 
+
+          if (biomass(icarbres) >= (c_leafb - bm_alloc_tot )) then ! enough for leaf and root
+             bm_alloc(ileaf) = c_leafb 
+             !c_reserve = c_reserve - (c_leafb - bm_alloc_tot)   ! leaf with the highest priority          
+             bm_alloc(icarbres) = 0. - (c_leafb - bm_alloc_tot)
+          else 
+             bm_alloc(ileaf) = bm_alloc_tot + biomass(icarbres)
+             !c_reserve = 0.
+             bm_alloc(icarbres) = 0. - biomass(icarbres)
+          end if ! keep the leaf biomass
+         
+          ! judge the remaining c_reserve
+!          if (biomass(icarbres) > reprac*bm_alloc_tot) then 
+!!!!!! xuhui: it forgot to consider the previously leaf removed carbon from the reserve
+          if ( (biomass(icarbres)+bm_alloc(icarbres)) > reprac*bm_alloc_tot) then
+             bm_alloc(iroot) = reprac*bm_alloc_tot
+             !c_reserve = c_reserve - bm_alloc(iroot)
+             ! bm_alloc(icarbres) = 0. - reprac*bm_alloc_tot             
+!!!!!! xuhui: again, need to include the leaf removal from the carbon reserve
+             bm_alloc(icarbres) = bm_alloc(icarbres) - reprac*bm_alloc_tot             
+
+          else  
+             !bm_alloc(iroot) = biomass(icarbres)
+!!!!!! xuhui: again, need to include the leaf removal already
+             bm_alloc(iroot) = biomass(icarbres) + bm_alloc(icarbres)
+             !c_reserve = 0.
+             bm_alloc(icarbres) = 0. - biomass(icarbres)
+          endif
+
+       else if ((bm_alloc(ileaf) + bm_alloc(iroot)) > bm_alloc_tot) then  ! leaf is with higher priority 
+          if (biomass(icarbres) >= (bm_alloc(ileaf) + bm_alloc(iroot)- bm_alloc_tot)) then
+             bm_alloc(ileaf) = c_leafb
+             bm_alloc(iroot) = reprac*bm_alloc_tot
+             !c_reserve = c_reserve - (bm_alloc(ileaf) + bm_alloc(iroot)-bm_alloc_tot)
+             bm_alloc(icarbres) = 0. - (bm_alloc(ileaf) + bm_alloc(iroot)- bm_alloc_tot)
+          else 
+             bm_alloc(ileaf) = c_leafb
+             bm_alloc(iroot) = bm_alloc_tot - bm_alloc(ileaf) + biomass(icarbres)
+             !c_reserve = 0.
+             bm_alloc(icarbres) = 0. - biomass(icarbres)
+          endif
+       !else if ((bm_alloc(ileaf) + bm_alloc(iroot) + bm_alloc(ifruit)) >= bm_alloc_tot) then
+       !    
+       !   bm_alloc(ileaf) = c_leafb
+       !   bm_alloc(iroot) = reprac*bm_alloc_tot
+       !   bm_alloc(ifruit) = bm_alloc_tot-bm_alloc(iroot)-bm_alloc(ileaf)
+       !   bm_alloc(ifruit) = max(0., bm_alloc(ifruit))
+       else ! 
+          bm_alloc(isapabove) = bm_alloc_tot -bm_alloc(ileaf) - bm_alloc(iroot)
+          bm_alloc(icarbres) = 0.
+       endif
+    endif
+  
+    
+    ! 3.3 STAGE [ndrp nlax] 
+    ! in this stage, the allocation of leaf and grain is with higher priority
+    ! second, root and sapwoodabove
+    ! at the same times, we put some parts into reserve
+       
+    if ((ndrp > 0) .and. (nlax == 0)) then ! from frain filling to lai plateau
+       
+       ! in this stage the c_reserve should used out
+       if ( biomass(icarbres) > 0. ) then 
+          bm_alloc(isapabove) = biomass(icarbres)
+          bm_alloc(icarbres) = 0. - biomass(icarbres) ! in this stage, the carbon reserve should be used out.
+       endif 
+
+       ! initilize the values 
+       bm_alloc(iroot) = reprac*bm_alloc_tot              
+       !bm_alloc(icarbres) = P_densitesem*pgrain ! original reserve fraction
+
+       !if (bm_alloc(ileaf) >= bm_alloc_tot) then
+       if (bm_alloc(ifruit) >= bm_alloc_tot) then
+          bm_alloc(ileaf) = 0.  
+          bm_alloc(ifruit) = deltmagrain ! keep the grain yield 
+          bm_alloc(iroot) = 0. - (deltmagrain - bm_alloc_tot)*reprac
+          bm_alloc(isapabove) = 0. - (deltmagrain - bm_alloc_tot)*(1.0 - reprac)
+          bm_alloc(icarbres) = 0.
+       else if ((bm_alloc(ileaf)+ bm_alloc(ifruit)) >= bm_alloc_tot) then  !  
+          bm_alloc(ifruit) = deltmagrain !bm_alloc_tot - bm_alloc(ileaf)
+          bm_alloc(ileaf) = bm_alloc_tot - bm_alloc(ifruit) ! remaining
+          bm_alloc(iroot) = 0.
+          bm_alloc(isapabove) = 0.
+          bm_alloc(icarbres) = 0.
+       else if ((bm_alloc(ileaf)+ bm_alloc(ifruit) + bm_alloc(iroot)) >= bm_alloc_tot) then
+          bm_alloc(ifruit) = deltmagrain
+          bm_alloc(ileaf) = c_leafb
+          bm_alloc(iroot) = bm_alloc_tot - bm_alloc(ifruit)-bm_alloc(ileaf)
+          bm_alloc(icarbres) = 0.
+          bm_alloc(isapabove) = 0.
+       !else if ((bm_alloc(ileaf)+ bm_alloc(ifruit) + bm_alloc(iroot) + bm_alloc(icarbres)) >= bm_alloc_tot) then
+       !   ! that means there is some remainings after allocating carbon to leaf, grain, and reserve.
+       !   bm_alloc(icarbres) = bm_alloc_tot - bm_alloc(ileaf)- bm_alloc(ifruit)-bm_alloc(iroot)
+       else
+          bm_alloc(ifruit) = deltmagrain
+          bm_alloc(ileaf) = c_leafb
+          bm_alloc(iroot) = reprac*bm_alloc_tot
+          !bm_alloc(icarbres) = P_densitesem*pgrain
+          bm_alloc(isapabove) = bm_alloc_tot-bm_alloc(ileaf)- bm_alloc(ifruit)- bm_alloc(iroot)
+       endif
+    endif
+
+    
+    ! 3.4 STAGE [nlax nrec]
+    ! in this stage, the allocation  of leaf is 0. Whereas, the allocation of grain and reserve is with higher priority
+    ! grain
+    ! sapwood
+    ! root
+
+    if ((nlax > 0) .and. (nrec == 0)) then ! from lai plateau to harvest
+       ! initilize the values 
+       !bm_alloc(ifruit) = magrain   ! fruit fraction
+       !bm_alloc(icarbres) = P_densitesem*pgrain ! original reserve fraction
+       !bm_alloc(ileaf) = c_leafb ! leaf fraction
+       bm_alloc(iroot) = reprac*bm_alloc_tot              
+       
+       if (bm_alloc(ifruit) >= bm_alloc_tot) then  ! highest priority
+          bm_alloc(ifruit) = deltmagrain 
+          bm_alloc(icarbres) = 0.          
+          bm_alloc(ileaf) = 0.
+          bm_alloc(iroot) = 0. - (deltmagrain - bm_alloc_tot)*reprac
+          bm_alloc(isapabove) = 0. - (deltmagrain - bm_alloc_tot)*(1.0 - reprac)
+       !else if ((bm_alloc(ifruit) + bm_alloc(icarbres)) >= bm_alloc_tot) then  ! former 
+       else if ((bm_alloc(ifruit) + bm_alloc(iroot)) >= bm_alloc_tot) then  !  
+          bm_alloc(iroot) = bm_alloc_tot - bm_alloc(ifruit)
+          bm_alloc(ileaf) = 0.
+          bm_alloc(icarbres) = 0.
+      ! else if ((bm_alloc(ifruit) + bm_alloc(icarbres) + bm_alloc(iroot))>= bm_alloc_tot) then
+      !    bm_alloc(iroot) = bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(icarbres)
+      !    bm_alloc(ileaf) = 0.
+      ! else if ((bm_alloc(ifruit) + bm_alloc(icarbres) + bm_alloc(iroot) + bm_alloc(ileaf)) >= bm_alloc_tot) then 
+      !    ! that means there is some remainings after allocating carbon to leaf, grain and reserve.
+      !    bm_alloc(ileaf) = bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(icarbres)-bm_alloc(iroot)
+       else 
+          ! that means NPP is enough, we 
+          !bm_alloc(isapabove) =bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(icarbres)-bm_alloc(iroot) - bm_alloc(ileaf) 
+          !bm_alloc(isapabove) =bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(iroot) 
+          bm_alloc(isapabove) =bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(iroot) 
+       endif
+    endif
+    
+    ! 3.5 STAGE [When nrec occur]
+    ! when harvest, we alloc some carbon into reservoire pool
+    
+    if ( nrec /= 0 ) then  ! harvest occurs
+       bm_alloc(iroot) = reprac*bm_alloc_tot
+       if (bm_alloc(ifruit) >= bm_alloc_tot) then
+          bm_alloc(ifruit) = deltmagrain 
+          bm_alloc(icarbres) = 0.          
+          bm_alloc(ileaf) = 0.
+          bm_alloc(iroot) = 0. - (deltmagrain - bm_alloc_tot)*reprac
+          bm_alloc(isapabove) = 0. - (deltmagrain - bm_alloc_tot)*(1.0 - reprac)
+       else if ((bm_alloc(ifruit) + bm_alloc(iroot)) >= bm_alloc_tot) then
+          bm_alloc(iroot) = bm_alloc_tot - bm_alloc(ifruit)
+          bm_alloc(ileaf) = 0.
+          bm_alloc(icarbres) = 0.
+       else 
+          bm_alloc(isapabove) =bm_alloc_tot- bm_alloc(ifruit)-bm_alloc(iroot)
+       endif
+       ! but we have to put some carbon into reserve (seeds for the next year) 
+       c_reserve = P_densitesem*pgrain*0.48 ! seeds 
+       biomass(ifruit) =  biomass(ifruit) - c_reserve   !max(grainrem, 0.); 
+       bm_alloc(icarbres) = c_reserve
+       DO ipart = 1,nparts
+           IF (bm_alloc(ipart)<0) THEN
+               WRITE(numout,*) 'ipart :',ipart
+               WRITE(numout,*) 'bm_alloc < 0 :',bm_alloc(ipart)
+               WRITE(numout,*) 'biomass :', biomass(ipart)
+           ENDIF
+       ENDDO
+    endif
+  
+end subroutine crop_bmalloc
+
+end module crop_alloc
