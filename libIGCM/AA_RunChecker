@@ -1,0 +1,277 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Sonia Labetoulle
+# Contact: sonia.labetoulle__at__ipsl.jussieu.fr
+# $Revision:: 1059                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2014-09-23 12:05:29 +0200 (Tue, 23 Sep 2014) $ Date of last commit
+# IPSL (2012)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#======================================================================#
+# Display a report on how a simulation is faring.
+
+
+#======================================================================#
+
+#D- Task type (computing, post-processing or checking)
+TaskType=checking
+typeset -i Verbosity=0
+
+CurrentUsr=$( whoami )
+
+if ( [ $# -eq 0 ] ) ; then
+  $0 -h
+  exit
+fi
+
+# Arguments
+# =========
+# Default argument values
+# -----------------------
+TargetUsr=${CurrentUsr}
+HostName=$( hostname | sed -e "s/[0-9].*//" )
+
+fg_color=true
+fg_search=false
+fg_quiet=false
+fg_running=false
+fg_path=false
+NbHisto=20
+
+# Get arguments from command line
+# -------------------------------
+while getopts :hj:p:qsu:r Opt ; do
+  case $Opt in
+    h)
+      echo "usage: $0 [-u user] [-q] [-j n] [-s] job_name [job_name2 ...]"
+      echo "       $0 [-u user] [-q] [-j n] -p config.card_path"
+      echo "       $0 [-u user] [-q] [-j n] -r [job_name job_name2 ...]"
+      echo ""
+      echo "options :"
+      echo "  -h : print this help and exit"
+      echo "  -u : owner of the job"
+      echo "  -q : quiet"
+      echo "  -j : print n post-processing jobs (default is 20)"
+      echo "  -s : search for a new job in \$WORKDIR and fill in "
+      echo "       the catalog before printing information"
+      echo "  -p : give the directory (absolute path) containing "
+      echo "       the config.card instead of the job name."
+      echo "  -r : check all running simulations."
+      exit 0 ;;
+    j)
+      NbHisto=${OPTARG}
+      ;;
+    p)
+      fg_path=true
+      ConfigPath=${OPTARG}
+      ;;
+    q)
+      fg_quiet=true
+      ;;
+    s)
+      fg_search=true
+      ;;
+    u)
+      TargetUsr=${OPTARG}
+      ;;
+    r)
+      fg_running=true
+      ;;
+    :)
+      echo "$0: -"${OPTARG}" option: missing value"
+      exit 1
+      ;;
+    \?)
+      echo "$0: -"${OPTARG}" option: not supported"
+      exit 1
+      ;;
+  esac
+done
+shift $(($OPTIND-1))
+
+# If no config.card path is given, and we're not looking for running simulations, 
+# at least one JobName must be given.
+if ( ( ! ${fg_path} ) && ( ! ${fg_running} ) && [ $# -lt 1 ] ) ; then
+  $0 -h
+  exit
+fi
+
+if ( ( ${fg_path} ) && ( ${fg_search} ) ) ; then
+  echo "You cannot use -s and -p at the same time"
+  exit
+fi
+
+if ( ( ${fg_path} ) && ( ${fg_running} ) ) ; then
+  echo "You cannot use -r and -p at the same time"
+  exit
+fi
+
+
+# Load libIGCM library
+# ====================
+libIGCM=${libIGCM:=::modipsl::/libIGCM}
+
+DEBUG_debug=false
+DEBUG_sys=false
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_check/libIGCM_check.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+
+if ( ${fg_running} ) ; then
+  # Look for running simu
+  IGCM_sys_ListJobInQueue ${TargetUsr} JobNameList
+fi
+
+if [ $# -ge 1 ] ; then
+  set -A JobNameList ${JobNameList[*]} ${*}
+elif ( ${fg_path} ) ; then
+  set -A JobNameList "Unknown"
+fi
+
+if [ ${#JobNameList[*]} -lt 1 ] ; then
+  echo "No running simulation found."
+  exit 0
+fi
+
+
+if ( ${fg_quiet} ) ; then
+  NbHisto=1
+fi
+
+# Define the catalog in which the known simulations are stored
+# ============================================================
+SimuCatalog="${HOME}/.simucatalog.dat"
+if [ ! -s ${SimuCatalog} ] ; then
+  touch ${SimuCatalog}
+fi
+
+
+for JobName in ${JobNameList[*]} ; do
+
+  # Find SUBMIT_DIR in catalog
+  # ==========================
+  IGCM_check_SearchCatalog
+  Status=$?
+
+  if [ $Status -eq 0 ] ; then
+
+    IGCM_sys_Cd $SUBMIT_DIR
+
+
+    # Extract usefull information from run.card and config.card
+    # =========================================================
+
+    RunFile="${SUBMIT_DIR}/run.card"
+    ConfFile="${SUBMIT_DIR}/config.card"
+
+    IGCM_config_CommonConfiguration ${SUBMIT_DIR}/config.card
+    IGCM_check_CommonDef
+
+
+    if [ -s ${RunFile} ] ; then
+      IGCM_card_DefineVariableFromOption ${RunFile} Configuration PeriodState
+      PeriodState=${run_Configuration_PeriodState}
+    else
+      PeriodState="Waiting"
+    fi
+
+    JobID="."
+    if ( [ X${PeriodState} == XRunning ] || [ X${PeriodState} == XOnQueue ] ) ; then
+      IGCM_sys_GetJobID ${JobName} ${TargetUsr} JobID
+
+      if [ "${JobID}" == "." ] || [ "${JobID}" == "" ] ; then
+        PeriodState="Fatal"
+        JobID="."
+      fi
+    fi
+
+    DateBegin=${config_UserChoices_DateBegin}
+    DateEnd=${config_UserChoices_DateEnd}
+    TagName=${config_UserChoices_TagName}
+    ExperimentName=${config_UserChoices_ExperimentName}
+    SpaceName=${config_UserChoices_SpaceName}
+
+
+    if ( [ ! X${PeriodState} == XWaiting ] && [ ! X${PeriodState} == XCompleted ] ) ; then
+      IGCM_card_DefineVariableFromOption ${RunFile} Configuration PeriodDateBegin
+      IGCM_card_DefineVariableFromOption ${RunFile} Configuration PeriodDateEnd
+      IGCM_card_DefineVariableFromOption ${RunFile} Configuration CumulPeriod
+      PeriodDateBegin=${run_Configuration_PeriodDateBegin}
+      PeriodDateEnd=${run_Configuration_PeriodDateEnd}
+      CumulPeriod=${run_Configuration_CumulPeriod}
+    else
+      PeriodDateBegin="."
+      PeriodDateEnd="."
+      CumulPeriod="."
+    fi
+
+    DATA_DIR=${R_SAVE}
+    POST_DIR=${R_BUFR}/Out
+    CWORK_DIR=${R_FIGR}
+
+    if [ ${TargetUsr} != ${CurrentUsr} ] ; then
+      DATA_DIR=$( IGCM_check_ChangeUsr ${DATA_DIR} )
+      POST_DIR=$( IGCM_check_ChangeUsr ${POST_DIR} )
+      CWORK_DIR=$( IGCM_check_ChangeUsr ${CWORK_DIR} )
+      REBUILD_DIR=$( IGCM_check_ChangeUsr ${REBUILD_DIR} )
+    fi
+
+    if [ $PeriodState != "Waiting" ] ; then
+      # Check pending REBUILDS
+      # ======================
+      IGCM_check_CheckPendingRebuild
+
+      # Check last REBUILD and PACK* jobs
+      # =================================
+      IGCM_check_CheckRebPackJobs
+
+      # Check last MONITORING jobs
+      # ==========================
+      IGCM_check_CheckMonitoring
+
+      # Check last ATLAS jobs
+      # =====================
+      IGCM_check_CheckAtlas
+
+      # Time of last write on run.card
+      # ==============================
+      IGCM_sys_GetDate_FichWork ${SUBMIT_DIR}/run.card LastWrite "SplitFields" "${DateFormat}"
+
+    else
+
+      NbRebuild="."
+      FirstRebuild="."
+      LastRebuild="."
+
+      NbLines=0
+
+    fi
+
+
+    # Print results
+    # =============
+    IGCM_check_PrintHeader
+    ind=0
+    while [ $ind -lt $NbLines ] ; do
+      IGCM_check_PrintJob
+      (( ind = ind + 1 ))
+    done
+    IGCM_check_PrintFooter
+
+  fi
+
+done

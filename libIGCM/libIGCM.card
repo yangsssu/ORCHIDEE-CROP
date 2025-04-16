@@ -1,0 +1,25 @@
+#**************************************************************
+# Author: Martial Mancip
+# Contact: Martial.Mancip__at__ipsl.jussieu.fr
+# $Revision:: 373                                      $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2010-10-29 12:37:36 +0200 (Fri, 29 Oct 2010) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+
+#D- You MUST change cards (and first config.card) parameters too be compatible
+#D- with your modifications here.
+[UserChanges]
+PeriodNb=2
+#config_UserChoices_DateEnd=1900-02-03
+#config_UserChoices_PeriodLength= 1D
+#config_Post_TimeSeriesFrequency= 1D
+#config_Post_SeasonalFrequency= 1Y
+#config_SRF_WriteFrequency= 1800s
+
+#D- Increased verbosity (1, 2, 3)
+#Verbosity=1
+#D- Path must exist before change it !
+#RUN_DIR=${RUN_DIR_PATH}/${config_UserChoices_TagName}/${config_UserChoices_JobName}

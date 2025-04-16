@@ -1,0 +1,508 @@
+#!/bin/ksh
+
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1283                                     $ Revision of last commit
+# $Author:: sdipsl                                     $ Author of last commit
+# $Date:: 2016-02-04 13:02:29 +0100 (Thu, 04 Feb 2016) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+# ID of your genci project. Curie only : post-processing jobs need it to run properly
+
+#D- Task type (computing or post-processing)
+TaskType=checking
+
+#D- Low level debug : to perform lib test checks, stack construction and IO functions instrumentation
+DEBUG_debug=false
+
+#D- Messaging : all activities and call stacks will be sent to ipsl servers
+BigBrother=false
+
+# Check that everything went well during time series production
+# Display a short report
+# Launch what's missing
+# For use during a run (not on the end : PeriodState=Completed), it will complete
+# all TS to last PeriodDateEnd value, give by run.card->Configuration->(PeriodDateBegin - 1).
+
+#D- Path to libIGCM
+#D- Default : value from AA_job if any
+libIGCM=${libIGCM:=/home/orchidee03/xhwang/ORC_cropPerso/libIGCM}
+
+# répertoire courrant
+CURRENT_DIR=$( pwd )
+
+# Emplacement des cartes
+CARD_DIR=${CARD_DIR:=${CURRENT_DIR}}
+
+# répertoire de stockage des sorties des create_ts
+POST_DIR=${POST_DIR:=${CARD_DIR}/OutScript}
+
+if [ ! -d ${CARD_DIR} ]; then
+  echo "No ${CARD_DIR}, we stop here"
+  exit
+fi
+
+########################################################################
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+########################################################################
+
+#set -vx
+
+echo "Hi I'm here to help you complete the time series production you planned according to your *.card."
+echo "This action can potentially submit numbers of jobs (up to 50)"
+echo "This action can potentially remove unnecessary files but I will ALWAYS ask permission to do so"
+echo -e "\033[1;31mDo you want me to run in dryrun mode just telling what I would submit?\033[m"
+echo -e "\033[1;31mOr do you want me to submit job for real? Answer yes in this case.\033[m"
+echo -n " Run for real (y/n) :"
+read ActionAnswer
+
+case ${ActionAnswer} in
+oui|OUI|o|y|yes|YES)
+  echo "OK. I will submit jobs but ask permissions before removing files"
+  action=true
+  ;;
+non|NON|n|no|NO)
+  echo "OK. I won't submit jobs and only print out files I could remove"
+  action=false
+  ;;
+*)
+  echo "I did not recognize your answer. I will stop here."
+  echo "Please respond: oui|OUI|o|y|yes|YES"
+  echo "Or please respond: non|NON|n|no|NO"
+  exit
+  ;;
+esac
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${CARD_DIR}/config.card
+
+#==================================
+# Read ListOfComponents section:
+IGCM_card_DefineArrayFromSection ${CARD_DIR}/config.card ListOfComponents
+
+if [ -f ${CARD_DIR}/run.card ] ; then
+  IGCM_card_DefineVariableFromOption ${CARD_DIR}/run.card Configuration PeriodState
+  IGCM_card_DefineVariableFromOption ${CARD_DIR}/run.card Configuration PeriodDateBegin
+  IGCM_card_DefineVariableFromOption ${CARD_DIR}/run.card PostProcessing TimeSeriesCompleted
+  IGCM_debug_Print 1 "DefineVariableFromOption  : run_Configuration"
+  IGCM_debug_PrintVariables 3 run_Configuration_PeriodState
+  IGCM_debug_Print 1 "DefineVariableFromOption  : run_PostProcessing"
+  IGCM_debug_PrintVariables 3 run_PostProcessing_TimeSeriesCompleted
+  if [ X${run_Configuration_PeriodState} != X"Completed" ] ; then
+    DateEnd=$( IGCM_date_AddDaysToGregorianDate $( IGCM_date_ConvertFormatToGregorian ${run_Configuration_PeriodDateBegin} ) -1 )
+  else
+    DateEnd=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )
+  fi
+  CompletedFlag=${run_PostProcessing_TimeSeriesCompleted}
+else
+  DateEnd=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateEnd} )
+  CompletedFlag=""
+fi
+SavedCompletedFlag=${CompletedFlag}
+DateBegin=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )
+
+IGCM_date_GetYearMonth ${DateBegin} YearBegin MonthBegin
+IGCM_date_GetYearMonth ${DateEnd}   YearEnd   MonthEnd
+
+echo
+IGCM_debug_Print 1 "DateBegin for TimeSeries_Checker : "${DateBegin}
+IGCM_debug_Print 1 "DateEnd   for TimeSeries_Checker : "${DateEnd}
+IGCM_debug_Print 1 "CompletedFlag = "${CompletedFlag}
+echo
+
+for comp in ${config_ListOfComponents[*]} ; do
+  # Debug Print
+  IGCM_debug_Print 1 ${comp}
+  # Define component
+  IGCM_card_DefineArrayFromOption ${CARD_DIR}/config.card ListOfComponents ${comp}
+  eval compname=\${config_ListOfComponents_${comp}[0]} > /dev/null 2>&1
+  eval comptagname=\${config_ListOfComponents_${comp}[1]} > /dev/null 2>&1
+
+  # Read libIGCM compatibility version in ${compname}.card
+  card=${CARD_DIR}/COMP/${compname}.card
+
+  # Read and Build Output File stuff
+  #IGCM_debug_Print 1 "DefineArrayFromOption  : ${compname}_OutputFiles ${card}"
+  IGCM_card_DefineArrayFromOption ${card} OutputFiles List
+  ListFilesName=${compname}_OutputFiles_List
+  eval FileName0=\${${ListFilesName}[0]} > /dev/null 2>&1
+  #
+  if [ X${FileName0} != X${NULL_STR} ] ; then
+    #
+    #IGCM_debug_Print 1 "Component      : ${compname}"
+    #
+    # INITIALISATION
+    #
+    eval NbFiles=\${#${ListFilesName}[@]} > /dev/null 2>&1
+    i=2
+    #
+    until [ $i -ge $NbFiles ]; do
+      #
+      eval flag_post=\${${ListFilesName}[$i]} > /dev/null 2>&1
+      #
+      if [ X${flag_post} != XNONE ] ; then
+        #
+        # First of all
+        #
+        IGCM_card_DefineArrayFromSection ${card} ${flag_post}
+        #
+        IGCM_card_DefineArrayFromOption ${card} ${flag_post} TimeSeriesVars
+        IGCM_card_DefineArrayFromOption ${card} ${flag_post} Patches
+        if [ X"$( eval echo \${${compname}_${flag_post}_TimeSeriesVars[*]} )" = X"Option not" ] ; then
+          # New TimeSeriesVar description, with 2D, 3D and associate ChunckJob.
+          unset ListDimension
+          ListDimension[0]=2D
+          ListDimension[1]=3D
+          TimeSeries=false
+          TimeSeries2D=false
+          TimeSeries3D=false
+          chunck=false
+          iLoop=${#ListDimension[*]}
+          j=0
+          until [ $j -ge ${iLoop} ]; do
+            Dimension=${ListDimension[${j}]}
+            IGCM_card_DefineArrayFromOption ${card} ${flag_post} TimeSeriesVars${Dimension}
+            IGCM_card_DefineVariableFromOption ${card} ${flag_post} ChunckJob${Dimension}
+            #
+            # Time series WITHOUT chunk
+            #
+            if [ ! $( eval echo \${${compname}_${flag_post}_TimeSeriesVars${Dimension}} ) = ${NULL_STR} ] ; then
+              if [ $( eval echo \${${compname}_${flag_post}_ChunckJob${Dimension}} ) = NONE ] ; then
+                IGCM_debug_Print 2 "${Dimension} time series activated for ${flag_post}"
+                eval TimeSeries${Dimension}=true
+                chunck=false
+              fi
+            fi
+            #
+            # Time series WITH chunk
+            #
+            if [ ! $( eval echo \${${compname}_${flag_post}_TimeSeriesVars${Dimension}} ) = ${NULL_STR} ] ; then
+              chunck_size=$( eval echo \${${compname}_${flag_post}_ChunckJob${Dimension}} )
+              if [ ! ${chunck_size} = NONE ] &&  [ ! ${chunck_size} = OFF ] ; then
+                IGCM_debug_Print 2 "${Dimension} time series activated with ${chunck_size} chunck for ${flag_post}"
+                eval TimeSeriesChunck${Dimension}=true
+                chunck=true
+              fi
+            fi
+            (( j=j+1 ))
+            #
+            # If TimeSeriesVars list is empty or OFF we skip
+            #
+            if ( [ $( eval echo \${${compname}_${flag_post}_TimeSeriesVars${Dimension}} ) = ${NULL_STR} ] || \
+              [ ${chunck_size} = OFF ] ) ; then
+              #IGCM_debug_Print 2 "Empty TS : ${compname}_Post_${FILE}_TimeSeriesVars${Dimension}"
+              #(( i=i+3 ))
+              continue
+            fi
+            #
+            #  ICI ON TESTE QUE LES FICHIERS TS SONT LA!
+            #
+            FILE=$( echo ${flag_post} | awk "-FPost_" '{print $2}' )
+            IGCM_card_DefineArrayFromOption ${card}    Post_${FILE} TimeSeriesVars${Dimension}
+            IGCM_card_DefineVariableFromOption ${card} Post_${FILE} ChunckJob${Dimension}
+            #
+            FlagDir=$( echo ${FILE} | awk -F "_" '{print $1}' )
+            case ${FlagDir} in
+            *Y)  TS_Dir=TS_YE  ;;
+            *M)  TS_Dir=TS_MO  ;;
+            *D)  TS_Dir=TS_DA  ;;
+            3H|HF)  TS_Dir=TS_HF  ;;
+            INS) TS_Dir=TS_INS ;;
+            esac
+            #
+            # We need LIST of variables not allready produced (useful for standalone mode)
+            #
+            DateBegin=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )
+            IGCM_date_GetYearMonth ${DateBegin} YearBegin MonthBegin
+
+            # Si on n'a pas de chunck, dans ce cas chunck_size=la durée de la simulation en années
+            YearsChunckLength=$( echo ${chunck_size} | sed -e "s/[yY]//" )
+            [ ${chunck} = false ] && YearsChunckLength=$(( YearEnd - YearBegin + 1 ))
+
+            NbYearsChunckLoop=$(( ( YearEnd - YearBegin + 1 ) / YearsChunckLength ))
+            Reste=$(( ( YearEnd - YearBegin + 1 ) % YearsChunckLength ))
+
+            if [ ${Reste} -ne 0 ] ; then
+              NbYearsChunckLoop=$(( NbYearsChunckLoop + 1 ))
+            fi
+
+            if [ ${NbYearsChunckLoop} -eq 1 ] ; then
+              PeriodDateEnd=${DateEnd}
+            else
+              Length=$( IGCM_date_DaysInCurrentPeriod ${DateBegin} ${YearsChunckLength}Y )
+              PeriodDateEnd=$( IGCM_date_AddDaysToGregorianDate ${DateBegin} ${Length}-1 )
+            fi
+            #
+            DIRECTORY=${R_SAVE}/${comp}/Analyse/${TS_Dir}
+            YearsChunckLoop=1
+            ChunckDebut=${DateBegin}
+            ChunckFin=${PeriodDateEnd}
+            while [ ${YearsChunckLoop} -le ${NbYearsChunckLoop} ] ; do
+              countTotal=0
+              countGood=0
+              countBad=0
+              unset RemoveList
+              unset PotentialCompletedFlag
+              for var in $( eval echo \${${compname}_Post_${FILE}_TimeSeriesVars${Dimension}[*]} ) ; do
+                TestedFile=${config_UserChoices_JobName}_${ChunckDebut}_${ChunckFin}_${FlagDir}_${var}.nc
+                #
+                DEBUG_sys=false IGCM_sys_TestDirArchive ${DIRECTORY}
+                if [ $? = 0 ] ; then
+                  Candidat=$( find ${DIRECTORY} -name "${config_UserChoices_JobName}_${ChunckDebut}_*_${FlagDir}_${var}.nc" )
+                else
+                  Candidat=""
+                fi
+                #
+                BestCandidat=${ChunckDebut}
+                #
+                FoundCandidat=false
+                if [ ! "X${Candidat}" = "X" ] ; then
+                  for candid in ${Candidat} ; do
+                    #IGCM_debug_Print 1 -e "\033[1;32m[CompletedFlag CANDIDAT MATCH FOUND]\033[m $( basename ${candid} )"
+                    CandidatEnd=$( echo ${candid}   | awk -F${config_UserChoices_JobName} '{print $3}' | awk -F_ '{print $3}' )
+                    if [ ${CandidatEnd} -gt ${ChunckFin} ] ; then
+                      #IGCM_debug_Print 3 -e "File $( basename ${candid} ) should be suppress"
+                      set +A RemoveList ${RemoveList[*]} ${candid}
+                    elif [ ${CandidatEnd} -lt ${ChunckFin} ] ; then
+                      #IGCM_debug_Print 3 -e "File $( basename ${candid} ) should be suppress or used as a CompletedFlag baseline"
+                      # We keep the best candidat and remove the others
+                      if [ ${BestCandidat} -lt ${CandidatEnd} ] ; then
+                        if [ ${FoundCandidat} = true ] ; then
+                          set +A RemoveList ${RemoveList[*]} ${DIRECTORY}/${config_UserChoices_JobName}_${ChunckDebut}_${BestCandidat}_${FlagDir}_${var}.nc
+                        else
+                          FoundCandidat=true
+                        fi
+                        BestCandidat=${CandidatEnd}
+                      else
+                        set +A RemoveList ${RemoveList[*]} ${candid}
+                      fi
+                    fi
+                  done
+                else
+                  # No CompletedFlag candidat found
+                  CandidatCompletedFlag=""
+                fi
+                #
+                if [ ! -f ${DIRECTORY}/${TestedFile} ] ; then
+                  (( countBad = countBad + 1 ))
+                  [ ${countBad} = 1 ] && IGCM_debug_Print 3 "Missing time series from ${FILE} in ${DIRECTORY} :"
+                  IGCM_debug_Print 3 ${TestedFile}
+                  # Then we keep a track of the Best Candidat
+                  if [ ${FoundCandidat} = true ] ; then
+                    if [ ${chunck} = true ] ; then
+                      set +A PotentialCompletedFlag ${PotentialCompletedFlag[*]} ${BestCandidat}
+                    else
+                      eval set +A PotentialCompletedFlag${Dimension} \${PotentialCompletedFlag${Dimension}[*]} \${BestCandidat}
+                    fi
+                  fi
+                else
+                  (( countGood = countGood + 1 ))
+                  # Then we do not need the best candidat if any
+                  [ ${FoundCandidat} = true ] && set +A RemoveList ${RemoveList[*]} ${DIRECTORY}/${config_UserChoices_JobName}_${ChunckDebut}_${BestCandidat}_${FlagDir}_${var}.nc
+                fi
+                (( countTotal = countTotal + 1 ))
+              done
+
+              SuccessRate=$(( countGood * 100 / countTotal ))
+              if [ ${SuccessRate} -ne 100 ] ; then
+                IGCM_debug_Print 2 -e "\033[1;31m${SuccessRate}% files OK.\033[m for period ${ChunckDebut}-${ChunckFin}"
+              else
+                IGCM_debug_Print 2 -e "\033[1;32m${SuccessRate}% files OK.\033[m for period ${ChunckDebut}-${ChunckFin}"
+              fi
+              echo
+
+              # Remove what's in the RemoveList
+              if [ ${RemoveList} ] ; then
+                IGCM_debug_Print 2 "File(s) that will be removed ${RemoveList[*]}"
+                if [ ${action} = true ] ; then
+                  echo -e "\033[1;32mDo you want to remove them?\033[m"
+                  echo -n " Your answer (y/n) : "
+                  read RemoveAnswer
+                  case ${RemoveAnswer} in
+                  oui|OUI|o|y|yes|YES)
+                    echo "OK. I will erase them"
+                    IGCM_sys_Rm -f ${RemoveList[*]}
+                    ;;
+                  non|NON|n|no|NO)
+                    echo "OK. I won't erase them"
+                    ;;
+                  *)
+                    echo "I did not recognize your answer."
+                    echo "Please respond: oui|OUI|o|y|yes|YES"
+                    echo "Or please respond: non|NON|n|no|NO"
+                    exit
+                    ;;
+                  esac
+                fi
+              fi
+              #[ ${FoundCandidat} = true ] && IGCM_debug_Print 2 "Potentials CompletedFlag: ${PotentialCompletedFlag[*]}"
+              #
+              # TO REWRITE BEGIN
+              #
+              if ( [ ${chunck} = true ] && [ ${SuccessRate} -ne 100 ] ) ; then
+                NbCandidats=${#PotentialCompletedFlag[@]}
+                countCandid=1
+                if [ ${NbCandidats} -eq 0 ] ; then
+                  ChunckCompletedFlag=""
+                  IGCM_debug_Print 2 -e "\033[1;31mNO CompletedFlag\033[m"
+                elif [ ${NbCandidats} -eq 1 ] ; then
+                  ChunckCompletedFlag=${PotentialCompletedFlag[0]}
+                  IGCM_debug_Print 2 -e "\033[1;32mCompletedFlag=${ChunckCompletedFlag}\033[m"
+                elif [ ${NbCandidats} -gt 1 ] ; then
+                  k=1
+                  until [ $k -ge ${NbCandidats} ]; do
+                    ((k_m1=k-1))
+                    if [ ${PotentialCompletedFlag[${k_m1}]} = ${PotentialCompletedFlag[${k}]} ] ; then
+                      ((countCandid=countCandid+1))
+                    fi
+                    ((k=k+1))
+                  done
+                  if [ ${NbCandidats} -eq ${countCandid} ] ; then
+                    ChunckCompletedFlag=${PotentialCompletedFlag[0]}
+                    IGCM_debug_Print 2 -e "\033[1;32mCompletedFlag=${ChunckCompletedFlag}\033[m"
+                  else
+                    ChunckCompletedFlag=${PotentialCompletedFlag[0]}
+                    IGCM_debug_Print 2 -e "\033[1;31mToo Many Potential CompletedFlag\033[m Let start with first CompletedPeriod"
+                    IGCM_debug_Print 2 -e "\033[1;31mYou will have to redo TimeSeries_Checker\033[m for other period."
+                  fi
+                fi
+                #
+                # TO REWRITE END
+                #
+                if [ ${action} = true ] ; then
+                  IGCM_debug_Print 2 -e "\033[1;31mSubmit ${FILE} chunck ${Dimension}\033[m period ${ChunckDebut}-${ChunckFin} and CompletedFlag=${ChunckCompletedFlag}"
+                  listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,DateBegin,PeriodDateEnd,CompletedFlag,TsTask,CompToRead,FlagToRead"
+                  export DEBUG_debug=${DEBUG_debug}
+                  export BigBrother=${BigBrother}
+                  export libIGCM=${libIGCM}
+                  export SUBMIT_DIR=${CARD_DIR}
+                  export POST_DIR=${POST_DIR}
+                  export DateBegin=${ChunckDebut}
+                  export PeriodDateEnd=${ChunckFin}
+                  export CompletedFlag=${ChunckCompletedFlag}
+                  export TsTask=Chunck${Dimension}
+                  export CompToRead=${comp}
+                  export FlagToRead=${i}
+                  export NameToRead=${flag_post}
+                  export listVarEnv=${listVarEnv}
+                  export Script_Post_Output=create_ts.${PeriodDateEnd}.${TsTask}.${CompToRead}.${NameToRead}
+                  IGCM_sys_MkdirWork ${POST_DIR}
+                  IGCM_debug_Verif_Exit
+                  IGCM_sys_QsubPost create_ts
+                  echo
+                else
+                  IGCM_debug_Print 2 -e "\033[1;31mI should NOW submit ${FILE} chunck ${Dimension}\033[m period ${ChunckDebut}-${ChunckFin} and CompletedFlag=${ChunckCompletedFlag}"
+                fi
+              fi
+
+              if ( [ ${chunck} = false ] && [ ${SuccessRate} -ne 100 ] ) ; then
+                eval Launch${Dimension}=true
+              fi
+
+              # Date update
+              ChunckDebut=$( IGCM_date_AddDaysToGregorianDate ${ChunckFin} 1 )
+
+              (( YearsChunckLoop = YearsChunckLoop + 1 ))
+
+              if [ ${YearsChunckLoop} -eq ${NbYearsChunckLoop} ] ; then
+                ChunckFin=${DateEnd}
+              else
+                Length=$( IGCM_date_DaysInCurrentPeriod ${ChunckDebut} ${YearsChunckLength}Y )
+                ChunckFin=$( IGCM_date_AddDaysToGregorianDate ${ChunckDebut} ${Length}-1 )
+              fi
+            done
+          done
+        else
+          ListDimension[0]=""
+          TimeSeries=true
+          TimeSeries2D=false
+          TimeSeries3D=false
+          TimeSeriesChunck2D=false
+          TimeSeriesChunck3D=false
+        fi
+      fi
+      (( i=i+3 ))
+    done
+  fi
+done # comp loop
+
+echo
+
+DateBegin=$( IGCM_date_ConvertFormatToGregorian ${config_UserChoices_DateBegin} )
+IGCM_date_GetYearMonth ${DateBegin} YearBegin MonthBegin
+CompletedFlag=${SavedCompletedFlag}
+
+unset CompToRead
+unset FlagToRead
+
+if [ X${Launch2D} = Xtrue ] ; then
+  if [ ${action} = true ] ; then
+    #IGCM_debug_Print 2 "Potentials CompletedFlag: ${PotentialCompletedFlag2D[*]}"
+    IGCM_debug_Print 2 -e "\033[1;31mSubmit 2D\033[m without chunck period ${DateBegin}-${DateEnd}"
+    listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,DateBegin,PeriodDateEnd,CompletedFlag,TsTask"
+    export DEBUG_debug=${DEBUG_debug}
+    export BigBrother=${BigBrother}
+    export libIGCM=${libIGCM}
+    export SUBMIT_DIR=${CARD_DIR}
+    export POST_DIR=${POST_DIR}
+    export DateBegin=${DateBegin}
+    export PeriodDateEnd=${DateEnd}
+    export CompletedFlag=${CompletedFlag}
+    export TsTask=2D
+    export listVarEnv=${listVarEnv}
+    export Script_Post_Output=create_ts.${PeriodDateEnd}.${TsTask}
+    IGCM_sys_MkdirWork ${POST_DIR}
+    IGCM_debug_Verif_Exit
+    IGCM_sys_QsubPost create_ts
+    echo
+  else
+    IGCM_debug_Print 2 -e "\033[1;31mI should NOW submit 2D without chunck\033[m period ${DateBegin}-${DateEnd}"
+  fi
+fi
+
+if [ X${Launch3D} = Xtrue ] ; then
+  if [ ${action} = true ] ; then
+    #IGCM_debug_Print 2 "Potentials CompletedFlag: ${PotentialCompletedFlag3D[*]}"
+    IGCM_debug_Print 2 -e "\033[1;31mSubmit 3D\033[m without chunck period ${DateBegin}-${DateEnd}"
+    listVarEnv="DEBUG_debug,BigBrother,libIGCM,SUBMIT_DIR,POST_DIR,Script_Post_Output,DateBegin,PeriodDateEnd,CompletedFlag,TsTask"
+    export DEBUG_debug=${DEBUG_debug}
+    export BigBrother=${BigBrother}
+    export libIGCM=${libIGCM}
+    export SUBMIT_DIR=${CARD_DIR}
+    export POST_DIR=${POST_DIR}
+    export DateBegin=${DateBegin}
+    export PeriodDateEnd=${DateEnd}
+    export CompletedFlag=${CompletedFlag}
+    export TsTask=3D
+    export listVarEnv=${listVarEnv}
+    export Script_Post_Output=create_ts.${PeriodDateEnd}.${TsTask}
+    IGCM_sys_MkdirWork ${POST_DIR}
+    IGCM_debug_Verif_Exit
+    IGCM_sys_QsubPost create_ts
+    echo
+  else
+    IGCM_debug_Print 2 -e "\033[1;31mI should NOW submit 3D without chunck\033[m  period ${DateBegin}-${DateEnd}"
+  fi
+fi
