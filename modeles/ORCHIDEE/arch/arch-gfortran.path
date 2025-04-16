@@ -1,0 +1,4 @@
+NETCDF_LIBDIR=/usr/local/lib
+NETCDF_INCDIR=/usr/local/include
+IOIPSL_INCDIR=${ORCHDIR}/../../lib
+IOIPSL_LIBDIR=${ORCHDIR}/../../lib

@@ -1,0 +1,16 @@
+%COMPILER            mpiifort
+%LINK                mpiifort
+%AR                  ar
+%MAKE                gmake
+%FPP_FLAGS           -P -traditional
+%FPP_DEF              
+%BASE_FFLAGS         -integer-size 32 -real-size 64 -align all -shared-intel -mcmodel=large -fp-model precise 
+%PROD_FFLAGS         -O3
+%DEV_FFLAGS          -g -O2 -traceback -fp-stack-check -ftrapuv -check bounds
+%DEBUG_FFLAGS        -fpe0 -O0 -g -traceback -fp-stack-check -ftrapuv -check bounds -check all
+%MPI_FFLAGS
+%OMP_FFLAGS          -openmp -openmp-threadprivate compat
+%BASE_LD             -shared-intel -mcmodel=large -Wl,-rpath=/smplocal/pub/NetCDF/4.1.3/mpi/lib:/smplocal/pub/HDF5/1.8.9/par/lib 
+%MPI_LD
+%OMP_LD              -openmp
+
