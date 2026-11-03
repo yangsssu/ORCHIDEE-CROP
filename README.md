@@ -1,4 +1,4 @@
-This version of ORCHIDEE-CROP (v2.2) is developed by Shuaishuai Deng based on the model version developed by Ke Yu and Yang Su, incorporating a process-based parameterization of hydraulic activation of stomata (HAS). This version is used in the study, "A process-based representation of hydraulic activation of stomata induced by hygroscopic fertilizer salts in the ORCHIDEE-CROP model".
+This version of ORCHIDEE-CROP (v2.2) is developed by Shuaishuai Deng based on the model version developed by Ke Yu and Yang Su, incorporating a process-based parameterization of hydraulic activation of stomata (HAS). This version is used in the study, "A process-based representation of hydraulic activation of stomata induced by hygroscopic fertilizer salts in the ORCHIDEE-CROP model (v2.2)".
 
 Authors: Shuaishuai Deng*, Jürgen Burkhardt, Ronny Lauerwald, Christophe Flechard, Jürgen Knauer, Benjamin Dumont, Emilio Baud-Fraile, Yang Su, Ke Yu, Nicolas Viovy, Benjamin Loubet
 
