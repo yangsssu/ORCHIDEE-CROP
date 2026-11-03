@@ -22,11 +22,11 @@ Our model runs on the Obelix server at LSCE. You can check the environment setup
 
 
 
-After installing the necessary environment, navigate to the util folder and run ins\_make to install the Makefiles. Then navigate to Config/ORCHIDEE\_OL/ and use make\_without\_xios to compile the model.
+After installing the necessary environment, navigate to the util folder and run ins\_make to install the Makefiles. Then navigate to config/ORCHIDEE\_OL/ and use make\_without\_xios to compile the model.
 
 
 
-The folder inside Config/ORCHIDEE\_OL/ contains the simulation configuration for the winter wheat HAS experiment at FR-Gri.
+The folder inside config/ORCHIDEE\_OL/ contains the simulation configuration for the winter wheat HAS experiment at FR-Gri.
 
 
 
