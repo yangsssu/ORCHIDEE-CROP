@@ -1,7 +1,7 @@
 The following licence information concerns ONLY the NEMO SYSTEM
 ===============================================================
 
-Copyright © Centre National de la Recherche Scientifique CNRS  
+Copyright Â© Centre National de la Recherche Scientifique CNRS  
 
 This software is a computer program whose purpose is the numerical
 modelling of the ocean dynamics (direct, adjoint and linear-tangent
