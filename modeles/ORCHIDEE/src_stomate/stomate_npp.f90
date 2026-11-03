@@ -293,7 +293,7 @@ CONTAINS
     !WRITE(numout,*) 'zd bm_alloc 1','bm_alloc_tot(1,10)',bm_alloc_tot(1,10),'gpp(1,10)',gpp(1,10),'dt',dt
     bm_alloc_tot(:,:) = gpp(:,:) * dt
     !WRITE(numout,*) 'zd bm_alloc 2','bm_alloc_tot(1,10)',bm_alloc_tot(1,10)
-
+!    WRITE(numout,*) 'ke-root depth',rprof ! add by ke
     
 !    WRITE(numout,*) 'biomass(1,12:14,:,icarbon) before PFT loop:',biomass(1,12:14,:,icarbon)
     !! 3. Calculate maintenance and growth respiration
@@ -398,8 +398,8 @@ CONTAINS
           DO i = 1, npts
              ! we call the crop bm allocation subroutine        
              if ( in_cycle(i,j) ) then
-                 write(numout,*) '(i,j)', i, j
-                 write(numout,*) 'in_cycle(i,j)',in_cycle(i,j)
+                 ! write(numout,*) '(i,j)', i, j
+                 ! write(numout,*) 'in_cycle(i,j)',in_cycle(i,j)
                  if (veget_max(i,j) .gt. 0.) then 
                      ! there will be error in crop_alloc if vegetmax for a certain crop is 0
                      call crop_bmalloc(in_cycle(i, j),         &

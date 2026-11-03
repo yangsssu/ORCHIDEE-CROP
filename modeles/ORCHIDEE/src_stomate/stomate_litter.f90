@@ -31,6 +31,7 @@ MODULE stomate_litter
   USE constantes
   USE constantes_soil
   USE pft_parameters
+  
 
   IMPLICIT NONE
 
@@ -1059,7 +1060,6 @@ CONTAINS
 
        ENDDO
     ENDDO
-
     
   !! 6. calculate fraction of total soil covered by dead leaves
 

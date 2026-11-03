@@ -389,12 +389,13 @@ CONTAINS
    
   SUBROUTINE enerbil_main (kjit, kjpindex, &
        & index, indexveg, zlev, lwdown, swnet, epot_air, temp_air, u, v, petAcoef, petBcoef, &
-       & qair, peqAcoef, peqBcoef, pb, rau, vbeta, vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, &
+       & qair, peqAcoef, peqBcoef, pb, rau, vbeta, vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta_has, & !! add by shuai
+       & vbeta3pot, vbeta4, vbeta4_pft, vbeta5, &
        & emis, soilflx, soilflx_pft,  soilcap, soilcap_pft, q_cdrag, q_cdrag_pft, veget_max,  humrel, fluxsens, fluxlat, & 
 !add cdrag_pft, veget_max,soilflx_pft, soilcap_pft,  xuhui
-       & vevapp, transpir, transpot, vevapnu, vevapnu_pft,  vevapwet, vevapsno, vevapflo, t2mdiag, temp_sol, temp_sol_pft,  tsol_rad, &
+       & vevapp, transpir, transpir_has, transpot, vevapnu, vevapnu_pft,  vevapwet, vevapsno, vevapflo, t2mdiag, temp_sol, temp_sol_pft,  tsol_rad, &
        & temp_sol_new, temp_sol_new_pft, qsurf, evapot, evapot_corr, rest_id, hist_id, hist2_id, &
-       & precip_rain,snowdz,snowrho,pgflux,temp_sol_add)
+       & precip_rain,snowdz,snowrho,pgflux,temp_sol_add,havlen,nrec_trans,date_s2) !! add by ke
  
 
     !! 0 Variable and parameter description
@@ -439,25 +440,35 @@ CONTAINS
 
     REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (in)   :: humrel           !! Soil moisture stress (within range 0 to 1)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: vbeta2           !! Interception resistance (-)
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: vbeta3           !! Vegetation resistance (-)
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: vbeta_has        !! Vegetation resistance for HAS (-) !!add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: vbeta3pot        !! Vegetation resistance for potential transpiration
     REAL(r_std),DIMENSION (kjpindex),INTENT (in)         :: precip_rain      !! Rainfall
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(in)    :: snowrho          !! Snow density at each snow layer
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(in)    :: snowdz           !! Snow depth at each snow layer
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: havlen           !! add by ke
+    INTEGER(i_std),INTENT (in)                           :: date_s2          !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: nrec_trans       !! add by ke 
 
+    
     !! 0.2 Output variables
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: vevapnu          !! Bare soil evaporation (mm day^{-1})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: vevapnu_pft      !! Bare soil evaporation (mm day^{-1})
+    
+    
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: vevapsno         !! Snow evaporation (mm day^{-1})
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: vevapflo         !! Floodplains evaporation
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: transpir         !! Transpiration (mm day^{-1})
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: transpir_has     !! HAS water loss (mm day^{-1}) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: transpot         !! Potential transpiration
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: vevapwet         !! Interception (mm day^{-1})
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: t2mdiag          !! Diagnostic temperature at 2m above ground (K)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: temp_sol_new     !! New soil temperature (K)
-    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: temp_sol_new_pft     !! New soil temperature (K)
-    REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: temp_sol_add     !! Additional energy to melt snow for snow ablation case (K)    
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: temp_sol_new_pft !! New soil temperature (K)
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: temp_sol_add     !! Additional energy to melt snow for snow ablation case (K
+    
     !! 0.3 Modified variables
     
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)     :: evapot           !! Soil Potential Evaporation (mm day^{-1})
@@ -480,15 +491,19 @@ CONTAINS
 !_ ================================================================================================================================
     
     !! 1. Computes some initialisation variables
- 
+!    WRITE(numout,*) "ke temp_sol491 ",temp_sol,kjpindex
     !  Computes some initialisation variables psold (the old surface static energy), qsol_sat
     ! (the saturated surface humidity) and pdqsold (the derivative of the saturated surface humidity,
     ! calculated with respect to the surface temperature at the 'old' timestep)
+    
     CALL enerbil_begin (kjpindex, temp_sol, temp_sol_pft, lwdown, swnet, pb, psold, psold_pft, &
                          qsol_sat, qsol_sat_pft, pdqsold, pdqsold_pft, netrad, netrad_pft, emis)
 
-
+!    WRITE(numout,*) "ke temp_sol499 ",temp_sol
     !! 2. Computes psnew (the surface static energy at the 'new' timestep) 
+    
+
+    
     
     ! Computes psnew (the surface static energy at the 'new' timestep), qsol_sat_new (the surface
     ! saturated humidity at the 'new' timestep), temp_sol_new (the surface temperature at the 'new'
@@ -506,11 +521,11 @@ CONTAINS
     CALL enerbil_surftemp (kjpindex, zlev, emis, &
        & epot_air, petAcoef, petBcoef, qair, peqAcoef, peqBcoef, soilflx, soilflx_pft, rau, u, v, q_cdrag, q_cdrag_pft, vbeta, vbeta_pft, &
        & valpha, vbeta1, vbeta5, soilcap, soilcap_pft, lwdown, swnet, psnew, qsol_sat_new, qsol_sat_new_pft, temp_sol_new, temp_sol_new_pft,  &
-       & qair_new, epot_air_new, snowdz, veget_max)
+       & qair_new, epot_air_new, snowdz, veget_max,nrec_trans,havlen,date_s2) !! add by ke
 
 !       & qair_new, epot_air_new, snowdz, snowflx,snowcap, veget_max)
 !!    WRITE(numout,*) 'xuhui: after surftemp'
-!!    WRITE(numout,*) 'temp_sol_new(1)', temp_sol_new(1)
+!    WRITE(numout,*) "ke temp_sol499 ",temp_sol,',,',temp_sol_pft(:,12),',,',temp_sol_new,',,',temp_sol_new_pft(:,12)
 !!    WRITE(numout,*) 'temp_sol_new_pft(1,:)',temp_sol_new_pft(1,:)
 !=======
 !       & epot_air, petAcoef, petBcoef, qair, peqAcoef, peqBcoef, soilflx, rau, u, v, q_cdrag, vbeta,&
@@ -531,21 +546,21 @@ CONTAINS
     ! ground temperature), netrad (net radiation), qsurf (surface humidity), vevapp (total evaporation),
     ! evapot (evaporation potential), evapot_corr (evaporation potential correction factor), 
     ! fluxlat (latent heat flux), fluxsubli (sublimination heat flux) and fluxsens (sensible heat flux).
-
+!    WRITE(numout,*) "ke temp_sol546 ",temp_sol
     CALL enerbil_flux (kjpindex, emis, temp_sol, rau, u, v, q_cdrag, vbeta, valpha, vbeta1, vbeta5, &
        & qair_new, epot_air_new, psnew, qsurf, &
        & fluxsens , fluxlat , fluxsubli, vevapp, temp_sol_new, lwdown, swnet, &
        & lwup, lwnet, pb, tsol_rad, netrad, evapot, evapot_corr, &
        & precip_rain,snowdz,temp_air,pgflux, soilcap, temp_sol_add)
-
+!    WRITE(numout,*) "ke temp_sol552 ",temp_sol
     !! 5. Diagnoses the values for evaporation and transpiration 
     
     ! Diagnoses the values for evaporation and transpiration: vevapsno (snow evaporation), vevapnu 
     ! (bare soil evaporation), transpir (transpiration) and vevapwet (interception)
-    CALL enerbil_evapveg (kjpindex, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, veget_max,  &
+    CALL enerbil_evapveg (kjit, kjpindex, vbeta1, vbeta2, vbeta3, vbeta_has, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, veget_max,  &
        & rau, u, v, q_cdrag, q_cdrag_pft, qair_new, humrel, vevapsno, vevapnu , vevapnu_pft, vevapflo, vevapwet, &
-       & transpir, transpot, evapot, &
-       & snowdz,snowrho,evapot_corr)
+       & transpir,transpir_has, transpot, evapot, & !! add by shuai
+       & snowdz,snowrho,evapot_corr,havlen) !! add by ke
 
     !! 6. Assigns a temperature 2 metres above the ground 
 
@@ -770,7 +785,7 @@ CONTAINS
 !_ ================================================================================================================================
   
   !! 1. Computes psold (the surface static energy for the old timestep)
-   
+!    WRITE(numout,*) "ke pb in enerbil_begin--error0 ",pb
     !! We here define the surface static energy for the 'old' timestep, in terms of the surface
     !! temperature and heat capacity.
     !! \latexonly 
@@ -783,36 +798,43 @@ CONTAINS
         ENDIF
     ENDDO
   !! 2. Computes qsol_sat (the surface saturated humidity).
- 
+!    WRITE(numout,*) "ke temp_sol in nenrgy begin810 ",temp_sol
     !! We call the routine 'qsatcalc' from within the module 'src_parameters/constantes_veg'.
     CALL qsatcalc (kjpindex, temp_sol, pb, qsol_sat)
+!    WRITE(numout,*) "ke temp_sol in nenrgy begin813 ",temp_sol
+!    WRITE(numout,*) "ke pb in enerbil_begin--error1 ",pb
     DO jv = 2,nvm
         aa = temp_sol_pft(:,jv)
+!        IF (jv .EQ. 12) THEN
+!            WRITE(numout,*) "ke temp_sol in nenrgy begin817 ",aa
+!        ENDIF
         CALL qsatcalc(kjpindex, aa, pb, bb)
         qsol_sat_pft(:,jv) = bb
     ENDDO
+    
     IF ( diag_qsat ) THEN
       IF ( ANY(ABS(qsol_sat(:)) .GT. missing) ) THEN
         DO ji = 1, kjpindex
           IF ( ABS(qsol_sat(ji)) .GT. missing) THEN
-            WRITE(numout,*) 'ERROR on ji = ', ji
-            WRITE(numout,*) 'temp_sol(ji),  pb(ji) :', temp_sol(ji),  pb(ji)
+!            WRITE(numout,*) 'ERROR on ji = ', ji
+!            WRITE(numout,*) 'temp_sol(ji),  pb(ji) :', temp_sol(ji),  pb(ji)
             CALL ipslerr_p (3,'enerbil_begin', &
  &           'qsol too high ','','')
           ENDIF
           DO jv = 2,nvm
             IF (ok_LAIdev(jv) .AND. ( ABS(qsol_sat_pft(ji,jv)) .GT. missing)) THEN
-                WRITE(numout,*) 'ERROR on ji,jv = ', ji, ', ', jv
-                WRITE(numout,*) 'temp_sol_pft(ji,jv),  pb(ji) :', temp_sol_pft(ji,jv),  pb(ji)
+ !               WRITE(numout,*) 'ERROR on ji,jv = ', ji, ', ', jv
+ !               WRITE(numout,*) 'temp_sol_pft(ji,jv),  pb(ji) :', temp_sol_pft(ji,jv),  pb(ji)
                 CALL ipslerr_p (3,'enerbil_begin', 'qsol too high ','','')
             ENDIF
           ENDDO
         ENDDO
       ENDIF
     ENDIF
-    
+
   !! 3. Computes pdqsold 
-    
+!    WRITE(numout,*) "ke temp_sol in nenrgy begin842 ",temp_sol
+     
     !! Computes pdqsold (the derivative of the saturated humidity with respect to temperature
     !! analysed at the surface temperature at the 'old' timestep.
     !! We call the routine 'dev_qsatcalc' from qsat_moisture module.
@@ -833,15 +855,15 @@ CONTAINS
       IF ( ANY(ABS( pdqsold(:)) .GT. missing) ) THEN
         DO ji = 1, kjpindex
           IF ( ABS( pdqsold(ji)) .GT. missing ) THEN
-            WRITE(numout,*) 'ERROR on ji = ', ji
-            WRITE(numout,*) 'temp_sol(ji),  pb(ji) :', temp_sol(ji),  pb(ji)
+!            WRITE(numout,*) 'ERROR on ji = ', ji
+!            WRITE(numout,*) 'temp_sol(ji),  pb(ji) :', temp_sol(ji),  pb(ji)
             CALL ipslerr_p (3,'enerbil_begin', &
  &           'pdqsold too high ','','')
           ENDIF
           DO jv = 2,nvm
             IF (ok_LAIdev(jv) .AND. (ABS( pdqsold_pft(ji,jv)) .GT. missing)) THEN
-                WRITE(numout,*) 'ERROR on ji, jv = ', ji, ', ', jv
-                WRITE(numout,*) 'temp_sol_pft(ji,jv), pb(ji) :', temp_sol_pft(ji,jv), pb(ji)
+ !               WRITE(numout,*) 'ERROR on ji, jv = ', ji, ', ', jv
+ !               WRITE(numout,*) 'temp_sol_pft(ji,jv), pb(ji) :', temp_sol_pft(ji,jv), pb(ji)
                 CALL ipslerr_p(3, 'enerbil_begin', 'pdqsold too high ','','')
             ENDIF
           ENDDO
@@ -925,7 +947,7 @@ CONTAINS
      & petAcoef, petBcoef, qair, peqAcoef, peqBcoef, soilflx, soilflx_pft, rau, u, v, q_cdrag, q_cdrag_pft, vbeta, vbeta_pft,&
      & valpha, vbeta1, vbeta5, soilcap, soilcap_pft, lwdown, swnet, psnew, qsol_sat_new, qsol_sat_new_pft, &
      & temp_sol_new, temp_sol_new_pft, &
-     & qair_new, epot_air_new, snowdz, veget_max)
+     & qair_new, epot_air_new, snowdz, veget_max,nrec_trans,havlen,date_s2) !! add by ke
 !<<<<<<< .mine
 !     & snowdz,snowflx,snowcap, veget_max)
 !=======
@@ -964,7 +986,10 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)        :: soilcap_pft   !! Soil calorific capacity (J K^{-1])
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: lwdown        !! Down-welling long-wave flux (W m^{-2})
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: swnet         !! Net surface short-wave flux (W m^{-2})
-    REAL(r_std), DIMENSION (kjpindex,nsnow), INTENT(in)      :: snowdz        !! Snow depth
+    REAL(r_std), DIMENSION (kjpindex,nsnow), INTENT(in)      :: snowdz        !! Snow depth 
+    INTEGER(i_std),INTENT (in)                               :: date_s2       !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in)     :: nrec_trans    !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in)     :: havlen        !! add by ke
 
     !! 0.2 Output variables
 
@@ -1157,13 +1182,15 @@ CONTAINS
 !            ENDIF
 !         ENDDO
 !      ELSE
-         sum_old = netrad(ji) + sensfl_old + larsub_old + lareva_old + soilflx(ji)
-         DO jv = 2,nvm
-            IF (ok_LAIdev(jv)) THEN
-                sum_old_pft(jv) = netrad_pft(ji,jv) + sensfl_old_pft(jv) + larsub_old_pft(jv) &
-                                  + lareva_old_pft(jv) + soilflx_pft(ji,jv)
-            ENDIF
-         ENDDO
+
+       sum_old = netrad(ji) + sensfl_old + larsub_old + lareva_old + soilflx(ji)
+       DO jv = 2,nvm
+          IF (ok_LAIdev(jv)) THEN
+              sum_old_pft(jv) = netrad_pft(ji,jv) + sensfl_old_pft(jv) + larsub_old_pft(jv) &
+                                + lareva_old_pft(jv) + soilflx_pft(ji,jv)
+          ENDIF
+       ENDDO
+         
 !      ENDIF
 !=======
 !      sum_old = netrad(ji) + sensfl_old + larsub_old + lareva_old + soilflx(ji)
@@ -1174,13 +1201,18 @@ CONTAINS
       !! \latexonly 
       !!     \input{enerbilsurftemp11.tex}
       !! \endlatexonly
-      sum_sns = netrad_sns + sensfl_sns + larsub_sns + lareva_sns
 
+
+
+      sum_sns = netrad_sns + sensfl_sns + larsub_sns + lareva_sns
+      
       DO jv = 2,nvm
         IF (ok_LAIdev(jv)) THEN
             sum_sns_pft(jv) = netrad_sns_pft(jv) + sensfl_sns_pft(jv) + larsub_sns_pft(jv) + lareva_sns_pft(jv)
         ENDIF
       ENDDO
+      
+
       !! 4.3 Calculation of dtheta (change in surface static energy over the
       !! timestep.
       !! \latexonly 
@@ -1208,17 +1240,17 @@ CONTAINS
 !      ENDIF
 !=======
 !>>>>>>> .r3384done
-!      WRITE(numout,*) 'soilcap(ji)',soilcap(ji)
-!      WRITE(numout,*) 'soilcap_pft(ji,:)', soilcap_pft(ji,:)
-!      WRITE(numout,*) 'sum_old',sum_old
-!      WRITE(numout,*) 'sum_old_pft',sum_old_pft
-!      WRITE(numout,*) 'sum_sns',sum_sns
-!      WRITE(numout,*) 'sum_sns_pft',sum_sns_pft
-!      WRITE(numout,*) 'soilcap_pft', soilcap_pft
-!      WRITE(numout,*) 'dtheta', dtheta
-!      WRITE(numout,*) 'dtheta_pft', dtheta_pft
-!      WRITE(numout,*) 'psold', psold
-!      WRITE(numout,*) 'psold_pft', psold_pft
+  !    WRITE(numout,*) 'ke-soilcap(ji)',soilcap(ji)
+  !    WRITE(numout,*) 'ke-soilcap_pft(ji,:)', soilcap_pft(ji,:)
+  !    WRITE(numout,*) 'ke-sum_old',sum_old
+  !    WRITE(numout,*) 'ke-sum_old_pft',sum_old_pft
+  !    WRITE(numout,*) 'ke-sum_sns',sum_sns
+  !    WRITE(numout,*) 'ke-sum_sns_pft',sum_sns_pft
+  !    WRITE(numout,*) 'ke-soilcap_pft', soilcap_pft
+  !    WRITE(numout,*) 'ke-dtheta', dtheta
+  !    WRITE(numout,*) 'ke-dtheta_pft', dtheta_pft
+  !    WRITE(numout,*) 'ke-psold', psold
+  !    WRITE(numout,*) 'ke-psold_pft', psold_pft
 
       dtheta = dt_sechiba * sum_old / (zicp(ji) * soilcap(ji) + dt_sechiba * sum_sns)
 
@@ -1237,6 +1269,9 @@ CONTAINS
         ENDIF
       ENDDO
       
+!      WRITE(numout,*) 'ke-psold ', psold,',,',psnew,',',psold_pft(:,12),',',psnew_pft(:,12)
+!      WRITE(numout,*) 'ke-temp_sol_new_pft ', temp_sol_new_pft(:,12)
+      
       !! The new surface saturated humidity can be calculated by equation (69)
       !! of (Dufresne & Ghattas, 2009), in which we substitute dtheta for the
       !! change between old and new temperature using the relationship from 3.1,
@@ -1252,7 +1287,7 @@ CONTAINS
       !!     \input{enerbilsurftemp15.tex}
       !! \endlatexonly
       temp_sol_new(ji) = psnew(ji) / cp_air
-      
+!      WRITE(numout,*) 'ke-temp_sol_new ', temp_sol_new
       !! 4.5 Calculation of new evaporation potential and new evaporation latent heat
       !! flux (???)
       !! \latexonly 
@@ -1562,6 +1597,7 @@ CONTAINS
            &  chalev0 * rau(ji) * qc * (un - vbeta1(ji)) * (un - vbeta5(ji)) * vbeta(ji) * &
            & (valpha(ji) * qsol_sat_new(ji) - qair(ji))
       
+      !!WRITE(numout,*) 'ke-fluxlat : ', fluxlat(ji),',',vbeta1(ji),',',vbeta5(ji),',',vbeta(ji),',',valpha(ji),',',qsol_sat_new(ji),',',qair(ji)
       !! The sublimination flux concerns is calculated using vbeta1, the snow resistance.
       !! \latexonly 
       !!     \input{enerbilflux11.tex}
@@ -1733,16 +1769,17 @@ CONTAINS
   !! \n
   !_ ==============================================================================================================================
 
-  SUBROUTINE enerbil_evapveg (kjpindex, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, veget_max,&
+  SUBROUTINE enerbil_evapveg (kjit, kjpindex, vbeta1, vbeta2, vbeta3,vbeta_has, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, veget_max,&
      & rau, u, v, q_cdrag, q_cdrag_pft, qair, humrel, vevapsno, vevapnu , vevapnu_pft, vevapflo, vevapwet, &
-     & transpir, transpot, evapot, &
-     & snowdz,snowrho,evapot_corr)
+     & transpir, transpir_has, transpot, evapot, &
+     & snowdz,snowrho,evapot_corr,havlen) !! add by ke
 
     !! 0. Variable and parameter declaration
     
     !! 0.1 Input variables
 
     INTEGER(i_std), INTENT(in)                          :: kjpindex          !! Domain size (-)
+    INTEGER(i_std), INTENT(in)                          :: kjit              !! add by Ke
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: vbeta1            !! Snow resistance (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: vbeta4            !! Bare soil resistance (-)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: vbeta4_pft        !! Bare soil resistance (-)
@@ -1757,19 +1794,29 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (in)  :: humrel            !! Soil moisture stress (within range 0 to 1)
 !!$ DS 15022011 humrel was used in a previous version of Orchidee, developped by Nathalie. Need to be discussed if it should be introduce again             
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: vbeta2            !! Interception resistance (-)
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: vbeta3            !! Vegetation resistance (-)
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: vbeta_has         !! Beta for HAS transpiration (-) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: vbeta3pot         !! Vegetation resistance for potential transpiration
     REAL(r_std), DIMENSION(kjpindex,nsnow),INTENT(in)   :: snowrho           !! Snow density
     REAL(r_std), DIMENSION(kjpindex,nsnow),INTENT(in):: snowdz               !! Snow depth 
+
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in):: havlen            !! add by ke 
+ 
+
     !! 0.2 Output variables
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: vevapsno          !! Snow evaporation (mm day^{-1})
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: vevapnu           !! Bare soil evaporation (mm day^{-1})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: vevapnu_pft       !! Bare soil evaporation (mm day^{-1})
+    
+    
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: vevapflo          !! Floodplains evaporation
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: transpir          !! Transpiration (mm day^{-1})
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: transpir_has      !! HAS water loss (mm day^{-1}) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: transpot          !! Potential Transpiration
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: vevapwet          !! Interception (mm day^{-1})
+    
 
     !! 0.3 Modified variables
     REAL(r_std), DIMENSION(kjpindex),INTENT(inout)      :: evapot_corr       !! Correction term in evapotranspiration
@@ -1777,18 +1824,23 @@ CONTAINS
 
     INTEGER(i_std)                                      :: ji, jv
     REAL(r_std), DIMENSION(kjpindex)                    :: xx
-    REAL(r_std), DIMENSION(kjpindex)                    :: vbeta2sum, vbeta3sum
-    REAL(r_std)                                    	:: speed	     !! Speed (m s^{-1})
+    REAL(r_std), DIMENSION(kjpindex)                    :: vbeta2sum, vbeta3sum,vbeta2ressum
+    REAL(r_std)                                    	    :: speed	           !! Speed (m s^{-1})
     REAL(r_std), DIMENSION(kjpindex)                    :: ZSNOWEVAPS,ZEVAPCOR,ZSNOWDZ
-    REAL(r_std)                                        :: xxtemp
+    REAL(r_std)                                         :: xxtemp
 
+    REAL(r_std), PARAMETER                              :: p_zr=2.0,karm=0.41,nconv = 2.5, z0s = 0.005   !! add by ke, m
+    REAL(r_std), DIMENSION(kjpindex)                    :: rad_temp1, rad_temp2, rad_temp,deltat,tpm,dsat,dos,ePT,gamma,netradS,raslim,raszero,d,height,ras,L,mouillmulch                                                 !! add by ke, 
+    
 !_ ==============================================================================================================================
     ! initialisation: utile pour calculer l'evaporation des floodplains dans lesquelles il y a de la vegetation
     vbeta2sum(:) = 0.
     vbeta3sum(:) = 0.
+
     DO jv = 1, nvm
       vbeta2sum(:) = vbeta2sum(:) + vbeta2(:,jv)
       vbeta3sum(:) = vbeta3sum(:) + vbeta3(:,jv)
+
     ENDDO 
     
     !! 1. Compute vevapsno (evaporation from snow) and vevapnu (bare soil evaporation)
@@ -1829,6 +1881,7 @@ CONTAINS
       !! \latexonly 
       !!     \input{enerbilevapveg3.tex}
       !! \endlatexonly
+      
       vevapnu(ji) = (un - vbeta1(ji)) * (un-vbeta5(ji)) * vbeta4(ji) * dt_sechiba * rau(ji) * speed * q_cdrag(ji) &
          & * (qsol_sat_new(ji) - qair(ji))
 
@@ -1845,14 +1898,15 @@ CONTAINS
           ELSE
               vevapnu_pft(ji,jv) = 0
           ENDIF
-      ENDDO
-      !
+      ENDDO   
+       
+
       ! 1.3 floodplains evaporation - transpiration et interception prioritaires dans les floodplains
       !
       vevapflo(ji) = vbeta5(ji) * (1 - vbeta2sum(ji) - vbeta3sum(ji)) &
            & * dt_sechiba * rau(ji) * speed * q_cdrag(ji) * (qsol_sat_new(ji) - qair(ji))
 
-    END DO
+    ENDDO
 
     !! 2. Compute transpir (transpiration) and vevapwet (interception)
   
@@ -1888,16 +1942,29 @@ CONTAINS
         !! \endlatexonly
         !vevapwet(ji,jv) = xx(ji) * vbeta2(ji,jv)
         vevapwet(ji,jv) = xxtemp * vbeta2(ji,jv)
-        ! 
+        
+        !! add by shuai (start)
         !! 2.2 Calculate transpiration
         !! \latexonly 
         !!     \input{enerbilevapveg7.tex}
         !! \endlatexonly
-        !vevapwet(ji,jv) = xx(ji) * vbeta2(ji,jv)
-        transpir (ji,jv) = xxtemp * vbeta3(ji,jv)
+        
+        ! Conventional stomatal vapor transpiration
+        transpir(ji,jv) = xxtemp * vbeta3(ji,jv)
+
+        ! HAS-induced liquid water loss through stomata
+        IF (ok_has) THEN
+            transpir_has(ji,jv) = xxtemp * vbeta_has(ji,jv)
+
+            ! Add HAS water loss to the transpiration variable used in the soil water balance
+            transpir(ji,jv) = transpir(ji,jv) + transpir_has(ji,jv)
+        ELSE
+            transpir_has(ji,jv) = zero
+        ENDIF
 
         !transpot(ji,jv) = xx(ji) * vbeta3pot(ji,jv)
         transpot(ji,jv) = xxtemp * vbeta3pot(ji,jv)
+        !! add by shuai (end)
 
       END DO
     END DO

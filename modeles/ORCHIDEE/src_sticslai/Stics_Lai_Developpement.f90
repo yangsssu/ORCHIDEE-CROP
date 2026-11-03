@@ -38,7 +38,7 @@
 !!   It has been possible to test the robustness of the above formalisation on a variety of crops, including crops where there is an overlap between the
 !!   vegetative phase and the reproductive phase (soybean and flax for example).  However, when trophic competition between leaves and fruits is a driving force
 !!   for the production and management of the crop (for example tomato, sugarbeet), this formalisation is unsuitable.  We therefore calculate the deltai variable
-!!   so as to take trophic monitoring into consideration in the case of crops described as ‘indeterminate’, by introducing a trophic stress index (splai).
+!!   so as to take trophic monitoring into consideration in the case of crops described as ‘indeterminate? by introducing a trophic stress index (splai).
 !!   As a consequence, the LAI can decrease markedly during the theoretical growth phase if the crop is experiencing severe stresses during the harvested
 !!   organs filling phase.
 ! *-----------------------------------------------------------------------------------------------------------------------------------------------------------* c
@@ -46,7 +46,7 @@
 
 ! XCW 23/05/2013 modified
 ! subroutine laidev(sc,p,pg,itk,t,soil,c,sta)
-
+ 
  subroutine laidev(n,                               &  ! IN
                    in_cycle,                        &  ! INout
                    f_crop_recycle,                  &  ! INOUT
@@ -174,7 +174,7 @@
                    hist_latest, &
                    doyhistst, &
                    nbox, boxulai, boxndays, boxlai, boxlairem,boxtdev, &
-                   boxbiom,boxbiomrem, boxdurage, boxsomsenbase)           ! INOUT 
+                   boxbiom,boxbiomrem, boxdurage, boxsomsenbase,nrec_trans,havlen, date,nmatlab)  ! INOUT !! add by ke
 
 
   USE Stics 
@@ -189,7 +189,8 @@
 
   ! 0.1 input 
   
-  integer, intent(IN)                           :: n  
+  integer, intent(IN)                              :: n  
+  integer, intent(IN)                              :: date !! add by ke
   logical, intent(inout)                           :: in_cycle
   logical, intent(inout)                           :: f_crop_recycle
   
@@ -351,8 +352,9 @@
   real,    intent(INOUT)      :: msneojaune        ! Newly-formed senescent dry matter  // t.ha-1
   integer,    intent(INOUT)      :: gslen
   integer,    intent(INOUT)      :: drylen
-   
-
+  integer,    intent(INOUT)      :: havlen         !! add by ke
+  INTEGER(i_std), INTENT(inout)  :: nrec_trans     !! add by ke
+  INTEGER(i_std), INTENT(inout)  :: nmatlab        !! add by ke
 ! 0.4 local Variables
   !real                          :: tdev  
   real                          :: upvtutil
@@ -429,18 +431,22 @@
                        coeflev, somelong, somger, humectation, nbjhumec, somtemphumec, densite, densitelev, nlax, nmat, nsen, stlevflo, ndebdes,      &  !> INOUT 
                        R_stlevamf, R_stamflax, R_stsenlan, R_stlaxsen, R_stlevdrp, R_stflodrp, R_stdrpmat, R_stdrpdes, densiteger,                    &  !> INOUT
                        udevair, udevcult, rfvi, rfpi, tdevelop, stpltger, upvtutil, stmatrec, group, tcult, stpltlev,                                 &
-                       f_crop_recycle, gslen, drylen)                                   !> OUT
-
-    
-       ! DR 12/09/2012 on pense que il y avait un pb sur le calcul de deltalai qui pour les CAS etait calculé à partir de la densite equivalente
+                       f_crop_recycle, gslen, drylen,nrec_trans, havlen, date,nmatlab)                                   !> OUT  !! add by ke
+!!      WRITE(numout,*) 'gslen_after_develop2_Ke', gslen
+!!        WRITE (numout,*) "havlen_after_develop2_Ke",havlen
+!!       WRITE (numout,*) "gslen_after_develop2_Ke",gslen
+      
+      
+      
+       ! DR 12/09/2012 on pense que il y avait un pb sur le calcul de deltalai qui pour les CAS etait calcul??partir de la densite equivalente
        ! cette densite equivalente ne doit etre utilisée que pour le calcul de efdensite (en cas de cas et pour la plante 2 ...)
-       ! si les 2 plantes sont arrivées à levee on recalcule la densite equivalente
+       ! si les 2 plantes sont arrivées ?levee on recalcule la densite equivalente
 
        ! comments: at this moment, we do not consider the intercropping system---xcwu
        !
        ! if(sc%P_nbplantes.gt.1 .and. i==2)then
        !       if((p(1)%nlev>0 .and. p(2)%nlev>0) .and. (p(1)%nlev==sc%n.or.p(2)%nlev==sc%n))then
-              !TODO: commenté ou pas ça ?
+              !TODO: comment?ou pas ça ?
        !            if (p(1)%nplt > p(2)%nplt) then
        !             call EnvoyerMsgHistorique('culture principale semée après culture associée')
        !           endif
@@ -535,17 +541,17 @@
                         histgrowth, hist_sencour, hist_latest, doyhistst)!,&
 !                        nbox, boxulai, boxndays, boxlai, boxlairem,boxtdev, &
 !                        boxbiom,boxbiomrem, boxdurage, boxsomsenbase)               ! OUT
-
+!            WRITE(numout,*) 'ke-lai afte calai', nplt,nlev,namf,nlax,ndrp,nrec,pdlaisen, lai, pdlai, pdulai
        
             ! Rognage & Effeuillage, seulement si lai > 0
-            ! ATTENTION! on travaille sur masec(n-1) car à ce moment de la boucle journalière masec(n) n'a pas encore été calculé...
+            ! ATTENTION! on travaille sur masec(n-1) car ?ce moment de la boucle journalière masec(n) n'a pas encore ét?calcul?..
             !     if (p(i)%lai(ens,sc%n) > 0.0) then
             !       if (itk(i)%P_codrognage == 2) then
             !         call rognage(itk(i)%P_codcalrogne,p(i)%hauteur(ens),p(i)%largeur,   & ! IN
             !                      itk(i)%P_hautrogne,itk(i)%P_margerogne,itk(i)%P_largrogne, &
             !                      p(i)%dfol,p(i)%P_hautbase,itk(i)%P_interrang,            &
             !                      p(i)%sla(ens),p(i)%P_tigefeuil,itk(i)%P_biorognem,sc%n,  &
-            !           p(i)%nrogne,p(i)%CNplante(ens),         & DR 20/07/2012 on a plus besoin du Cnplante il est calculé apres
+            !           p(i)%nrogne,p(i)%CNplante(ens),         & DR 20/07/2012 on a plus besoin du Cnplante il est calcul?apres
             !                      p(i)%nrogne,                                             &
             !                      p(i)%lairogne(ens),p(i)%biorogne(ens),                   & ! INOUT & OUT
             !                      p(i)%lai(ens,sc%n),p(i)%masec(ens,sc%n-1),               &
@@ -737,7 +743,6 @@
    ! write(*,*) 'wu: efdensity and tempeff and nstopfeille is ', efdensite, tempeff,nstopfeuille
    ! write(*,*) 'wu: dltai and dltaisen is ', deltai, dltaisen
    ! write(*,*) 'wu: ulai and tustress  is ', ulai, tustress
-
 
 
     endif

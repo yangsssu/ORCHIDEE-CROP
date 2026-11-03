@@ -1,0 +1,15 @@
+digraph test {
+ratio=2.167
+node [style=filled]
+"enerbil_begin" -> "enerbil_surftemp"
+"enerbil_surftemp" -> "enerbil_flux"
+"restart file mode?" -> "enerbil_begin"
+"enerbil_flux" -> "enerbil_evapveg"
+"enerbil_evapveg" -> "enerbil_t2mdiag"
+"enerbil_t2mdiag" -> "END enerbil_main"
+"START enerbil_main" -> "first time step?"
+"first time step?" -> "enerbil_init"
+"first time step?" -> "restart file mode?"
+"enerbil_init" -> "enerbil_var_init"
+"restart file mode?" -> "restput_p"
+}

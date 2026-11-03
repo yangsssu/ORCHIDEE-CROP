@@ -1,0 +1,10 @@
+It non linearly increases with the height of top dry soil $h_\mathrm{dry}$, and becomes very large when $h_\mathrm{dry}$ gets close to the total soil depth, $h_\mathrm{tot}$:
+\begin{equation}\label{eq:rsol}
+r_\mathrm{soil} = r_\mathrm{soil}^\mathrm{m} \left( h_\mathrm{dry} + \frac{\mathrm{1}}{\mathrm{100}(h_\mathrm{tot}-h_\mathrm{dry})^2}  \right).
+%r_\mathrm{soil} = r_\mathrm{soil}^r_\mathrm{m}  
+\end{equation}
+The top dry soil height  $h_\mathrm{dry}$ depends on both $h_t^d$ and $h_t^d$ in the bare soil fraction. As for the soil moisture stress factor on transpiration and bare soil evaporation ($U_s$), we use $a_j^\mathrm{sat}$ to describe a smooth transition between cases when the top layer's moisture  $W_t > h_t^\mathrm{sub} \theta^\mathrm{max}$ (then $h_\mathrm{dry}=h_t^d$),  and cases when the top layer's has vanished (then  $h_\mathrm{dry}=h_t^d=h_b^d$):
+\begin{equation}\label{eq:hdry}
+h_\mathrm{dry} = a_1^\mathrm{sat} h_{t_1}^d + (\mathrm{1} - a_1^\mathrm{sat})  h_{b_1}^d.
+\end{equation}
+% hdry(:) = a_subgrd(:,1)*dss(:,1) + (un-a_subgrd(:,1))*dsp(:,1) 

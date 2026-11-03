@@ -1,0 +1,14 @@
+We calculate the deviation of the saturated humidity with the temperature and the pressure for a given pixel $x$.
+\begin{multline}
+\delta q_{sat}(x,T) = \\
+\frac{(q_s(x,\lfloor T+\frac{1}{2}\rfloor + 1) - 2.q_s(x,\lfloor T +\frac{1}{2} \rfloor) + q_s(x,\lfloor T+\frac{1}{2} \rfloor -1))(\lbrace T + \frac{1}{2}\rbrace -1 )} {P}+ 
+\\ \frac{q_s(x,\lfloor T+\frac{1}{2} \rfloor +1) - q_s(x, \lfloor T+\frac{1}{2} \rfloor)}{P}
+\end{multline}
+
+where : \\
+\begin{itemize}
+ \item  $ \lfloor T + \frac{1}{2} \rfloor $ represents the largest integer not greater than $T + \frac{1}{2} $. 
+ \item  $ \lbrace T + \frac{1}{2} \rbrace = T + \frac{1}{2} -\lfloor T + \frac{1}{2} \rfloor $ is the fractional part of $T + \frac{1}{2} $.
+ \item  $q_s$ is the array caclulated in the subroutine qsfrict\_init. 
+\end{itemize}
+

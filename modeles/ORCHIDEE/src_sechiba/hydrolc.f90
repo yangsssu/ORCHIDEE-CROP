@@ -355,7 +355,7 @@ CONTAINS
      & snowrho,snowtemp, snowgrain,snowdz,snowheat,snowliq,&
      & grndflux,gtemp, tot_bare_soil, &
      & soilflxresid, &
-     & lambda_snow,cgrnd_snow,dgrnd_snow,temp_sol_add)
+     & lambda_snow,cgrnd_snow,dgrnd_snow,temp_sol_add) !! add by Ke
 
   !! 0. Variable and parameter declaration
 
@@ -393,7 +393,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)       :: veget_max        !! PFT fractions within grid-cells: max value of 
                                                                                 !! veget for vegetation PFTs and min value for bare soil (0-1, unitless)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)       :: qsintmax         !! Maximum amount of water in the canopy 
-                                                                                !! interception reservoir 
+                                                                                !! interception reservoir
+                                                                                !! interception reservoir  
                                                                                 !! @tex ($kg m^{-2}$) @endtex 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)       :: transpir         !! Transpiration over each PFT 
                                                                                 !! @tex ($kg m^{-2}$) @endtex 
@@ -408,11 +409,11 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)            :: pgflux           !! Net energy into snowpack
     REAL(r_std), DIMENSION (kjpindex),INTENT(inout)         :: soilflxresid     !! Energy flux to the snowpack
     REAL(r_std),DIMENSION (kjpindex),INTENT(in)             :: gtemp            !! First soil layer temperature
-    REAL(r_std),DIMENSION (kjpindex), INTENT(in)            :: tot_bare_soil    !! Total evaporating bare soil fraction  
+    REAL(r_std),DIMENSION (kjpindex), INTENT(in)            :: tot_bare_soil    !! Total evaporating bare soil fraction
+     
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)            :: lambda_snow      !! Coefficient of the linear extrapolation of surface temperature 
     REAL(r_std),DIMENSION (kjpindex,nsnow), INTENT (in)     :: cgrnd_snow       !! Integration coefficient for snow numerical scheme
     REAL(r_std),DIMENSION (kjpindex,nsnow), INTENT (in)     :: dgrnd_snow       !! Integration coefficient for snow numerical scheme
-
 
     !! 0.2 Output variables
 
@@ -435,6 +436,7 @@ CONTAINS
     !! 0.3  Modified variables
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)        :: vevapnu          !! Bare soil evaporation @tex ($kg m^{-2}$) @endtex 
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)        :: vevapsno         !! Snow evaporation  @tex ($kg m^{-2}$) @endtex 
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)        :: vevapflo         !! Floodplains evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)        :: snow             !! Snow water equivalent @tex ($kg m^{-2}$) @endtex 
@@ -492,9 +494,9 @@ CONTAINS
                                 snowliq,         subsnownobio,   grndflux,     snowmelt,     tot_melt,  &
                                 soilflxresid, subsinksoil     )
     ELSE
-       CALL hydrolc_snow(kjpindex, precip_rain, precip_snow, temp_sol_new, soilcap, &
+       CALL hydrolc_snow(kjit, kjpindex, precip_rain, precip_snow, temp_sol_new, soilcap, &
             frac_nobio, totfrac_nobio, vevapnu, vevapsno, snow, snow_age, snow_nobio, snow_nobio_age, &
-            tot_melt, snowdepth)
+            tot_melt, snowdepth) !! add by Ke
     END IF
     
     !! 1.b canopy processes
@@ -503,8 +505,8 @@ CONTAINS
     CALL hydrolc_canop(kjpindex, precip_rain, vevapwet, veget, qsintmax, tot_bare_soil, qsintveg, precisol)
     !
     ! computes surface reservoir
-    !
-    CALL hydrolc_flood(kjpindex, vevapnu, vevapflo, flood_frac, flood_res, floodout)
+    ! 
+    CALL hydrolc_flood(kjit,kjpindex, vevapnu, vevapflo, flood_frac, flood_res, floodout) 
    
     !! 1.c soil hydrology processes
 
@@ -543,7 +545,7 @@ CONTAINS
     CALL hydrolc_soil(kjpindex, vevapnu, precisol, returnflow, reinfiltration, irrigation, irrig_demand_ratio, veget_max, tot_melt, mx_eau_var, &  ! added irrig_demand_ratio, veget_max, for crop irrigation
          & veget, tot_bare_soil, ruu_ch, transpir,&
          & gqsb, bqsb, dsg, dss, rsol, drysoil_frac, hdry, dsp, runoff, run_off_tot, drainage, humrel, &
-         & vegstress, shumdiag, litterhumdiag, irrig_fin) ! added irrig_fin by xuhui
+         & vegstress, shumdiag, litterhumdiag, irrig_fin) ! added irrig_fin by xuhui add by Ke
     
     DO ji = 1,kjpindex
         DO jv = 2,nvm
@@ -554,14 +556,14 @@ CONTAINS
     ENDDO
     ! computes horizontal diffusion between the water reservoirs
     IF ( ok_hdiff ) THEN
-      CALL hydrolc_hdiff(kjpindex, veget, tot_bare_soil, ruu_ch, gqsb, bqsb, dsg, dss, dsp)
+      CALL hydrolc_hdiff(kjpindex, veget, tot_bare_soil, ruu_ch, gqsb, bqsb, dsg, dss, dsp) !! add by Ke
     ENDIF
     
     ! If we check the water balance, we end with the comparison of total water change and fluxes
     IF (check_waterbal) THEN
        CALL hydrolc_waterbal(kjpindex, index, veget, totfrac_nobio, qsintveg, snow, snow_nobio,&
             & precip_rain, precip_snow, returnflow, reinfiltration, irrigation, tot_melt, vevapwet, transpir, vevapnu, vevapsno,&
-            & vevapflo, floodout, run_off_tot, drainage )
+            & vevapflo, floodout, run_off_tot, drainage)
     ENDIF
     
   !! 2. Output
@@ -1759,15 +1761,16 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE hydrolc_snow (kjpindex, precip_rain, precip_snow , temp_sol_new, soilcap,&
+  SUBROUTINE hydrolc_snow (kjit, kjpindex, precip_rain, precip_snow , temp_sol_new, soilcap,&
        & frac_nobio, totfrac_nobio, vevapnu, vevapsno, snow, snow_age, snow_nobio, snow_nobio_age, &
-       & tot_melt, snowdepth)
+       & tot_melt, snowdepth) 
 
   !! 0. Variable and parameter declaration
 
     !! 0.1  Input variabless
  
     INTEGER(i_std), INTENT(in)                               :: kjpindex        !! Domain size  (unitless)
+    INTEGER(i_std), INTENT(in)                               :: kjit           !! add by Ke
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: precip_rain     !! Rainfall @tex ($kg m^{-2}$) @endtex
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: precip_snow     !! Snow precipitation @tex ($kg m^{-2}$) @endtex
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: temp_sol_new    !! New soil temperature (K)
@@ -1777,6 +1780,7 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: totfrac_nobio   !! Total fraction of continental ice+lakes+ ... 
                                                                                 !! (unitless)
 
+
     !! 0.2 Output variables
 
     REAL(r_std), DIMENSION (kjpindex), INTENT(out)           :: tot_melt        !! Total melt @tex ($kg m^{-2}$) @endtex
@@ -1785,6 +1789,8 @@ CONTAINS
     !! 0.3  Modified variables
 
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: vevapnu         !! Bare soil evaporation @tex ($kg m^{-2}$) @endtex
+    
+
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: vevapsno        !! Snow evaporation @tex ($kg m^{-2}$) @endtex
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: snow            !! Snow mass @tex ($kg m^{-2}$) @endtex
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: snow_age        !! Snow age (days)
@@ -1859,8 +1865,11 @@ CONTAINS
          ! frac_nobio sur ce pixel pour eviter de puiser dans le sol!         
          IF ( frac_nobio(ji,iice) .GT. min_sechiba) THEN
             subsnownobio(ji,iice) = subsnownobio(ji,iice) + (subsnowveg(ji) - snow(ji))
-         ELSE  
+         ELSE
             vevapnu(ji) = vevapnu(ji) + (subsnowveg(ji) - snow(ji))
+       
+         
+            
             warnings(ji) = .TRUE.
             any_warning = .TRUE.
          ENDIF
@@ -1873,6 +1882,9 @@ CONTAINS
          snow(ji) = snow(ji) - subsnowveg(ji)
       ENDIF
     ENDDO
+
+    
+    
     IF ( any_warning ) THEN
        WRITE(numout,*)' ATTENTION on prend de l eau au sol nu sur au moins un point car evapsno est trop fort!'
 !!$       DO ji=1,kjpindex
@@ -1902,7 +1914,7 @@ CONTAINS
                snow(ji) = zero
             END IF
             
-         ELSEIF (snow(ji).GE.zero) THEN 
+         ELSE IF (snow(ji).GE.zero) THEN 
             
             ! 2.3.2 not enough snow
             snowmelt(ji) = snow(ji)
@@ -2477,15 +2489,17 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE hydrolc_flood (kjpindex, vevapnu, vevapflo, flood_frac, flood_res, floodout)
+  SUBROUTINE hydrolc_flood (kjit, kjpindex, vevapnu, vevapflo, flood_frac, flood_res, floodout) !! addb y Ke
     ! input scalar 
     INTEGER(i_std), INTENT(in)                               :: kjpindex 
+    INTEGER(i_std), INTENT(in)                               :: kjit           !! add by Ke
     ! input fields
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: flood_frac       !! Fraction of floodplains in grid box
-    ! modified fields
+
     REAL(r_std), DIMENSION (kjpindex), INTENT(out)           :: floodout         !! Flux to take out from floodplains
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: flood_res        !! Floodplains reservoir estimate
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: vevapnu          !! Bare soil evaporation
+
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: vevapflo         !! Floodplains evaporation
     ! local declaration
     INTEGER(i_std)                                          :: ji, jst, jv       !! indices
@@ -2500,7 +2514,11 @@ CONTAINS
     DO ji = 1,kjpindex
        temp = MIN(flood_res(ji), vevapflo(ji))
        flood_res(ji) = flood_res(ji) - temp
-       vevapnu(ji) = vevapnu(ji) + vevapflo(ji) - temp
+
+       vevapnu(ji) = vevapnu(ji) + (vevapflo(ji) - temp)
+     
+     
+       
        vevapflo(ji) = temp
     ENDDO
 
@@ -2628,14 +2646,16 @@ CONTAINS
   SUBROUTINE hydrolc_soil(kjpindex, vevapnu, precisol, returnflow, reinfiltration, irrigation, irrig_demand_ratio, veget_max, tot_melt, mx_eau_var, &  !added irrig_demand_ratio, veget_max, for crop irrigation, xuhui
        & veget, tot_bare_soil, ruu_ch, transpir,&
        & gqsb, bqsb, dsg, dss, rsol, drysoil_frac, hdry, dsp, runoff, run_off_tot, drainage, &
-       & humrel, vegstress, shumdiag, litterhumdiag,  irrig_fin)
+       & humrel, vegstress, shumdiag, litterhumdiag,  irrig_fin) !! add by Ke
      
   !! 0. Variable and parameter declaration
 
     !! 0.1  Input variables
  
     INTEGER(i_std), INTENT(in)                          :: kjpindex       !! Domain size (number of grid cells) (unitless)
+ !!   INTEGER(i_std), INTENT(in)                       :: kjit           !! add by Ke
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: vevapnu        !! Bare soil evaporation  @tex ($kg m^{-2}$) @endtex 
+
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(in)   :: precisol       !! Throughfall  @tex ($kg m^{-2}$) @endtex 
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: returnflow     !! Routed water which comes back into the soil 
                                                                           !! @tex ($kg m^{-2}$) @endtex 
@@ -2649,7 +2669,8 @@ CONTAINS
                                                                           !! @tex ($kg m^{-2}$) @endtex
     REAL(r_std), DIMENSION (kjpindex, nvm), INTENT(in)  :: veget          !! Grid-cell fraction effectively covered by vegetation 
                                                                           !! for each PFT, except for soil (0-1, unitless) 
-    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil  !! Total evaporating bare soil fraction    
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil  !! Total evaporating bare soil fraction   
+ 
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: ruu_ch         !! Volumetric soil water capacity 
                                                                           !! @tex ($kg m^{-3}$) @endtex
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(in)   :: transpir       !! Transpiration over each PFT @tex ($kg m^{-2}$) @endtex 
@@ -2834,7 +2855,7 @@ CONTAINS
                          irrig_fin(ji,jv) = irrigation(ji)*irrig_demand_ratio(ji,jv)/veget_max(ji,jv)
                          bqsb(ji,jv) = bqsb(ji,jv) + irrig_fin(ji,jv)
                      ENDIF
-!                    bqsb(ji,jv) = bqsb(ji,jv) + irrigation(ji)/(vegtot(ji)-tot_bare_soil(ji))
+!                    bqsb(ji,jv) = bqsb(ji,jv) + irrigation(ji)/(vegtot(ji)-tot_bare_soil(ji)) !! addb y Ke
                  ENDIF
               ENDIF
            ENDIF
@@ -3033,6 +3054,7 @@ CONTAINS
            ELSE
               mean_bqsb(ji) = mean_bqsb(ji) + veget(ji,jv)/vegtot(ji)*bqsb(ji,jv)
               mean_gqsb(ji) = mean_gqsb(ji) + veget(ji,jv)/vegtot(ji)*gqsb(ji,jv)
+     
            ENDIF
         ENDIF
       ENDDO
@@ -3139,6 +3161,7 @@ CONTAINS
              ELSE
                 mean_bqsb(ji) = mean_bqsb(ji) + veget(ji,jv)/vegtot(ji)*bqsb(ji,jv)
                 mean_gqsb(ji) = mean_gqsb(ji) + veget(ji,jv)/vegtot(ji)*gqsb(ji,jv)
+             
              ENDIF
           ENDIF
         ENDDO
@@ -3156,6 +3179,7 @@ CONTAINS
     DO ji = 1, kjpindex
        IF ( vegtot(ji) .GT. zero ) THEN
           run_off_tot(ji) = runoff(ji,1)*tot_bare_soil(ji) + SUM(runoff(ji,2:nvm)*veget(ji,2:nvm))
+
        ELSE
           run_off_tot(ji) = tot_melt(ji) + irrigation(ji) + reinfiltration(ji)
        ENDIF
@@ -3320,7 +3344,9 @@ CONTAINS
           ! on modifie le rsol pour que la resistance croisse subitement si on s'approche
           ! du fond. En gros, rsol=hdry*rsol_cste pour hdry < 1m70
           !rsol(ji) = dss(ji,1) * rsol_cste
+
           rsol(ji) =  ( hdry(ji) + un/(10.*(zmaxh - hdry(ji))+1.e-10)**2 ) * rsol_cste
+
        ENDIF
     ENDDO
     
@@ -3406,13 +3432,14 @@ CONTAINS
   
   SUBROUTINE hydrolc_waterbal (kjpindex, index, veget, totfrac_nobio, qsintveg, snow, snow_nobio,&
        & precip_rain, precip_snow, returnflow, reinfiltration, irrigation, tot_melt, vevapwet, transpir, vevapnu,&
-       & vevapsno, vevapflo, floodout, run_off_tot, drainage)
+       & vevapsno, vevapflo, floodout, run_off_tot, drainage) !! add by Ke
     
   !! 0. Variable and parameter declaration
 
     !! 0.1 Input variables
 
     INTEGER(i_std), INTENT (in)                            :: kjpindex       !! Domain size (number of grid cells) (unitless)
+  !!  INTEGER(i_std), INTENT(in)                       :: kjit           !! add by Ke
     INTEGER(i_std),DIMENSION (kjpindex), INTENT (in)       :: index          !! Indices of the points on the map
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)      :: veget          !! Grid-cell fraction effectively covered by 
                                                                              !! vegetation for each PFT, except for soil 
@@ -3438,13 +3465,14 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)      :: transpir       !! Transpiration over each PFT 
                                                                              !! @tex ($kg m^{-2}$) @endtex 
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: vevapnu        !! Bare soil evaporation @tex ($kg m^{-2}$) @endtex 
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: vevapflo       !! Floodplains evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: vevapsno       !! Snow evaporation @tex ($kg m^{-2}$) @endtex
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: floodout       !! Outflow from floodplains
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: run_off_tot    !! Diagnosed surface runoff @tex ($kg m^{-2}$) @endtex 
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)          :: drainage       !! Diagnosed rainage at the bottom of soil  
                                                                              !! @tex ($kg m^{-2}$) @endtex 
-    
+
     !! 0.2 Output variables
     
     !! 0.3 Modified variables
@@ -3519,10 +3547,9 @@ CONTAINS
     DO ji = 1, kjpindex
        
        delta_water(ji) = tot_water_end(ji) - tot_water_beg(ji)
-       
        tot_flux(ji) =  precip_rain(ji) + precip_snow(ji) + returnflow(ji) + reinfiltration(ji) + irrigation(ji) - &
              & sum_vevapwet(ji) - sum_transpir(ji) - vevapnu(ji) - vevapsno(ji) - vevapflo(ji) + &
-             & floodout(ji)- run_off_tot(ji) - drainage(ji) 
+             & floodout(ji)- run_off_tot(ji) - drainage(ji)
        
     ENDDO
     
@@ -3732,7 +3759,7 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE hydrolc_hdiff(kjpindex, veget, tot_bare_soil, ruu_ch, gqsb, bqsb, dsg, dss, dsp)
+  SUBROUTINE hydrolc_hdiff(kjpindex, veget, tot_bare_soil, ruu_ch, gqsb, bqsb, dsg, dss, dsp) !! add by Ke
 
   !! 0. Variable and parameter declaration
 
@@ -3742,7 +3769,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget            !! Grid-cell fraction effectively covered by 
                                                                              !! vegetation for each PFT, except for soil 
                                                                              !! (0-1, unitless) 
-    REAL(r_std), DIMENSION (kjpindex), INTENT(in)        :: tot_bare_soil    !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)        :: tot_bare_soil    !! Total evaporating bare soil fraction
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: ruu_ch           !! Volumetric soil water capacity 
                                                                              !! @tex ($kg m^{-3}$) @endtex
     
@@ -3820,6 +3848,7 @@ CONTAINS
               gqsb_mean(ji) = gqsb_mean(ji) + tot_bare_soil(ji)*gqsb(ji,jv)
               dss_mean(ji) = dss_mean(ji) + tot_bare_soil(ji)*dss(ji,jv)
               vegtot(ji) = vegtot(ji) + tot_bare_soil(ji)
+           
            ELSE
               bqsb_mean(ji) = bqsb_mean(ji) + veget(ji,jv)*bqsb(ji,jv)
               gqsb_mean(ji) = gqsb_mean(ji) + veget(ji,jv)*gqsb(ji,jv)

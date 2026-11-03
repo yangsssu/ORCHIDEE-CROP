@@ -163,7 +163,7 @@ implicit none
 
 
 
-! 25/04/2012 DR et IGC le retour ..., pb si on force la levee pour la vigne on passe dans le caluvle de la germination et on met une densité à 0
+! 25/04/2012 DR et IGC le retour ..., pb si on force la levee pour la vigne on passe dans le caluvle de la germination et on met une densit??0
 ! en gros il faut decomposer le test en 2 lignes
 !      if (P_codeperenne == 2 .and. P_codebfroid == 3 .and. nlevobs == 999) then
 
@@ -192,12 +192,12 @@ implicit none
 !      print *, 'in levee, the tsoil is', tsol(:)
 
       !: La germination
-      !- calcul de la germination màªme si nlev observé pour le démarrage de la vernalisation
+      !- calcul de la germination màªme si nlev observ?pour le démarrage de la vernalisation
       !isem = int(P_profsem)
       udevlev = tsol(2) - P_tgmin  ! there are 3 layers for tsol, the second layer means the sowing depth
       if (udevlev <= 0.0) udevlev = 0.0
 
-      write(*,*) 'nplt, udevlev, nger', nplt, udevlev, nger
+      !write(*,*) 'nplt, udevlev, nger', nplt, udevlev, nger
 
       !: Rajout domi - 15/09/97:
       !- Test sur isem-1 et isem+1 pour qu'ils restent dans l'intervalle [1,200]
@@ -221,8 +221,8 @@ implicit none
 !        print *, 'tsol and humsol in levee is', tsol(2), humsol 
 
         somger = somger + (udevlev * F_humirac(humsol))
-        write(*,*) 'udevlev * F_humirac(humsol)', udevlev * F_humirac(humsol)
-        write(*,*) 'somger ', somger
+        !write(*,*) 'udevlev * F_humirac(humsol)', udevlev * F_humirac(humsol)
+        !write(*,*) 'somger ', somger
 
         if (somger >= P_stpltger .and. nger == 0) then
           nger = n
@@ -277,7 +277,7 @@ implicit none
             densiteger = P_densitesem
           endif
         endif
-        ! DR 06/02/07 on a pas acces à  la densité à  germination pour sophie
+        ! DR 06/02/07 on a pas acces à  la densit?à  germination pour sophie
         ! pour l'instant je l'affecte dans densite mais c'est à  voir avce nad
         densite = densiteger
       else
@@ -299,7 +299,7 @@ implicit none
 
 
       !: élongation
-      !- NB - 17/08/07 : il faut pouvoir calculer la densité levée quel que soit
+      !- NB - 17/08/07 : il faut pouvoir calculer la densit?levée quel que soit
       !-                 nlev obs ou cal
      
       if (nlevobs == 999) then
@@ -333,7 +333,7 @@ implicit none
             elong = P_elmax * (1 - exp(-(P_belong * somelong)**P_celong))
   
 !            print *, 'in levee, the elong is,', elong
-            write(*,*) 'elong,',elong
+            !write(*,*) 'elong,',elong
        
             if (elong >= P_profsem) nlev = n
           endif
@@ -342,7 +342,7 @@ implicit none
       
 !      print *, 'in levee before calculating coeflev, P_nlevlim1 P_nlevlim2, levbat, coeflev are', P_nlevlim1, P_nlevlim2, levbat, coeflev
 
-      !: Diminution de la densité levée en fonction du délai germination-levée
+      !: Diminution de la densit?levée en fonction du délai germination-levée
       !- paramà¨tres à  mettre dans *.plt 18/12/01
       
       ! FOR WINTER WHEAT, THE GROWING SEASON CAN COVER TWO YEAS, SO IN THE NEXT YEAR WE SHOULD NOT 
@@ -383,8 +383,8 @@ implicit none
                  coeflev = 0.0
 
                !: ML 11/12/07 y'avait un bug: on ne peut pas avoir coeflev = P_vigueurbat aprà¨s P_nlevlim2
-               !- si à  la fois la battance et les conditions d'humidité et de température ont
-               !- freiné la levée
+               !- si à  la fois la battance et les conditions d'humidit?et de température ont
+               !- frein?la levée
                !--else
                !--  coeflev = P_vigueurbat
                endif
@@ -403,7 +403,7 @@ implicit none
 !      print *, 'in levee the densiteger, coeflev is', densiteger, coeflev  
    
       
-      !: Réduction de densité
+      !: Réduction de densit?
       !- introduction de l'effet battance le 13/05/05
       !- modif NB le 18/08/07
       if (n == nlev .or. n == nlevobs) then

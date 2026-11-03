@@ -1038,6 +1038,9 @@ SUBROUTINE restget_opp_r1d &
 !-
 ! 2.0 Here we get the variable from the restart file
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-restget_real IN restget_opp_r1d: ",vname_q
+  ENDIF
   CALL restget_real &
     (fid,vname_q,xax_infs(fid,1,1),yax_infs(fid,1,1), &
      zax_infs(fid,1,1),itau,def_beha,buff_tmp2)
@@ -1082,6 +1085,7 @@ SUBROUTINE restget_opp_r2d &
   REAL :: scal
   CHARACTER(LEN=7) :: topp
   LOGICAL :: l_dbg
+
 !---------------------------------------------------------------------
   CALL ipsldbg (old_status=l_dbg)
 !-
@@ -1112,6 +1116,9 @@ SUBROUTINE restget_opp_r2d &
 !-
 ! 2.0 Here we get the full variable from the restart file
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-restget_real IN restget_opp_r2d: ",vname_q
+  ENDIF
   CALL restget_real &
  & (fid,vname_q,xax_infs(fid,1,1),yax_infs(fid,1,1), &
  &  jjm,itau,def_beha,buff_tmp2)
@@ -1126,8 +1133,9 @@ SUBROUTINE restget_opp_r2d &
     var_sz = siz1
     DO jj = 1,jjm
       ist = (jj-1)*req_sz+1
-      CALL mathop (topp,req_sz,buff_tmp2(ist:ist+req_sz-1), &
- &      missing_val,nbindex,ijndex,scal,var_sz,buff_tmp1)
+          
+      CALL mathop (topp, req_sz, buff_tmp2(ist:ist+req_sz-1), missing_val, &
+     &                nbindex, ijndex, scal, var_sz, buff_tmp1)
       var(:,jj) = buff_tmp1(1:siz1)
     ENDDO
   ELSE
@@ -1187,6 +1195,9 @@ SUBROUTINE restget_r1d &
       'There could be a problem here :',str,str2)
   ENDIF
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-restget_real IN restget_r1d: ",vname_q
+  ENDIF
   CALL restget_real &
  & (fid,vname_q,iim,jjm,llm,itau,def_beha,buff_tmp1)
 !-
@@ -1252,6 +1263,9 @@ SUBROUTINE restget_r2d &
       'There could be a problem here :',str,str2)
   ENDIF
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-restget_real IN restget_r2d: ",vname_q
+  ENDIF
   CALL restget_real &
  & (fid,vname_q,iim,jjm,llm,itau,def_beha,buff_tmp1)
 !-
@@ -1320,6 +1334,9 @@ SUBROUTINE restget_r3d &
       'There could be a problem here :',str,str2)
   ENDIF
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-restget_real IN restget_r3d: ",vname_q
+  ENDIF
   CALL restget_real &
     (fid,vname_q,iim,jjm,llm,itau,def_beha,buff_tmp1)
 !-
@@ -1390,6 +1407,9 @@ SUBROUTINE restget_real &
 !-
   IF (l_dbg) WRITE(ipslout,*) 'RESTGET 1.0 : ',vnb
 !-
+  IF (vname_q .EQ. 'leaf_ci_') THEN
+      WRITE(*,*) "ke-before restget_real0: ",touched_in(fid,vnb), vnb
+  ENDIF
   IF (vnb < 0) THEN
     IF (def_beha) THEN
 !-----
@@ -1431,6 +1451,9 @@ SUBROUTINE restget_real &
 !---
     nbvar_read(fid) = nbvar_read(fid)+1
 !---
+    IF (vname_q .EQ. 'leaf_ci_') THEN
+        WRITE(*,*) "ke-before restget_real: ",touched_in(fid,vnb), vnb
+    ENDIF
     IF (touched_in(fid,vnb)) THEN
       str = 'Variable '//TRIM(vname_q) &
           //' has already been read from file'

@@ -71,7 +71,9 @@ MODULE stomate
   ! Private & public routines
 
   PRIVATE
-  PUBLIC stomate_main,stomate_clear,init_forcing, stomate_forcing_read, stomate_initialize, stomate_finalize, stomate_veget_update, slowproc_ManageInput, stomate_read_cycle, stomate_read_rotation, stomate_read_plantdate, stomate_get_cmd
+  PUBLIC stomate_main,stomate_clear,init_forcing, stomate_forcing_read, stomate_initialize, stomate_finalize, &
+         stomate_veget_update, slowproc_ManageInput, stomate_read_cycle, &
+         stomate_read_rotation, stomate_read_plantdate, stomate_get_cmd, N_add_has !! add by shuai
 
 
   REAL(r_std),ALLOCATABLE,SAVE,DIMENSION(:,:,:,:):: biomass              !! Biomass per ground area @tex $(gC m^{-2})$ @endtex 
@@ -645,6 +647,7 @@ MODULE stomate
 !$OMP THREADPRIVATE(dt_days)
   INTEGER(i_std),SAVE                            :: date=0               !! Date (days) 
 !$OMP THREADPRIVATE(date)
+
   INTEGER(i_std),ALLOCATABLE,SAVE,DIMENSION(:)   :: nforce               !! Number of states calculated for the soil forcing 
                                                                          !! variables (unitless), dimension(::nparan*::nbyear) both 
                                                                          !! given in the run definition file    
@@ -1023,7 +1026,7 @@ MODULE stomate
 
   INTEGER(i_std),    ALLOCATABLE, SAVE, DIMENSION(:, :)      :: gslen
 !$OMP THREADPRIVATE(gslen)
- 
+
   ! control the drying process of grain 
 
   INTEGER(i_std),    ALLOCATABLE, SAVE, DIMENSION(:, :)      :: drylen 
@@ -1037,6 +1040,15 @@ MODULE stomate
   !LOGICAL,SAVE                                      :: iplt_1d
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:, :)       :: N_add
 !$OMP THREADPRIVATE(N_add)
+
+  REAL(r_std),ALLOCATABLE,SAVE,DIMENSION(:, :)        :: N_add_has           !! N input for HAS, add by shuai
+!$OMP THREADPRIVATE(N_add_has)
+  REAL(r_std),ALLOCATABLE,SAVE,DIMENSION(:,:,:)       :: Nfert_forcing_has   !! add by shuai
+!$OMP THREADPRIVATE(Nfert_forcing_has)
+  INTEGER(i_std),SAVE                                 :: Nfert_yrlen_has = 0 !! add by shuai
+!$OMP THREADPRIVATE(Nfert_yrlen_has)
+
+
 !!  REAL(r_std),    ALLOCATABLE, SAVE, DIMENSION(:, :)      :: N_limfert
 !! overlapping with the definition introuded by GM
 
@@ -1077,7 +1089,7 @@ SUBROUTINE stomate_initialize &
          lai,            veget,             veget_max,                       &
          co2_flux,       fco2_lu,                                            &
          deadleaf_cover, assim_param,       thawed_humidity, depth_organic_soil, &
-         soilc_total, heat_Zimov,           temp_growth )
+         soilc_total, heat_Zimov,           temp_growth,havlen) !! add by ke
 
     IMPLICIT NONE
     !! 0. Variable and parameter declaration
@@ -1088,7 +1100,7 @@ SUBROUTINE stomate_initialize &
     INTEGER(i_std),INTENT(in)                       :: rest_id_stom      !! STOMATE's _Restart_ file identifier (unitless)
     INTEGER(i_std),INTENT(in)                       :: hist_id_stom      !! STOMATE's _history_ file identifier (unitless)
     INTEGER(i_std),INTENT(in)                       :: hist_id_stom_IPCC !! STOMATE's IPCC _history_ file identifier(unitless) 
-    INTEGER(i_std),DIMENSION(kjpindex),INTENT(in)   :: index1             !! The indices of the terrestrial pixels only (unitless) 
+    INTEGER(i_std),DIMENSION(kjpindex),INTENT(in)   :: index1            !! The indices of the terrestrial pixels only (unitless) 
 !!!! xuhui: change index to index1 in stomate_initialize because index overwrites the INDEX function of FORTRAN
     REAL(r_std),DIMENSION(kjpindex,2),INTENT(in)    :: lalo              !! Geographical coordinates (latitude,longitude) for pixels (degrees) 
     INTEGER(i_std),DIMENSION(kjpindex,8),INTENT(in) :: neighbours        !! Neighoring grid points if land for the DGVM (unitless) 
@@ -1104,6 +1116,8 @@ SUBROUTINE stomate_initialize &
                                                                          !! non-biological fraction (unitless) 
     REAL(r_std), DIMENSION(kjpindex,ndeep,nvm),   INTENT (out)    :: heat_Zimov !! heating associated with decomposition
 
+!    INTEGER(i_std),INTENT(inout)                      :: date_s2           !! add by ke
+    INTEGER(i_std),DIMENSION(kjpindex,nvm), INTENT(inout)     :: havlen  !! add by ke
     !! 0.2 Output variables
     REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out) :: co2_flux          !! CO2 flux between atmosphere and biosphere
     REAL(r_std),DIMENSION(kjpindex),INTENT(out)     :: fco2_lu           !! CO2 flux between atmosphere and biosphere from land-use (without forest management)  
@@ -1159,6 +1173,11 @@ SUBROUTINE stomate_initialize &
     CHARACTER(LEN=30)                                     :: strVar
     CHARACTER(LEN=30)                                     :: FileN_Nfert  !! file name of nitrogen fertilization
     CHARACTER(LEN=30)                                     :: Var_Nfert !! variable name of fertilization
+
+    CHARACTER(LEN=30)                                     :: FileN_Nfert_has          !! add by shuai, file name of UAN 
+    CHARACTER(LEN=30)                                     :: Var_Nfert_has            !! add by shuai, variable name of UAN 
+    REAL(r_std),ALLOCATABLE,DIMENSION(:,:,:)              :: Nfert_dat_has            !! add by shuai, UAN application date
+    INTEGER(i_std)                                        :: yrlen_has                !! add by shuai, year length
 
 !_ ================================================================================================================================
     
@@ -1304,7 +1323,7 @@ SUBROUTINE stomate_initialize &
         &         uo_0, uold2_0, uo_wet1, uold2_wet1, uo_wet2, &
         &         uold2_wet2, uo_wet3, uold2_wet3,  uo_wet4, uold2_wet4, tsurf_year, &!) !pss-
         &         wshtotsum, sr_ugb, sla_calc, nb_ani, grazed_frac, &
-        &         import_yield, t2m_14, litter_not_avail, assim_param )
+        &         import_yield, t2m_14, litter_not_avail, assim_param,havlen)   !! add by ke
 
    !some permafrost initializations to hold until the first
    !daily permafrost call
@@ -1547,6 +1566,39 @@ SUBROUTINE stomate_initialize &
     ENDIF
 
 !!!! end crops, xuhui
+
+!! end crops, xuhui
+
+    !! add by shuai (start)
+   CALL getin_p('HAS_USE_NFERT_FILE', has_use_nfert_file)
+
+   IF (has_use_nfert_file) THEN
+
+   FileN_Nfert_has = 'NFERT_FILE_HAS'
+   Var_Nfert_has   = 'NFERT'
+
+   CALL slowproc_NfertInput(kjpindex, lalo, neighbours, resolution, contfrac, &
+                                FileN_Nfert_has, Var_Nfert_has, Nfert_dat_has, yrlen_has)
+
+   Nfert_yrlen_has = yrlen_has
+
+   ALLOCATE(Nfert_forcing_has(kjpindex, SIZE(Nfert_dat_has,2), SIZE(Nfert_dat_has,3)), stat=ier)
+   IF (ier /= 0) THEN
+       WRITE(numout,*) 'ERROR IN ALLOCATION OF Nfert_forcing_has: ', ier
+       STOP
+   ENDIF
+   Nfert_forcing_has(:,:,:) = Nfert_dat_has(:,:,:)
+
+   ALLOCATE(N_add_has(kjpindex, nvm), stat=ier)
+   IF (ier /= 0) THEN
+       WRITE(numout,*) 'ERROR IN ALLOCATION OF N_add_has: ', ier
+       STOP
+   ENDIF
+
+   N_add_has(:,:) = 0.0_r_std
+
+   ENDIF
+    !! add by shuai (end)
 
    !! 1.4.5 Check time step
    
@@ -1994,7 +2046,7 @@ SUBROUTINE stomate_main &
        &  sfluxCH4_deep, sfluxCO2_deep, &
        &  thawed_humidity, depth_organic_soil,&
        &  zz_deep, zz_coef_deep, soilc_total, snowdz, snowrho, &
-       &  EndOfYear, f_rot_sech, rot_cmd)
+       &  EndOfYear, f_rot_sech, rot_cmd,nrec_trans,havlen,date_s2,nmatlab,veget_init,nlevlab) !! add by ke
     
     IMPLICIT NONE
 
@@ -2008,6 +2060,7 @@ SUBROUTINE stomate_main &
     !pss:-
 
     INTEGER(i_std),INTENT(in)                       :: kjit              !! Time step number (unitless)
+  !!  INTEGER(i_std),INTENT(in)                     :: date              !! add by ke 
     INTEGER(i_std),INTENT(in)                       :: kjpindex          !! Domain size - terrestrial pixels only (unitless)
     INTEGER(i_std),INTENT(in)                       :: kjpij             !! Total size of the un-compressed grid (unitless)
     INTEGER(i_std),INTENT(in)                       :: rest_id_stom      !! STOMATE's _Restart_ file identifier (unitless)
@@ -2145,7 +2198,13 @@ SUBROUTINE stomate_main &
     REAL(r_std),DIMENSION(kjpindex),INTENT(inout)           :: deadleaf_cover !! Fraction of soil covered by dead leaves 
                                                                               !! (unitless) 
     REAL(r_std),DIMENSION(kjpindex,nvm,nleafages),INTENT(inout):: frac_age    !! Age efficacity from STOMATE 
-
+    INTEGER(i_std),DIMENSION(kjpindex,nvm), INTENT(inout)      :: nrec_trans  !! add by ke 
+    INTEGER(i_std),DIMENSION(kjpindex,nvm), INTENT(inout)      :: havlen      !! add by ke 
+    INTEGER(i_std),INTENT(inout)                               :: date_s2     !! add by ke
+    INTEGER(i_std),DIMENSION(kjpindex),INTENT(inout)           :: nmatlab     !! add by ke
+    INTEGER(i_std),INTENT(inout)                               :: nlevlab     !! add by ke
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(inout)          :: veget_init  !! add by ke
+    
     !! 0.4 local variables
     
     REAL(r_std)                                   :: dt_days_read             !! STOMATE time step read in restart file (days)
@@ -2200,8 +2259,10 @@ SUBROUTINE stomate_main &
     REAL(r_std), DIMENSION(ndeep),   INTENT (in)                  :: zz_deep            !! deep vertical profile
     REAL(r_std), DIMENSION(ndeep),   INTENT (in)                  :: zz_coef_deep       !! deep vertical profile
     REAL(r_std), DIMENSION(kjpindex,ndeep,nvm),   INTENT (inout)  :: soilc_total        !! total soil carbon for use in thermal calcs
+    
 
     INTEGER(i_std)                                :: ier                      !! Check errors in netcdf call (unitless)
+    INTEGER(i_std)                                :: it_day                   !! Day-of-year index for accessing Nfert_forcing(:,:,it_day) !! add by shuai 
     REAL(r_std)                                   :: sf_time                  !! Intermediate variable to calculate current time 
                                                                               !! step 
     INTEGER(i_std)                                :: max_totsize              !! Memory management - maximum memory size (Mb)
@@ -2294,17 +2355,51 @@ SUBROUTINE stomate_main &
     INTEGER(i_std)                                        :: mycmd, stveg, edveg, itemp
     REAL(r_std),DIMENSION(kjpindex, nvm, nvm)             :: matrix_prc_rot
 
+
 !_ ================================================================================================================================
     
     ! Check that initialization is done
     IF (l_first_stomate) CALL ipslerr_p(3,'stomate_main','Initialization not yet done.','','')
- 
+    
     IF (printlev >= 4) THEN
        WRITE(numout,*) 'stomate_main: date=',date,' ymds=', year, month, day, sec, ' itime=', itime, ' do_slow=',do_slow
     ENDIF
 
     !! 1.1 Store current time step in a common variable
     itime = kjit
+
+    !! add by shuai (start)
+    IF (ok_has .AND. has_use_nfert_file) THEN
+
+        IF (ALLOCATED(Nfert_forcing_has)) THEN
+            it_day = INT(tday_counter) + 1
+            it_day = MAX(1, MIN(it_day, Nfert_yrlen_has))
+
+            N_add_has(:,:) = zero
+
+            DO j = 2, nvm
+                IF (ok_LAIdev(j)) THEN
+                    IF (nvm_nfert) THEN
+                        N_add_has(:,j) = Nfert_forcing_has(:,j,it_day)
+                    ELSE
+                        N_add_has(:,j) = Nfert_forcing_has(:,pft_to_mtc(j),it_day)
+                    ENDIF
+                ENDIF
+            ENDDO
+
+            ! WRITE(numout,*) 'DEBUG HAS it_day = ', it_day
+            ! WRITE(numout,*) 'DEBUG HAS kjpindex, nvm = ', kjpindex, nvm
+            ! WRITE(numout,*) 'DEBUG HAS N_add_has = '
+            ! WRITE(numout,*) N_add_has
+
+        ELSE
+            N_add_has(:,:) = zero
+        ENDIF
+
+    ELSE
+        N_add_has(:,:) = zero
+    ENDIF
+    !! add by shuai (end)
     
     !![DISPENSABLE] 1.2 Copy the depth of the different soil layers from diaglev specified in slow_proc
     !! 1.3 PFT rooting depth across pixels, humescte is pre-defined 
@@ -2478,7 +2573,7 @@ SUBROUTINE stomate_main &
     ! not expressed on a daily basis. This is not a problem but could be
     ! confusing
 
-
+!    WRITE(numout,*) "ke kindex in stomate_main before stomate_accu ",index
     !!!!! daily variable accumulation for crops
     ! calculation of the daily gdh according to halfhourly udh (see above)
     CALL stomate_accu(kjpindex, nvm, do_slow, ugdh, gdh_daily)
@@ -2487,7 +2582,7 @@ SUBROUTINE stomate_main &
     ! calculation of the daily accumulated potential evapotranspiration
     CALL stomate_accu(kjpindex, 1, do_slow, evapot_corr, evapot_daily)
     !!!!! end for crops, xuhui
-
+    
     !! 4.1 Accumulate instantaneous variables (do_slow=.FALSE.) 
     ! Accumulate instantaneous variables (do_slow=.FALSE.) and eventually 
     ! calculate daily mean value (do_slow=.TRUE.) 
@@ -2499,6 +2594,8 @@ SUBROUTINE stomate_main &
     CALL stomate_accu (kjpindex, nbdl, do_slow, shumdiag,      soilhum_daily)
     CALL stomate_accu (kjpindex,    1, do_slow, precip,        precip_daily)
     CALL stomate_accu (kjpindex, nvm,  do_slow, gpp_d,         gpp_daily)
+    
+    
     !ditto for permafrost variables
     IF ( do_daily_permafrost ) THEN
        DO iv = 1,nvm
@@ -2523,7 +2620,7 @@ SUBROUTINE stomate_main &
        CALL stomate_accu(kjpindex, nsnow, &
             do_slow, snowrho, snowrho_daily)
     ENDIF
- 
+    
     !! 4.2 Daily minimum temperature
     t2m_min_daily(:) = MIN( t2m_min(:), t2m_min_daily(:) )
     !! Daily maximum temperature
@@ -2533,7 +2630,7 @@ SUBROUTINE stomate_main &
          & do_slow, wspeed, wspeed_daily)
 !    t2m_max_daily(:) = MAX( t2m(:), t2m_max_daily(:) )
     !endspit
-
+!    WRITE(numout,*) "ke kindex in stomate_main after stomate_accu ",index
     !! 4.3 Calculate maintenance respiration
     ! Note: lai is passed as output argument to overcome previous problems with 
     ! natural and agricultural vegetation types. 
@@ -2543,7 +2640,9 @@ SUBROUTINE stomate_main &
          & rprof,biomass,resp_maint_part_radia, &
 !JCADD
          & sla_calc)
-!ENDJCADD    
+!ENDJCADD  
+!    WRITE(numout,*) "ke kindex in stomate_main after maint_respiration ",index  
+    
     ! Aggregate maintenance respiration across the different plant parts 
     resp_maint_radia(:,:) = zero
     DO j=2,nvm
@@ -2569,7 +2668,9 @@ SUBROUTINE stomate_main &
         ENDDO
     ENDIF
     turnover_littercalc(:,:,:,:) = turnover_daily(:,:,:,:) * dt_sechiba/one_day
-    bm_to_littercalc(:,:,:,:)    = bm_to_litter(:,:,:,:) * dt_sechiba/one_day       
+    bm_to_littercalc(:,:,:,:)    = bm_to_litter(:,:,:,:) * dt_sechiba/one_day 
+    
+!    WRITE(numout,*) "ke kindex in stomate_main before littercalc ",index      
     CALL littercalc (kjpindex, &
          turnover_littercalc, bm_to_littercalc, &
          veget_cov_max, temp_sol, stempdiag, shumdiag, litterhumdiag, &
@@ -2586,6 +2687,7 @@ SUBROUTINE stomate_main &
 !!!!!xuhui
 !JCADD
          sla_calc,do_slow)
+!    WRITE(numout,*) "ke kindex in stomate_main after littercalc ",index
 !ENDJCADD
     
     ! Heterothropic litter respiration during time step ::dt_sechiba @tex $(gC m^{-2})$ @endtex
@@ -2603,7 +2705,8 @@ SUBROUTINE stomate_main &
                deepC_a, deepC_s, deepC_p, O2_soil, CH4_soil, O2_snow, CH4_snow,&
                zz_deep, zz_coef_deep, depth_organic_soil,soilcarbon_input_inst,&
                veget_max, rprof, altmax, carbon, carbon_surf,resp_hetero_soil, fbact, fixed_cryoturbation_depth,snowdz,snowrho)
-
+!          WRITE(numout,*) "ke kindex in stomate_main after deep_carbcycle ",index  
+           
           resp_hetero_soil(:,:) = resp_hetero_soil(:,:) * dt_sechiba/one_day
           ! Total heterothrophic respiration during time step ::dt_sechiba @tex
           ! $(gC
@@ -2631,7 +2734,7 @@ SUBROUTINE stomate_main &
                             resp_hetero_litter(:,:), kjpindex*nvm,horipft_index)
        ENDIF
     ELSE
- 
+!    WRITE(numout,*) "ke kindex in stomate_main before soilcarbon ",index 
     !! 4.5 Soil carbon dynamics and soil heterotrophic respiration
     ! Note: there is no vertical discretisation in the soil for litter decay.
     CALL soilcarbon (kjpindex, dt_sechiba/one_day, clay, &
@@ -2640,7 +2743,7 @@ SUBROUTINE stomate_main &
 !JCADD
 !         resp_hetero_soil_part)
 !ENDJCADD
-
+!    WRITE(numout,*) "ke kindex in stomate_main after soilcarbon ",index 
     !Permafrost carbon
     carbon_surf(:,:,:) = carbon(:,:,:)
     soilc_total(:,:,:) = zero
@@ -2681,7 +2784,7 @@ SUBROUTINE stomate_main &
 
 
 !! 5. Daily processes - performed at the end of the day
-    
+!    WRITE(numout,*) "ke kindex in stomate_main before doslow ",index 
     IF (do_slow) THEN
        WRITE(numout,*) "Number of days: ", date
 
@@ -2873,7 +2976,7 @@ SUBROUTINE stomate_main &
           ! CROP step: Reinitialization of recycle
           ! We reinitialize for each PFT-pixel, because the crop cycle for each pixel and each PFT is quite different
           ! ! We control this process by a flag  f_crop_init
-          
+ !         WRITE(numout,*) "ke kindex in stomate_main before Stics_init ",index 
           CALL Stics_init(&
                kjpindex                ,&   
                !nvm                     ,&   
@@ -3024,7 +3127,8 @@ SUBROUTINE stomate_main &
                st2m_min_daily(:) = t2m_min_daily(:) - 273.15
                st2m_max_daily(:) = t2m_max_daily(:) - 273.15
                wut_cm_daily(:,:,:) = wut_cm_daily(:,:,:) - 273.15
-
+          
+!          WRITE(numout,*) "ke kindex in stomate_main after Stics_init ",index   
 !!!!! end crops, xuhui
           ! lai for all PFTs
           !DO j = 2, nvm
@@ -3036,6 +3140,8 @@ SUBROUTINE stomate_main &
               IF (printlev>=5) THEN
                    WRITE(numout,*) 'before enter driver_stics'
                ENDIF
+               
+               
                DO ip = 1, kjpindex 
                  IF (veget_max(ip,j) .GT. 0.0) THEN !!! added xuhui to save computing time
   !                 CALL getin_p('IMPOSE_IPLT',iplt_1d)
@@ -3060,6 +3166,7 @@ SUBROUTINE stomate_main &
   !                 IF (printlev>=4) THEN
   !                     write(*,*) 'xhui: boxulai in stomate: ',box_ulai(j,:)
   !                 ENDIF
+!                   WRITE(numout,*) "ke kindex in stomate_main before driver_stics ",index  
                    CALL driver_stics(&
                                      tday_counter,                               &  ! IN, julian date
                                      in_cycle(ip, j),                               &  ! INout
@@ -3293,9 +3400,59 @@ SUBROUTINE stomate_main &
                                      SP_nbox(j), box_ulai(j,:), box_ndays(ip,j,:), box_lai(ip,j,:), &
                                      box_lairem(ip,j,:), box_tdev(ip,j,:), box_biom(ip,j,:), &
                                      box_biomrem(ip,j,:), box_durage(ip,j,:), box_somsenbase(ip,j,:), &
-                                     codesla)
-   
+                                     codesla,nrec_trans(ip, j), havlen(ip, j),date,nmatlab(ip))  !! add by ke
+!                   WRITE(numout,*) "ke havlen in stomate_main after driver_stics0 ",j, havlen,',',nmat(ip,j),',',nmatlab,',',veget_init(ip,j),',',date,',',veget(ip,j),',',slai(ip, j)
+
                    lai(ip, j) = slai(ip, j)
+                   
+                   IF ((j .eq. 13) .AND. (havlen(ip,j) .GT. 0) ) then
+                     havlen(ip,j) =0
+                     havlen(ip,12) =0
+                   ENDIF
+              !!!!!!!! add by ke       
+                   nlevlab = nlev(ip,12)
+                   date_s2 = date
+ !                  WRITE(numout,*) "ke kindex after driverstics ",index,',',date_s2,',',date,',',kjpindex,',',ip
+               !!!! add by ke   
+!                   WRITE(numout,*) "ke SUM(index) before if ",sum_idx_before,',',sum_idx_after
+
+               !!!! add by ke 
+!                   WRITE(numout,*) 'ke-nmat in stomate0 ', j,',',nmat(ip,12), ',', nmatlab(ip) , ',', veget(ip,12)
+                   
+                   if (j .eq. 12) then
+                       if ((date .GT. 366) .AND. (nmat(ip,j) .GT. 0) .AND. (nmatlab(ip) .EQ. 0)) then
+                          nmatlab(ip) = nmat(ip,j)
+                          veget_init(ip,:) = 0
+                          veget_init(ip,j) = veget(ip,j)
+                       else if ((date .GT. 366) .AND. (nmat(ip,j) .GT. 0) .AND. (nmatlab(ip) .GT. 0)) then
+                          nmatlab(ip) = nmatlab(ip)
+                      !    veget_init(ip,:) = 0
+                          veget_init(ip,j) = veget_init(ip,j)
+    
+                       else if ((date .GT. 366) .AND. (nmat(ip,j) .EQ. 0) .AND. (nmatlab(ip) .GT. 0)) then
+                          nmatlab(ip) = nmatlab(ip)
+                      !    veget_init(ip,:) = 0
+                          veget_init(ip,j) = veget_init(ip,j)
+                       
+                       else
+                          nmatlab(ip) = nmatlab(ip)
+                          veget_init(ip,:) = 0
+    !                      WRITE(numout,*) 'ADDR(veget_init)=', LOC(veget_init)
+    !                      WRITE(numout,*) 'ADDR(index)=', LOC(index)
+                       endif
+                  !!!!!!!! add by ke     
+!                       WRITE(numout,*) 'ke-date_s2 in stomate ', date_s2-365       !!! add by ke
+!                       WRITE(numout,*) 'ke-nmat in stomate ', nmat(ip,12),ip            !!! add by ke
+!                       WRITE(numout,*) 'ke-nmatlab in stomate ', nmatlab(ip),ip     !!! add by ke
+!                       WRITE(numout,*) 'ke-veget_init in stomate ', veget_init(ip,12),ip !!! add by ke
+!                       WRITE(numout,*) 'ke-kindex in stomate ', index          !!! add by ke
+                   else
+                       nmatlab(ip) = 0
+                       veget_init(ip,j) = 0
+                   endif
+
+
+              !!!!!!!! add by ke     
                  ENDIF ! veget_max(ip,j)>0
                  
                ENDDO ! loop for npts
@@ -3322,6 +3479,7 @@ SUBROUTINE stomate_main &
        !! 5.2 Calculate long-term "meteorological" and biological parameters
        ! mainly in support of calculating phenology. If ::EndOfYear=.TRUE.
        ! annual values are update (i.e. xx_lastyear).
+
        CALL season &
             &          (kjpindex, dt_days, EndOfYear, &
             &           veget_cov, veget_cov_max, &
@@ -3350,12 +3508,12 @@ SUBROUTINE stomate_main &
 !JCADD
             &           t2m_14, sla_calc)
 !ENDJCADD
-       
+
        !! 5.3 Use all processes included in stomate
 
           ! 5.3.0 get the biomass of previous day for crop STICS (unit in t dry matter/ha) 
 
-          WRITE(numout,*) 'slai before StomateLpj: ', slai(1,12:14)
+!          WRITE(numout,*) 'slai before StomateLpj: ', slai(1,12:14)
           DO j = 2, nvm
              IF (ok_LAIdev(j)) THEN
                  DO ip = 1, kjpindex
@@ -3503,24 +3661,32 @@ SUBROUTINE stomate_main &
 
                       IF (.NOT. ok_rotate) THEN
                           ! Check status of crop development
+
                           IF (nrec(i, j) >  0 ) THEN
+    
                              f_crop_recycle(i, j) = .TRUE. ! control the initialization for this grid
                              in_cycle(i, j) = .FALSE.  ! identifier of the cycle completeness
                              f_sen_lai(i, j) = .TRUE.
                           ENDIF
                       ELSE ! ok_rotate 
                         !!!! invoking crop rotation module here
+!                        WRITE(numout,*) 'ke-f_rot_stom', j,',',f_rot_stom(i,j),',',cyc_num_tot(i),',',cyc_num(i,j),',',havlen(i,j),',',nrec(i,j),',',date
+                        
                         IF ( (nrec(i,j) > 0) .AND. (cyc_num(i,j) < cyc_num_tot(i)) ) THEN
                             f_rot_stom(i,j) = .TRUE.
-                        ELSEIF ( (nrec(i,j)>0) .AND. (cyc_num(i,j) .EQ. cyc_num_tot(i)) .AND. (cyc_num_tot(i) .GT. 1) ) THEN
+                        !    WRITE(numout,*) 'ke-f_rot_stom3', f_rot_stom(i,j),i,j
+                        !! modified by ke (havlen(i,j) .EQ. 100)
+                        ELSEIF ( (havlen(i,j) .EQ. 100) .AND. (cyc_num(i,j) .EQ. cyc_num_tot(i)) .AND. (cyc_num_tot(i) .GT. 1) ) THEN
+                     !       WRITE(numout,*) 'ke-f_rot_stom2', f_rot_stom(i,j),',',cyc_num(i,j),',',havlen(i,j),',',nrec(i,j),',',date
                             f_rot_stom(i,j) = .TRUE.
+                     !       havlen(i,j) = 0
 !                        ELSEIF () !!! when the emergence or maturity fails
 !                        ELSEIF ( (nrec(i,j) .EQ. 0) .AND. (nmat(i,j) .GT. 0) .AND.   ) THEN 
 !                        ! when maturity is later than next planting date
 !                            f_rot_stom(i,j) = .TRUE.
                         ENDIF
-                        WRITE(numout,*) 'f_rot_stom(i,j) before start rotation commands', f_rot_stom(i,j)
-                        WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
+                    !   WRITE(numout,*) 'f_rot_stom(i,j) before start rotation commands', f_rot_stom(i,j)
+!                        WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
 
                         IF (f_rot_stom(i,j)) THEN ! start rotation commands
                             !temp_prc = 0.0
@@ -3530,17 +3696,18 @@ SUBROUTINE stomate_main &
                                temp_prc = 0.0
 
                                 mycmd = rot_cmd_store(i,k,cyc_num(i,j))
-				WRITE(numout,*) 'mycmd in stomate_rotation part', mycmd
-				WRITE(numout,*) 'cyc_num(i,j) in stomate_rotation part', cyc_num(i,j)
+		!		WRITE(numout,*) 'mycmd in stomate_rotation part', mycmd
+	!			WRITE(numout,*) 'cyc_num(i,j) in stomate_rotation part', cyc_num(i,j)
                                 IF (mycmd  .GT. 0) THEN
                                 !!!! valid command
                                     CALL stomate_get_cmd(mycmd,stveg,edveg,rotprc)
-				    WRITE(numout,*) 'rotprc in stomate_rotation part - after stomate_get_cmd', rotprc
-				    WRITE(numout,*) 'stveg in stomate_rotation part - after stomate_get_cmd', stveg
-				    WRITE(numout,*) 'j in stomate_rotation part - after stomate_get_cmd', j
-				    WRITE(numout,*) 'i in stomate_rotation part - after stomate_get_cmd', i
-				    WRITE(numout,*) 'veget_max(i,j) in stomate_rotation part - after stomate_get_cmd', veget_max(i,j)
-				    WRITE(numout,*) 'veget_max(:,:) in stomate_rotation part - after stomate_get_cmd', veget_max(:,:)
+		!		    WRITE(numout,*) 'rotprc in stomate_rotation part - after stomate_get_cmd', rotprc
+		!		    WRITE(numout,*) 'stveg in stomate_rotation part - after stomate_get_cmd', stveg
+		!		    WRITE(numout,*) 'j in stomate_rotation part - after stomate_get_cmd', j
+		!		    WRITE(numout,*) 'i in stomate_rotation part - after stomate_get_cmd', i
+		!		    WRITE(numout,*) 'veget_max(i,j) in stomate_rotation part - after stomate_get_cmd', veget_max(i,j)
+		!		    WRITE(numout,*) 'veget_max(:,:) in stomate_rotation part - after stomate_get_cmd', veget_max(:,:)
+                                                
 				
                                     IF ( (stveg .EQ. j) .AND. (veget_max(i,j) .GT. zero) )  THEN !! find the rotation command(s)
                                         !!! record for rotate_stomate
@@ -3549,7 +3716,7 @@ SUBROUTINE stomate_main &
                                             STOP 'stomate_main: rotation target not a cropland/bare soil'
                                         ENDIF
                                         matrix_prc_rot(i,stveg,edveg) = rotprc
-					WRITE(numout,*) 'matrix_prc_rot(i,stveg,edveg) in stomate_rotation part - after stomate_get_cmd', matrix_prc_rot(i,stveg,edveg)
+				!	WRITE(numout,*) 'matrix_prc_rot(i,stveg,edveg) in stomate_rotation part - after stomate_get_cmd', matrix_prc_rot(i,stveg,edveg)
 				
 
                                         !!! keep record for rotate_sechiba
@@ -3563,15 +3730,15 @@ SUBROUTINE stomate_main &
                                                 itemp = itemp + 1
                                             ENDDO
                                             IF (itemp .GT. SIZE(rot_cmd,2,i_std)) THEN
-                                                WRITE(numout,*) 'rotation command more than storage dimension:'
-                                                WRITE(numout,*) 'rot_cmd(i,:)', rot_cmd(i,:)
-                                                WRITE(numout,*) 'itemp, mycmd', itemp, mycmd
+!                                                WRITE(numout,*) 'rotation command more than storage dimension:'
+!                                                WRITE(numout,*) 'rot_cmd(i,:)', rot_cmd(i,:)
+!                                                WRITE(numout,*) 'itemp, mycmd', itemp, mycmd
                                                 STOP 'increase rot_cmd_max to restart '
                                             ELSEIF (rot_cmd(i,itemp) .LE. 0) THEN
                                                 rot_cmd(i,itemp) = mycmd
                                             ELSE  ! it should never goes here...
-                                                WRITE(numout,*) 'rot_cmd(i,:)', rot_cmd(i,:)
-                                                WRITE(numout,*) 'itemp, SIZE(rot_cmd,2,i_std)',itemp, SIZE(rot_cmd,2,i_std)
+!                                                WRITE(numout,*) 'rot_cmd(i,:)', rot_cmd(i,:)
+!                                                WRITE(numout,*) 'itemp, SIZE(rot_cmd,2,i_std)',itemp, SIZE(rot_cmd,2,i_std)
                                                 STOP 'stomate_main: a logical error in rotation'
                                             ENDIF
                                         ENDIF
@@ -3581,75 +3748,69 @@ SUBROUTINE stomate_main &
                             ENDDO
                             !!! check if more than 100% of stveg is being converted...
                             IF (temp_prc .GT. 1.0+min_stomate) THEN
-                                WRITE(numout,*) 'rotation command error, more than 100% rotated'
+!                                WRITE(numout,*) 'rotation command error, more than 100% rotated'
                                ! WRITE(numout,*) 'temp_prc, rotprc, and rot_cmd_store(:,:,:),rot_cmd_max,cyc_num(:,:) ', temp_prc,rotprc,rot_cmd_store(:,:,:),rot_cmd_max,cyc_num(:,:)
                                ! WRITE(numout,*) 'temp_prc, rotprc, and rot_cmd_store(:,:,:),rot_cmd_max,cyc_num(:,:) ', temp_prc,rotprc,rot_cmd_store(:,:,:)
                                 !WRITE(numout,*) 'rot_cmd_max', rot_cmd_max
                                 !WRITE(numout,*) 'cyc_num(:,:) ', cyc_num(:,:)
 
-                                WRITE(numout,*) 'temp_prc, rotprc ', temp_prc,rotprc
-                                WRITE(numout,*) ' rot_cmd_store(:,:,:) ', rot_cmd_store(:,:,:)
-                                WRITE(numout,*) 'rot_cmd_max ', rot_cmd_max
-                                WRITE(numout,*) 'cyc_num(:,:) ', cyc_num(:,:)
-                                WRITE(numout,*) ' rot_cmd_store(i,k,cyc_num(i,j)) ', rot_cmd_store(i,k,cyc_num(i,j))
-                                WRITE(numout,*) ' rot_cmd_store(i,k,:) ', rot_cmd_store(i,k,:)
-                                WRITE(numout,*) ' rot_cmd_store(i,:,cyc_num(i,j)) ', rot_cmd_store(i,:,cyc_num(i,j))
-                                WRITE(numout,*) 'stveg ', stveg
-                                WRITE(numout,*) 'i,j,k ',i,j,k
-                                WRITE(numout,*) 'veget_max(i,j)', veget_max(i,j)
-                                WRITE(numout,*) 'veget_max', veget_max(:,:)
-                                WRITE(numout,*) 'f_rot_stom(i,j)', f_rot_stom(i,j)
-                                WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
+ !                               WRITE(numout,*) 'temp_prc, rotprc ', temp_prc,rotprc
+ !                               WRITE(numout,*) ' rot_cmd_store(:,:,:) ', rot_cmd_store(:,:,:)
+ !                               WRITE(numout,*) 'rot_cmd_max ', rot_cmd_max
+ !                               WRITE(numout,*) 'cyc_num(:,:) ', cyc_num(:,:)
+ !                               WRITE(numout,*) ' rot_cmd_store(i,k,cyc_num(i,j)) ', rot_cmd_store(i,k,cyc_num(i,j))
+ !                               WRITE(numout,*) ' rot_cmd_store(i,k,:) ', rot_cmd_store(i,k,:)
+ !                               WRITE(numout,*) ' rot_cmd_store(i,:,cyc_num(i,j)) ', rot_cmd_store(i,:,cyc_num(i,j))
+ !                               WRITE(numout,*) 'stveg ', stveg
+ !                               WRITE(numout,*) 'i,j,k ',i,j,k
+ !                               WRITE(numout,*) 'veget_max(i,j)', veget_max(i,j)
+ !                               WRITE(numout,*) 'veget_max', veget_max(:,:)
+ !                               WRITE(numout,*) 'f_rot_stom(i,j)', f_rot_stom(i,j)
+ !                               WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
 
-                                WRITE(numout,*) 'nrec(i,j)', nrec(i,j)
-                                WRITE(numout,*) 'nrec(:,:)', nrec(:,:)
+ !                               WRITE(numout,*) 'nrec(i,j)', nrec(i,j)
+ !                               WRITE(numout,*) 'nrec(:,:)', nrec(:,:)
 
-                                WRITE(numout,*) 'cyc_num(i,j)', cyc_num(i,j)
-                                WRITE(numout,*) 'cyc_num(:,:)', cyc_num(:,:)
-                                WRITE(numout,*) 'cyc_num_tot(i)', cyc_num_tot(i)
+ !                               WRITE(numout,*) 'cyc_num(i,j)', cyc_num(i,j)
+ !                               WRITE(numout,*) 'cyc_num(:,:)', cyc_num(:,:)
+ !                               WRITE(numout,*) 'cyc_num_tot(i)', cyc_num_tot(i)
 
-                                WRITE(numout,*) 'cyc_num_tot(:)', cyc_num_tot(:)
+ !                               WRITE(numout,*) 'cyc_num_tot(:)', cyc_num_tot(:)
 
 
 
                                 STOP 'stomate_main: rotation command'
                             ELSEIF (temp_prc .LT. 1.0-min_stomate) THEN
-                                WRITE(numout,*) 'rotation command error, some land disappeared'
-                                WRITE(numout,*) 'temp_prc, rotprc ', temp_prc,rotprc
-                                WRITE(numout,*) ' rot_cmd_store(:,:,:) ', rot_cmd_store(:,:,:)
-                                WRITE(numout,*) 'rot_cmd_max ', rot_cmd_max
-                                WRITE(numout,*) 'cyc_num(:,:) ', cyc_num(:,:)
-                                WRITE(numout,*) ' rot_cmd_store(i,k,cyc_num(i,j)) ', rot_cmd_store(i,k,cyc_num(i,j))
-                                WRITE(numout,*) ' rot_cmd_store(i,k,:) ', rot_cmd_store(i,k,:)
-                                WRITE(numout,*) ' rot_cmd_store(i,:,cyc_num(i,j)) ', rot_cmd_store(i,:,cyc_num(i,j))
-                                WRITE(numout,*) 'stveg ', stveg
-                                WRITE(numout,*) 'i,j,k ',i,j,k
-                                WRITE(numout,*) 'veget_max(i,j)', veget_max(i,j)
-                                WRITE(numout,*) 'veget_max', veget_max(:,:)
-                                WRITE(numout,*) 'f_rot_stom(i,j)', f_rot_stom(i,j)
-                                WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
+ !                               WRITE(numout,*) 'rotation command error, some land disappeared'
+ !                               WRITE(numout,*) 'temp_prc, rotprc ', temp_prc,rotprc
+ !                               WRITE(numout,*) ' rot_cmd_store(:,:,:) ', rot_cmd_store(:,:,:)
+ !                               WRITE(numout,*) 'rot_cmd_max ', rot_cmd_max
+ !                               WRITE(numout,*) 'cyc_num(:,:) ', cyc_num(:,:)
+ !                               WRITE(numout,*) ' rot_cmd_store(i,k,cyc_num(i,j)) ', rot_cmd_store(i,k,cyc_num(i,j))
+ !                               WRITE(numout,*) ' rot_cmd_store(i,k,:) ', rot_cmd_store(i,k,:)
+ !                               WRITE(numout,*) ' rot_cmd_store(i,:,cyc_num(i,j)) ', rot_cmd_store(i,:,cyc_num(i,j))
+ !                               WRITE(numout,*) 'stveg ', stveg
+ !                               WRITE(numout,*) 'i,j,k ',i,j,k
+ !                               WRITE(numout,*) 'veget_max(i,j)', veget_max(i,j)
+ !                               WRITE(numout,*) 'veget_max', veget_max(:,:)
+ !                               WRITE(numout,*) 'f_rot_stom(i,j)', f_rot_stom(i,j)
+ !                               WRITE(numout,*) 'f_rot_stom(:,:)', f_rot_stom(:,:)
 
-                                WRITE(numout,*) 'nrec(i,j)', nrec(i,j)
-                                WRITE(numout,*) 'nrec(:,:)', nrec(:,:)
+ !                               WRITE(numout,*) 'nrec(i,j)', nrec(i,j)
+ !                               WRITE(numout,*) 'nrec(:,:)', nrec(:,:)
 
-                                WRITE(numout,*) 'cyc_num(i,j)', cyc_num(i,j)
-                                WRITE(numout,*) 'cyc_num(:,:)', cyc_num(:,:)
-                                WRITE(numout,*) 'cyc_num_tot(i)', cyc_num_tot(i)
+ !                               WRITE(numout,*) 'cyc_num(i,j)', cyc_num(i,j)
+ !                               WRITE(numout,*) 'cyc_num(:,:)', cyc_num(:,:)
+ !                               WRITE(numout,*) 'cyc_num_tot(i)', cyc_num_tot(i)
 
-                                WRITE(numout,*) 'cyc_num_tot(:)', cyc_num_tot(:)
+ !                               WRITE(numout,*) 'cyc_num_tot(:)', cyc_num_tot(:)
 
-                                WRITE(numout,*) 'P_codefauche', P_codefauche
-                                WRITE(numout,*) 'nrecbutoir', nrecbutoir
-                                WRITE(numout,*) 'P_codeperenne', P_codeperenne
-                                WRITE(numout,*) 'P_codeinitprec', P_codeinitprec
+ !                               WRITE(numout,*) 'P_codefauche', P_codefauche
+ !                               WRITE(numout,*) 'nrecbutoir', nrecbutoir
+ !                               WRITE(numout,*) 'P_codeperenne', P_codeperenne
+ !                               WRITE(numout,*) 'P_codeinitprec', P_codeinitprec
                                 
-                                WRITE(numout,*) 'P_culturean', P_culturean
-
-
-
-
-
-
+ !                               WRITE(numout,*) 'P_culturean', P_culturean
 
 
                                 STOP 'stomate_main: rotation command'
@@ -3673,14 +3834,14 @@ SUBROUTINE stomate_main &
                   ENDDO !kpjindex
               ENDIF !ok_LAIdev
           ENDDO ! PFT loop
-!          WRITE(numout,*) 'lai after grain: ',lai(1,12:14)
+      !    WRITE(numout,*) 'lai after grain: ',lai(1,12:14)
           IF (ok_rotate) THEN
               DO i = 1, kjpindex
-		 WRITE(numout,*) 'min_stomate in stomate subroutine, control the call of stomate_rotation, should be smaller ', min_stomate
-    		 WRITE(numout,*) 'SUM(matrix_prc_rot(i,:,:)) in stomate subroutine, control the call of stomate_rotation, should be bigger ', SUM(matrix_prc_rot(i,:,:))    
-		 WRITE(numout,*) 'matrix_prc_rot(i,:,:) in stomate subroutine, control the call of stomate_rotation', matrix_prc_rot(i,:,:) 
-		 WRITE(numout,*) 'f_rot_stom(i,:) in stomate subroutine, control the call of stomate_rotation', f_rot_stom(i,:) 
-		 WRITE(numout,*) 'ANY(f_rot_stom(i,:)) in stomate subroutine, control the call of stomate_rotation', ANY(f_rot_stom(i,:)) 
+!		 WRITE(numout,*) 'min_stomate in stomate subroutine, control the call of stomate_rotation, should be smaller ', min_stomate
+!    		 WRITE(numout,*) 'SUM(matrix_prc_rot(i,:,:)) in stomate subroutine, control the call of stomate_rotation, should be bigger ', SUM(matrix_prc_rot(i,:,:))    
+!		 WRITE(numout,*) 'matrix_prc_rot(i,:,:) in stomate subroutine, control the call of stomate_rotation', matrix_prc_rot(i,:,:) 
+!		 WRITE(numout,*) 'f_rot_stom(i,:) in stomate subroutine, control the call of stomate_rotation', f_rot_stom(i,:) 
+!		 WRITE(numout,*) 'ANY(f_rot_stom(i,:)) in stomate subroutine, control the call of stomate_rotation', ANY(f_rot_stom(i,:)) 
 		 
 
 
@@ -3688,11 +3849,11 @@ SUBROUTINE stomate_main &
                  IF ( (ANY(f_rot_stom(i,:))) .AND. (SUM(matrix_prc_rot(i,:,:)) .GT. min_stomate) ) THEN
                     !!! activate the stomate rotation for this point
                     IF (printlev>=3) THEN
-                        WRITE(numout,*) 'before stomate_rotation:' 
-                        WRITE(numout,*) 'point i',i
-                        WRITE(numout,*) 'rot_cmd', rot_cmd
-                        WRITE(numout,*) 'plantdate_now(i,:)', plantdate_now(i,:)
-                        WRITE(numout,*) 'cyc_num(i,:) ', cyc_num(i,:)
+!                        WRITE(numout,*) 'before stomate_rotation:' 
+!                        WRITE(numout,*) 'point i',i
+!                        WRITE(numout,*) 'rot_cmd', rot_cmd
+!                        WRITE(numout,*) 'plantdate_now(i,:)', plantdate_now(i,:)
+!                        WRITE(numout,*) 'cyc_num(i,:) ', cyc_num(i,:)
                         DO jv = 1,nvm
                             IF (ok_LAIdev(jv)) WRITE(numout,*) 'jv, turnover(i,jv,:,icarbon)', jv, turnover_daily(i,jv,:,icarbon)
                         ENDDO
@@ -3700,9 +3861,9 @@ SUBROUTINE stomate_main &
                     CALL stomate_rotation(kjpindex, i, matrix_prc_rot(i,:,:), veget_max(i,:),soilc_total(i,:,:))
                     f_rot_stom(i,:) = .FALSE.
                     IF (printlev>=3) THEN
-                        WRITE(numout,*) 'after stomate_rotation:'
-                        WRITE(numout,*) 'plantdate_now(i,:)', plantdate_now(i,:)
-                        WRITE(numout,*) 'cyc_num(i,:) ', cyc_num(i,:)
+!                        WRITE(numout,*) 'after stomate_rotation:'
+!                        WRITE(numout,*) 'plantdate_now(i,:)', plantdate_now(i,:)
+!                        WRITE(numout,*) 'cyc_num(i,:) ', cyc_num(i,:)
                         DO jv = 1,nvm
                             IF (ok_LAIdev(jv)) WRITE(numout,*) 'jv, turnover(i,jv,:,icarbon)', jv, turnover_daily(i,jv,:,icarbon)
                         ENDDO
@@ -3724,8 +3885,8 @@ SUBROUTINE stomate_main &
                 ENDIF
               ENDDO
               IF (printlev>=3 .AND. ok_rotate) THEN
-                WRITE(numout,*) 'after EndOfYear:'
-                WRITE(numout,*) 'plantdate_now(1,:)', plantdate_now(1,:)
+!                WRITE(numout,*) 'after EndOfYear:'
+!                WRITE(numout,*) 'plantdate_now(1,:)', plantdate_now(1,:)
               ENDIF
           ENDIF
           !! 5.3.2 Calculate the total CO2 flux from land use change
@@ -4003,10 +4164,10 @@ SUBROUTINE stomate_main &
              & ( net_co2_flux_monthly_sum + net_cflux_prod_monthly_tot + &
              & net_harvest_above_monthly_tot )
           
-          WRITE(numout,9010) 'GLOBAL net_cflux_prod_monthly    (Peta gC/month)  = ',net_cflux_prod_monthly_tot
-          WRITE(numout,9010) 'GLOBAL net_harvest_above_monthly (Peta gC/month)  = ',net_harvest_above_monthly_tot
-          WRITE(numout,9010) 'GLOBAL net_co2_flux_monthly      (Peta gC/month)  = ',net_co2_flux_monthly_sum
-          WRITE(numout,9010) 'GLOBAL net_biosp_prod_monthly    (Peta gC/month)  = ',net_biosp_prod_monthly_tot
+!          WRITE(numout,9010) 'GLOBAL net_cflux_prod_monthly    (Peta gC/month)  = ',net_cflux_prod_monthly_tot
+!          WRITE(numout,9010) 'GLOBAL net_harvest_above_monthly (Peta gC/month)  = ',net_harvest_above_monthly_tot
+!          WRITE(numout,9010) 'GLOBAL net_co2_flux_monthly      (Peta gC/month)  = ',net_co2_flux_monthly_sum
+!          WRITE(numout,9010) 'GLOBAL net_biosp_prod_monthly    (Peta gC/month)  = ',net_biosp_prod_monthly_tot
 
 9010  FORMAT(A52,F17.14)
 
@@ -4121,6 +4282,10 @@ SUBROUTINE stomate_main &
     !        CALL histwrite_p (hist_id_stomate, 'N_LIMFERT', itime, &
     !                    N_limfert, kjpindex*nvm, horipft_index)
          ENDIF
+         IF (has_use_nfert_file) THEN 
+            CALL histwrite_p (hist_id_stomate, 'N_add_has', itime, &
+                           N_add_has(:,:), kjpindex*nvm, horipft_index) !! add by shuai
+         ENDIF
      
     
      ENDIF
@@ -4161,7 +4326,7 @@ SUBROUTINE stomate_main &
           !       4) Then we reset the matrix 
           !       5) We erase the carbon_stock calculated by ORCHIDEE by the one found by the method
           IF( MOD(global_years, spinup_period) == 0 ) THEN
-             WRITE(numout,*) 'Spinup analytic : Calculate if system is in equlibrium. global_years=',global_years
+!             WRITE(numout,*) 'Spinup analytic : Calculate if system is in equlibrium. global_years=',global_years
              ! The number total of days during the forcing period is given by :
              !    spinup_period*365 (we consider only the noleap calendar)
              nbp_flux(:) = nbp_accu(:) / ( spinup_period * 365.)
@@ -4254,7 +4419,7 @@ SUBROUTINE stomate_main &
 
   SUBROUTINE stomate_finalize (kjit, kjpindex, index, clay, &
                                zz_deep, zz_coef_deep, thawed_humidity, depth_organic_soil, &
-                               assim_param ) 
+                               assim_param,havlen)  !! add by ke
     
     IMPLICIT NONE
     
@@ -4269,6 +4434,7 @@ SUBROUTINE stomate_main &
 
     REAL(r_std),DIMENSION(kjpindex,nvm,npco2),INTENT(in) :: assim_param    !! min+max+opt temperatures (K) & vmax for 
                                                                             !! photosynthesis  
+    INTEGER(i_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: havlen          !! add by ke
     !! 0.2 Modified variables
     REAL(r_std), DIMENSION(kjpindex),   INTENT (inout)            :: thawed_humidity    !! specified humidity of thawed soil
     REAL(r_std), DIMENSION(kjpindex),   INTENT (inout)            :: depth_organic_soil !! how deep is the organic soil?
@@ -4430,7 +4596,7 @@ SUBROUTINE stomate_main &
         &         uold2_wet2, uo_wet3, uold2_wet3,  uo_wet4, uold2_wet4, tsurf_year, &!) !pss- 
     !JCADD
         &         wshtotsum, sr_ugb, sla_calc, nb_ani, grazed_frac, &
-        &          import_yield, t2m_14, litter_not_avail, assim_param)
+        &          import_yield, t2m_14, litter_not_avail, assim_param,havlen)  !! add by ke
     !ENDJCADD
 
     !! 2.2 Write file with variables that force general processes in stomate
@@ -6346,7 +6512,7 @@ SUBROUTINE stomate_main &
     
     ALLOCATE(gslen(kjpindex,nvm),stat=ier)
         l_error = l_error .OR. (ier /= 0)
-    
+        
     ALLOCATE(drylen(kjpindex,nvm),stat=ier)
         l_error = l_error .OR. (ier /= 0)
 
@@ -6364,7 +6530,8 @@ SUBROUTINE stomate_main &
     IF (l_error) THEN
        STOP 'stomate_init: error in memory allocation for crops'
     ENDIF 
-
+    
+    
 
 
 !!!!! end crops, xuhui
@@ -7160,11 +7327,14 @@ SUBROUTINE stomate_main &
     IF (ALLOCATED(c_leafb)) DEALLOCATE(c_leafb)
     IF (ALLOCATED(deltgrain)) DEALLOCATE(deltgrain)
     IF (ALLOCATED(gslen)) DEALLOCATE(gslen)
+    
     IF (ALLOCATED(drylen)) DEALLOCATE(drylen)
 
     IF (ALLOCATED(plantdate)) DEALLOCATE(plantdate)
     IF (ALLOCATED(N_add)) DEALLOCATE(N_add)
     IF (ALLOCATED(N_limfert)) DEALLOCATE(N_limfert)
+    IF (ALLOCATED(Nfert_forcing_has)) DEALLOCATE(Nfert_forcing_has) !! add by shuai    
+    IF (ALLOCATED(N_add_has)) DEALLOCATE(N_add_has)                 !! add by shuai 
 
     IF (ALLOCATED(box_ndays)) DEALLOCATE(box_ndays)
     IF (ALLOCATED(box_lai)) DEALLOCATE(box_lai)
@@ -8481,12 +8651,12 @@ SUBROUTINE stomate_main &
     ! CALL bcast(tml)
     
     ! Printing information for debugging
-    WRITE(numout, *) "Xuhui's debug info for slowproc_CropVar #1:"
-    WRITE(numout, *) "filename is: ", filename
-    WRITE(numout, *) "Dimension 1, lon, iml:", iml
-    WRITE(numout, *) "Dimension 2, lat, jml:", jml
-    WRITE(numout, *) "Dimension 3, veget, lml:", lml
-    WRITE(numout, *) "Dimension 4, time, tml:", tml
+    !WRITE(numout, *) "Xuhui's debug info for slowproc_CropVar #1:"
+    !WRITE(numout, *) "filename is: ", filename
+    !WRITE(numout, *) "Dimension 1, lon, iml:", iml
+    !WRITE(numout, *) "Dimension 2, lat, jml:", jml
+    !WRITE(numout, *) "Dimension 3, veget, lml:", lml
+    !WRITE(numout, *) "Dimension 4, time, tml:", tml
     ! apparently, flinget function is not designed to take veget but levels to
     ! be the 
     ! 3rd dimension, modification to lml is needed
@@ -8692,9 +8862,9 @@ SUBROUTINE stomate_main &
                         ENDIF
                         sub_area(:,:) = zero
                         resolution(:,:) = resolution(:,:)/1000 ! m -> km
-                        write(*,*) "resolution updated: ", resolution(1,:), "km"
-			write(*,*) "resolution updated: ", resolution(:,:), "km"
-                        write(*,*) "ok_interpol: ", ok_interpol
+                        ! write(*,*) "resolution updated: ", resolution(1,:), "km"
+			            ! write(*,*) "resolution updated: ", resolution(:,:), "km"
+                        ! write(*,*) "ok_interpol: ", ok_interpol
 
                         CALL aggregate_p(nbpt, lalo, neighbours, resolution,contfrac, &
                         &                iml, jml, lon_rel, lat_rel, mask, callsign, &
@@ -8910,7 +9080,7 @@ SUBROUTINE stomate_main &
     CHARACTER(LEN=30) :: callsign
     LOGICAL :: ok_interpol
     INTEGER :: ALLOC_ERR
-    LOGICAL :: mydebug = .TRUE.
+    LOGICAL :: mydebug = .FALSE.
 
 !   ! croptype = TRIM(croptype) !if croptype is a string
 !   ! else a switch expression is needed
@@ -9295,14 +9465,14 @@ SUBROUTINE stomate_main &
     ! CALL bcast(tml)
     
     ! Printing information for debugging
-    WRITE(numout, *) "Xuhui's debug info for slowproc_NfertInput #1:"
-    WRITE(numout, *) "string in: ", strIn
-    WRITE(numout, *) "variable name: ", varname
-    WRITE(numout, *) "filename is: ", filename
-    WRITE(numout, *) "Dimension 1, lon, iml:", iml
-    WRITE(numout, *) "Dimension 2, lat, jml:", jml
-    WRITE(numout, *) "Dimension 3, veget, lml:", lml
-    WRITE(numout, *) "Dimension 4, time, tml:", tml
+    !WRITE(numout, *) "Xuhui's debug info for slowproc_NfertInput #1:"
+    !WRITE(numout, *) "string in: ", strIn
+    !WRITE(numout, *) "variable name: ", varname
+    !WRITE(numout, *) "filename is: ", filename
+    !WRITE(numout, *) "Dimension 1, lon, iml:", iml
+    !WRITE(numout, *) "Dimension 2, lat, jml:", jml
+    !WRITE(numout, *) "Dimension 3, veget, lml:", lml
+    !WRITE(numout, *) "Dimension 4, time, tml:", tml
     ! apparently, flinget function is not designed to take veget but levels to
     ! be the 
     ! 3rd dimension, modification to lml is needed
@@ -9325,7 +9495,7 @@ SUBROUTINE stomate_main &
        IF (nb_dim .NE. 4) THEN
           WRITE(numout,*) "dimension not supported for ", nb_dim
        ENDIF
-       tml = l_d_w(4)
+       !tml = l_d_w(4) !! add by shuai (muted)
        !yrlen = tml
     END IF
     
@@ -9374,7 +9544,6 @@ SUBROUTINE stomate_main &
     ENDIF
 !    CALL bcast(mask)
     
-
     ALLOC_ERR=-1
     ALLOCATE(Nfert_mat(iml,jml,lml,tml), STAT=ALLOC_ERR) 
     ! !lml is supposed to be nvm (number of PFTs), if not ,change it
@@ -9395,7 +9564,6 @@ SUBROUTINE stomate_main &
     CALL bcast(lat_rel)
     WRITE (numout,*) 'lon_rel size: ', SIZE(lon_rel)
     WRITE (numout,*) 'lat_rel size: ', SIZE(lat_rel)
-    
 
     ! input of the matrix
     IF (is_root_prc) THEN 
@@ -9410,6 +9578,29 @@ SUBROUTINE stomate_main &
     CALL bcast(Nfert_mat)
 !    WRITE (numout,*) 'bcast Nfert_mat'
     
+    !! add by shuai (start)
+    IF (iml == 1 .AND. jml == 1) THEN 
+        Nfert(:,:,:) = zero
+
+        DO it = 1, tml
+            DO ivgt = 1, lml
+                IF (.NOT. natural(ivgt)) THEN
+                    Nfert(:,ivgt,it) = Nfert_mat(1,1,ivgt,it)
+                ENDIF
+            ENDDO
+        ENDDO
+
+        DEALLOCATE(lat_rel)
+        DEALLOCATE(lon_rel)
+        DEALLOCATE(mask)
+        DEALLOCATE(Nfert_mat)
+
+        IF (is_root_prc) CALL flinclo(fid)
+
+        WRITE(numout,*) 'NFERT 1x1 file detected: direct assignment used.'
+        RETURN
+    ENDIF 
+    !! add by shuai (end)
 
     ! WRITE(numout,*) 'Nfert_mat size: ',SIZE(Nfert_mat)
     ! WRITE(numout,*) 'missing value: ', missing_val
@@ -9972,7 +10163,7 @@ SUBROUTINE stomate_main &
   INTEGER(i_std)                                :: i,jtar,jsrc,tempcyc
   INTEGER(i_std),DIMENSION(nvm)        :: cyc_num_old
 ! INTEGER(i_std)                                :: rngTol = 2
-  INTEGER(i_std)                                :: rngTol = 180
+  INTEGER(i_std)                                :: rngTol = 10  !! modified by ke
   LOGICAL                                       :: f_convert
 
   !!!! -------------------------------------------------------
@@ -10005,10 +10196,10 @@ SUBROUTINE stomate_main &
     dilu_soil_carbon(:,:) = zero
     dilu_soil_carbon_vertres(:,:,:) = zero
     tempcyc = cyc_num_old(jtar)
-    WRITE(numout,*) 'matrix_prc(:,:) in stomate subroutine, control the update the cyc_num', matrix_prc(:,:)
+ !   WRITE(numout,*) 'matrix_prc(:,:) in stomate subroutine, control the update the cyc_num', matrix_prc(:,:)
 	
-    WRITE(numout,*) 'SUM(matrix_prc(:,jtar)) in stomate subroutine, control the update the cyc_num', SUM(matrix_prc(:,jtar))
-    WRITE(numout,*) 'min_stomate in stomate subroutine, control the update the cyc_num, if min_stomate smaller than SUM(matrix_prc(:,jtar)), then the cyc_num should be updated', min_stomate
+!    WRITE(numout,*) 'SUM(matrix_prc(:,jtar)) in stomate subroutine, control the update the cyc_num', SUM(matrix_prc(:,jtar))
+!    WRITE(numout,*) 'min_stomate in stomate subroutine, control the update the cyc_num, if min_stomate smaller than SUM(matrix_prc(:,jtar)), then the cyc_num should be updated', min_stomate
     
     IF (SUM(matrix_prc(:,jtar)) .GT. min_stomate) THEN
         DO jsrc = 2, nvm

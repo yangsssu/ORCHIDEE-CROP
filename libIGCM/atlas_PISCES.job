@@ -2,7 +2,7 @@
 ## OBELIX      LSCE ##
 ######################
 #PBS -N ATL_PIS
-#PBS -m n
+#PBS -m a
 #PBS -j oe
 #PBS -q test
 #PBS -o ATL_PIS.$$

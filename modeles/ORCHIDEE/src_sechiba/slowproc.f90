@@ -92,7 +92,7 @@ MODULE slowproc
   REAL(r_std), SAVE                                :: m_ratio_flag_default = 0.
   LOGICAL, SAVE                                   :: read_ratio_flag
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)   :: m_ratio_flag
-
+  
   !endspit
   !
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: clayfraction            !! Clayfraction (0-1, unitless)
@@ -144,7 +144,7 @@ CONTAINS
                                 rest_id_stom,   hist_id_stom,   tot_bare_soil,                  &
                                 hist_id_stom_IPCC, co2_flux,    fco2_lu,        temp_growth,    &
                                 soilc_total,   thawed_humidity, depth_organic_soil, heat_Zimov, &
-                                f_rot_sech)
+                                f_rot_sech,nrec_trans,havlen,date_s2,nmatlab,veget_init,tot_residue) !! add by ke
   
 
 !! 0.1 Input variables
@@ -177,14 +177,20 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)     :: veget          !! Fraction of vegetation type including none biological fraction (unitless)
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (out)  :: frac_nobio     !! Fraction of ice, lakes, cities etc. in the mesh
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)     :: veget_max      !! Maximum fraction of vegetation type including none biological fraction (unitless)
-    REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: tot_bare_soil  !! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: tot_bare_soil  !! Total evaporating bare soil fraction
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: tot_residue    !! Total evaporating residue fraction ke
+    
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: totfrac_nobio  !! Total fraction of ice+lakes+cities etc. in the mesh
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT(out)    :: soiltile       !! Fraction of each soil tile (0-1, unitless)
     REAL(r_std),DIMENSION (kjpindex), INTENT(out)          :: reinf_slope    !! slope coef for reinfiltration
     REAL(r_std),DIMENSION (kjpindex,nvm,npco2),INTENT (out):: assim_param    !! min+max+opt temperatures & vmax for photosynthesis (K, \mumol m^{-2} s^{-1})
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: deadleaf_cover !! Fraction of soil covered by dead leaves (unitless)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)     :: qsintmax       !! Maximum water storage on vegetation from interception (mm)
-
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (inout) :: nrec_trans    !! add by ke 
+    INTEGER(i_std),DIMENSION(kjpindex,nvm), INTENT(inout)     :: havlen        !! add by ke
+    INTEGER(i_std),INTENT (in)                             :: date_s2       !! add by ke
+    INTEGER(i_std),DIMENSION (kjpindex), INTENT (in)        :: nmatlab       !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)    :: veget_init    !! add by ke
 !! 0.3 Modified variables
     REAL(r_std), DIMENSION(kjpindex,ndeep,nvm), INTENT (inout) :: soilc_total  !! total soil carbon for use in thermal
     REAL(r_std), DIMENSION(kjpindex), INTENT (inout)         :: thawed_humidity!! specified humidity of thawed soil
@@ -204,7 +210,7 @@ CONTAINS
     CALL slowproc_init (kjit, date0, kjpindex, IndexLand, lalo, neighbours, resolution, contfrac, &
          rest_id, lai, frac_age, veget, frac_nobio, totfrac_nobio, soiltile, reinf_slope, &
          veget_max, tot_bare_soil, njsc, &
-         height, lcanop, veget_update, veget_year, f_rot_sech)
+         height, lcanop, veget_update, veget_year, f_rot_sech,nrec_trans,havlen, veget_init, tot_residue,date_s2,nmatlab) !! ad by ke
     
 
     !! 2. Define Time step in days for stomate
@@ -229,7 +235,7 @@ CONTAINS
              lai,            veget,                  veget_max,                       &
              co2_flux,       fco2_lu,                                                 &
              deadleaf_cover, assim_param,            thawed_humidity, depth_organic_soil, &
-             soilc_total,    heat_Zimov,             temp_growth)
+             soilc_total,    heat_Zimov,             temp_growth,havlen) !! add by ke
     ENDIF
     
     !! 5. Specific run without the carbon cycle (STOMATE not called): 
@@ -237,10 +243,12 @@ CONTAINS
     !!     height, deadleaf_cover, assim_param, qsintmax.
     IF (.NOT. ok_stomate ) THEN
        CALL slowproc_derivvar (kjpindex, veget, lai, &
-            qsintmax, deadleaf_cover, assim_param, height, temp_growth)
+            qsintmax, deadleaf_cover, assim_param, height, temp_growth,havlen) !! add by ke
     ELSE
        qsintmax(:,:) = qsintcst * veget(:,:) * lai(:,:)
        qsintmax(:,1) = zero
+       
+       !!!!!! add by ke
     ENDIF
     
   END SUBROUTINE slowproc_initialize
@@ -300,7 +308,7 @@ CONTAINS
        sfluxCH4_deep, sfluxCO2_deep, &
        thawed_humidity, depth_organic_soil, zz_deep, zz_coef_deep, &
        soilc_total,snowdz,snowrho, &
-       tot_bare_soil, f_rot_sech, rot_cmd)
+       tot_bare_soil, f_rot_sech, rot_cmd,nrec_trans,havlen,date_s2,nmatlab,veget_init,tot_residue,nlevlab)  !! add by ke
   
 !! INTERFACE DESCRIPTION
 
@@ -333,6 +341,7 @@ CONTAINS
     REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(in)    :: gpp                 !! GPP of total ground area (gC m^{-2} time step^{-1}). 
                                                                                !! Calculated in sechiba, account for vegetation cover and 
                                                                                !! effective time step to obtain gpp_d  
+
 !!!!! crops
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: swdown            !!downward shortwave radiation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: t2mdiag          !!2m air temperature (K) of daily maximum
@@ -360,6 +369,7 @@ CONTAINS
     REAL(r_std), DIMENSION(kjpindex),     INTENT (out)           :: sfluxCH4_deep      !! surface flux of CH4 to atmosphere from permafrost
     REAL(r_std), DIMENSION(kjpindex),     INTENT (out)           :: sfluxCO2_deep      !! surface flux of CO2 to atmosphere from permafrost
     REAL(r_std), DIMENSION (kjpindex), INTENT(out)      :: tot_bare_soil       !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(out)      :: tot_residue         !! add by ke, Total evaporating residue fraction
     
 !! 0.3 Modified variables
     INTEGER(i_std), DIMENSION(kjpindex), INTENT(inout)       :: njsc           !! Index of the dominant soil textural class in the grid cell (1-nscm, unitless)
@@ -377,7 +387,13 @@ CONTAINS
     REAL(r_std), DIMENSION(kjpindex),   INTENT (inout)           :: thawed_humidity    !! specified humidity of thawed soil
     REAL(r_std), DIMENSION(kjpindex),   INTENT (inout)           :: depth_organic_soil !! how deep is the organic soil?
     REAL(r_std), DIMENSION(kjpindex,ndeep,nvm),   INTENT (inout) :: soilc_total        !! total soil carbon for use in thermal
-
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (inout)    :: nrec_trans   !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (inout)    :: havlen       !! add by ke 
+    INTEGER(i_std), INTENT (inout)                               :: date_s2      !! add by ke 
+    INTEGER(i_std), DIMENSION(kjpindex),INTENT (inout)         :: nmatlab      !! add by ke 
+    INTEGER(i_std), INTENT (inout)                             :: nlevlab      !! add by ke 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)       :: veget_init   !! add by ke 
+    
 !! 0.4 Local variables
     INTEGER(i_std)                                     :: j, jv, ji            !! indices 
     REAL(r_std)                                        :: tmp_day(1)           !! temporary variable for I/O
@@ -406,14 +422,16 @@ CONTAINS
     INTEGER(i_std) , SAVE                              :: veget_year_tmp           !! year for landuse
     LOGICAL                                            :: FirstTsYear          !! Flag set to true for the first sechiba time step on the year.
     LOGICAL                                            :: LastTsDay            !! Flag set to true for the last sechiba time step of the day. 
-    REAL(r_std),DIMENSION(:,:,:),ALLOCATABLE      :: manage  !! temporary matrix for rotation input
-    INTEGER(i_std)                                :: yrlen
-    CHARACTER(LEN=30)                             :: strManage, strVar
+    REAL(r_std),DIMENSION(:,:,:),ALLOCATABLE           :: manage  !! temporary matrix for rotation input
+    INTEGER(i_std)                                     :: yrlen
+    CHARACTER(LEN=30)                                  :: strManage, strVar
+    REAL(r_std)                                      :: a              !! add by ke
+    REAL(r_std)                                      :: b              !! add by ke
 !_ ================================================================================================================================
 
     !! 1. Compute and update all variables linked to the date and time
     IF (printlev_loc>=4) WRITE(numout,*) 'Entering slowproc_main, month, day, sec=',month,day,sec
-    
+!    WRITE(numout,*) "ke kindex in sechiba_main start ",IndexLand
     IF ( sec == dt_sechiba .AND. month==1 .AND. day==1 ) THEN
        ! The current time step is the first sechiba timestep of a new year
        IF (printlev_loc>=4) WRITE(numout,*) "This is a new day and a new year: month, day, sec=", month, day, sec
@@ -512,9 +530,9 @@ CONTAINS
                 DO ji = 1,kjpindex
                     cropshare_old = SUM(veget_max(ji,:),MASK=ok_LAIdev(:))
                     cropshare_new = SUM(veget_nextyear(ji,:),MASK=ok_LAIdev(:))
-                    IF (printlev>=4) THEN
-                        WRITE(numout,*) 'ji, cropshare_old, cropshare_new',ji, cropshare_old, cropshare_new
-                    ENDIF
+!                    IF (printlev>=4) THEN
+!                        WRITE(numout,*) 'ji, cropshare_old, cropshare_new',ji, cropshare_old, cropshare_new
+!                    ENDIF
                     IF (cropshare_old .LT. min_sechiba) THEN
                     ! special case 1, no croplands previously existed
                         IF (printlev>=4) WRITE(numout,*) 'new croplands included, no change to veget_nextyear'
@@ -556,7 +574,7 @@ CONTAINS
           ! Verification and correction on veget_max, calculation of veget and soiltile.
           ! [chaoyue] this call in the trunk equivalent is lacking, it's done 
           ! in sechiba.f90 by calling slowproc_change_frac
-          CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+          CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen) !! add by ke
           
           ! Set the flag do_now_stomate_lcchange to activate stomate_lcchange.
           ! This flag will be kept to true until stomate_lcchange has been done. 
@@ -573,7 +591,7 @@ CONTAINS
     !print *,'totfrac_nobio after reading the new map zz',totfrac_nobio
        ENDIF
     ENDIF
-    
+!    WRITE(numout,*) "ke kindex in sechiba_main middle ",IndexLand
     !WRITE(numout,*),'do_now_stomate_lcchange in slowproc,',do_now_stomate_lcchange
     !WRITE(numout,*),'veget_year in slowproc,',veget_year
     IF ( (rotation_update .GT. 0) .AND. FirstTsYear ) THEN 
@@ -631,7 +649,7 @@ CONTAINS
        ELSE                                                                     
           totfrac_nobio_new(:) = zero                                           
        END IF                                                                   
-
+!       WRITE(numout,*) "ke kindex in sechiba_main before stomatemian ",IndexLand
        !! 4.1 Call stomate main routine that will call all c-cycle routines       !
        CALL stomate_main (kjit, kjpij, kjpindex, &
             IndexLand, lalo, neighbours, resolution, contfrac, totfrac_nobio_lastyear, clayfraction, &
@@ -655,8 +673,9 @@ CONTAINS
             sfluxCH4_deep, sfluxCO2_deep, &
             thawed_humidity, depth_organic_soil, zz_deep, &
             zz_coef_deep, soilc_total,snowdz,snowrho, &
-            EndOfYear, f_rot_sech, rot_cmd)
-
+            EndOfYear, f_rot_sech, rot_cmd, nrec_trans,havlen,date_s2,nmatlab,veget_init,nlevlab)  !! add by ke
+       
+!       WRITE(numout,*) "ke veget_init in sechiba_main after stomatemian ",veget_init
        ! [chaoyue] in case of use_age_class and gross land use change, veget_max
        ! will be updated in the land use change module rather than using veget_max_new,
        ! thus we should pass the updated veget_max into veget_max_new
@@ -704,7 +723,7 @@ CONTAINS
     !! 5. Do daily processes if necessary
     !!
     IF ( do_slow ) THEN
-
+!       WRITE(numout,*) "ke kindex in sechiba_main in doslow ",IndexLand
        !!  5.1 Calculate the LAI if STOMATE is not activated
        IF ( .NOT. ok_stomate ) THEN
           CALL slowproc_lai (kjpindex, lcanop,stempdiag, &
@@ -716,45 +735,118 @@ CONTAINS
           frac_age(:,:,4) = zero
        ENDIF
 
-!       !! 5.2.0 crop rotation, if rotation started
-!       DO ji = 1,kjpindex
-!          DO jv = 2,nvm
-!              IF (ok_LAIdev(jv) .AND. f_rot_sechiba(ji,jv)) THEN !! whether to rotate
-!               
-!              ENDIF
-!          ENDDO 
-!       ENDDO
-!        
-!       !! end rotation, xuhui
-
        !! 5.2 Update veget
-       CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+       CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen)!! add by ke
 
        !! 5.3 updates qsintmax and other derived variables
        IF ( .NOT. ok_stomate ) THEN
           CALL slowproc_derivvar (kjpindex, veget, lai, &
-               qsintmax, deadleaf_cover, assim_param, height, temp_growth)
+               qsintmax, deadleaf_cover, assim_param, height, temp_growth,havlen) !! add by ke
        ELSE
           qsintmax(:,:) = qsintcst * veget(:,:) * lai(:,:)
           qsintmax(:,1) = zero
+
        ENDIF
     END IF
-
+!    WRITE(numout,*) "ke kindex in sechiba_main after indoslow ",IndexLand
     !! 6. Calculate tot_bare_soil needed in hydrol, diffuco and condveg
-    tot_bare_soil(:) = veget_max(:,1)
-    DO jv = 2, nvm
-       DO ji =1, kjpindex
-          tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv) - veget(ji,jv))
-       ENDDO
-    END DO
     
+!    WRITE(numout,*) 'ke-nrec_trans slowproc_main_1', nrec_trans
+!    WRITE(numout,*) 'ke-havlen slowproc_main_1', havlen
+!    WRITE(numout,*) 'ke-date_s2 slowproc_main_1', date_s2   
+!    WRITE(numout,*) 'ke-nmatlab slowproc_main_1', nmatlab
+!    WRITE(numout,*) 'ke-dateaftermat slowproc_main_1', date_s2+1-366-nmatlab
+!    WRITE(numout,*) 'ke-veget_init slowproc_main_1', veget_init 
+    
+
+!!!!!!!!!!!!!!!!!!!!!!!!! modified by ke     
+
+    
+    DO ji =1,kjpindex
+       
+       tot_residue(ji) = 0
+       DO jv =2,nvm
+           IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+    
+              IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+    
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)*(1-REAL(havlen(ji,jv))/REAL(residue_duration(jv)))  
+              ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)
+              ELSE
+                 tot_residue(ji) = 0
+              ENDIF
+           ELSE
+              tot_residue(ji) = tot_residue(ji)
+           ENDIF
+       ENDDO
+
+    ENDDO
+ !!!!!!!!!!!!!!!!!!!!!!!!! modified by ke   
+
+    tot_bare_soil(:) = veget_max(:,1)
+
+    
+
+!!!!!!!! add by ke !!!!!!!!!!!!!!!
+  !  DO jv = 2, nvm
+      
+    DO ji =1, kjpindex
+       DO jv =2,nvm
+           IF (jv .EQ. 12) THEN
+               IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+                  IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+                     IF (residue_duration(jv) .LE. 0) THEN 
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                        
+                     ELSE IF (residue_duration(jv) .GT. 0) THEN
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                      
+                     ENDIF
+                  
+                  ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji))
+        
+                  ELSE
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+        
+                  ENDIF
+               ELSE
+                  IF ( (ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE 
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+                  ENDIF
+               ENDIF
+           ELSE
+               tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+           ENDIF
+       ENDDO
+
+    ENDDO
+  !  END DO
+!!!!!!!! add by ke !!!!!!!!!!!!!!!    
+!    WRITE(numout,*) "ke kindex in sechiba_main after resisoilfrac ",IndexLand
+!    WRITE(numout,*) 'ke-veget_max slowproc_main_1', veget_max(:,12), veget_max(:,13)
+!    WRITE(numout,*) 'ke-veget slowproc_main_1', veget(:,13), veget(:,12)
+!    WRITE(numout,*) 'ke-veget_init slowproc_main_3', veget_init(:,12), veget_init(:,13)
+!    WRITE(numout,*) 'ke-tot_bare_soil slowproc_main_3', tot_bare_soil
+!    WRITE(numout,*) 'ke-tot_residue slowproc_main_3', tot_residue
+!    WRITE(numout,*) 'ke-nrec_trans slowproc_main_1', nrec_trans
+!    WRITE(numout,*) 'ke-havlen slowproc_main_3', havlen(:,12),',',nrec_trans(:,12),',',date
+
+    
+    
+
 
     !! 7. Do some basic tests on the surface fractions updated above, only if
     !!    slowproc_veget has been done (do_slow). No change of the variables. 
     IF (do_slow) THEN
-        CALL slowproc_checkveget(kjpindex, frac_nobio, veget_max, veget, tot_bare_soil, soiltile)
+        CALL slowproc_checkveget(kjpindex, frac_nobio, veget_max, veget, tot_bare_soil, soiltile, tot_residue,date_s2,nmatlab,havlen,nrec_trans, veget_init) !! add by ke
     END IF  
-
+!    WRITE(numout,*) "ke kindex in sechiba_main after lowproc_checkveget ",IndexLand
     !! 8. Write output fields
     CALL xios_orchidee_send_field("tot_bare_soil",tot_bare_soil)
     
@@ -762,7 +854,7 @@ CONTAINS
        CALL histwrite_p(hist_id, 'tot_bare_soil', kjit, tot_bare_soil, kjpindex, IndexLand)
     END IF
 
-
+!    WRITE(numout,*) "ke kindex in sechiba_main end ",IndexLand 
     IF (printlev_loc>=3) WRITE (numout,*) ' slowproc_main done '
 
   END SUBROUTINE slowproc_main
@@ -787,7 +879,7 @@ CONTAINS
                                 njsc,       lai,       height,   veget,      &
                                 frac_nobio, veget_max, reinf_slope,          & 
                                 zz_deep, zz_coef_deep, thawed_humidity, depth_organic_soil, &
-                                assim_param, frac_age )
+                                assim_param, frac_age,havlen) !! add by ke
 
 !! 0.1 Input variables
     INTEGER(i_std), INTENT(in)                           :: kjit           !! Time step number
@@ -800,6 +892,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget          !! Fraction of vegetation type including none biological fraction (unitless)
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (in) :: frac_nobio     !! Fraction of ice, lakes, cities etc. in the mesh
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget_max      !! Maximum fraction of vegetation type including none biological fraction (unitless)
+    INTEGER(i_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: havlen          !! add by ke
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)         :: reinf_slope    !! slope coef for reinfiltration
     REAL(r_std), DIMENSION(ndeep),   INTENT (in)            :: zz_deep        !! deep vertical profile
     REAL(r_std), DIMENSION(ndeep),   INTENT (in)            :: zz_coef_deep   !! deep vertical profile   
@@ -824,7 +917,7 @@ CONTAINS
     
     CALL restput_p (rest_id, 'veget', nbp_glo, nvm, 1, kjit, veget, 'scatter',  nbp_glo, index_g)
 
-    print *,"veget_max before writting into restart",veget_max
+!    print *,"veget_max before writting into restart",veget_max
     CALL restput_p (rest_id, 'veget_max', nbp_glo, nvm, 1, kjit, veget_max, 'scatter',  nbp_glo, index_g)
 
     CALL restput_p (rest_id, 'lai', nbp_glo, nvm, 1, kjit, lai, 'scatter',  nbp_glo, index_g)
@@ -869,7 +962,7 @@ CONTAINS
     IF ( ok_stomate ) THEN
        CALL stomate_finalize (kjit,    kjpindex,     indexLand,       clayfraction, & 
                               zz_deep, zz_coef_deep, thawed_humidity, depth_organic_soil, &
-                              assim_param) 
+                              assim_param,havlen) !! add by ke 
     ENDIF
     
   END SUBROUTINE slowproc_finalize
@@ -897,7 +990,7 @@ CONTAINS
   SUBROUTINE slowproc_init (kjit, date0, kjpindex, IndexLand, lalo, neighbours, resolution, contfrac, &
        rest_id, lai, frac_age, veget, frac_nobio, totfrac_nobio, soiltile, reinf_slope, &
        veget_max, tot_bare_soil, njsc, &
-       height, lcanop, veget_update, veget_year, f_rot_sech)
+       height, lcanop, veget_update, veget_year, f_rot_sech,nrec_trans,havlen,veget_init, tot_residue,date_s2,nmatlab) !! add by ke
     
     !! INTERFACE DESCRIPTION
 
@@ -912,7 +1005,11 @@ CONTAINS
     INTEGER(i_std), DIMENSION (kjpindex,8), INTENT(in)    :: neighbours     !! Vector of neighbours for each grid point 1=N, 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW) 
     REAL(r_std), DIMENSION (kjpindex,2), INTENT(in)       :: resolution     !! size in x and y of the grid (m)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)         :: contfrac       !! Fraction of continent in the grid (unitless)
-    
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in)  :: havlen         !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in)  :: nrec_trans     !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)     :: veget_init     !! add by ke
+    INTEGER(i_std), INTENT (in)                           :: date_s2        !! add by ke 
+    INTEGER(i_std),DIMENSION (kjpindex),INTENT (in)       :: nmatlab        !! add by ke 
     !! 0.2 Output variables
     INTEGER(i_std), INTENT(out)                           :: lcanop         !! Number of Canopy level used to compute LAI
     INTEGER(i_std), INTENT(out)                           :: veget_update   !! update frequency in timesteps (years) for landuse
@@ -924,6 +1021,9 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)        :: totfrac_nobio  !! Total fraction of ice+lakes+cities+... (unitless)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)    :: veget_max      !! Max fraction of vegetation type (unitless)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)        :: tot_bare_soil  !! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)        :: tot_residue    !! add by ke Total evaporating residue fraction 
+  
+    
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)    :: height         !! Height of vegetation or surface in genral ??? (m)
     REAL(r_std),DIMENSION (kjpindex,nvm,nleafages), INTENT (out):: frac_age !! Age efficacity from STOMATE for isoprene
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT(out)   :: soiltile       !! Fraction of each soil tile (0-1, unitless)
@@ -932,6 +1032,8 @@ CONTAINS
     LOGICAL, DIMENSION(kjpindex), INTENT(in)              :: f_rot_sech     !! whether a grid is under rotation
     
     !! 0.3 Local variables 
+    REAL(r_std)                                      :: a                   !! add by ke
+    REAL(r_std)                                      :: b                   !! add by ke
     REAL(r_std)                                           :: tmp_day(1)        !! temporary variable 
     REAL(r_std)                                           :: tmp_veget_year(1) !! temporary variable
     REAL(r_std)                                           :: zcanop            !! ???? soil depth taken for canopy
@@ -967,6 +1069,7 @@ CONTAINS
   REAL(r_std),DIMENSION (kjpindex,nvmap)                :: veget_ny_map      !! Fraction of vegetation for MTCs, it's a dummy variable
                                                                              !! used to initialization of veget_max_map for the first year
                                                                              !! run from scratch.
+
 !_ ================================================================================================================================
 
     ! Initialize local printlev
@@ -1294,7 +1397,7 @@ CONTAINS
 
        IF (.NOT. found_restart) THEN
           ! Call slowproc_veget to correct veget_max and to calculate veget and soiltiles
-          CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+          CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen)  !! add by ke
        END IF
        
        !Config Key   = SECHIBA_LAI
@@ -1479,7 +1582,7 @@ CONTAINS
        
 
        ! correct veget_max and to calculate veget and soiltiles
-       CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+       CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen)!! add by ke
        
     END IF ! end impveg
 
@@ -1574,13 +1677,74 @@ CONTAINS
        ENDDO
     ENDDO
     
-    ! Always calculate tot_bare_soil
-    tot_bare_soil(:) = veget_max(:,1)
-    DO jv = 2, nvm
-       DO ji =1, kjpindex
-          tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv) - veget(ji,jv))
+!!!!!!!!!!!!!!!!!!!!!!!!! modified by ke     
+ 
+    DO ji =1,kjpindex
+       tot_residue(ji) = 0
+       DO jv =2,nvm
+           IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+    
+              IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+    
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)*(1-REAL(havlen(ji,jv))/REAL(residue_duration(jv)))  
+              ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)
+              ELSE
+                 tot_residue(ji) = 0
+              ENDIF
+           ELSE
+              tot_residue(ji) = tot_residue(ji)
+           ENDIF
        ENDDO
-    END DO
+    ENDDO
+
+ !!!!!!!!!!!!!!!!!!!!!!!!! modified by ke   
+
+    tot_bare_soil(:) = veget_max(:,1)
+
+    
+
+!!!!!!!! add by ke !!!!!!!!!!!!!!!
+  !  DO jv = 2, nvm
+      
+    DO ji =1, kjpindex
+       DO jv =2,nvm
+           IF (jv .EQ. 12) THEN
+               IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+                  IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+                     IF (residue_duration(jv) .LE. 0) THEN 
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                        
+                     ELSE IF (residue_duration(jv) .GT. 0) THEN
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                      
+                     ENDIF
+                  
+                  ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji))
+        
+                  ELSE
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+        
+                  ENDIF
+               ELSE
+                  IF ( (ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE 
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+                  ENDIF
+               ENDIF
+           ELSE
+               tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+           ENDIF
+       ENDDO
+    ENDDO
+
+!!!!!!!! add by ke !!!!!!!!!!!!!!!  
+
+
     
     !! 6. Verify consistency between different fractions. No change of the variables.
     IF (ok_stomate .AND. .NOT.disable_fire) THEN
@@ -1649,7 +1813,7 @@ CONTAINS
         !    
         read_observed_ba = .FALSE.
         CALL getin_p('READ_OBSERVED_BA',read_observed_ba)
-        WRITE(numout,*) 'flag for READ_OBSERVED_BA ', read_observed_ba
+   !!     WRITE(numout,*) 'flag for READ_OBSERVED_BA ', read_observed_ba
 
         !    
         !Config  Key  = OBSERVED_BURNED_AREA 
@@ -1671,7 +1835,7 @@ CONTAINS
         !    
         read_cf_coarse = .FALSE.
         CALL getin_p('READ_CF_COARSE',read_cf_coarse)
-        WRITE(numout,*) 'flag for READ_CF_COARSE ', read_cf_coarse
+  !      WRITE(numout,*) 'flag for READ_CF_COARSE ', read_cf_coarse
 
         !    
         !Config  Key  = OBSERVED_BURNED_AREA 
@@ -1693,7 +1857,7 @@ CONTAINS
         !    
         read_cf_fine = .FALSE.
         CALL getin_p('READ_CF_FINE',read_cf_fine)
-        WRITE(numout,*) 'flag for READ_CF_FINE ', read_cf_fine
+    !    WRITE(numout,*) 'flag for READ_CF_FINE ', read_cf_fine
 
         !    
         !Config  Key  = OBSERVED_BURNED_AREA 
@@ -1715,7 +1879,7 @@ CONTAINS
         !    
         read_ratio = .TRUE.
         CALL getin_p('READ_RATIO',read_ratio)
-        WRITE(numout,*) 'flag for READ_RATIO ', read_ratio
+    !    WRITE(numout,*) 'flag for READ_RATIO ', read_ratio
 
         !    
         !Config  Key  = OBSERVED_BURNED_AREA 
@@ -1737,7 +1901,7 @@ CONTAINS
         !    
         read_ratio_flag = .TRUE.
         CALL getin_p('READ_RATIO_FLAG',read_ratio_flag)
-        WRITE(numout,*) 'flag for READ_RATIO_FLAG ', read_ratio_flag
+   !     WRITE(numout,*) 'flag for READ_RATIO_FLAG ', read_ratio_flag
 
         !    
         !Config  Key  = OBSERVED_BURNED_AREA 
@@ -1758,8 +1922,8 @@ CONTAINS
         !    
         read_popdens = .FALSE.
         CALL getin_p('READ_POPDENS',read_popdens)
-        WRITE(numout,*) 'flag for READ_POPDENS ',read_popdens
-
+  !      WRITE(numout,*) 'flag for READ_POPDENS ',read_popdens
+!
         !    
         !Config  Key  = POPDENS 
         !Config  Desc = Read the population density map
@@ -1779,7 +1943,7 @@ CONTAINS
         !    
         read_humign = .FALSE.
         CALL getin_p('READ_HUMIGN',read_humign)
-        WRITE(numout,*) 'flag for READ_HUMIGN:',read_humign
+   !     WRITE(numout,*) 'flag for READ_HUMIGN:',read_humign
 
         !    
         !Config  Key  = POPDENS 
@@ -1863,7 +2027,7 @@ CONTAINS
 !_ ================================================================================================================================
 
   SUBROUTINE slowproc_derivvar (kjpindex, veget, lai, &
-       qsintmax, deadleaf_cover, assim_param, height, temp_growth)
+       qsintmax, deadleaf_cover, assim_param, height, temp_growth,havlen) !! addby ke
 
     !! INTERFACE DESCRIPTION
 
@@ -1871,9 +2035,11 @@ CONTAINS
     INTEGER(i_std), INTENT (in)                                :: kjpindex       !! Domain size - terrestrial pixels only
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)          :: veget          !! Fraction of pixel covered by PFT. Fraction accounts for none-biological land covers (unitless)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)          :: lai            !! PFT leaf area index (m^{2} m^{-2})
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in)       :: havlen         !! add by ke
 
     !! 0.2. Output scalar and fields 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)          :: qsintmax       !! Maximum water on vegetation for interception(mm)
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)              :: deadleaf_cover !! fraction of soil covered by dead leaves (unitless)
     REAL(r_std), DIMENSION (kjpindex,nvm,npco2), INTENT (out)   :: assim_param    !! min+max+opt temperatures & vmax for photosynthesis (K, \mumol m^{-2} s^{-1})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)          :: height         !! height of the vegetation or surface in general ??? (m)
@@ -1905,11 +2071,14 @@ CONTAINS
     ! 4. Initialize the maximum water on vegetation for interception
     !
     qsintmax(:,:) = qsintcst * veget(:,:) * lai(:,:)
+    
+
 
     ! Added by Nathalie - July 2006
     !  Initialize the case of the PFT no.1 to zero 
     qsintmax(:,1) = zero
 
+    
     temp_growth(:)=25.
 
   END SUBROUTINE slowproc_derivvar
@@ -2057,7 +2226,7 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+  SUBROUTINE slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen) !! add by ke
     !
     ! 0. Declarations
     !
@@ -2073,7 +2242,11 @@ CONTAINS
     REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(out)      :: veget       !! Fraction of pixel covered by PFT. Fraction accounts for none-biological land covers (unitless)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)         :: totfrac_nobio
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT(out)    :: soiltile     !! Fraction of each soil tile (0-1, unitless)
-    LOGICAL,DIMENSION(kjpindex), INTENT(in)         :: f_rot_sech        !! whether a grid point is under rotation
+    LOGICAL,DIMENSION(kjpindex), INTENT(in)                :: f_rot_sech   !! whether a grid point is under rotation
+    
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)      :: veget_init   !! add by ke
+    INTEGER(i_std),DIMENSION(kjpindex), INTENT (in)        :: nmatlab      !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in)   :: havlen       !! add by ke
 
     ! 0.4 Local scalar and varaiables 
     INTEGER(i_std)                                         :: ji, jv, jst !! indices 
@@ -2115,10 +2288,16 @@ CONTAINS
     DO ji = 1, kjpindex
        veget(ji,1)=veget_max(ji,1)
        DO jv = 2, nvm
-          veget(ji,jv) = veget_max(ji,jv) * ( un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+          IF ((ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+              
+              veget(ji,jv) = veget_max(ji,jv) * ( un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+             ! veget(ji,12) = veget_init(ji,12)
+          ELSE
+              veget(ji,jv) = veget_max(ji,jv) * ( un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+          ENDIF
        ENDDO
     ENDDO
-
+!    WRITE(numout,*) 'ke-veget in slowproc', veget(:,13),',',veget_max(:,13),',',lai(:,13)
 
     !! 4. Calculate totfrac_nobio
     totfrac_nobio(:) = zero
@@ -2197,6 +2376,7 @@ CONTAINS
              ! 1. do the interpolation between laimax and laimin
              !
              lai(:,jv) = undemi * (llaimax(jv) + llaimin(jv))
+             
              !
           CASE ("inter")
              !
@@ -2204,7 +2384,9 @@ CONTAINS
              !
              DO ji = 1,kjpindex
                 lai(ji,jv) = llaimin(jv) + tempfunc(stempdiag(ji,lcanop)) * (llaimax(jv) - llaimin(jv))
+                 
              ENDDO
+    
              !
           CASE default
              !
@@ -2216,6 +2398,7 @@ CONTAINS
           END SELECT
           
        ENDDO
+       
        !
     ELSE
        lai(: ,1) = zero
@@ -3007,7 +3190,7 @@ CONTAINS
           !       est conservee.
           ! Modification de Nathalie : 
           ! Si les PFTs anthropique diminue, on les remplace plutôt par du sol nu.
-          ! Le DGVM est chargé de ré-introduire les PFTs naturels.
+          ! Le DGVM est charg?de r?introduire les PFTs naturels.
           IF (sumf > min_sechiba) THEN
              sumvAnthro_old = zero
              sumvAnthro     = zero
@@ -3919,7 +4102,7 @@ CONTAINS
     CALL bcast(lml)
     CALL bcast(tml)
     !
-    ! soils_param.nc file is 1° soit texture file.
+    ! soils_param.nc file is 1?soit texture file.
     !
     ALLOCATE(lat_rel(iml,jml), STAT=ALLOC_ERR)
     IF (ALLOC_ERR/=0) CALL ipslerr_p(3,'slowproc_soilt','Error in allocation for lat_rel','','')
@@ -5232,7 +5415,7 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 !
-  SUBROUTINE slowproc_checkveget(nbpt, frac_nobio, veget_max, veget, tot_bare_soil, soiltile)
+  SUBROUTINE slowproc_checkveget(nbpt, frac_nobio, veget_max, veget, tot_bare_soil, soiltile,tot_residue,date_s2,nmatlab,havlen,nrec_trans,veget_init) !! add by ke
 
     !  0.1 INPUT
     !
@@ -5241,7 +5424,14 @@ CONTAINS
     REAL(r_std),DIMENSION (nbpt,nvm), INTENT(in)    :: veget_max  ! Maximum fraction of vegetation type including none biological fraction (unitless) 
     REAL(r_std),DIMENSION (nbpt,nvm), INTENT(in)    :: veget      ! Vegetation fractions
     REAL(r_std),DIMENSION (nbpt), INTENT(in)        :: tot_bare_soil ! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (nbpt), INTENT(in)        :: tot_residue!! add by ke, Total evaporating bare soil fraction 
     REAL(r_std),DIMENSION (nbpt,nstm), INTENT(in)   :: soiltile   ! Fraction of soil tiles in the gridbox (unitless)
+    INTEGER(i_std), INTENT (in)                     :: date_s2    !! add by ke 
+    INTEGER(i_std),DIMENSION (nbpt), INTENT (in)    :: nmatlab    !! add by ke 
+    INTEGER(i_std), DIMENSION (nbpt,nvm),INTENT (in):: havlen     !! add by ke
+    INTEGER(i_std), DIMENSION (nbpt,nvm),INTENT (in):: nrec_trans !! add by ke
+    REAL(r_std),DIMENSION (nbpt,nvm), INTENT (in)   :: veget_init !! add by ke
+
 
     !  0.3 LOCAL
     !
@@ -5329,11 +5519,40 @@ CONTAINS
     DO ji=1,nbpt
        totfrac = zero
        DO jv=1,nvm
-          totfrac = totfrac + (veget_max(ji,jv) - veget(ji,jv))
+          IF (jv .EQ. 12) THEN
+
+             IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN
+                IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+                   totfrac = totfrac + (veget_max(ji,jv)-tot_residue(ji) - veget(ji,jv))
+
+
+                ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                   totfrac = totfrac + (veget_max(ji,jv)-tot_residue(ji))
+    
+                ELSE
+                   totfrac = totfrac + (veget_max(ji,jv) - veget(ji,jv)-tot_residue(ji))
+    
+                ENDIF
+             ELSE
+                IF ( (ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                   totfrac = totfrac + (veget_max(ji,jv) - veget_init(ji,jv))
+                ELSE IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                   totfrac = totfrac +(veget_max(ji,jv)-veget_init(ji,jv))
+                ELSE
+                   totfrac = totfrac + (veget_max(ji,jv) - veget(ji,jv))
+
+                ENDIF
+             ENDIF
+          ELSE
+             totfrac = totfrac + (veget_max(ji,jv) - veget(ji,jv))
+
+          ENDIF
        ENDDO
+
        ! add the bare soil fraction to totfrac
        totfrac = totfrac + veget(ji,ibare_sechiba)
        ! do the test
+
        IF ( ABS(totfrac - tot_bare_soil(ji)) > epsilocal ) THEN
           WRITE(str1,'("This occurs on grid box", I8)') ji
           WRITE(str2,'("The values for tot_bare_soil, tot frac and error :", F8.4, F8.4, E14.4)') &
@@ -5378,13 +5597,14 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE slowproc_change_frac(kjpindex, f_rot_sech, lai, &
-                                  veget_max, veget, frac_nobio, totfrac_nobio, tot_bare_soil, soiltile)
+  SUBROUTINE slowproc_change_frac(kjit, kjpindex, f_rot_sech, lai, &
+                                  veget_max, veget, frac_nobio, totfrac_nobio, tot_bare_soil, soiltile,havlen,nrec_trans,tot_residue,veget_init,date_s2,nmatlab) !! add by ke
     !
     ! 0. Declarations
     !
     ! 0.1 Input variables 
     INTEGER(i_std), INTENT(in)                           :: kjpindex      !! Domain size - terrestrial pixels only
+    INTEGER(i_std), INTENT(in)                           :: kjit          !! add by ke
     LOGICAL,DIMENSION(kjpindex),INTENT(in)               :: f_rot_sech    !! whether a grid is under rotation
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in)     :: lai           !! Leaf area index (m^2 m^{-2})    
 
@@ -5394,11 +5614,18 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT(out) :: frac_nobio     !! Fraction of ice, lakes, cities etc. in the mesh
     REAL(r_std),DIMENSION (kjpindex), INTENT(out)        :: totfrac_nobio  !! Total fraction of ice+lakes+cities etc. in the mesh
     REAL(r_std), DIMENSION (kjpindex), INTENT(out)       :: tot_bare_soil  !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(out)       :: tot_residue    !! add by ke, evaporating resdiue fraction 
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT(out)  :: soiltile       !! Fraction of each soil tile (0-1, unitless)
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in) :: havlen         !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm),INTENT (in) :: nrec_trans     !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget_init     !! add by ke
+    INTEGER(i_std), INTENT (in)                          :: date_s2        !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex),INTENT (in)     :: nmatlab        !! add by ke 
 
     ! 0.3 Local variables
     INTEGER(i_std)                                       :: ji, jv         !! Loop index
-
+    REAL(r_std)                                          :: a              !! add by ke
+    REAL(r_std)                                          :: b              !! add by ke
     
     !! Update vegetation fractions with the values coming from the vegetation file read in slowproc_readvegetmax.
     !! Partial update has been taken into account for the case with DGVM and AGRICULTURE in slowproc_readvegetmax. 
@@ -5406,18 +5633,87 @@ CONTAINS
     frac_nobio = frac_nobio_new
 
     !! Verification and correction on veget_max, calculation of veget and soiltile.
-    CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile)
+    CALL slowproc_veget (kjpindex, f_rot_sech, lai, frac_nobio, totfrac_nobio, veget_max, veget, soiltile,veget_init,nmatlab,havlen) !! add by ke
 
     !! Calculate tot_bare_soil needed in hydrol, diffuco and condveg
-    tot_bare_soil(:) = veget_max(:,1)
-    DO jv = 2, nvm
-       DO ji =1, kjpindex
-          tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv) - veget(ji,jv))
+  !  tot_bare_soil(:) = veget_max(:,1)
+  !  DO jv = 2, nvm
+  !     DO ji =1, kjpindex
+  !        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv) - veget(ji,jv))
+  !     ENDDO
+  !  END DO
+    
+!!!!!!!!!!!!!!!!!!!!!!!!! modified by ke   
+ 
+!    tot_residue(:) = 0
+    DO ji =1,kjpindex
+       tot_residue(ji) = 0
+       DO jv =2,nvm
+           IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+    
+              IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+    
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)*(1-REAL(havlen(ji,jv))/REAL(residue_duration(jv)))  
+              ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                 tot_residue(ji) = tot_residue(ji)+veget_init(ji,jv)
+              ELSE
+                 tot_residue(ji) = 0
+              ENDIF
+           ELSE
+              tot_residue(ji) = tot_residue(ji)
+           ENDIF
        ENDDO
-    END DO
+    ENDDO
+
+ !!!!!!!!!!!!!!!!!!!!!!!!! modified by ke   
+
+    tot_bare_soil(:) = veget_max(:,1)
+
+    
+
+!!!!!!!! add by ke !!!!!!!!!!!!!!!
+  !  DO jv = 2, nvm
+      
+    DO ji =1, kjpindex
+       DO jv =2,nvm
+           IF (jv .EQ. 12) THEN
+               IF ((ok_residues) .AND. (havlen(ji,jv) .GE. 1)) THEN 
+                  IF ((havlen(ji,jv) .GT. 15) .AND. (havlen(ji,jv) .LT. residue_duration(jv))) THEN
+                     IF (residue_duration(jv) .LE. 0) THEN 
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                        
+                     ELSE IF (residue_duration(jv) .GT. 0) THEN
+                        tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+                      
+                     ENDIF
+                  
+                  ELSE IF ((havlen(ji,jv) .GE. 1) .AND. (havlen(ji,jv) .LE. 15)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji))
+        
+                  ELSE
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-tot_residue(ji)-veget(ji,jv))
+        
+                  ENDIF
+               ELSE
+                  IF ( (ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                     tot_bare_soil(ji) = tot_bare_soil(ji) +(veget_max(ji,jv)-veget_init(ji,jv))
+                  ELSE 
+                     tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+                  ENDIF
+               ENDIF
+           ELSE
+               tot_bare_soil(ji) = tot_bare_soil(ji) + (veget_max(ji,jv)-veget(ji,jv))
+           ENDIF
+       ENDDO
+    ENDDO
+
+!!!!!!!! add by ke !!!!!!!!!!!!!!!    
+    
     
     !! Do some basic tests on the surface fractions updated above
-    CALL slowproc_checkveget(kjpindex, frac_nobio, veget_max, veget, tot_bare_soil, soiltile)
+    CALL slowproc_checkveget(kjpindex, frac_nobio, veget_max, veget, tot_bare_soil, soiltile,tot_residue,date_s2,nmatlab,havlen,nrec_trans, veget_init) !! add by ke
 
   END SUBROUTINE slowproc_change_frac
 

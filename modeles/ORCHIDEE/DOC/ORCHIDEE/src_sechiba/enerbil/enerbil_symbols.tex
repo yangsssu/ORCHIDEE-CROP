@@ -1,0 +1,135 @@
+%
+% \documentclass[11pt]{amsart}
+% \usepackage{helvet}
+% \usepackage{geometry}    
+% \geometry{a4paper} 
+% \usepackage[parfill]{parskip}  \usepackage{graphicx}
+% \usepackage{amssymb}
+% \usepackage{epstopdf}
+%
+%
+%
+% \begin{document}
+
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabular}{|c|l|r|}
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+\hline
+ $ps^{old}$ & psold & surface static energy at old timestep (J/kg) \\
+ $ps^{new}$ & psnew & surface static energy at new timestep (J/kg)\\
+ $q_s$ & qsurf & surface specific humidity (kg/kg) \\
+ $q_{s, sat}$ & qsol\_sat & saturated surface humidity (kg/kg) \\
+ $q_{air}$ & qair & lowest level specific humidity at 'old' timestep (kg/kg) \\
+ $q_{air}^{new}$ & qair\_new & lowest level specific humidity at 'new' timestep (kg/kg) \\
+ $\frac{\delta q_s^{old}}{\delta t}$ & pdqsold & derivative of saturated specific humidity at old temperature (kg/(kg s)) \\ 
+ $p_l$ & pb & lowest level air pressure (Pa) \\
+ \hline
+ $C_p^{air}$ & cp\_air & lowest level atmospheric heat capacity (J/(K kg)) \\   
+ \hline
+ $\chi_{CO_2}^{canopy}$ & ccanopy & $CO_2$ concentration in the canopy (?? ppm)  \\
+ $\bar{Ci}$ & cimean & mean intercellular ci (from STOMATE) $(\mu mole/m^2/s)$\\  
+ \hline
+ $R^{LW}_{\uparrow}$ & lwup & long-wave upwelling radiation $(W/m^2)$ \\  
+ $ R^{LW}_{\downarrow}$ & lwdown & downwelling long-wave radiation flux $(W/m^2)$ \\
+ $R^{LW}_{abs}$ & lwabs  & LW radiation absorbed by the surface $(W/m^2)$ \\ 
+ $R^{SW}_{net}$ & swnet & net shortwave radiation flux $(W/m^2)$ \\
+ $R^{net}_{sns}$ & netrad\_sns & sensitivity of net radiation $(W/m^2)$ \\
+ $R_{net}$ & netrad & net radiation at surface layer $(W/m^2)$ \\
+ \hline
+ $\Delta \theta$ & dtradia & Time step (s) \\
+ $\epsilon$ & emis & emissivity (fraction) \\
+ $\sigma$ & c\_stefan & Stefan-Boltzmann constant $(W / (m^2 K^4))$\\
+ $q_{c}$ & q\_cdrag & surface drag coefficient (m/s) \\
+ $\rho_{air}$ & rau & density of air $(kg/m^3)$ \\
+\hline
+\end{tabular}
+
+
+\begin{tabular}{|c|l|r|}
+
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+
+\hline
+
+ $\lambda E_{evap}^0$ & chalev0 & latent heat of evaporation (J/kg) \\
+ $\lambda E_{sub}^0$ & chalsu0 & latent heat of sublimination (J/kg) \\ 
+ $\lambda E_{fsn}^0$ & chalfu0 & latent heat of fusion (J/kg) \\
+
+ $H^{old}$ & sensfl\_old & sensible heat flux at 'old' timestep $(W/m^2)$ \\ 
+ $H^{sns}$ & sensfl\_sns & sensitivity of sensible heat flux $(W/m^2)$\\
+ $H^{new}$ & fluxsens & sensible heat flux at 'new' timestep $(W/m^2)$\\
+
+ ${\lambda E}_{evap}^{old}$ & lareva\_old  & evaporation latent heat flux at old timestep $(W/m^2)$ \\
+ ${\lambda E}_{evap}^{sns}$ & lareva\_sns  & sensitivity of latent heat flux $(W/m^2)$ \\
+  ${\lambda E}_{evap}^{new}$ & fluxsens  & sensitivity of latent heat flux at 'new' time step $(W/m^2)$ \\
+
+ $\lambda E_{sub}^{old}$ & larsub\_old & sublimation latent heat flux at 'old' time step $(W/m^2)$ \\
+ $\lambda E^{sns}_{sub}$ & larsub\_sns & sensitivity of sublimination latent heat flux $(W/m^2)$ \\
+ $\lambda E_{new}^{sub}$ & fluxsubli & sens. of subn. latent heat flux at 'new' time step $(W/m^2)$ \\
+
+ $\Sigma (\lambda E^{old})$ & sum\_old & total latent heat flux at 'old' time step $(W/m^2)$\\
+
+ $\Sigma (\lambda E^{sns})$ & sum\_sns & total latent heat flux sensitivity at 'old' time step $(W/m^2)$\\
+ $E_{pot}^{air,new}$ & epot\_air & air potential energy (?? J) \\
+
+ $G$ & soilflx & sensible heat flux from soil $(W/m^2)$ \\
+
+ \hline
+
+ $E^{snow}$ & vevapsno & snow evaporation (mm/day)\\  
+ $E^{soil}$ & vevapnu & bare soil evaporation  (mm/day)\\ 
+ 
+  $(melt)_{tot}$ & tot\_melt & total melt \\  
+ $vev_{app}$ & vevapp & total of evaporation (mm/d) \\  
+ 
+
+ 
+\hline
+\end{tabular}
+
+
+
+\begin{tabular}{|c|l|r|}
+\hline
+  \bf {symbol} & \bf {variable name} & \bf {description} \\
+
+ \hline
+
+ $A_q^{orc}$ & peqAcoef & ORCHIDEE humidity coefficient 'A' \\
+ $B_q^{orc}$ & peqBcoef & ORCHIDEE humidity coefficient 'B'\\
+ $A_T^{orc}$  &  petAcoef & ORCHIDEE temperature coefficient 'A' \\
+ $B_T^{orc} $ & petBcoef & ORCHIDEE temperature coefficient 'B' \\    
+ $A_q^{lmdz}$ & ... & LMDZ humidity coefficient 'A' \\  
+ $B_T^{lmdz}$ & ... & LMDZ temperature coefficient 'A' \\  
+ $B_q^{lmdz}$ & ... & LMDZ humidity coefficient 'B' \\  
+ $B_T^{lmdz}$ & ... & LMDZ temperature coefficient 'B' \\  
+ \hline
+ $T_{air}$ & tair & air temperature (K) \\
+ $T_{dgnc}^{2m}$ & t2mdiag & diagnostic temperature at 2m above ground (K) \\  
+ $T_S$ & temp\_sol & surface temperature (K) \\  
+ \hline
+
+ $\alpha_v $ & valpha & total $\alpha$ resistance coefficient (fraction) \\
+ $\beta_v$ & vbeta & total resistance coefficient (fraction) \\
+ $\beta_{v1}$ & vbeta1 & snow resistance (fraction) \\  
+ $\beta_{v2}$ & vbeta2 & interception resistance (fraction)\\  
+ $\beta_{v3}$ & vbeta3 & vegetation resistance (fraction)\\  
+ $\beta_{v4}$ & vbeta4 & bare soil resistance (fraction)\\
+ $\beta_{v,CO_2}$ & vbetaco2 & vegetation resistance to $CO_2$ \\ 
+ \hline
+ $U$ & speed & lowest level wind speed (m/s) \\
+ $u$ & u & lowest level wind velocity,  Eastward component  (m/s) \\
+ $v$ & v & lowest level wind volocity, Northward component  (m/s) \\
+ \hline
+ $z_{ikt}$ & zikt & aerodynamic resistance / density of air (kg s $m^{-4}$) \\
+ $z_{ikq}$ & zikq & aerodynamic resistance / density of air (kg s $m^{-4}$)  \\
+\hline
+\end{tabular}
+
+%
+%
+%
+%\end{document}

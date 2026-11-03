@@ -59,7 +59,7 @@ ifneq ($(MAKE_NAM),$(M_K))
  @$(error You must invoke this Makefile with the $(M_K) command)
 endif
 USER_DIR = $(shell /bin/pwd)
-MAKE_DIR = /home/orchidee04/yangsu/Calibration/0_a_Final_calibration/modeles/IOIPSL/src
+MAKE_DIR = /home/orchidee03/ssdeng/ORCHIDEE-CROP/modeles/IOIPSL/src
 ifneq ($(USER_DIR),$(MAKE_DIR))
  @$(error You must invoke this Makefile from its directory)
 endif

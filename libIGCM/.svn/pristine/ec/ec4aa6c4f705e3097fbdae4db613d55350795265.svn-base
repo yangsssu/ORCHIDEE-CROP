@@ -1,0 +1,210 @@
+-------------------------------------------------------------------==
+
+    Define IGCM_sys functions that are common on every systems
+
+-------------------------------------------------------------------==
+#==================================================
+function IGCM_sys_RshMaster
+* Purpose: Connection to frontend machine.
+* Examples:
+
+#==================================================
+function IGCM_sys_RshPost
+* Purpose: Post-process rsh command
+* Examples:
+
+#==================================================
+function IGCM_sys_SendMail
+* Purpose: Send mail when simulation is over
+* Examples:
+
+#==================================================
+function IGCM_sys_Mkdir
+* Purpose: Master locale mkdir command
+* Examples:
+
+#==================================================
+function IGCM_sys_MkdirWork
+* Purpose: Mkdir on Work
+* Examples:
+
+#==================================================
+function IGCM_sys_Cd
+* Purpose: master cd command
+* Examples:
+
+#==================================================
+function IGCM_sys_Chmod
+* Purpose: Chmod
+* Examples:
+
+#==================================================
+function IGCM_sys_FileSize
+* Purpose: Filesize
+* Examples:
+
+#==================================================
+function IGCM_sys_TestDir
+* Purpose: Test Directory that must exists
+* Examples:
+
+#==================================================
+function IGCM_sys_TestFileBuffer
+* Purpose: Test file that must NOT EXISTS on Buffer
+* Examples:
+
+#==================================================
+function IGCM_sys_CountFileBuffer
+* Purpose: Count files on Scratch filesystem
+* Examples:
+
+#==================================================
+function IGCM_sys_Tar
+* Purpose: master tar command
+* Examples:
+
+#==================================================
+function IGCM_sys_UnTar
+* Purpose: master un-tar command
+* Examples:
+
+*************************
+ File transfer functions
+*************************
+
+#==================================================
+function IGCM_sys_Rsync_out
+* Purpose: treat return val of rsync
+* Examples: IGCM_sys_Rsync_out out_RET_rsync
+  Error values and explanations can depend on your system version.
+#==================================================
+function IGCM_sys_Miror_libIGCM
+* Purpose: Mirror libIGCM PATH and lib to frontend
+* Examples:
+
+#==================================================
+function IGCM_sys_Cp
+* Purpose: generic cp
+* Examples:
+
+#==================================================
+function IGCM_sys_Rm
+* Purpose: generic rm
+* Examples:
+
+#==================================================
+function IGCM_sys_Mv
+* Purpose: generic move
+* Examples:
+
+#==================================================
+function IGCM_sys_Get_Master
+* Purpose: Copy a complete directory from MASTER filesystem
+* Examples:
+
+#==================================================
+function IGCM_sys_PutBuffer_Rest
+* Purpose: Put computied restarts on ${SCRATCHDIR}.
+           File and target directory must exist.
+* Examples:
+
+#==================================================
+function IGCM_sys_PrepareTaredRestart
+* Purpose: Prepare tared restart to be access by computing job.
+* Examples:
+
+#==================================================
+function IGCM_sys_PutBuffer_Out
+* Purpose: Copy a file on the buffer filesystem after having chmod it in readonly
+* Examples:
+
+#==================================================
+function IGCM_sys_GetBuffer
+* Purpose: Get a file from ${SCRATCHDIR}
+* Examples: IGCM_sys_GetBuffer myfile /destpath/myfile_with_PREFIX
+            IGCM_sys_GetBuffer /l Array_contain_myfiles /destpath/
+#==================================================
+function IGCM_sys_GetDate_FichWork
+* Purpose: donne la date filesys d'un fichier sur le filesystem WORK
+* Examples:
+
+#==================================================
+function IGCM_sys_rebuild
+* Purpose: rebuild parallel files
+* Examples:
+
+#==================================================
+function IGCM_sys_rebuild_station
+* Purpose: rebuild parallel files describing station
+* Examples:
+
+#==================================================
+function IGCM_sys_ncap2
+* Purpose: encapsulate ncap2 call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncatted
+* Purpose: encapsulate ncatted call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncbo
+* Purpose: encapsulate ncbo call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncdif
+* Purpose: encapsulate ncdiff call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncea
+* Purpose: encapsulate ncea call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncecat
+* Purpose: encapsulate ncecat call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncflint
+* Purpose: encapsulate ncflint call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncks
+* Purpose: encapsulate ncks call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncpdq
+* Purpose: encapsulate ncpdq call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncra
+* Purpose: encapsulate ncra call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncrcat
+* Purpose: encapsulate ncrcat call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncrename
+* Purpose: encapsulate ncrename call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_ncwa
+* Purpose: encapsulate ncwa call so as to manage error code and retry
+* Examples:
+
+#==================================================
+function IGCM_sys_cdo
+* Purpose: encapsulate cdo call so as to manage error code and retry
+* Examples:
+

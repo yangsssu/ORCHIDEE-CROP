@@ -46,7 +46,7 @@
 #-Q- lxiv8 ## OBELIX      LSCE ##
 #-Q- lxiv8 ######################
 #-Q- lxiv8 #PBS -N ::Jobname::
-#-Q- lxiv8 #PBS -m n
+#-Q- lxiv8 #PBS -m a
 #-Q- lxiv8 #PBS -j oe
 #-Q- lxiv8 #PBS -q mediump
 #-Q- lxiv8 #PBS -o Script_Output_::Jobname::.000001

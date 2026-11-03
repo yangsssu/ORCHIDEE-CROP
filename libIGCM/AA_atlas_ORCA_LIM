@@ -32,7 +32,7 @@
 #-Q- lxiv8 ## OBELIX      LSCE ##
 #-Q- lxiv8 ######################
 #-Q- lxiv8 #PBS -N ATL_OPA
-#-Q- lxiv8 #PBS -m n
+#-Q- lxiv8 #PBS -m a
 #-Q- lxiv8 #PBS -j oe
 #-Q- lxiv8 #PBS -q test
 #-Q- lxiv8 #PBS -o ATL_OPA.$$

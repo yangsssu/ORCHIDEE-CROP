@@ -136,29 +136,40 @@ MODULE pft_parameters_var
                                                             !! @tex $(m^{-1})$ @endtex
 !$OMP THREADPRIVATE(humcste)
 
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: throughfall_by_pft !! Fraction of rain intercepted by the canopy (0-100, unitless)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: throughfall_by_pft!! Fraction of rain intercepted by the canopy (0-100, unitless)
 !$OMP THREADPRIVATE(throughfall_by_pft)
 
   !
   ! ALBEDO (sechiba)
   !
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: snowa_aged    !! Minimum snow albedo value for each vegetation type
-                                                                !! after aging (dirty old snow) (unitless)
-                                                                !! Source : Values are from the Thesis of S. Chalita (1992)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: snowa_aged        !! Minimum snow albedo value for each vegetation type
+                                                                    !! after aging (dirty old snow) (unitless)
+                                                                    !! Source : Values are from the Thesis of S. Chalita (1992)
 !$OMP THREADPRIVATE(snowa_aged)
 
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: snowa_dec     !! Decay rate of snow albedo value for each vegetation type
-                                                                !! as it will be used in condveg_snow (unitless)
-                                                                !! Source : Values are from the Thesis of S. Chalita (1992)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: snowa_dec         !! Decay rate of snow albedo value for each vegetation type
+                                                                    !! as it will be used in condveg_snow (unitless)
+                                                                    !! Source : Values are from the Thesis of S. Chalita (1992)
 !$OMP THREADPRIVATE(snowa_dec)
 
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: alb_leaf_vis  !! leaf albedo of vegetation type, visible albedo (unitless)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: alb_leaf_vis      !! leaf albedo of vegetation type, visible albedo (unitless)
 !$OMP THREADPRIVATE(alb_leaf_vis)
 
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: alb_leaf_nir  !! leaf albedo of vegetation type, near infrared albedo (unitless)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: alb_max           !! add by ke, albedo of vegetation type, shortwave albedo (unitless)
+!$OMP THREADPRIVATE(alb_max)
+
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: alb_leaf_nir      !! leaf albedo of vegetation type, near infrared albedo (unitless)
 !$OMP THREADPRIVATE(alb_leaf_nir)
+
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: residue_duration  !! add by ke, residue duration after harvesting
+!$OMP THREADPRIVATE(residue_duration)
+
+
+!  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: nrec_force       !! add by ke, harvesting date
+!!$OMP THREADPRIVATE(nrec_force)
+
   !chaoyue+
-  LOGICAL, ALLOCATABLE, SAVE, DIMENSION(:) :: permafrost_veg_exists!! leaf albedo of vegetation type, near infrared albedo (unitless)
+  LOGICAL, ALLOCATABLE, SAVE, DIMENSION(:) :: permafrost_veg_exists !! leaf albedo of vegetation type, near infrared albedo (unitless)
 !$OMP THREADPRIVATE(permafrost_veg_exists)
   !chaoyue-
 
@@ -204,9 +215,9 @@ MODULE pft_parameters_var
 !$OMP THREADPRIVATE(aSV)    
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: bSV           !! b coefficient of the linear regression (a+bT) defining the Entropy term for Vcmax (J K-1 mol-1 °C-1)
 !$OMP THREADPRIVATE(bSV)
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: tphoto_min   !! minimum photosynthesis temperature (deg C)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: tphoto_min    !! minimum photosynthesis temperature (deg C)
 !$OMP THREADPRIVATE(tphoto_min) 
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: tphoto_max   !! maximum photosynthesis temperature (deg C)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: tphoto_max    !! maximum photosynthesis temperature (deg C)
 !$OMP THREADPRIVATE(tphoto_max) 
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: aSJ           !! a coefficient of the linear regression (a+bT) defining the Entropy term for Jmax (J K-1 mol-1)
 !$OMP THREADPRIVATE(aSJ)    
@@ -279,7 +290,7 @@ MODULE pft_parameters_var
   !
   ! RESPIRATION (stomate)
   !
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: frac_growthresp  !! fraction of GPP which is lost as growth respiration
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: frac_growthresp     !! fraction of GPP which is lost as growth respiration
 
 !$OMP THREADPRIVATE(frac_growthresp)
 
@@ -368,8 +379,8 @@ MODULE pft_parameters_var
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: ef_TPM
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: ef_NOx
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: me                !! flammability threshold
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: fire_max_cf_100hr       !! Maximum combustion fraction for 100hr and 1000hr fuel for different PFTs
-  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: fire_max_cf_1000hr       !! Maximum combustion fraction for 100hr and 1000hr fuel for different PFTs
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: fire_max_cf_100hr !! Maximum combustion fraction for 100hr and 1000hr fuel for different PFTs
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: fire_max_cf_1000hr!! Maximum combustion fraction for 100hr and 1000hr fuel for different PFTs
   !endspit
 
   !
@@ -765,6 +776,8 @@ MODULE pft_parameters_var
 !$OMP THREADPRIVATE(SP_innlai)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_innsenes
 !$OMP THREADPRIVATE(SP_innsenes)
+  INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_matrec         !! add by ke 
+!$OMP THREADPRIVATE(SP_matrec)
   INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_codebfroid
 !$OMP THREADPRIVATE(SP_codebfroid)
   INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_codephot
@@ -836,6 +849,7 @@ MODULE pft_parameters_var
 !$OMP THREADPRIVATE(SP_neffmax)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_nsatrat
 !$OMP THREADPRIVATE(SP_nsatrat)
+
 
   ! 4.2  STICS:: LAI CALCULATION
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION(:) :: SP_laiplantule

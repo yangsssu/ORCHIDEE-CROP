@@ -1,0 +1,12 @@
+INTNAME solar.f90::solar
+INTNAME grid.f90::grid
+INTNAME gauss_jordan_method.f90::matrix_resolution
+INTNAME interpol_help.f90::interpol_help
+USE     solar.f90::constantes
+USE     solar.f90::ioipsl_para
+USE     grid.f90::constantes
+USE     grid.f90::mod_orchidee_para
+USE     gauss_jordan_method.f90::constantes
+USE     interpol_help.f90::grid
+USE     interpol_help.f90::constantes
+USE     interpol_help.f90::mod_orchidee_para

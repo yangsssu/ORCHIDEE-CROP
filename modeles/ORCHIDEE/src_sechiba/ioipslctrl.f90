@@ -393,11 +393,11 @@ CONTAINS
           CALL histdef(hist_id, 'temp_sol', 'Surface Temperature', 'C', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avecels(1), dt,dw)
           CALL histdef(hist_id, 'temp_sol_pft', 'Surface Temperature pft', 'C', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'rain', 'Rainfall', 'mm/d',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
           CALL histdef(hist_id, 'snowf', 'Snowfall', 'mm/d',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           CALL histdef(hist_id, 'netrad', 'Net radiation', 'W/m^2',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'lai', 'Leaf Area Index', '1', &
@@ -405,9 +405,9 @@ CONTAINS
           !
           IF (  hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'reinf_slope', 'Slope index for each grid box', '1', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(1),  dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(7),  dt,dw)
              CALL histdef(hist_id, 'soilindex', 'Soil index', '1', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, once(1),  dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, once(7),  dt,dw)
           ENDIF
           !
           IF ( river_routing ) THEN
@@ -420,13 +420,17 @@ CONTAINS
           !- SECHIBA_HISTLEVEL = 2
           !-
           CALL histdef(hist_id, 'subli', 'Sublimation', 'mm/d', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           CALL histdef(hist_id, 'evapnu', 'Bare soil evaporation', 'mm/d', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+     !! add by ke      
+!          CALL histdef(hist_id, 'evapres', 'residue evaporation', 'mm/d', &
+!               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+     !! add by ke           
           CALL histdef(hist_id, 'runoff', 'Surface runoff', 'mm/d', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           CALL histdef(hist_id, 'drainage', 'Deep drainage', 'mm/d', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           IF ( river_routing ) THEN
              CALL histdef(hist_id, 'riversret', 'Return from endorheic rivers', 'mm/d', &
                   & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(10), dt,dw)
@@ -472,10 +476,10 @@ CONTAINS
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, tmax(2), dt,dw) 
    
           CALL histdef(hist_id, 'irrig_fin', 'final application of irrigation', 'mm/d', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(7), dt,dw)
 
           CALL histdef(hist_id, 'irrigr', 'irrigation reservior', 'mm', &
-               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(7), dt,dw)
 
           CALL histdef(hist_id, 'roughheight_pft', 'Effect roughness height pft', 'm',  &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
@@ -483,15 +487,20 @@ CONTAINS
 
           IF ( hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'evapnu_soil', 'Bare soil evap for soil type', 'mm/d', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(7), dt,dw)
+     !!! add by ke             
+!             CALL histdef(hist_id, 'evapres_res', 'residue evap for soil type', 'mm/d', &
+!                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+     !!! add by ke                
+                  
              CALL histdef(hist_id, 'precip_soil', 'Precip for soil type', 'mm/d', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(7), dt,dw)
              CALL histdef(hist_id, 'drainage_soil', 'Drainage for soil type', 'mm/d', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(7), dt,dw)
              CALL histdef(hist_id, 'transpir_soil', 'Transpir for soil type', 'mm/d', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(7), dt,dw)
              CALL histdef(hist_id, 'runoff_soil', 'Runoff for soil type', 'mm/d', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(7), dt,dw)
              CALL histdef(hist_id, 'water2infilt', 'water3infiltrated', 'mm/d', &
                   & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(10), dt,dw)
           ENDIF
@@ -505,59 +514,67 @@ CONTAINS
           CALL histdef(hist_id, 't2m', '2m Air Temperature', 'K',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
           CALL histdef(hist_id, 'alb_vis', 'Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(7), dt,dw)
           CALL histdef(hist_id, 'alb_nir', 'Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(7), dt,dw)
           CALL histdef(hist_id, 'soilalb_vis', 'Soil Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'soilalb_nir', 'Soil Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'vegalb_vis', 'Vegetation Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'vegalb_nir', 'Vegetation Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'z0', 'Surface roughness', 'm',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'roughheight', 'Effective roughness height', 'm',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'transpir', 'Transpiration', 'mm/d', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
+          CALL histdef(hist_id, 'transpir_has', 'HAS water loss', 'mm/d', &
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw) !! add by shuai
           CALL histdef(hist_id, 'evapnu_pft', 'soil evaporation pft', 'mm/d', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(7), dt,dw)
+     !!! add by ke      
+!          CALL histdef(hist_id, 'evapres_pft', 'residue evaporation pft', 'mm/d', &
+!               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
+     !!! add by ke              
           CALL histdef(hist_id, 'inter', 'Interception loss', 'mm/d', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
           !-
           !- SECHIBA_HISTLEVEL = 3
           !-
           CALL histdef(hist_id, 'tsol_max', 'Maximum Surface Temperature',&
-               & 'C', iim,jjm, hori_id, 1,1,1, -99, 32, tmaxcels(1), dt,dw)
+               & 'C', iim,jjm, hori_id, 1,1,1, -99, 32, tmaxcels(7), dt,dw)
           CALL histdef(hist_id, 'tsol_min', 'Minimum Surface Temperature',&
-               & 'C', iim,jjm, hori_id, 1,1,1, -99, 32, tmincels(1), dt,dw)
+               & 'C', iim,jjm, hori_id, 1,1,1, -99, 32, tmincels(7), dt,dw)
           CALL histdef(hist_id, 'fluxsens', 'Sensible Heat Flux', 'W/m^2',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, ave(1), dt,dw)
           CALL histdef(hist_id, 'fluxlat', 'Latent Heat Flux', 'W/m^2',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, ave(1), dt,dw)
+          CALL histdef(hist_id, 'qsurf', 'Near surface specific humidity', 'g/g',  &
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(1), dt,dw) !! add by shuai  
           CALL histdef(hist_id, 'snow', 'Snow mass', 'kg/m^2', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'snowage', 'Snow age', '?', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'snownobio', 'Snow on other surfaces', 'kg/m^2', &
-               & iim,jjm, hori_id, nnobio,1, nnobio, nobioax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nnobio,1, nnobio, nobioax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'snownobioage', 'Snow age on other surfaces', 'd', &
-               & iim,jjm, hori_id, nnobio,1, nnobio, nobioax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nnobio,1, nnobio, nobioax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'vegetfrac', 'Fraction of vegetation', '1', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'maxvegetfrac', 'Maximum fraction of vegetation', '1', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'tot_bare_soil', "Total Bare Soil Fraction", "%", &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'nobiofrac', 'Fraction of other surface types', '1', &
-               & iim,jjm, hori_id, nnobio, 1, nnobio, nobioax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nnobio, 1, nnobio, nobioax_id, 32, avescatter(7), dt,dw)
           IF ( river_routing .AND. do_floodplains ) THEN
              CALL histdef(hist_id, 'flood_frac', 'Flooded fraction', '1', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'reinfiltration', 'Reinfiltration from floodplains', 'mm/d', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(3), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           ENDIF
           IF ( hydrol_cwrr ) THEN
              DO jst=1,nstm
@@ -565,17 +582,17 @@ CONTAINS
                 ! var_name= "mc_1" ... "mc_3"
                 WRITE (var_name,"('moistc_',i1)") jst
                 CALL histdef(hist_id, var_name, 'Soil Moisture profile for soil type', 'm3/m3', &
-                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(2),  dt,dw)
+                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(7),  dt,dw)
                 
                 ! var_name= "vegetsoil_1" ... "vegetsoil_3"
                 WRITE (var_name,"('vegetsoil_',i1)") jst
                 CALL histdef(hist_id, var_name, 'Fraction of vegetation on soil types', '%', &
-                     & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(3),  dt,dw)
+                     & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7),  dt,dw)
                 
                 ! var_name= "kfact_root_1" ... "kfact_root_3"
                 WRITE (var_name,"('kfactroot_',i1)") jst
                 CALL histdef(hist_id, var_name, 'Root fraction profile for soil type', '%', &
-                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(3), dt,dw)
+                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(7), dt,dw)
                 
              ENDDO
 
@@ -637,15 +654,15 @@ CONTAINS
              CALL histdef(hist_id, 'shumdiag_perma', 'Saturation degree of the soil', '-', &
                   & iim,jjm,hori_id,nbdl,1,nbdl, soildiagax_id, 32, avescatter(10),  dt,dw)
              CALL histdef(hist_id, 'humtot_pro', "Water content in soil layer", "kg m-2 ", &
-                  & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(2), dt,dw)
+                  & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(7), dt,dw)
           ENDIF
           !
           CALL histdef(hist_id, 'frac_bare', 'Bare soil fraction for each PFT', '-', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'soiltile', 'Fraction of soil tiles', '-', &
-               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, once(1),  dt,dw)
+               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, once(7),  dt,dw)
           CALL histdef(hist_id, 'frac_bare_ns', 'Bare soil fraction for each soil tile', '-', &
-               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(1),  dt,dw)
+               & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(7),  dt,dw)
           !-
           !- SECHIBA_HISTLEVEL = 4
           !-
@@ -665,47 +682,49 @@ CONTAINS
              CALL histdef(hist_id, 'humtot', 'Total Soil Moisture', 'Kg/m^2', &
                   & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(2), dt,dw)
              CALL histdef(hist_id, 'humtot_soil', 'Soil Moisture for soil type', 'Kg/m^2', &
-                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(2), dt,dw)
+                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'SWI', 'Soil wetness index','-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(2), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'njsc', 'Soil class used for hydrology', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, once(2), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, once(7), dt,dw)
 
 !pss:+
  !         IF ( TOPM_calcul ) THEN
              CALL histdef(hist_id, 'fsat', 'Fraction of soil saturated', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)
              CALL histdef(hist_id, 'fwet', 'Fraction of wetland', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'fwt1', 'Fraction of soil with wt [0,xcm]  & ', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'fwt2', 'Fraction of soil with wt [xcm,ycm] ', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'fwt3', 'Fraction of soil with wt [ycm,zcm] ', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
              CALL histdef(hist_id, 'fwt4', 'Fraction of soil with wt [ucm,vcm] ', '-',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(4), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)
    
              CALL histdef(hist_id, 'ZMIN', 'MIN INDICE TOPO', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)      
              CALL histdef(hist_id, 'ZMAX', 'MAX INDICE TOPO', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)      
              CALL histdef(hist_id, 'ZMEAN', 'MEAN INDICE TOPO', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)      
 ! 	         CALL histdef(hist_id, 'NB_PIXE', 'NB PIXELS AVC VALEUR', '-', &
 !	              & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
              CALL histdef(hist_id, 'ZSTDT', 'STD INDICE TOPO', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)      
              CALL histdef(hist_id, 'ZSKEW', 'SKEWNESS INDICE TOPO', '-', &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)      
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(7), dt,dw)      
 
              CALL histdef(hist_id, 'drunoff_tot', 'Surface drunoff', 'mm/d', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(3), dt,dw) 
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw) 
  !         ENDIF
 !pss:-
           ENDIF
           CALL histdef(hist_id, 'qsintveg', 'Water on canopy', 'Kg/m^2', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
+          CALL histdef(hist_id, 'qsoverflow', 'Interception overflow', 'Kg/m^2', &
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)    !! add by shuai
           CALL histdef(hist_id, 'rstruct', 'Structural resistance', 's/m', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(4), dt,dw)
           IF ( ok_co2 ) THEN
@@ -716,31 +735,31 @@ CONTAINS
              CALL histdef(hist_id, 'nee', 'Net Ecosystem Exchange', 'gC/m^2/s', &
                   & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(4), dt,dw)
              CALL histdef(hist_id, 'maint_resp', 'Maintenance respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(4), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'hetero_resp', 'Heterotrophic respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(4), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'growth_resp', 'Growth respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(4), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'npp', 'Net Primary Production', 'gC/m^2/s', &
                   & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt, dw)
           ENDIF
           CALL histdef(hist_id, 'precisol', 'Throughfall', 'mm/d',  &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
           CALL histdef(hist_id, 'drysoil_frac', 'Fraction of visibly dry soil', '1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(4), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'evapot', 'Potential evaporation', 'mm/d',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
           CALL histdef(hist_id, 'evapot_corr', 'Potential evaporation', 'mm/d',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
           CALL histdef(hist_id, 'transpot', 'Potential transporation', 'mm/d', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
           !-
           !- SECHIBA_HISTLEVEL = 5
           !-
           CALL histdef(hist_id, 'swnet', 'Net solar radiation', 'W/m^2',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
           CALL histdef(hist_id, 'swdown', 'Incident solar radiation', 'W/m^2',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(7), dt,dw)
           CALL histdef(hist_id, 'lwdown', 'Absorbed downward longwave radiation', 'W/m^2',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'lwnet', 'Net surface longwave radiation', 'W/m^2',  &
@@ -749,7 +768,7 @@ CONTAINS
           !- SECHIBA_HISTLEVEL = 6
           !-
            call histdef(hist_id, 'ptn_pftmean', 'Soil temperature, PFT-mean','K', &
-                & iim,jjm, hori_id, ngrnd, 1, ngrnd, solax_id, 32,avescatter(2), dt,dw)
+                & iim,jjm, hori_id, ngrnd, 1, ngrnd, solax_id, 32,avescatter(7), dt,dw)
 
            DO jv = 1, nvm
               IF (permafrost_veg_exists(jv)) THEN
@@ -770,14 +789,14 @@ CONTAINS
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(6), dt,dw)
 
           CALL histdef(hist_id, 'soilflx_pft', 'Soil Heat Flux', 'W/m2',  &
-               & iim,jjm, hori_id, nvm,1,nvm, vegax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nvm,1,nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'soilcap_pft', 'Soil Heat Capacit', 'J/m2/K',  &
-               & iim,jjm, hori_id, nvm,1,nvm, vegax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nvm,1,nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'soilflx','Soil flux','W/m2', &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32,avescatter(3),dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32,avescatter(7),dt,dw)
           IF ( .NOT. ok_explicitsnow) THEN
                   CALL histdef(hist_id, 'soilcap','Soil heat capacity','J/m2/K', &
-                       & iim,jjm, hori_id, 1, 1, 1, -99, 32,avescatter(3),dt,dw)
+                       & iim,jjm, hori_id, 1, 1, 1, -99, 32,avescatter(7),dt,dw)
           ENDIF
               
           IF (ok_explicitsnow) THEN
@@ -858,11 +877,11 @@ CONTAINS
 !                CALL histdef(hist_id, 'irrigation', 'Net irrigation', 'mm/d', &
 !                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(8), dt,dw)
                 CALL histdef(hist_id, 'netirrig', 'Net irrigation requirement', 'mm/d', &
-                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
                 CALL histdef(hist_id, 'irrigmap', 'Map of irrigated surfaces', 'm^2', &
-                     & iim,jjm, hori_id, 1,1,1, -99, 32, once(1), dt,dw)
+                     & iim,jjm, hori_id, 1,1,1, -99, 32, once(7), dt,dw)
                 CALL histdef(hist_id, 'returnflow', 'Return flow', 'mm/d', &
-                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
              ENDIF
 
              IF ( river_routing .AND. do_floodplains ) THEN
@@ -881,7 +900,7 @@ CONTAINS
           ENDIF
           ! define irrigation regardless of river_routing and do_irrigation
           CALL histdef(hist_id, 'irrigation', 'Net irrigation', 'mm/d', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
 
           !CALL histdef(hist_id, 'returnflow', 'Return flow', 'mm/d', &
           !     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(8), dt,dw)
@@ -891,9 +910,9 @@ CONTAINS
                   & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
           ENDIF
           CALL histdef(hist_id, 'beta', 'Beta Function', '1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'raero', 'Aerodynamic resistance', 's/m',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           ! Ajouts Nathalie - Novembre 2006
           CALL histdef(hist_id, 'cdrag', 'Drag coefficient for LE and SH', '?',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
@@ -902,16 +921,16 @@ CONTAINS
           ! Fin ajouts Nathalie
           !
           CALL histdef(hist_id, 'qsatt' , 'Surface saturated humidity', 'g/g', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'vbeta1', 'Beta for sublimation', '1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'vbeta4', 'Beta for bare soil', '1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'vbeta5', 'Beta for floodplains', '1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           IF ( ok_co2 ) THEN
              CALL histdef(hist_id, 'gsmean', 'mean stomatal conductance', 'umol/m2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(8), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
           ENDIF
           CALL histdef(hist_id, 'humrel', 'Soil moisture stress', '-',  &
                & iim,jjm, hori_id, nvm,1,nvm, vegax_id, 32, avescatter(2), dt,dw)
@@ -927,28 +946,43 @@ CONTAINS
           !-
           IF ( ok_co2 ) THEN
              CALL histdef(hist_id, 'cimean', 'Stomatal CO2 concentation', 'mmole/m2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
              CALL histdef(hist_id, 'cim', 'cim', 'ppm', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
+             CALL histdef(hist_id, 'cresist', 'Canopy exchange limitation factor', '1', &
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)     !! add by shuai
           ENDIF
           CALL histdef(hist_id, 'vbeta3', 'Beta for Transpiration', '1', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'vbeta4_pft', 'Beta for bare soil evap', '1', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'beta_pft', 'Beta for each pft', '1', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(8), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'rveget', 'Canopy resistance', 's/m', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(3), dt,dw)
+          
+          !! add by shuai (start)
+          IF ( ok_has ) THEN
+             CALL histdef(hist_id, 'vbeta_has', 'Beta for HAS Transpiration', '1', &
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
+             CALL histdef(hist_id, 'has_store', 'HAS activation potential', '1', &
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)            
+             CALL histdef(hist_id, 'has_film', 'Effective hygroscopic film fraction', '1', &
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)                
+          ENDIF
+          !! add by shuai (end)
+
+          
           IF ( .NOT. hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'rsol', 'Soil resistance', 's/m',  &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(10), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
           ENDIF
           CALL histdef(hist_id,'vbeta2','Beta for Interception loss','mm/d', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id,'cdrag_pft','Drag coeff for pft','?', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(3), dt,dw)        
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7), dt,dw)        
           CALL histdef(hist_id, 'qsintmax', 'Maximum Interception capacity', 'Kg/m^2', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(10), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(3), dt,dw)
 
           !- SECHIBA_HISTLEVEL = 11
           !-
@@ -1168,17 +1202,17 @@ CONTAINS
           CALL histdef(hist_id, 'Qs', 'Surface runoff', 'kg/m^2/s', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
           CALL histdef(hist_id, 'Qsb', 'Sub-surface runoff', 'kg/m^2/s', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(3), dt,dw)
           CALL histdef(hist_id, 'Qsm', 'Snowmelt', 'kg/m^2/s', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(3), dt,dw)
           CALL histdef(hist_id, 'DelSoilMoist', 'Change in soil moisture', 'kg/m^2',  &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(1), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(3), dt,dw)
           CALL histdef(hist_id, 'DelSurfStor', 'Change in Surface Water Storage','kg/m^2',&
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(1), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(3), dt,dw)
           CALL histdef(hist_id, 'DelIntercept', 'Change in interception storage', 'kg/m^2',  &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(1), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(3), dt,dw)
           CALL histdef(hist_id, 'DelSWE', 'Change in Snow Water Equivalent', 'kg/m^2',  &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(1), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, sumscatter(3), dt,dw)
           IF ( do_irrigation ) THEN
              CALL histdef(hist_id, 'Qirrig', 'Irrigation', 'kg/m^2/s', &
                   & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
@@ -1197,34 +1231,34 @@ CONTAINS
           CALL histdef(hist_id, 'Albedo', 'Albedo', '1', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'SWI', 'Soil wetness index','1',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
           CALL histdef(hist_id, 'SurfStor', 'Surface Water Storage','kg/m^2',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
           CALL histdef(hist_id, 'SWE', 'Snow Water Equivalent', 'kg/m^2', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(3), dt,dw)
           !!-
           !-  Sub-surface state
           !- 
           IF ( .NOT. hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'SoilMoist', '3D average layer soil moisture', 'kg/m^2',  &
-                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(1), dt,dw)
+                  & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(3), dt,dw)
           ELSE
              CALL histdef(hist_id, 'SoilMoist', '3D average layer soil moisture', 'kg/m^2',  &
-                  & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(1), dt,dw)
+                  & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(3), dt,dw)
 
              IF (ok_freeze_cwrr) THEN
                 CALL histdef(hist_id, 'profil_froz_hydro', 'Frozen fraction for each hydrological soil layer', '-', &
-                     & iim,jjm, hori_id, nslm, 1, nslm,solayax_id, 32, avescatter(1),  dt,dw)
+                     & iim,jjm, hori_id, nslm, 1, nslm,solayax_id, 32, avescatter(3),  dt,dw)
                 DO jst=1,nstm
                    WRITE (var_name,"('profil_froz_hydro_',i1)") jst
                    CALL histdef(hist_id, trim(var_name), 'Frozen fraction for each hydrological soil layer and soiltile', '-', &
-                        & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(1),  dt,dw)
+                        & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(3),  dt,dw)
                 ENDDO
 
                 CALL histdef(hist_id, 'temp_hydro', 'Soil temperature interpolated on hydrological layers', 'K', &
-                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(1), dt,dw)
+                     & iim,jjm, hori_id, nslm, 1, nslm, solayax_id, 32, avescatter(3), dt,dw)
                 CALL histdef(hist_id, 'kk_moy', 'Mean hydrological conductivity', 'mm/d', &
-                     & iim,jjm,hori_id, nslm,1,nslm, solayax_id, 32, avescatter(1),  dt,dw)
+                     & iim,jjm,hori_id, nslm,1,nslm, solayax_id, 32, avescatter(3),  dt,dw)
              ENDIF
           END IF
           CALL histdef(hist_id, 'SoilWet', 'Total soil wetness', '-',  &
@@ -1237,7 +1271,7 @@ CONTAINS
           CALL histdef(hist_id, 'PotEvap', 'Potential evapotranspiration', 'kg/m^2/s', &
                & iim,jjm, hori_id, 1, 1, 1, -99, 32, fluxop_scinsec(1), dt,dw)
           CALL histdef(hist_id, 'PotEvapOld', 'Potential evapotranspiration old method', 'kg/m^2/s', &
-               & iim,jjm, hori_id, 1, 1, 1, -99, 32, fluxop_scinsec(1), dt,dw)
+               & iim,jjm, hori_id, 1, 1, 1, -99, 32, fluxop_scinsec(3), dt,dw)
           CALL histdef(hist_id, 'ECanop', 'Interception evaporation', 'kg/m^2/s', &
                & iim,jjm, hori_id, 1, 1, 1, -99, 32, fluxop_scinsec(1), dt,dw)
           CALL histdef(hist_id, 'TVeg', 'Transpiration', 'kg/m^2/s', &
@@ -1249,12 +1283,12 @@ CONTAINS
           CALL histdef(hist_id, 'RootMoist','Root zone soil water', 'kg/m^2',  &
                & iim,jjm, hori_id, 1, 1, 1, -99, 32, avescatter(1), dt,dw)
           CALL histdef(hist_id, 'SubSnow','Snow sublimation','kg/m^2/s', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(3), dt,dw)
           CALL histdef(hist_id, 'ACond', 'Aerodynamic conductance', 'm/s',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
           IF ( river_routing .AND. do_floodplains ) THEN
              CALL histdef(hist_id, 'Qflood', 'Floodplain Evaporation', 'kg/m^2/s', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(1), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(3), dt,dw)
           ENDIF
           !-
           !- Surface turbulence
@@ -1279,14 +1313,14 @@ CONTAINS
           CALL histdef(hist_id, 'SwampMap', 'Map of swamp areas', 'm^2', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, once(1), dt,dw)
           CALL histdef(hist_id, 'Dis', 'Simulated River Discharge', 'm^3/s', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop_scinsec(3), dt,dw)
           IF ( do_irrigation ) THEN
              CALL histdef(hist_id, 'IrrigationMap', 'Map of irrigated areas', 'm^2', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(1), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(3), dt,dw)
           ENDIF
           IF ( river_routing .AND. do_floodplains ) THEN
              CALL histdef(hist_id, 'FloodplainsMap', 'Map of flooded areas', 'm^2', &
-                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(1), dt,dw)
+                  & iim,jjm, hori_id, 1,1,1, -99, 32, once(3), dt,dw)
              CALL histdef(hist_id, 'FloodFrac', 'Floodplain Fraction', '-', &
                   & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(1), dt,dw)
           ENDIF
@@ -1303,11 +1337,11 @@ CONTAINS
              CALL histdef(hist_id, 'NEE', 'Net Ecosystem Exchange', 'gC/m^2/s', &
                   & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt,dw)
              CALL histdef(hist_id, 'maint_resp', 'Maintenance respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'hetero_resp', 'Heterotrophic respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'growth_resp', 'Growth respiration', 'gC/m^2/s', &
-                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt,dw)
+                  & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(7), dt,dw)
              CALL histdef(hist_id, 'npp', 'Net Primary Production', 'gC/m^2/s', &
                   & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop_scinsec(1), dt,dw)
           ENDIF
@@ -1557,14 +1591,19 @@ CONTAINS
              ENDIF
              CALL histdef(hist2_id, 'vevapnu', 'Bare soil evaporation', 'mm/d', &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+   !!!!!!!! add by ke               
+!             CALL histdef(hist2_id, 'vevapres', 'residue evaporation', 'mm/d', &
+!                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+   !!!!!!!! add by ke                
+                  
              CALL histdef(hist2_id, 'temp_sol', 'New Surface Temperature', 'C', &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, avecels2(2), dt, dw2)
              CALL histdef(hist2_id, 'temp_sol_pft', 'Surface Temperature pft', 'C', &
-                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt,dw2)
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(7), dt,dw2)
              CALL histdef(hist2_id, 'qsurf', 'Near surface specific humidity', 'g/g',  &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, ave2(10), dt, dw2)
              CALL histdef(hist2_id, 'albedo', 'Albedo', '1', &
-                  & iim,jjm, hori_id2, 2,1,2, albax_id2, 32, avescatter2(10), dt, dw2)
+                  & iim,jjm, hori_id2, 2,1,2, albax_id2, 32, avescatter2(2), dt, dw2)
              CALL histdef(hist2_id, 'fluxsens', 'Sensible Heat Flux', 'W/m^2',  &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, ave2(2), dt, dw2)
              CALL histdef(hist2_id, 'fluxlat', 'Latent Heat Flux', 'W/m^2',  &
@@ -1620,13 +1659,13 @@ CONTAINS
                    & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(3), dt,dw2)
    
              CALL histdef(hist2_id, 'irrig_fin', 'final application of irrigation', 'mm/d', &
-                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(1), dt,dw2)
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(3), dt,dw2)
 
              CALL histdef(hist2_id, 'irrigr', 'irrigtion reservior', 'mm', &
-                  & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, avescatter2(1), dt,dw2)
+                  & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, avescatter2(3), dt,dw2)
 
              CALL histdef(hist2_id, 'vegstress', 'Vegetation growth stress', '1', &
-                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt,dw2)
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(3), dt,dw2)
 !!!!! end crop variables, xuhui
              IF ( river_routing ) THEN
                 CALL histdef(hist2_id, 'basinmap', 'Aproximate map of the river basins', ' ', &
@@ -1655,11 +1694,11 @@ CONTAINS
              !- SECHIBA_HISTLEVEL2 = 4
              !-
              CALL histdef(hist2_id, 'subli', 'Sublimation', 'mm/d', &
-                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(7), dt, dw2)
              CALL histdef(hist2_id, 'runoff', 'Surface runoff', 'mm/d', &
-                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(7), dt, dw2)
              CALL histdef(hist2_id, 'drainage', 'Deep drainage', 'mm/d', &
-                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(7), dt, dw2)
              IF ( river_routing ) THEN
                 CALL histdef(hist2_id, 'riversret', 'Return from endorheic rivers', 'mm/d', &
                      & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(4), dt, dw2)
@@ -1668,15 +1707,20 @@ CONTAINS
              ENDIF
              IF ( hydrol_cwrr ) THEN
                 CALL histdef(hist2_id, 'evapnu_soil', 'Bare soil evap for soil type', 'mm/d', &
-                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(2), dt, dw2)
+                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(7), dt, dw2)
+       !!!!! add by ke           
+!                CALL histdef(hist2_id, 'evapres_res', 'residue evap for soil type', 'mm/d', &
+!                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(2), dt, dw2)
+       !!!!! add by ke               
+                     
                 CALL histdef(hist2_id, 'drainage_soil', 'Drainage for soil type', 'mm/d', &
-                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(2), dt, dw2)
+                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(7), dt, dw2)
                 CALL histdef(hist2_id, 'transpir_soil', 'Transpir for soil type', 'mm/d', &
-                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(2), dt, dw2)
+                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(7), dt, dw2)
                 CALL histdef(hist2_id, 'runoff_soil', 'Runoff for soil type', 'mm/d', &
-                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(2), dt, dw2)
+                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(7), dt, dw2)
                 CALL histdef(hist2_id, 'water2infilt', 'water2infiltrated', 'mm/d', &
-                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(4), dt, dw2)
+                     & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(7), dt, dw2)
              ENDIF
              !
              CALL histdef(hist2_id, 'tair', 'Air Temperature', 'K',  &
@@ -1699,17 +1743,26 @@ CONTAINS
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(5), dt, dw2)
              CALL histdef(hist2_id, 'transpir', 'Transpiration', 'mm/d', &
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(2), dt, dw2)
+                  
+             CALL histdef(hist2_id,'transpir_has', 'HAS water loss', 'mm/d', &
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(2), dt, dw2) !! add by shuai
+                  
              CALL histdef(hist2_id, 'evapnu_pft', 'soil evaporation', 'mm/d', &
-                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(2), dt, dw2)
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(7), dt, dw2)
+      !!!!! add by ke          
+!             CALL histdef(hist2_id, 'evapres_pft', 'residue evaporation', 'mm/d', &
+!                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(2), dt, dw2)
+      !!!!! add by ke            
+                  
              CALL histdef(hist2_id, 'inter', 'Interception loss', 'mm/d', &
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, fluxop2(2), dt, dw2)
              !-
              !- SECHIBA_HISTLEVEL2 = 5
              !-
              CALL histdef(hist2_id, 'tsol_max', 'Maximum Surface Temperature',&
-                  & 'C', iim,jjm, hori_id2, 1,1,1, -99, 32, tmaxcels2(2), dt, dw2)
+                  & 'C', iim,jjm, hori_id2, 1,1,1, -99, 32, tmaxcels2(7), dt, dw2)
              CALL histdef(hist2_id, 'tsol_min', 'Minimum Surface Temperature',&
-                  & 'C', iim,jjm, hori_id2, 1,1,1, -99, 32, tmincels2(2), dt, dw2)
+                  & 'C', iim,jjm, hori_id2, 1,1,1, -99, 32, tmincels2(7), dt, dw2)
              CALL histdef(hist2_id, 'snow', 'Snow mass', 'kg/m^2', &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, avescatter2(5), dt, dw2)
              CALL histdef(hist2_id, 'snowage', 'Snow age', '?', &
@@ -1730,17 +1783,17 @@ CONTAINS
                    ! var_name= "mc_1" ... "mc_3"
                    WRITE (var_name,"('moistc_',i1)") jst
                    CALL histdef(hist2_id, var_name, 'Soil Moisture profile for soil type', 'm3/m3', &
-                        & iim,jjm, hori_id2, nslm, 1, nslm, solayax_id2, 32, avescatter2(2), dt, dw2)
+                        & iim,jjm, hori_id2, nslm, 1, nslm, solayax_id2, 32, avescatter2(7), dt, dw2)
                    
                    ! var_name= "vegetsoil_1" ... "vegetsoil_3"
                    WRITE (var_name,"('vegetsoil_',i1)") jst
                    CALL histdef(hist2_id, var_name, 'Fraction of vegetation on soil types', '%', &
-                        & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(5), dt, dw2)
+                        & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(7), dt, dw2)
                    
                    ! var_name= "kfact_root_1" ... "kfact_root_3"
                    WRITE (var_name,"('kfactroot_',i1)") jst
                    CALL histdef(hist2_id, var_name, 'Root fraction profile for soil type', '%', &
-                        & iim,jjm, hori_id2, nslm, 1, nslm, solayax_id2, 32, avescatter2(5), dt,dw2)
+                        & iim,jjm, hori_id2, nslm, 1, nslm, solayax_id2, 32, avescatter2(7), dt,dw2)
                 ENDDO
 
              ENDIF
@@ -1764,6 +1817,8 @@ CONTAINS
              ENDIF
              CALL histdef(hist2_id, 'qsintveg', 'Water on canopy', 'Kg/m^2', &
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(2), dt, dw2)
+             CALL histdef(hist2_id, 'qsoverflow', 'Interception overflow', 'Kg/m^2', &
+                  & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(2), dt, dw2)  !! add by shuai  
              CALL histdef(hist2_id, 'rstruct', 'Structural resistance', 's/m', &
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2)
              IF ( ok_co2 ) THEN
@@ -1787,7 +1842,7 @@ CONTAINS
              CALL histdef(hist2_id, 'drysoil_frac', 'Fraction of visibly dry soil', '1',  &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, avescatter2(6), dt, dw2)
              CALL histdef(hist2_id, 'evapot', 'Potential evaporation', 'mm/d',  &
-                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+                  & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(7), dt, dw2)
              CALL histdef(hist2_id, 'evapot_corr', 'Potential evaporation', 'mm/d',  &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
              CALL histdef(hist2_id, 'transpot', 'Potential transporation', 'mm/d',  &
@@ -1886,6 +1941,18 @@ CONTAINS
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2)
              CALL histdef(hist2_id, 'rveget', 'Canopy resistance', 's/m', &
                   & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2)
+             
+             !! add by shuai (start)
+             IF ( ok_has ) THEN
+                CALL histdef(hist2_id, 'vbeta_has', 'Beta for HAS Transpiration', '1', &
+                     & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2) 
+                CALL histdef(hist2_id, 'has_store', 'HAS activation potential', '1', &
+                     & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2)      
+                CALL histdef(hist2_id, 'has_film', 'Effective hygroscopic film fraction', '1', &
+                     & iim,jjm, hori_id2, nvm, 1, nvm, vegax_id2, 32, avescatter2(1), dt, dw2) 
+             ENDIF                  
+             !! add by shuai (end)
+             
              IF ( .NOT. hydrol_cwrr ) THEN
                 CALL histdef(hist2_id, 'rsol', 'Soil resistance', 's/m',  &
                      & iim,jjm, hori_id2, 1,1,1, -99, 32, avescatter2(10), dt, dw2)
@@ -3042,7 +3109,9 @@ CONTAINS
        CALL histdef(hist_id_stom, 'PlantDate', 'Planting Date of the crop', 'DOY', &
             & iim,jjm, hist_hori_id, nvm,1,nvm, hist_PFTaxis_id, 32, 'once(scatter(X))', dt, hist_dt)
 
-
+       CALL histdef(hist_id_stom, 'N_add_has', 'UAN for HAS', 'kgN/ha', &
+            & iim,jjm, hist_hori_id, nvm,1,nvm, hist_PFTaxis_id, 32, 'once(scatter(X))', dt, hist_dt) !! add by shuai
+            
        !STICS variables, xuhui
         ! UDEVAIR 
         CALL histdef (hist_id_stom, &

@@ -108,6 +108,8 @@ CONTAINS
     !
     !!    Output variables
     INTEGER, INTENT(OUT) :: comm_local
+    
+    comm_local = -1 !! add by shuai (in order to remove the compilation warning)
 
     !_ ================================================================================================================================
 
@@ -366,6 +368,7 @@ CONTAINS
           CALL xios_set_field_attr("reinf_slope",enabled=.FALSE.)
           CALL xios_set_field_attr("soilindex",enabled=.FALSE.)
           CALL xios_set_field_attr("evapnu_soil",enabled=.FALSE.)
+          CALL xios_set_field_attr("evapres_res",enabled=.FALSE.)
           CALL xios_set_field_attr("drainage_soil",enabled=.FALSE.)
           CALL xios_set_field_attr("transpir_soil",enabled=.FALSE.)
           CALL xios_set_field_attr("runoff_soil",enabled=.FALSE.)
@@ -651,6 +654,7 @@ CONTAINS
     IF (xios_orchidee_ok .AND. is_omp_root) THEN
        IF (printlev>=3) WRITE(numout,*) 'Entering xios_orchidee_finalize'
 #ifdef XIOS
+!       WRITE(*,*) 'ke-error in xios_orchidee_finalize ','1'
        CALL xios_context_finalize()
        CALL xios_finalize()
 #endif

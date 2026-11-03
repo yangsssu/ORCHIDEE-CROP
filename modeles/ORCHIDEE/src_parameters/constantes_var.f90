@@ -536,6 +536,12 @@ MODULE constantes_var
                                             !! albedo read from file
                                             !! (true/false)
 !$OMP THREADPRIVATE(alb_bg_modis)
+
+  LOGICAL, SAVE :: alb_bg_sentinel2 = .FALSE. !!  add by ke, Switch for choosing values of bare soil 
+                                            !! albedo read from file
+                                            !! (true/false)
+!$OMP THREADPRIVATE(alb_bg_sentinel2)
+
   LOGICAL, SAVE :: impaze = .FALSE.         !! Switch for choosing surface parameters
                                             !! (see header of subroutine).  
                                             !! (true/false)
@@ -544,7 +550,67 @@ MODULE constantes_var
                                             !! grid average of the roughness (see header of subroutine)   
                                             !! (true/false)
 !$OMP THREADPRIVATE(z0cdrag_ave)
+
+
+  LOGICAL, SAVE :: ok_residues = .FALSE.    !! add by ke, Switch for considering crop residues 
+                                            !! (true/false)
+!$OMP THREADPRIVATE(ok_residues)
+
+  LOGICAL, SAVE :: ok_yellow = .FALSE.      !! add by ke, Switch for considering crop yellow 
+                                            !! albedo
+                                            !! (true/false)
+!$OMP THREADPRIVATE(ok_yellow)
+
+  LOGICAL, SAVE :: ok_evap = .FALSE.        !! add by ke, Switch for considering residue on soil evaporation
+                                            !! (true/false)
+!$OMP THREADPRIVATE(ok_evap)
+
+  LOGICAL, SAVE :: ok_residue_alb = .FALSE. !! add by ke, Switch for considering residue albedo
+                                            !! (true/false)
+!$OMP THREADPRIVATE(ok_residue_alb)
+
+  LOGICAL, SAVE :: ok_Z0 = .FALSE.          !! add by ke, Switch for considering surface roughness
+                                            !! (true/false)
+!$OMP THREADPRIVATE(ok_Z0)
+  LOGICAL, SAVE :: ok_has = .FALSE.         !! add by shuai, switch for considering HAS effect
+!$OMP THREADPRIVATE(ok_has)
+
   ! 1.2 Others 
+
+
+  REAL(r_std), SAVE :: tau_has_days = 3.0_r_std                  !! add by shuai
+!$OMP THREADPRIVATE(tau_has_days)
+
+  REAL(r_std), SAVE :: has_ref = 0.010_r_std                     !! add by shuai
+!$OMP THREADPRIVATE(has_ref)
+
+  REAL(r_std), SAVE :: k_wash_has = 0.5_r_std                    !! add by shuai
+!$OMP THREADPRIVATE(k_wash_has)
+
+  REAL(r_std), SAVE :: throughfall_by_pft_for_has = 0.30_r_std   !! add by shuai
+!$OMP THREADPRIVATE(throughfall_by_pft_for_has)  
+
+  REAL(r_std), SAVE :: lw_a = 3.68e-4_r_std                      !! add by shuai
+!$OMP THREADPRIVATE(lw_a)
+
+  REAL(r_std), SAVE :: lw_b = 7.9_r_std                          !! add by shuai
+!$OMP THREADPRIVATE(lw_b)
+
+  REAL(r_std), SAVE :: lw_c = 2.0_r_std                          !! add by shuai
+!$OMP THREADPRIVATE(lw_c)
+
+!   REAL(r_std), SAVE :: alpha_has = 0.20_r_std                  !! add by shuai
+! !$OMP THREADPRIVATE(alpha_has)
+
+!   REAL(r_std), SAVE :: RH0 = 0.18_r_std                        !! add by shuai
+! !$OMP THREADPRIVATE(RH0)
+
+!   REAL(r_std), SAVE :: wash_scale_has = 0.5_r_std              !! add by shuai
+! !$OMP THREADPRIVATE(wash_scale_has)
+
+!   REAL(r_std), SAVE :: VPD0 = 1.50_r_std                       !! add by shuai
+! !$OMP THREADPRIVATE(VPD0)
+
 
   REAL(r_std), SAVE :: z0_over_height = un/16.           !! Factor to calculate roughness height from 
                                                          !! vegetation height (unitless)   
@@ -1296,12 +1362,12 @@ MODULE constantes_var
 !$OMP THREADPRIVATE(vlength)
   !INTEGER(i_std), SAVE :: maxgs = 300 ! This is an arbitrary setting of maximum
 
-  INTEGER(i_std), SAVE :: maxgs = 350
+  INTEGER(i_std), SAVE :: maxgs = 360
 !$OMP THREADPRIVATE(maxgs) 
 
   !growing length for annual crop to avoid a too long growing season length
   !INTEGER(i_std), SAVE :: matrec = 3 ! subjective setting for a period between nmat and nrec for grain drying and nutrition dynamics
-  INTEGER(i_std), SAVE :: matrec = 14
+  INTEGER(i_std), SAVE :: matrec =22
 !$OMP THREADPRIVATE(matrec)
 
   REAL(r_std), SAVE :: tetstomate = 0.53  ! m3/m3 soil water contents
@@ -1312,10 +1378,13 @@ MODULE constantes_var
   REAL(r_std), SAVE :: tetsen = 0.4  !
 !$OMP THREADPRIVATE(tetsen)
 
-  LOGICAL, SAVE :: nitrogen_use = .FALSE.       !! IF we consider the nitrogen fertilization (true/false) 
+  LOGICAL, SAVE :: nitrogen_use = .FALSE.       !! consider the nitrogen fertilization (true/false); shuai change it to FALSE 
 !$OMP THREADPRIVATE(nitrogen_use)
-  LOGICAL, SAVE :: fix_nfert = .TRUE.       !! IF we use the average nitrogen fertilization (true/false) 
+  LOGICAL, SAVE :: has_use_nfert_file = .FALSE. !! add by shuai
+!$OMP THREADPRIVATE(has_use_nfert_file)
+  LOGICAL, SAVE :: fix_nfert = .FALSE.          !! use the average nitrogen fertilization (true/false); shuai change it to FALSE 
 !$OMP THREADPRIVATE(fix_nfert)
+
   LOGICAL, SAVE :: iplt_1d = .FALSE.  !! do we use the imposed planting date
 !$OMP THREADPRIVATE(iplt_1d)
   LOGICAL, SAVE :: rot_1d = .TRUE.  !! do we use the imposed rotation cycle without map

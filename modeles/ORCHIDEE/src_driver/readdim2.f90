@@ -312,6 +312,7 @@ CONTAINS
           ALLOCATE(index_l(iim_zoom*jjm_zoom))
           !- In this point is returning the global NbPoint with the global index
           CALL forcing_landind(iim_zoom,jjm_zoom,qair,.TRUE.,NbPoint,index_l,i_test,j_test)
+!          WRITE(numout,*) "ke kindex after forcing_landind in interpol : ",index_l
           ! 
           ! Work out the vertical layers to be used 
           ! 
@@ -588,8 +589,9 @@ SUBROUTINE forcing_read &
           swdown, coszang, precip, snowf, tair, u, v, qair, pb, lwdown, &
           fcontfrac, fneighbours, fresolution, &
           SWnet, Eair, petAcoef, peqAcoef, petBcoef, peqBcoef, cdrag, ccanopy, &
-          kindex, nbindex, force_id)
-!-
+          kindex, nbindex, force_id)  
+!     WRITE(numout,*) 'ke kindex in forcing read_interpol ',kindex
+!-  
    ELSEIF ( weathergen ) THEN
 !-
       IF (lrstread) THEN
@@ -604,6 +606,7 @@ SUBROUTINE forcing_read &
               zonal_res, merid_res, lon, lat, date0, dt_force, &
               kindex, nbindex, &
               swdown, precip, snowf, tair, u, v, qair, pb, lwdown)
+!              WRITE(numout,*) 'ke kindex in weathgen_main1 ',kindex
       ELSE
          CALL weathgen_main (itauin, istp, filename, force_id, iim, jjm, 1, &
               rest_id, lrstread, lrstwrite, &
@@ -611,6 +614,7 @@ SUBROUTINE forcing_read &
               zonal_res, merid_res, lon, lat, date0, dt_force, &
               kindex, nbindex, &
               swdown, precip, snowf, tair, u, v, qair, pb, lwdown)
+!              WRITE(numout,*) 'ke kindex in weathgen_main2 ',kindex
       ENDIF
 !-
       IF ( (itauin == 0).AND.(itau_split == 0) ) THEN
@@ -623,6 +627,7 @@ SUBROUTINE forcing_read &
          !---
          CALL grid_stuff(nbp_glo, iim_g, jjm_g, lon_g, lat_g, kindex)
          !CALL grid_stuff (nbindex, iim, jjm, lon, lat, kindex)
+!         WRITE(numout,*) 'ke kindex in grid_stuff ',kindex
          DO ik=1,nbindex
          
             j = ((kindex(ik)-1)/iim) + 1
@@ -638,7 +643,10 @@ SUBROUTINE forcing_read &
       ENDIF
    ELSE
 !-
-
+ !  WRITE(numout,*) 'ke kindex in forcing read ',kindex
+   
+   
+   
       CALL ipslerr_p(3,'forcing_read','Neither interpolation nor weather generator is specified.','','')
 
    ENDIF
@@ -747,7 +755,7 @@ SUBROUTINE forcing_read_interpol &
   &  zlev_nm1, zlevuv_nm1, swdown_nm1, rainf_nm1, snowf_nm1, tair_nm1, u_nm1, v_nm1, qair_nm1, & 
   &  pb_nm1, lwdown_nm1, & 
   &  zlev_n, zlevuv_n, swdown_n, rainf_n, snowf_n, tair_n, u_n, v_n, qair_n, &
-  &  pb_n, lwdown_n, mean_coszang
+  &  pb_n, lwdown_n, mean_coszang 
 
    REAL,SAVE,ALLOCATABLE,DIMENSION(:,:) :: &
   &  startday_n, startday_nm1, daylength_n, daylength_nm1, tmax_n, tmax_nm1, tmin_nm1, tmin_nm2, tmin_n,   &
@@ -761,7 +769,7 @@ SUBROUTINE forcing_read_interpol &
   &  SWnet_nm1, Eair_nm1, petAcoef_nm1, peqAcoef_nm1, petBcoef_nm1, peqBcoef_nm1, cdrag_nm1, ccanopy_nm1, &
   &  SWnet_n, Eair_n, petAcoef_n, peqAcoef_n, petBcoef_n, peqBcoef_n, cdrag_n, ccanopy_n
    REAL, SAVE :: julian_for ! Date of the forcing to be read
-   REAL :: julian, ss, rw
+   REAL :: julian, ss, rw  
 !jur, 
    REAL, SAVE :: julian0    ! First day of this year
    INTEGER :: yy, mm, dd, is, i, j, ik
@@ -844,7 +852,7 @@ SUBROUTINE forcing_read_interpol &
           &  swdown, rainf, snowf, tair, &
           &  u, v, qair, pb, lwdown, &
           &  SWnet, Eair, petAcoef, peqAcoef, petBcoef, peqBcoef, cdrag, ccanopy, &
-          &  force_id, wind_N_exists, check)
+          &  force_id, wind_N_exists, check) 
 !----
 
 !-- First in case it's not a watchout file
@@ -862,7 +870,7 @@ SUBROUTINE forcing_read_interpol &
            DO i=1,iim
               DO j=1,jjm
                  IF ( j==1 .AND. i<ii_begin) fcontfrac(i,j)=0.     ! bande de recouvrement du scatter2D 
-                 IF ( j==jjm .AND. i>ii_end) fcontfrac(i,j)=0.     ! => on mets les données qu'on veut pas du noeud à missing_value
+                 IF ( j==jjm .AND. i>ii_end) fcontfrac(i,j)=0.     ! => on mets les données qu'on veut pas du noeud ?missing_value
                  IF ( fcontfrac(i,j) <= EPSILON(1.) ) THEN
                     tair(i,j) = 999999.
                  ENDIF
@@ -875,13 +883,19 @@ SUBROUTINE forcing_read_interpol &
         !--- Create the index table
         !---
         !--- This job return a LOCAL kindex
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol0 =",kindex
+        
         CALL forcing_landind(iim, jjm, tair, check, nbindex, kindex, i_test, j_test)
+        
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol1 =",kindex
 #ifdef CPP_PARA
         ! We keep previous function forcing_landind, only to get a valid (i_test,j_test) 
         ! Force nbindex points for parallel computation
         nbindex=nbp_loc
         CALL scatter(index_g,kindex(1:nbindex))
         kindex(1:nbindex)=kindex(1:nbindex)-(jj_begin-1)*iim_g
+        
+ !       WRITE (numout,*) "ke kindex in forcing_read_interpol3 =",kindex
 #endif
         ik=MAX(nbindex/2,1)
         j_test = (((kindex(ik)-1)/iim) + 1)
@@ -897,6 +911,7 @@ SUBROUTINE forcing_read_interpol &
         !--- All grid variables
         !---
         CALL grid_stuff(nbp_glo, iim_g, jjm_g, lon_g, lat_g, kindex)
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol4 =",kindex
         DO ik=1,nbindex
            !
            j = ((kindex(ik)-1)/iim) + 1
@@ -939,13 +954,16 @@ SUBROUTINE forcing_read_interpol &
         !--- Create the index table
         !---
         !--- This job return a LOCAL kindex
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol5 =",kindex
         CALL forcing_landind(iim, jjm, tair, check, nbindex, kindex, i_test, j_test)
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol6 =",kindex
 #ifdef CPP_PARA
         ! We keep previous function forcing_landind, only to get a valid (i_test,j_test) 
         ! Force nbindex points for parallel computation
         nbindex=nbp_loc
         CALL scatter(index_g,kindex)
         kindex(:)=kindex(:)-offset
+!        WRITE (numout,*) "ke kindex in forcing_read_interpol7 =",kindex
 !        kindex(:)=kindex(:)-(jj_begin-1)*iim_g
 #endif
         ik=MAX(nbindex/2,1)
@@ -1313,6 +1331,7 @@ SUBROUTINE forcing_read_interpol &
    !--- Here we need to allow for an option
    !--- where radiative energy is conserved
    !---
+
          IF ( netrad_cons ) THEN
             lwdown(:,:) = lwdown_n(:,:)
          ELSE
@@ -1461,6 +1480,7 @@ SUBROUTINE forcing_read_interpol &
                qair_nm1(:,:)   = qair_n(:,:)
                pb_nm1(:,:)     = pb_n(:,:)
                lwdown_nm1(:,:) = lwdown_n(:,:)
+
                IF (is_watchout) THEN
                   zlev_nm1(:,:)   = zlev_n(:,:)
                   ! Net surface short-wave flux
@@ -1551,6 +1571,7 @@ SUBROUTINE forcing_read_interpol &
          qair(:,:) = (qair_n(:,:)-qair_nm1(:,:))*rw + qair_nm1(:,:)
          tair(:,:) = (tair_n(:,:)-tair_nm1(:,:))*rw + tair_nm1(:,:)
          pb(:,:) = (pb_n(:,:)-pb_nm1(:,:))*rw + pb_nm1(:,:)
+         
          u(:,:)  = (u_n(:,:)-u_nm1(:,:))*rw + u_nm1(:,:)
          v(:,:)  = (v_n(:,:)-v_nm1(:,:))*rw + v_nm1(:,:)
          IF (is_watchout) THEN
@@ -1753,6 +1774,7 @@ SUBROUTINE forcing_just_read &
       CALL forcing_zoom(data_full, snowf)
       CALL flinget_buffer (force_id,'Rainf' , iim_full, jjm_full, llm_full, ttm, itb, ite, data_full)
       CALL forcing_zoom(data_full, rainf)
+      
    ENDIF
 
 
@@ -1765,6 +1787,7 @@ SUBROUTINE forcing_just_read &
    CALL forcing_zoom(data_full, pb)
    CALL flinget_buffer (force_id,'Qair'  , iim_full, jjm_full, llm_full, ttm, itb, ite, data_full)
    CALL forcing_zoom(data_full, qair)
+   
 !---
    IF ( wind_N_exists ) THEN
       CALL flinget_buffer (force_id,'Wind_N', iim_full, jjm_full, llm_full, ttm, itb, ite, data_full)
@@ -1918,6 +1941,7 @@ SUBROUTINE forcing_landind(iim, jjm, tair, check, nbindex, kindex, i_test, j_tes
   i_test = 0
   j_test = 0
 !---
+!  WRITE (numout,*) "ke kindex in forcing_landind0 =",kindex
   IF (MINVAL(tair(:,:)) < 100.) THEN
 !----- In this case the 2m temperature is in Celsius
      DO j=1,jjm
@@ -1961,6 +1985,7 @@ SUBROUTINE forcing_landind(iim, jjm, tair, check, nbindex, kindex, i_test, j_tes
         ENDDO
      ENDDO
   ENDIF
+!  WRITE (numout,*) "ke kindex in forcing_landind1 =",kindex
 !---
   nbindex = ig
 !---

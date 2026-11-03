@@ -99,7 +99,7 @@ CONTAINS
        &  uo_wet4, uold2_wet4, tsurf_year, &!) !pss-
 !JCADD
        &  wshtotsum, sr_ugb, sla_calc, nb_ani, grazed_frac, &
-       &  import_yield, t2m_14, litter_not_avail, assim_param)
+       &  import_yield, t2m_14, litter_not_avail, assim_param,havlen) !! add by ke
 !ENDJCADD
     !---------------------------------------------------------------------
     !- read start file
@@ -447,6 +447,7 @@ CONTAINS
     
     REAL(r_std), DIMENSION(npts, nvm)                                 :: gslen_real  
     REAL(r_std), DIMENSION(npts, nvm)                                 :: drylen_real  
+    REAL(r_std), DIMENSION(npts, nvm)                                 :: havlen_real   !! add by ke
 !!!!! end crops, xuhui
 
     ! land cover change variables 
@@ -660,6 +661,7 @@ CONTAINS
 
     INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(OUT)       :: gslen 
     INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(OUT)       :: drylen 
+    INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(OUT)       :: havlen  !! add by ke
 
 !!!!! xuhui
 
@@ -1430,7 +1432,11 @@ CONTAINS
     CALL restget_p (rest_id_stomate, var_name, nbp_glo, 100     , nwp, itime, &
          &                .TRUE., flux100, 'gather', nbp_glo, index_g)
     IF (ALL(flux100(:,:,:) == val_exp)) flux100(:,:,:) = zero
-
+    
+    convflux(:,:)      = zero
+    cflux_prod10(:,:)  = zero
+    cflux_prod100(:,:) = zero !! add by shuai (in order to remove the compilation warning)
+    
     !convflux(:,:) = val_exp
     !var_name = 'convflux'
     !CALL restget_p (rest_id_stomate, var_name, nbp_glo, 1     , nwp, itime, &
@@ -2290,7 +2296,7 @@ CONTAINS
     var_name = 'nrecbutoir'
     CALL restget_p (rest_id_stomate, var_name, nbp_glo, nvm     , 1, itime, &
          &              .TRUE., nrecbutoir_real, 'gather', nbp_glo, index_g)
-    IF (ALL(nrecbutoir_real(:, :) == val_exp)) nrecbutoir_real(:, :) = 999.0
+    IF (ALL(nrecbutoir_real(:, :) == val_exp)) nrecbutoir_real(:, :) = 999.0   !! add by ke
     nrecbutoir = INT(nrecbutoir_real)
 
     group(:, :) = val_exp
@@ -2853,8 +2859,14 @@ CONTAINS
          &              .TRUE., drylen_real, 'gather', nbp_glo, index_g)
     IF (ALL(drylen_real(:, :) == val_exp)) drylen_real(:, :) = zero
     drylen = INT(drylen_real)
-
-
+!!!!!!!!!!!!!! add by ke     
+    havlen(:, :) = val_exp
+    var_name = 'havlen'
+    CALL restget_p (rest_id_stomate, var_name, nbp_glo, nvm     , 1, itime, &
+         &              .TRUE., havlen_real, 'gather', nbp_glo, index_g)
+    IF (ALL(havlen_real(:, :) == val_exp)) havlen_real(:, :) = zero
+    havlen = INT(havlen_real)
+!!!!!!!!!!!!!! add by ke 
 !!!!! xuhui
  
     !-
@@ -3012,7 +3024,7 @@ CONTAINS
        &  uo_wet4, uold2_wet4, tsurf_year, &!) !pss:-
 !JCADD
        &  wshtotsum, sr_ugb, sla_calc, nb_ani, grazed_frac, &
-       &  import_yield, t2m_14, litter_not_avail, assim_param)
+       &  import_yield, t2m_14, litter_not_avail, assim_param,havlen) !! add by ke
 !ENDJCADD
     !---------------------------------------------------------------------
     !- write restart file
@@ -3341,6 +3353,7 @@ CONTAINS
     REAL(r_std), DIMENSION(npts, nvm)                                 :: nstoprac_real  
     REAL(r_std), DIMENSION(npts, nvm)                                 :: gslen_real  
     REAL(r_std), DIMENSION(npts, nvm)                                 :: drylen_real  
+    REAL(r_std), DIMENSION(npts, nvm)                                 :: havlen_real !! add by ke 
 !!!!! xuhui
 
     ! land cover change variables 
@@ -3552,6 +3565,7 @@ CONTAINS
     REAL(r_std),    DIMENSION(npts, nvm)      ,INTENT(IN)       :: c_leafb
     INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(IN)       :: gslen 
     INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(IN)       :: drylen 
+    INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(IN)       :: havlen !! add by ke
     INTEGER(i_std), DIMENSION(npts, nvm)      ,INTENT(IN)       :: cyc_num
     INTEGER(i_std), DIMENSION(npts)           ,INTENT(IN)       :: cyc_num_tot
     INTEGER(i_std), DIMENSION(npts, rot_cmd_max, cyc_rot_max) ,INTENT(IN) :: rot_cmd_store
@@ -4972,7 +4986,16 @@ CONTAINS
     gslen_real = FLOAT(gslen)
     CALL restput_p (rest_id_stomate, var_name, nbp_glo, nvm     , 1, itime, &
          &               gslen_real, 'scatter', nbp_glo, index_g)
-
+    
+!!!!!!!!!!!!!!!! add by ke         
+    var_name = 'havlen'
+    havlen_real = FLOAT(havlen)
+    CALL restput_p (rest_id_stomate, var_name, nbp_glo, nvm     , 1, itime, &
+         &               havlen_real, 'scatter', nbp_glo, index_g)
+!!!!!!!!!!!!!!!! add by ke 
+    
+    
+    
     var_name = 'drylen'
     drylen_real = FLOAT(drylen)
     CALL restput_p (rest_id_stomate, var_name, nbp_glo, nvm     , 1, itime, &

@@ -137,6 +137,73 @@ function IGCM_debug_sizeOfTabContent
 #D- * One argument : base64 encoded message
 #D- * Attach encoded config.card when starting the simulation
 
+function IGCM_debug_send_AMQP_msg__MAILTUNNEL {
+
+  typeset b64_encoded_msg mail_recipient
+  typeset buffer send_messages mail_frequency
+  typeset last_mail_date__file
+  typeset secondsBetweenRefAndLastMail secondsSinceLastMail
+
+  b64_encoded_msg=$1
+
+  mail_recipient="superviseur@ipsl.jussieu.fr"
+  send_messages=0
+  mail_frequency=3600 # in seconds
+  # use to keep track when was last mail sent (maybe to be replaced with global variable)
+  last_mail_date__file=${R_BUF}/.stamp.${config_UserChoices_TagName}.${config_UserChoices_JobName}
+  # use to accumulate messages before sending them
+  buffer=${R_BUF}/.buffer.${config_UserChoices_TagName}.${config_UserChoices_JobName}
+
+  # init
+  if [ ! -f "${buffer}" ]; then
+    touch ${buffer}
+  fi
+
+  if [ ! -f "${last_mail_date__file}" ]; then
+    touch ${last_mail_date__file}
+  else
+    # compute last time the file was changed (in seconds)
+    secondsBetweenRefAndLastMail=$(stat -c %Y ${last_mail_date__file})
+    status=$?
+    #
+    # Only execute this block when the stat command succeeded.
+    # The stat command might fail in some circumstance but we consider it is ok to continue anyway.
+    if [ ${status} -eq 0 ] ; then
+      secondsSinceLastMail=$(( $(date +%s) - ${secondsBetweenRefAndLastMail} ))
+      # send message when exceeding threshold
+      [ ${secondsSinceLastMail} -gt ${mail_frequency} ] && send_messages=1
+    fi
+  fi
+
+  # queue messages in the buffer
+  echo ${b64_encoded_msg} >> ${buffer}
+
+  # send mail
+
+  if [ X${initBigBro} = Xtrue ] ; then
+    #echo $(date +"%Y-%m-%dT%H:%M:%S.%N%z") > ${SUBMIT_DIR}/mail.txt
+    mailx -s "[TEMPORARY AMQP CHANNEL]" -a ${SUBMIT_DIR}/config.card.base64 ${mail_recipient} < ${buffer} # send buffer
+    rm -f $buffer ; touch ${buffer}                                    # clear buffer
+    touch ${last_mail_date__file}                                      # memorize last mail date
+    rm -f ${SUBMIT_DIR}/config.card.base64                             # remove temporary file
+    initBigBro=false
+  elif [ ${send_messages} -eq 1 ] ; then
+    #echo $(date +"%Y-%m-%dT%H:%M:%S.%N%z") >> ${SUBMIT_DIR}/mail.txt
+    mailx -s "[TEMPORARY AMQP CHANNEL]" ${mail_recipient}  < ${buffer} # send buffer
+    rm -f ${buffer} ; touch ${buffer}                                  # flush the buffer
+    touch ${last_mail_date__file}                                      # memorize last mail date
+  fi
+
+  if ( ${FlushAMQP} ) ; then
+    mailx -s "[TEMPORARY AMQP CHANNEL]" ${mail_recipient}  < ${buffer} # send buffer
+    rm -f ${buffer}                                                    # cleaning behind us
+    rm -f ${last_mail_date__file}                                      # cleaning behind us
+  fi
+
+  # Allways all good for now.
+  return 0
+}
+
 #D-#==================================================================
 #D-function IGCM_debug_sendAMQP_Metrics
 #D- * Purpose: Take over AMQP C client using mail as a message recipient
@@ -144,16 +211,109 @@ function IGCM_debug_sizeOfTabContent
 #D- *                 - Metrics Group Name. metrics will be added to this group
 #D- * Attach encoded metrics.json files.
 
+function IGCM_debug_sendAMQP_Metrics {
+
+  typeset mail_recipient encodedBody
+  if [ X${ActivateBigBro} = Xtrue ] ; then
+    mail_recipient="superviseur@ipsl.jussieu.fr"
+    # Metrics tag on server side
+    code=7100
+    # Usual AMQP message to route messages on server side
+    encodedBody=$( echo "{${genericSimulationID},\"msgCode\":\"${code}\",\"msgUID\":\"$(uuidgen)\",\"metricsGroupName\":\"${2}\",\"msgTimestamp\":\"$( date +"%Y-%m-%dT%H:%M:%S.%N%z" )\"}" |  base64 -w 0 )
+    # send mail
+    attachmentsOptions=""
+    for metricsFile in $( ls $1/*json ) ; do
+      attachmentsOptions="-a ${metricsFile} ${attachmentsOptions}"
+    done
+    IGCM_debug_Print 2 "IGCM_debug_sendAMQP_Metrics "
+    echo ${encodedBody}|mailx -s "[TEMPORARY AMQP CHANNEL]" ${attachmentsOptions} ${mail_recipient}
+  fi
+
+  # Allways all good for now.
+  return 0
+}
+
 #D-#==================================================================
 #D-function IGCM_debug_sendAMQP_projectAccounting
 #D- * Purpose: Take over AMQP C client using mail as a message recipient
 #D- * One argument : - File name where project accounting details are stored
 #D- * Attach encoded accounting file.
 
+function IGCM_debug_sendAMQP_projectAccounting {
+
+  typeset mail_recipient encodedBody
+  if [ X${ActivateBigBro} = Xtrue ] ; then
+    mail_recipient="superviseur@ipsl.jussieu.fr"
+    # Metrics tag on server side
+    code=7010
+    # Usual AMQP message to route messages on server side
+    encodedBody=$( echo "{${genericSimulationID},\"msgCode\":\"${code}\",\"msgUID\":\"$(uuidgen)\",\"accountingProject\":\"${PROJECT}\",\"centre\":\"${CENTER}\",\"msgTimestamp\":\"$( date +"%Y-%m-%dT%H:%M:%S.%N%z" )\"}" |  base64 -w 0 )
+    # send mail
+    attachmentsOptions="-a ${1}"
+    IGCM_debug_Print 2 "IGCM_debug_sendAMQP_projectAccounting"
+    echo ${encodedBody}|mailx -s "[TEMPORARY AMQP CHANNEL]" ${attachmentsOptions} ${mail_recipient}
+    # clean behind
+    rm -f $1
+  fi
+
+  # Allways all good for now.
+  return 0
+}
 
 #D-#==================================================================
 #D-function IGCM_debug_SendAMQP
 #D- * Purpose: Send body; encoded body and config.card to rabbitMQ
+function IGCM_debug_sendAMQP {
+
+  typeset decal first additionnalOption encodedBody
+
+  # Encode message Body
+  encodedBody=$( echo "${Body}" | base64 -w 0 )
+
+  # Send config.card ?
+  if [ X${1} = Xactivate ] ; then
+    # Encode config.card
+    cat ${SUBMIT_DIR}/config.card | base64 -w 0 > ${SUBMIT_DIR}/config.card.base64
+    # Prepare additionnal option
+    additionnalOption="-f ${SUBMIT_DIR}/config.card.base64"
+    #
+    initBigBro=true
+  else
+    additionnalOption=
+    #
+    initBigBro=false
+  fi
+
+  # Only cosmetics : stack file
+  if [ X${ActivateStackFilling} = Xtrue ] ; then
+    decal=0
+    while [ ${decal} -lt ${IGCM_debug_LenStack} ]; do
+      printf ' ' >> ${StackFileLocation}/${StackFileName}
+      (( decal = decal + 1 ))
+    done
+    # Log to stack file using human readable format
+    echo "${Body}" >> ${StackFileLocation}/${StackFileName}
+  fi
+
+  # Log separately encoded AMQP message command for reuse in a mock up
+  #echo sendAMQPMsg -h localhost -p 5672 ${additionnalOption} -b ${encodedBody} >> ${RUN_DIR_PATH}/send.AMQP.${config_UserChoices_JobName}.${config_UserChoices_ExperimentName}.${config_UserChoices_SpaceName}.${config_UserChoices_TagName}.${CumulPeriod}.history.txt
+
+  # Send the message
+  if [ X${BigBrotherChannel} = XMAIL ] ; then
+    IGCM_debug_send_AMQP_msg__MAILTUNNEL "${encodedBody}"
+    status=$?
+  else
+    sendAMQPMsg -h localhost -p 5672 ${additionnalOption} -b ${encodedBody}
+    status=$?
+  fi
+
+  if [ ${status} -gt 0 ] ; then
+    IGCM_debug_Print 2 "IGCM_debug_Push/PopStack/ActivateBigBro : command sendAMQPMsg failed error code ${status}"
+    echo sendAMQPMsg -h localhost -p 5672 -b "${Body}"
+    exit 1
+  fi
+}
+
 #D-#==================================================================
 #D-function IGCM_debug_CallStack
 #D-* Purpose: Print the call stack tree from the oldest to the youngest (opposite of the display standard)
@@ -633,6 +793,64 @@ function IGCM_debug_Exit {
 #D-function IGCM_debug_Verif_Exit
 #D-* Purpose: exit with number 1 if ExitFlag is true
 #D-
+function IGCM_debug_Verif_Exit {
+  if ( ${ExitFlag} ) ; then
+    echo "IGCM_debug_Verif_Exit : Something wrong happened previously."
+    echo "IGCM_debug_Verif_Exit : ERROR and EXIT keyword will help find out where."
+    # Only computing TaskType stops the job for now.
+    if [ X${TaskType} = Xcomputing ] ; then
+      IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState "Fatal"
+      echo "                        EXIT THE JOB."
+      echo
+      IGCM_debug_CallStack
+
+      # Mail notification
+      IGCM_sys_SendMail
+
+      # Inform the rabbitMQ queue
+      IGCM_debug_BigBro_Finalize
+
+      # And Good Bye
+      date
+      exit 1
+
+    elif [ X${TaskType} = Xpost-processing ] ; then
+      StopAll=false
+      # Test if we need to stop the computing job
+      case ${postProcessingName} in
+      atlas*|monitoring*|metrics*)
+        [ ${postProcessingStopLevel} -gt 2 ] && StopAll=true ;;
+      create_*)
+        [ ${postProcessingStopLevel} -gt 1 ] && StopAll=true ;;
+      rebuild*|pack_*)
+        [ ${postProcessingStopLevel} -gt 0 ] && StopAll=true ;;
+      esac
+      # Notify the computing job that something wrong happened and stop it.
+      ( ${StopAll} ) && IGCM_card_WriteOption ${SUBMIT_DIR}/run.card Configuration PeriodState "Fatal.${Script_Post_Output}"
+
+      # If SpaceName is PROD we stop when post_processing failed
+      if [ X${config_UserChoices_SpaceName} = XPROD ] ; then
+        echo "                        EXIT THE POST-PROCESSING JOB."
+        echo
+        IGCM_debug_CallStack
+
+        # Inform the rabbitMQ queue
+        IGCM_debug_BigBro_Finalize
+
+        # And Good Bye
+        date
+        exit 1
+      else
+        echo "In config.card the variable SpaceName is not in PROD"
+        echo "              SO WE DO NOT EXIT THE JOB."
+        echo
+        date
+      fi
+    elif [ X${TaskType} = Xchecking ] ; then
+      echo "Nothing will happen for now"
+    fi
+  fi
+}
 
 #D-#==================================================================
 #D-function IGCM_debug_Print

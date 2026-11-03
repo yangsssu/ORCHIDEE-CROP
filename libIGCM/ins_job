@@ -229,18 +229,10 @@ W_P='#-Q- '; W_W=${W_P}${SYSTEM};
 # Extract list of 'config.card' files
 # and create jobs with AA_job
 #-
-#for j in {1..10}
-#do
-#F_CFG='config.card'$j;
-
-echo ${F_CFG}
-
 F_CFG='config.card';
 F_CFG_ENS='ensemble.card';
 SUBMIT_DIR_ENS=$( pwd )
-
-#for i in $( pwd )/config.card$j 
-for i in $( pwd )/config.card
+for i in $( pwd )/config.card 
 do
   if [ ! -f $i ] ; then
     echo ""
@@ -382,7 +374,6 @@ do
   # update Headers so that ressources description are accurate (MPMD/SPMD/...)
   IGCM_sys_updateHeaders ${j}'/'${n_f}
 done
-#done
 
 #-
 # Extract list of AA_* files in libIGCM

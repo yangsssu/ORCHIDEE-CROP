@@ -1699,6 +1699,13 @@ SUBROUTINE histw_rnd (idf,pvarname,pitau,nbindex,nindex, &
   CHARACTER(LEN=7) :: tmp_opp
   CHARACTER(LEN=13) :: c_nam
   LOGICAL :: l_dbg
+  
+!!!! add by ke
+  INTEGER :: diag_kjp, diag_nx, diag_expected, diag_ind_min, diag_ind_max
+  INTEGER :: pad_nx_need, pad_nbo_need
+  REAL, ALLOCATABLE :: pad_x2d(:,:)
+!!!! add by ke
+  
 !---------------------------------------------------------------------
   CALL ipsldbg (old_status=l_dbg)
 !-
@@ -1848,9 +1855,11 @@ SUBROUTINE histw_rnd (idf,pvarname,pitau,nbindex,nindex, &
  &                 W_F(idf)%W_V(iv)%scal(1),nbpt_out,tbf_1)
     ELSE IF (l2d) THEN
       nbpt_in2(1:2) = W_F(idf)%W_V(iv)%datasz_in(1:2)
-      CALL mathop (W_F(idf)%W_V(iv)%sopp(1),nbpt_in2,pdata_2d, &
- &                 missing_val,nbindex,nindex, &
- &                 W_F(idf)%W_V(iv)%scal(1),nbpt_out,tbf_1)
+      CALL mathop (W_F(idf)%W_V(iv)%sopp(1), nbpt_in2, pdata_2d, &
+     &                missing_val, nbindex, nindex, &
+     &                W_F(idf)%W_V(iv)%scal(1), nbpt_out, tbf_1)
+
+ 
     ELSE IF (l3d) THEN
       nbpt_in3(1:3) = W_F(idf)%W_V(iv)%datasz_in(1:3)
       CALL mathop (W_F(idf)%W_V(iv)%sopp(1),nbpt_in3,pdata_3d, &
@@ -1951,6 +1960,7 @@ SUBROUTINE histwrite_real &
     DO io=2,W_F(idf)%W_V(iv)%nbopp,2
       nbin = nbout
       nbout = W_F(idf)%W_V(iv)%datasz_max
+      
       CALL mathop(W_F(idf)%W_V(iv)%sopp(io),nbin,tbf_1, &
  &      missing_val,nbindex,nindex,W_F(idf)%W_V(iv)%scal(io), &
  &      nbout,tbf_2)

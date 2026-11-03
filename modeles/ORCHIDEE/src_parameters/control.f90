@@ -152,7 +152,8 @@ CONTAINS
     CALL getin_p('NVM_PLNT',nvm_plnt)
     nvm_rot = .FALSE.
     CALL getin_p('NVM_ROT',nvm_rot)
-    nvm_nfert = .FALSE.
+    nvm_nfert = .TRUE. !! add by shuai    
+  !  nvm_nfert = .FALSE.
     CALL getin_p('NVM_NFERT',nvm_nfert)
     cyc_rot_max = 1
     CALL getin_p('CYC_ROT_MAX',cyc_rot_max)

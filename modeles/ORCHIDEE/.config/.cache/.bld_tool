@@ -1,0 +1,39 @@
+CC           cc
+CPP_INCLUDE  -I
+MIRROR       rsync
+FC_DEFINE    -D
+LD_LIBLINK   -l
+FFLAGS       -i4 -r8 -fp-model precise -O3  -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee03/ssdeng/ORCHIDEE-CROP/modeles/ORCHIDEE/../../lib
+GRAPHIC_DIFF xxdiff
+LD           mpif90
+FPP          cpp
+GENINTERFACE none
+LDFLAGS       -i4 -r8 -O3 -L/usr/local/install/netcdf-4.3.2p/lib -lnetcdff -lnetcdf -L/usr/local/install/hdf5-1.8.9p/lib -lhdf5_hl -lhdf5 -lhdf5 -lz -lcurl -lstdc++ -L/home/orchidee03/ssdeng/ORCHIDEE-CROP/modeles/ORCHIDEE/../../lib -lioipsl -lnetcdf
+FPP_DEFINE   -D
+MAKE_SILENT  -s
+CFLAGS       
+FC_INCLUDE   -I
+FPPFLAGS     -P -traditional -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee03/ssdeng/ORCHIDEE-CROP/modeles/ORCHIDEE/../../lib
+FPP_INCLUDE  -I
+FPPKEYS      CPP_PARA 
+FC_OUTPUT    -o
+MAKE         gmake
+REMOTE_SHELL remsh
+LD_OUTPUT    -o
+CC_INCLUDE   -I
+MAKEFLAGS    
+INTERFACE    file
+FC           mpif90
+CPPKEYS      
+CPP_DEFINE   -D
+ARFLAGS      rs
+CPP          cpp
+LD_LIBSEARCH -L
+CC_DEFINE    -D
+MAKE_JOB     -j
+FC_COMPILE   -c
+AR           ar
+CC_COMPILE   -c
+CPPFLAGS     -P -traditional -I/usr/local/install/netcdf-4.3.2p/include -I/home/orchidee03/ssdeng/ORCHIDEE-CROP/modeles/ORCHIDEE/../../lib
+SHELL        /bin/bash
+CC_OUTPUT    -o

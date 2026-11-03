@@ -1,0 +1,113 @@
+#
+#**************************************************************************
+#                    Parameter file list for ORCHIDEE
+# See all optional parameters in modipsl/modeles/ORCHIDEE/orchidee.default
+#**************************************************************************
+# Time
+TIME_LENGTH = _AUTO_
+TIME_SKIP = _AUTO_
+
+# Input and output
+#**************************************************************************
+# If DRIVER_reset_time=y, read the year from forcing file instead of taking it from restart file 
+DRIVER_reset_time = _AUTO_
+
+# Name of restart to read for initial conditions for the driver
+RESTART_FILEIN = _AUTOBLOCKER_
+
+# Name of restart to read for initial conditions
+# default = NONE
+SECHIBA_restart_in = _AUTOBLOCKER_
+
+# Name of restart to read for initial conditions of STOMATE
+# default = NONE
+STOMATE_RESTART_FILEIN = _AUTOBLOCKER_
+
+# Use XIOS for writing diagnostics file
+# defulat = n
+XIOS_ORCHIDEE_OK = _AUTO_
+
+# Flag to activate sechiba_out_2.nc history file for SECHIBA
+# default  = FALSE
+SECHIBA_HISTFILE2 = _AUTO_
+
+# SECHIBA history output level (0..10)
+# default = 5
+SECHIBA_HISTLEVEL = 11
+
+# SECHIBA history 2 output level (0..10)
+# default = 1
+SECHIBA_HISTLEVEL2 = 1
+
+# STOMATE history output level (0..10)
+# default = 10
+STOMATE_HISTLEVEL = 10
+
+# Writefrequency in seconds in sechiba_history.nc
+# default = 86400.0
+WRITE_STEP = _AUTO_
+
+# Writefrequency in seconds sechiba_out_2.nc 
+# default = 1800.0
+WRITE_STEP2 = 10800.0
+
+# Writefrequency in days in stomate_history.nc
+# default = 10.
+STOMATE_HIST_DT = _AUTO_
+
+# Writefrequency in days or -1 for monthly output in stomate_ipcc_history.nc
+# default = 0.
+STOMATE_IPCC_HIST_DT = _AUTO_
+
+
+# Hydrology parameters
+#**************************************************************************
+# Activate the multi-layer diffusion scheme adapted from CWRR
+# by default the Choisnel hydrology is used.
+HYDROL_CWRR = _AUTO_ 
+
+# Activate river routing
+RIVER_ROUTING = _AUTO_ 
+
+
+#**************************************************************************
+# Activate Stomate component
+STOMATE_OK_STOMATE = _AUTOBLOCKER_ 
+
+# Activate calculations of CO2 according to Farqhuar and Ball
+STOMATE_OK_CO2 = _AUTO_ 
+
+# Parmeters related to vegetation map
+#**************************************************************************
+# Update vegetation frequency
+# default = 1Y
+VEGET_UPDATE = _AUTO_
+
+# Read lai map
+LAI_MAP = _AUTO_:DEFAULT = n
+
+# Prescribed vegetation, default=n
+IMPOSE_VEG = _AUTO_:DEFAULT = n
+
+# Other parameters
+#**************************************************************************
+# Analytic spinup
+SPINUP_ANALYTIC = _AUTO_
+SPINUP_PERIOD = _AUTO_
+
+# Value for atmospheric CO2, default=350.
+ATM_CO2 = _AUTO_: DEFAULT = 350.
+
+# Activate reading/writing of cforcing file. Default=NONE
+STOMATE_CFORCING_NAME = _AUTO_ : DEFAULT = NONE
+
+# Deactivate fire
+FIRE_DISABLE=y
+
+# Read bare soil albedo from file
+ALB_BG_MODIS = y
+
+# Activate creation of river_desc.nc file
+# RIVER_DESC will be activated only the first execution in the simulation. 
+RIVER_DESC = _AUTO_
+

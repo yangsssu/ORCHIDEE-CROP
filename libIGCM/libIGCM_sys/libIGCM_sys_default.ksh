@@ -1,7 +1,7 @@
 #!/bin/ksh
 
 #**************************************************************
-# Author: Sebastien Denvil, Martial Mancip, test2
+# Author: Sebastien Denvil, Martial Mancip
 # Contact: Martial.Mancip__at__ipsl.jussieu.fr
 # $Revision:: 1318                                     $ Revision of last commit
 # $Author:: sdipsl                                     $ Author of last commit

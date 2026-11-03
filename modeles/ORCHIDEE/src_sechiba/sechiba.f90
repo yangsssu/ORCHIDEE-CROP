@@ -54,6 +54,16 @@ MODULE sechiba
 
   INTEGER(i_std), SAVE                             :: printlev_loc   !! local printlev for this module
 !$OMP THREADPRIVATE(printlev_loc)
+
+  INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION (:) :: nmatlab        !! add by ke, local printlev for this module
+!$OMP THREADPRIVATE(nmatlab)
+
+  INTEGER(i_std), SAVE                             :: nlevlab        !! add by ke
+!$OMP THREADPRIVATE(nlevlab)
+
+  INTEGER(i_std), SAVE                             :: date_s2        !! add by ke
+!$OMP THREADPRIVATE(date_s2)
+
   INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION (:) :: indexveg       !! indexing array for the 3D fields of vegetation
 !$OMP THREADPRIVATE(indexveg)
   INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION (:) :: indexlai       !! indexing array for the 3D fields of vegetation
@@ -79,6 +89,13 @@ MODULE sechiba
 !$OMP THREADPRIVATE(veget_max)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)    :: tot_bare_soil  !! Total evaporating bare soil fraction 
 !$OMP THREADPRIVATE(tot_bare_soil)
+!! add by ke
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)    :: tot_residue    !! add by ke, Total evaporating residue fraction 
+!$OMP THREADPRIVATE(tot_residue)
+!! add by ke
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: alb_veg_init !! add by ke
+!$OMP THREADPRIVATE(alb_veg_init)
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: height         !! Vegetation Height (m)
 !$OMP THREADPRIVATE(height)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)    :: totfrac_nobio  !! Total fraction of continental ice+lakes+cities+...
@@ -147,12 +164,24 @@ REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: awd_dep            !! wate
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: qsintveg       !! Water on vegetation due to interception 
                                                                      !! @tex $(kg m^{-2})$ @endtex
 !$OMP THREADPRIVATE(qsintveg)
+
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: qsoverflow     !! Interception overflow (kg m^{-2}) !! add by shuai
+!$OMP THREADPRIVATE(qsoverflow)
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: tq_cdrag_pft   !! Interception resistance (unitless,0-1)
 !$OMP THREADPRIVATE(tq_cdrag_pft)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vbeta2         !! Interception resistance (unitless,0-1)
 !$OMP THREADPRIVATE(vbeta2)
+
+
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vbeta3         !! Vegetation resistance (unitless,0-1)
 !$OMP THREADPRIVATE(vbeta3)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vbeta_has      !! Beta for HAS Transpiration (unitless,0-1) !! add by shuai
+!$OMP THREADPRIVATE(vbeta_has)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: has_film       !! Effective hygroscopic film fraction (unitless,0-1) !! add by shuai
+!$OMP THREADPRIVATE(has_film)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vbeta3pot      !! Potential vegetation resistance
 !$OMP THREADPRIVATE(vbeta3pot)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: gsmean         !! Mean stomatal conductance for CO2 (umol m-2 s-1) 
@@ -162,18 +191,26 @@ REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: awd_dep            !! wate
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vevapwet       !! Interception loss over each PFT 
                                                                      !! @tex $(kg m^{-2} days^{-1})$ @endtex
 !$OMP THREADPRIVATE(vevapwet)
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: transpir       !! Transpiration @tex $(kg m^{-2} days^{-1})$ @endtex
 !$OMP THREADPRIVATE(transpir)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: transpir_has   !! HAS water loss (kg m^{-2} days^{-1}) !! add by shuai
+!$OMP THREADPRIVATE(transpir_has)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: transpot       !! Potential Transpiration (needed for irrigation)
 !$OMP THREADPRIVATE(transpot)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: qsintmax       !! Maximum amount of water in the canopy interception 
                                                                      !! reservoir @tex $(kg m^{-2})$ @endtex
 !$OMP THREADPRIVATE(qsintmax)
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: rveget         !! Surface resistance for the vegetation 
                                                                      !! @tex $(s m^{-1})$ @endtex
 !$OMP THREADPRIVATE(rveget)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: rstruct        !! Vegetation structural resistance
 !$OMP THREADPRIVATE(rstruct)
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: cresist        !! Canopy exchange limitation factor (unitless, 0-1) !! add by shuai
+!$OMP THREADPRIVATE(cresist)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: snow_nobio     !! Snow mass of non-vegetative surfaces 
                                                                      !! @tex $(kg m^{-2})$ @endtex
 !$OMP THREADPRIVATE(snow_nobio)
@@ -185,6 +222,18 @@ REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: awd_dep            !! wate
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: albedo         !! Surface albedo for visible and near-infrared 
                                                                      !! (unitless, 0-1)
 !$OMP THREADPRIVATE(albedo)
+  INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION (:,:):: nrec_trans    !! add by ke, doy after harvesting
+                                                                  
+!$OMP THREADPRIVATE(nrec_trans)
+
+  INTEGER(i_std), ALLOCATABLE, SAVE, DIMENSION(:, :) :: havlen       !! add by ke 
+!$OMP THREADPRIVATE(havlen)
+
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: veget_init     !! add by ke, the initial vegefraction on the maturaing date
+                                                                  
+!$OMP THREADPRIVATE(veget_init)
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:,:):: assim_param    !! min+max+opt temps, vcmax, vjmax for photosynthesis
 !$OMP THREADPRIVATE(assim_param)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: lai            !! Surface foliaire
@@ -264,6 +313,8 @@ REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: awd_dep            !! wate
 !$OMP THREADPRIVATE(vevapnu)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)  :: vevapnu_pft        !! Bare soil evaporation
 !$OMP THREADPRIVATE(vevapnu_pft)
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)    :: t2mdiag        !! 2 meter temperature
 !$OMP THREADPRIVATE(t2mdiag)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)    :: tot_melt       !! Total melt
@@ -304,6 +355,7 @@ REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: awd_dep            !! wate
 !$OMP THREADPRIVATE(tmc_layh_s)
 !  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:,:) :: tmc_layh_pft     !! Total soil moisture content for each layer in hydrol(liquid + ice) (mm)
 !!$OMP THREADPRIVATE(tmc_layh_pft)
+
 
   LOGICAL, SAVE                                    :: l_first_sechiba = .TRUE. !! Flag controlling the intialisation (true/false)
 !$OMP THREADPRIVATE(l_first_sechiba)
@@ -399,7 +451,7 @@ CONTAINS
        rest_id_stom, hist_id_stom, hist_id_stom_IPCC,                     &
        coastalflow,  riverflow,    tsol_rad,     vevapp,       qsurf_out, &
        z0_out,       albedo_out,   fluxsens,     fluxlat,      emis_out,  &
-       netco2flux,   fco2_lu,      temp_sol_new,  tq_cdrag)
+       netco2flux,   fco2_lu,      temp_sol_new,  tq_cdrag) !! add by ke
 
 !! 0.1 Input variables
     INTEGER(i_std), INTENT(in)                               :: kjit              !! Time step number (unitless)
@@ -487,14 +539,14 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)           :: fco2_lu           !! Land Cover Change CO2 flux 
                                                                                   !! ??(gC m^{-2} s^{-1})??
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)           :: temp_sol_new      !! New ground temperature (K)
-!    REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)      :: temp_sol_new_pft  !! New ground temperature (K)
+!    REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)     :: temp_sol_new_pft  !! New ground temperature (K)
 
 !! 0.3 Modified
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)         :: tq_cdrag          !! Surface drag coefficient 
                                                                                   !! @tex $(m.s^{-1})$ @endtex 
 
 !! 0.4 Local variables
-    INTEGER(i_std)                                           :: ji, jv		  !! Index (unitless)
+    INTEGER(i_std)                                           :: ji, jv		        !! Index (unitless)
     INTEGER(i_std)                                           :: ier
     REAL(r_std), DIMENSION(kjpindex)                         :: histvar           !! Computations for history files (unitless)
     CHARACTER(LEN=80)                                        :: var_name          !! To store variables names for I/O (unitless)
@@ -515,6 +567,7 @@ CONTAINS
     !! 1.1 Initialize most of sechiba's variables
     CALL sechiba_init (kjit, kjpij, kjpindex, index, rest_id, lalo)
     
+    
     !! 1.3 Initialize stomate's variables
     CALL slowproc_initialize (kjit,     kjpij,          kjpindex,       date0,          &      
                         index,          indexveg,       lalo,           neighbours,     &
@@ -525,7 +578,7 @@ CONTAINS
                         veget_max,      totfrac_nobio,  qsintmax,       rest_id,        &
                         rest_id_stom,   hist_id_stom,   tot_bare_soil,                  &
                         hist_id_stom_IPCC, co2_flux,    fco2_lu,        temp_growth,    &
-                        soilc_total,    thawed_humidity, depth_organic_soil,   heat_Zimov, f_rot_sech )
+                        soilc_total,    thawed_humidity, depth_organic_soil,   heat_Zimov, f_rot_sech,nrec_trans,havlen,date_s2,nmatlab,veget_init,tot_residue) !! add by ke
 
     netco2flux(:) = zero
     DO jv = 2,nvm
@@ -545,14 +598,15 @@ CONTAINS
     CALL diffuco_initialize (kjit,    kjpindex, index,                  &
                              rest_id, lalo,     neighbours, resolution, &
                              rstruct, tq_cdrag, tq_cdrag_pft)
-    
+
+!    WRITE(numout,*) "ke-temp_soil_pft589: ",temp_sol_pft
     !! 1.5 Initialize remaining variables of energy budget
     CALL enerbil_initialize (kjit,     kjpindex,     index,    rest_id,  &
                              temp_air, qair,                             &
                              temp_sol, temp_sol_pft, temp_sol_new, temp_sol_new_pft, tsol_rad, t2mdiag,  &
                              evapot,   evapot_corr,  qsurf,    fluxsens, &
                              fluxlat,  vevapp )
-    
+!    WRITE(numout,*) "ke-temp_soil_pft596: ",temp_sol_pft
 
     !! 1.7 Initialize remaining hydrological variables
     IF ( .NOT. hydrol_cwrr ) THEN
@@ -576,7 +630,7 @@ CONTAINS
           CALL hydrol_initialize (kjit,           kjpindex,  index,         rest_id,          &
                                   njsc,           soiltile,  veget,         veget_max,        &
                                   humrel,         vegstress, drysoil_frac,                    &
-                                  shumdiag_perma, k_litt,    qsintveg,                        &
+                                  shumdiag_perma, k_litt,    qsintveg, qsoverflow,            & !! add by shuai
 !                                  evap_bare_lim,  evap_bare_lim_pft, snow,      snow_age,      snow_nobio,       &
                                   evap_bare_lim,  snow,      snow_age,      snow_nobio,       &
                                   snow_nobio_age, snowrho,   snowtemp,                        &
@@ -587,9 +641,9 @@ CONTAINS
                                   transpir,       vevapnu,   vevapsno, vevapflo,              &
                                   floodout,       runoff,    drainage,                        &
                                   mc_layh,        mcl_layh,  tmc_layh,                        &
-                                  mc_layh_s,      mcl_layh_s, tmc_layh_s )
+                                  mc_layh_s,      mcl_layh_s, tmc_layh_s) !! add by ke
     ENDIF
-    
+
     !! 1.9 Initialize surface parameters (emissivity, albedo and roughness)
        CALL condveg_initialize (kjit, kjpindex, index, veget, & 
             veget_max, frac_nobio, totfrac_nobio, &
@@ -597,7 +651,7 @@ CONTAINS
             zlev, drysoil_frac, height, snowdz, snowrho, tot_bare_soil, &
             snow, snow_age, snow_nobio, snow_nobio_age, &
             emis, albedo, z0, roughheight, roughheight_pft, &
-            frac_snow_veg, frac_snow_nobio)
+            frac_snow_veg, frac_snow_nobio,nrec_trans,havlen,date_s2,nmatlab,veget_init, alb_veg_init,tot_residue,nlevlab) !! add by ke
     
     !! 1.10 Initialization of soil thermodynamics
     IF (hydrol_cwrr) THEN
@@ -614,13 +668,15 @@ CONTAINS
             ENDIF
        ENDDO
        IF (printlev >=4) THEN
-           WRITE(numout,*) 'xuhui: initialized'
-           WRITE(numout,*) 'is_crop_soil', is_crop_soil
-           WRITE(numout,*) 'tmc_layh(1,1)', tmc_layh(1,1)
-           WRITE(numout,*) 'tmc_layh_pft(1,1,:)', tmc_layh_pft(1,1,:)
-           WRITE(numout,*) 'tmc_layh(1,nslm)', tmc_layh(1,nslm)
-           WRITE(numout,*) 'tmc_layh_pft(1,nslm,:)', tmc_layh_pft(1,nslm,:)
+!           WRITE(numout,*) 'xuhui: initialized'
+!           WRITE(numout,*) 'is_crop_soil', is_crop_soil
+!           WRITE(numout,*) 'c', tmc_layh(1,1)
+!           WRITE(numout,*) 'tmc_layh_pft(1,1,:)', tmc_layh_pft(1,1,:)
+!           WRITE(numout,*) 'tmc_layh(1,nslm)', tmc_layh(1,nslm)
+!           WRITE(numout,*) 'tmc_layh_pft(1,nslm,:)', tmc_layh_pft(1,nslm,:)
        ENDIF
+       
+!       WRITE(numout,*) "ke pb in sechiba_initialize ",pb
        CALL thermosoil_initialize (kjit,  kjpindex, lalo, rest_id, veget_max, &
             shumdiag_perma, snow,               thawed_humidity,  soilc_total, &
             temp_sol_new,   temp_sol_new_pft, depth_organic_soil, stempdiag, &
@@ -639,7 +695,7 @@ CONTAINS
             lambda_snow,    cgrnd_snow,         dgrnd_snow,       pb)
 
     END IF
-
+  
     !! 1.12 Initialize river routing
     IF ( river_routing .AND. nbp_glo .GT. 1) THEN
        !! 1.12.1 Initialize river routing
@@ -658,7 +714,7 @@ CONTAINS
        flood_frac(:) = zero
        flood_res(:) = zero
     ENDIF
-
+    
     IF (do_fullirr) THEN ! compulsory irrigation
         CALL restget_p(rest_id, 'irrigation', nbp_glo, 1, 1, kjit, .TRUE., irrigation, "gather", nbp_glo, index_g)
           IF (.NOT. (MINVAL(irrigation) < MAXVAL(irrigation) .OR. MAXVAL(irrigation) < val_exp)) THEN
@@ -720,10 +776,10 @@ CONTAINS
        & lalo, contfrac, neighbours, resolution,&
        & zlev, u, v, qair, q2m, t2m, temp_air, epot_air, ccanopy, &
        & tq_cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-       & precip_rain, precip_snow, lwdown, swnet, swdown, coszang, pb, &
+       & precip_rain, precip_snow, lwdown, swnet, swdown, coszang, pb, & !! add by ke
        & vevapp, fluxsens, fluxlat, coastalflow, riverflow, netco2flux, fco2_lu, &
        & tsol_rad, temp_sol_new, qsurf_out, albedo_out, emis_out, z0_out, &
-       & rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC)
+       & rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC) 
 
 !! 0.1 Input variables
     
@@ -778,6 +834,7 @@ CONTAINS
                                                                                   !! @tex $(W m^{-2})$ @endtex
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: swdown            !! Down-welling surface short-wave flux 
                                                                                   !! @tex $(W m^{-2})$ @endtex
+   
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: temp_air          !! Air temperature (K)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: epot_air          !! Air potential energy (??J)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: ccanopy           !! CO2 concentration in the canopy (ppm)
@@ -790,6 +847,9 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: peqBcoef          !! Coefficients B for q from the Planetary 
                                                                                   !! Boundary Layer
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: pb                !! Surface pressure (hPa)
+ 
+    
+    
 
 
 !! 0.2 Output variables
@@ -821,7 +881,7 @@ CONTAINS
                                                                                   !! ??(gC m^{-2} s^{-1})??
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)           :: fco2_lu           !! Land Cover Change CO2 flux 
                                                                                   !! ??(gC m^{-2} s^{-1})??
-
+     
 !! 0.3 Modified
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)         :: tq_cdrag          !! Surface drag coefficient 
@@ -865,8 +925,9 @@ CONTAINS
     IF (printlev>=3) WRITE(numout,*) ' sechiba kjpindex =',kjpindex
 
     !! 1. Initialize variables at each time step
+    ! WRITE(numout,*) 'ke-sechiba debug1: ', 1
     CALL sechiba_var_init (kjpindex, rau, pb, temp_air) 
-
+    
     !! 2. Compute diffusion coefficients
     CALL diffuco_main (kjit, kjpindex, index, indexveg, indexlai, u, v, &
          & zlev, z0, roughheight, roughheight_pft, temp_sol, temp_sol_pft, temp_air, temp_growth, rau, tq_cdrag, tq_cdrag_pft, &
@@ -876,22 +937,24 @@ CONTAINS
          & swnet, swdown, coszang, ccanopy, humrel, veget, veget_max, lai, qsintveg, qsintmax, assim_param, &
          & vbeta, vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, gsmean, rveget, rstruct, cimean, gpp, &
          & lalo, neighbours, resolution, ptnlev1, precip_rain, frac_age, tot_bare_soil, &
-         & hist_id, hist2_id)
-    
+         & hist_id, hist2_id,tot_residue,nrec_trans,havlen,date_s2,nmatlab,veget_init,& !! add by ke
+         & qsoverflow, has_film, vbeta_has, cresist) !! add by shuai
+
+!    WRITE(numout,*) 'ke-sechiba debug1: ',2   
 !    WRITE(numout,*) 'xuhui: before enerbil_main:'
 !    WRITE(numout,*) 'temp_sol(1)',temp_sol(1)
-!    WRITE(numout,*) 'temp_sol(1,:)', temp_sol_pft(0,:)
+!    WRITE(numout,*) 'ke-nrec_trans932: ', nrec_trans(:,12)
 !    WRITE(numout,*) 'vbeta(1)', vbeta(1)
-!    WRITE(numout,*) 'vbeta_pft(1,:)', vbeta_pft(1,:)
+
     !! 3. Compute energy balance
     CALL enerbil_main (kjit, kjpindex, &
          & index, indexveg, zlev, lwdown, swnet, epot_air, temp_air, u, v, petAcoef, petBcoef, &
-         & qair, peqAcoef, peqBcoef, pb, rau, vbeta, vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft,  vbeta5, &
+         & qair, peqAcoef, peqBcoef, pb, rau, vbeta, vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta_has, vbeta3pot, vbeta4, vbeta4_pft,  vbeta5, &
          & emis, soilflx, soilflx_pft,  soilcap, soilcap_pft, tq_cdrag, tq_cdrag_pft, veget_max, humrel, fluxsens, fluxlat, &
-         & vevapp, transpir, transpot, vevapnu, vevapnu_pft, vevapwet, vevapsno, vevapflo, t2mdiag, temp_sol, temp_sol_pft, tsol_rad, &
+         & vevapp, transpir, transpir_has, transpot, vevapnu, vevapnu_pft, vevapwet, vevapsno, vevapflo, t2mdiag, temp_sol, temp_sol_pft, tsol_rad, &
          & temp_sol_new, temp_sol_new_pft, qsurf, evapot, evapot_corr, rest_id, hist_id, hist2_id,&
-         & precip_rain,snowdz,snowrho,pgflux,temp_sol_add)
-
+         & precip_rain,snowdz,snowrho,pgflux,temp_sol_add,havlen,nrec_trans,date_s2) !! add by ke
+!    WRITE(numout,*) 'ke-sechiba debug1: ',3     
 !    WRITE(numout,*) 'xuhui: after enerbil_main:'
 !    WRITE(numout,*) 'temp_sol(1)',temp_sol(1)
 !    WRITE(numout,*) 'temp_sol(1,:)', temp_sol_pft(1,:)
@@ -900,6 +963,7 @@ CONTAINS
 
     !! 4. Compute hydrology
     IF ( .NOT. hydrol_cwrr ) THEN
+       
        ! 4.1 Water balance from Choisnel module (2 soil layers)
        vegstress_old = vegstress
        CALL hydrolc_main (kjit, kjpindex, index, indexveg, &
@@ -911,7 +975,7 @@ CONTAINS
             & temp_air, pb, u, v, pgflux, &
             & snowrho,snowtemp,snowgrain,snowdz,snowheat,snowliq, &
             & grndflux, gtemp, tot_bare_soil, soilflxresid,       &
-              lambda_snow, cgrnd_snow, dgrnd_snow, temp_sol_add)
+              lambda_snow, cgrnd_snow, dgrnd_snow, temp_sol_add) !! add by ke
 
        evap_bare_lim(:) = -un
        k_litt(:) = huit
@@ -921,10 +985,11 @@ CONTAINS
     ELSE
        !! 4.1 Water balance from CWRR module (11 soil layers)
        vegstress_old = vegstress
+!       WRITE(numout,*) "ke kindex in sechiba_main before hydrolmain ",index
        CALL hydrol_main (kjit, kjpindex, &
             & index, indexveg, indexsoil, indexlayer, indexnbdl, &
             & temp_sol_new, floodout, runoff, drainage, frac_nobio, totfrac_nobio, vevapwet, veget, veget_max, njsc, &
-            & qsintmax, qsintveg, vevapnu, vevapnu_pft, vevapsno, vevapflo, snow, snow_age, snow_nobio, snow_nobio_age,  &
+            & qsintmax, qsintveg, qsoverflow, vevapnu, vevapnu_pft, vevapsno, vevapflo, snow, snow_age, snow_nobio, snow_nobio_age,  &
             & tot_melt, transpir, precip_rain, precip_snow, returnflow, reinfiltration, irrigation, vegstress_old, transpot, &
 !            & humrel, vegstress, drysoil_frac, evapot, evapot_corr, evap_bare_lim, evap_bare_lim_pft, flood_frac, flood_res, &
             & humrel, vegstress, drysoil_frac, evapot, evapot_corr, evap_bare_lim, flood_frac, flood_res, &
@@ -935,12 +1000,12 @@ CONTAINS
             & grndflux, gtemp, tot_bare_soil, &
             & soilflxresid, mc_layh, mcl_layh, tmc_layh, mc_layh_s, mcl_layh_s, tmc_layh_s, &
             & drunoff_tot, fwet_out, lambda_snow, cgrnd_snow, dgrnd_snow, temp_sol_add, irrigr, &
-            & do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, awd_dep, lai)
+            & do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, awd_dep, lai)  !! add by ke
 
        rsol(:) = -un
-
+       ! WRITE(numout,*) 'ke-sechiba debug1: ',4  
     ENDIF
-         
+   
     !! 5. Compute remaining components of the energy balance
     IF ( .NOT. ok_explicitsnow ) THEN 
 !!! this means that my code is not compatible with explicit snow due to missing
@@ -948,14 +1013,16 @@ CONTAINS
        CALL enerbil_fusion (kjpindex, tot_melt, soilcap, soilcap_pft,  snowdz, &
             temp_sol_new, temp_sol_new_pft, fusion)
     END IF
-
+    ! WRITE(numout,*) 'ke-sechiba debug1: ',5  
     !! 6. Compute surface variables (emissivity, albedo and roughness)
     CALL condveg_main (kjit, kjpindex, index,&
          & lalo, neighbours, resolution, contfrac, veget, veget_max, frac_nobio, totfrac_nobio, &
          & zlev, snow, snow_age, snow_nobio, snow_nobio_age, tot_bare_soil, &
          & drysoil_frac, height, snowdz, snowrho, emis, albedo, frac_snow_veg, frac_snow_nobio, &
-         & z0, roughheight, roughheight_pft, rest_id, hist_id, hist2_id)
+         & z0, roughheight, roughheight_pft, rest_id, hist_id, hist2_id,nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,nlevlab) !! add by ke
+    ! WRITE(numout,*) 'ke-sechiba debug1: ',6  
 
+    
     !! 7. Compute soil thermodynamics
     IF (hydrol_cwrr) THEN      
        !!!!! transfer  mc_layh_s,      mcl_layh_s, tmc_layh_s
@@ -965,7 +1032,7 @@ CONTAINS
             mcl_layh_pft(:,:,jv) = mcl_layh_s(:,:,pref_soil_veg(jv))
             tmc_layh_pft(:,:,jv) = tmc_layh_s(:,:,pref_soil_veg(jv))
        ENDDO
-
+!       WRITE(numout,*) "ke kindex in sechiba_main before thermosoilmain ",index 
        CALL thermosoil_main (kjit, kjpindex, &
             index, indexgrnd, &
             temp_sol_new, temp_sol_new_pft, snow, soilcap, soilcap_pft, soilflx, soilflx_pft, shumdiag_perma, stempdiag, &
@@ -976,7 +1043,9 @@ CONTAINS
             soilc_total, veget_max, &
             frac_snow_veg,frac_snow_nobio,totfrac_nobio, temp_sol_add, &
             lambda_snow, cgrnd_snow, dgrnd_snow) 
+!       WRITE(numout,*) "ke kindex in sechiba_main after thermosoilmain ",index 
     ELSE
+       
        CALL thermosoilc_main (kjit, kjpindex, &
             index, indexgrnd,indexnbdl, &
             temp_sol_new, snow, soilcap, soilflx, shumdiag_perma, stempdiag, &
@@ -988,15 +1057,17 @@ CONTAINS
             lambda_snow, cgrnd_snow, dgrnd_snow)
     END IF
 
-
+   
     !! 8. Compute river routing 
     IF ( river_routing .AND. nbp_glo .GT. 1) THEN
        !! 8.1 River routing
+!       WRITE(numout,*) "ke kindex in sechiba_main before routingmain ",index 
        CALL routing_main (kjit, kjpindex, index, &
             & lalo, neighbours, resolution, contfrac, totfrac_nobio, veget, veget_max, soil_deficit, floodout, runoff, &
             & drainage, transpot, evapot_corr, vegstress, precip_rain, humrel, k_litt, flood_frac, flood_res, &
             & stempdiag, reinf_slope, returnflow, reinfiltration, irrigation, riverflow, coastalflow, rest_id, hist_id, &
             & hist2_id, irrigr, do_irrig_reservoir, irrig_dep_threshold, reservoir_dep_max, do_awd, awd_dep, lai)
+!       WRITE(numout,*) "ke kindex in sechiba_main after routingmain ",index 
     ELSE
        !! 8.2 No routing, set variables to zero
        riverflow(:) = zero
@@ -1076,7 +1147,7 @@ CONTAINS
             irrigation(:) = zero
        ENDIF
     ENDIF
-
+    
     !! 9. Compute slow processes (i.e. 'daily' and annual time step)
        !spitfire
        ! Compute wind speed for fire model
@@ -1088,6 +1159,7 @@ CONTAINS
     !! 2.9 Compute slow processes (i.e. 'daily' and annual time step)
     ! ::ok_co2 and ::ok_stomate are flags that determine whether the
     ! forcing files are written.
+!    WRITE(numout,*) 'ke-nrec_trans1149: ', nrec_trans(:,12) 
     CALL slowproc_main (kjit, kjpij, kjpindex, date0, &
          index, indexveg, lalo, neighbours, resolution, contfrac, soiltile, &
          t2mdiag, t2mdiag, temp_sol, stempdiag, &
@@ -1105,7 +1177,8 @@ CONTAINS
          tdeep, hsdeep, snow, heat_Zimov, pb, &
          sfluxCH4_deep, sfluxCO2_deep, &
          thawed_humidity, depth_organic_soil, zz_deep, zz_coef_deep, &
-         soilc_total,snowdz,snowrho, tot_bare_soil, f_rot_sech, rot_cmd)
+         soilc_total,snowdz,snowrho, tot_bare_soil, f_rot_sech, rot_cmd,nrec_trans,havlen,date_s2,nmatlab,veget_init,tot_residue,nlevlab) !! add by ke
+!    WRITE(numout,*) 'ke-nrec_trans1168: ', nrec_trans(:,12) 
 
     !! 9.2 Compute global CO2 flux
     netco2flux(:) = zero
@@ -1115,19 +1188,22 @@ CONTAINS
     !! 9.3 crop rotation 
     IF (ok_rotate) THEN
        DO ji = 1,kjpindex
-
+!            WRITE(numout,*) 'ke-veget_max in sechiba0: ', date_s2,',',f_rot_sech(ji),',',havlen(ji,12),',',nrec_trans(ji,12)
+!!!!!!!! modifed by ke   .AND. (nrec_trans(ji,12) .GE. 90)
          IF (f_rot_sech(ji)) THEN
+!            WRITE(numout,*) 'ke-veget_max in sechiba1: ', date_s2,',',veget_max,',',havlen(ji,12),',',nrec_trans(ji,12)
+
             matrix_rot(:,:) = zero
-            !!! do all the rotation command
+                !!! do all the rotation command
             k = 1
             DO WHILE ( (rot_cmd(ji,k) .GT. 0) .AND. (k .LE. rot_cmd_max) )
                 CALL sechiba_get_cmd(rot_cmd(ji,k), stveg, edveg, rotprc)
                 matrix_rot(stveg,edveg) = rotprc
                 k = k+1
             ENDDO
-            ! The rotation command in rot_cmd has been well checked by
-            ! in stomate_rotate, no further need to check here, xuhui
-            !!! converting veget_max
+                ! The rotation command in rot_cmd has been well checked by
+                ! in stomate_rotate, no further need to check here, xuhui
+                !!! converting veget_max
             temp_veget_max = veget_max(ji,:)
             old_veget_max = veget_max(ji,:)
             DO jsrc = 1, nvm
@@ -1142,14 +1218,28 @@ CONTAINS
                 temp_veget_max(:) = zero
             ENDWHERE
             veget_max(ji,:) = temp_veget_max
-            
-            !!! transfering soil heat and water storage
-            !!!!!!! veget & soiltile simple update
+              !  WRITE(numout,*) 'ke-veget_max in sechiba1: ', veget_max
+           
+                !!! transfering soil heat and water storage
+                !!!!!!! veget & soiltile simple update
+!            WRITE(numout,*) 'ke-veget_max in sechiba1: ', veget_max
             veget(ji,1) = veget_max(ji,1)
-            DO jv = 2,nvm
-                veget(ji,jv) = veget_max(ji,jv) * (un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+!            DO jv = 2,nvm
+!                veget(ji,jv) = veget_max(ji,jv) * (un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+!            ENDDO
+            !!!!!!!!!!!!!!! add by ke !!!!!!!!!!!!!!!!!!!!!!!!!!
+            DO jv = 2, nvm
+              IF ((ok_yellow) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+                  veget(ji,jv) = veget_max(ji,jv) * ( un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+             !     veget(ji,12) = veget_init(ji,12)
+              ELSE
+                  veget(ji,jv) = veget_max(ji,jv) * ( un - exp( - lai(ji,jv) * ext_coeff(jv) ) )
+              ENDIF
             ENDDO
-
+            
+            ! WRITE(numout,*) 'ke-veget_max in sechiba3: ', veget_max(ji,12),',',veget(ji,12),',',veget_max(ji,13),',',veget(ji,13)
+            !!!!!!!!!!!!!!! add by ke !!!!!!!!!!!!!!!!!!!!!!!!!!
+            
             soiltile(ji,:) = zero
             soiltile(ji,1) = totfrac_nobio(ji)
             DO jsrc = 1,nvm
@@ -1158,11 +1248,11 @@ CONTAINS
             ENDDO
             IF ((SUM(soiltile(ji,:)) .LT. 1.0-min_sechiba) .OR.  &
                 (SUM(soiltile(ji,:)) .GT. 1.0+min_sechiba) ) THEN
-                WRITE(numout,*) 'ji, soiltile(ji,:)', ji, soiltile(ji,:)
+!                WRITE(numout,*) 'ji, soiltile(ji,:)', ji, soiltile(ji,:)
                 STOP 'sechiba_rotation: sum of soiltile not equal to 1'
             ENDIF
             !!! soil water storage
-            CALL hydrol_rotation_update (ji, kjpindex, matrix_rot, old_veget_max, veget_max, soiltile, qsintveg)
+            CALL hydrol_rotation_update (ji, kjpindex, matrix_rot, old_veget_max, veget_max, soiltile, qsintveg) !! add by ke
 
             CALL thermosoil_rotation_update (ji, kjpindex, matrix_rot, old_veget_max) !ptn, cgrnd, dgrnd
 
@@ -1199,16 +1289,17 @@ CONTAINS
             !The old temp_sol_new_pft, soilcap_pft, soilflx_pft should be
             !maintained as the old value
 
-            IF (printlev>=4) THEN
-                WRITE(numout,*) 'xuhui: debug for sechiba_rotation, ji', ji
-                WRITE(numout,*) 'rot_cmd(ji,:)', rot_cmd(ji,:)
-                WRITE(numout,*) 'temp_temp_sol:', temp_temp_sol
-                WRITE(numout,*) 'temp_sol_new_pft(ji,:)', temp_sol_new_pft(ji,:)
-            ENDIF
+!            IF (printlev>=4) THEN
+!                WRITE(numout,*) 'rot_cmd(ji,:)', rot_cmd(ji,:)
+!                WRITE(numout,*) 'temp_temp_sol:', temp_temp_sol
+!                WRITE(numout,*) 'temp_sol_new_pft(ji,:)', temp_sol_new_pft(ji,:)
+!            ENDIF
 
             !!! remove the executed rotation commands
             f_rot_sech(ji) = .FALSE.
             rot_cmd(ji,:) = 0
+
+                
          ENDIF  ! f_rot_sech(ji)
        ENDDO ! ji       
     ENDIF !ok_rotate
@@ -1240,6 +1331,7 @@ CONTAINS
     ENDDO          
 
     CALL xios_orchidee_send_field("evapnu",vevapnu*one_day/dt_sechiba)
+ 
     CALL xios_orchidee_send_field("snow",snow)
     CALL xios_orchidee_send_field("snowage",snow_age)
     CALL xios_orchidee_send_field("snownobio",snow_nobio)
@@ -1261,11 +1353,18 @@ CONTAINS
     CALL xios_orchidee_send_field("vbeta1",vbeta1)
     CALL xios_orchidee_send_field("vbeta2",vbeta2)
     CALL xios_orchidee_send_field("vbeta3",vbeta3)
+    
+    IF (ok_has) THEN
+    CALL xios_orchidee_send_field("vbeta_has",vbeta_has) !! add by shuai
+    CALL xios_orchidee_send_field("has_film",has_film) !! add by shuai
+    ENDIF
+    
     CALL xios_orchidee_send_field("vbeta4",vbeta4)
     CALL xios_orchidee_send_field("vbeta5",vbeta5)
     CALL xios_orchidee_send_field("gsmean",gsmean)
     CALL xios_orchidee_send_field("cimean",cimean)
     CALL xios_orchidee_send_field("rveget",rveget)
+    CALL xios_orchidee_send_field("cresist",cresist) !! add by shuai
     CALL xios_orchidee_send_field("rsol",rsol)
  
     histvar(:)=SUM(vevapwet(:,:),dim=2)
@@ -1306,7 +1405,11 @@ CONTAINS
     CALL xios_orchidee_send_field("subli",vevapsno*one_day/dt_sechiba)
     CALL xios_orchidee_send_field("vevapnu",vevapnu*one_day/dt_sechiba)
     CALL xios_orchidee_send_field("vevapnu_alma",vevapnu/dt_sechiba)
+    !!! add by ke
+
+    !!! add by ke  
     CALL xios_orchidee_send_field("transpir",transpir*one_day/dt_sechiba)
+    CALL xios_orchidee_send_field("transpir_has",transpir_has*one_day/dt_sechiba) !! add by shuai
     CALL xios_orchidee_send_field("inter",vevapwet*one_day/dt_sechiba)
     CALL xios_orchidee_send_field("Qf",fusion)
     CALL xios_orchidee_send_field("irrigr",irrigr)
@@ -1328,10 +1431,12 @@ CONTAINS
     CALL xios_orchidee_send_field("ACond_pft",tq_cdrag_pft)
 
     IF ( .NOT. almaoutput ) THEN
+ !      WRITE(numout,*) "ke kindex in sechiba_main in .NOT. almaoutput start ",index
        ! Write history file in IPSL-format
        CALL histwrite_p(hist_id, 'beta', kjit, vbeta, kjpindex, index)
        CALL histwrite_p(hist_id, 'beta_pft', kjit, vbeta_pft, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'z0', kjit, z0, kjpindex, index)
+       CALL histwrite_p(hist_id, 'qsurf', kjit, qsurf, kjpindex, index) !! add by shuai   
        CALL histwrite_p(hist_id, 'soilflx',kjit, soilflx, kjpindex, index)
        CALL histwrite_p(hist_id, 'soilcap',kjit, soilcap, kjpindex, index)
        CALL histwrite_p(hist_id, 'soilflx_pft',kjit, soilflx_pft, kjpindex, indexveg)
@@ -1346,11 +1451,20 @@ CONTAINS
        CALL histwrite_p(hist_id, 'subli', kjit, vevapsno, kjpindex, index)
        CALL histwrite_p(hist_id, 'evapnu', kjit, vevapnu, kjpindex, index)
        CALL histwrite_p(hist_id, 'evapnu_pft', kjit, vevapnu_pft, kjpindex*nvm, indexveg)
+    
+       
        CALL histwrite_p(hist_id, 'transpir', kjit, transpir, kjpindex*nvm, indexveg)
+       CALL histwrite_p(hist_id, 'transpir_has', kjit, transpir_has, kjpindex*nvm, indexveg) !! add by shuai
        CALL histwrite_p(hist_id, 'inter', kjit, vevapwet, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'vbeta1', kjit, vbeta1, kjpindex, index)
        CALL histwrite_p(hist_id, 'vbeta2', kjit, vbeta2, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'vbeta3', kjit, vbeta3, kjpindex*nvm, indexveg)
+       
+       IF (ok_has) THEN
+          CALL histwrite_p(hist_id, 'vbeta_has', kjit, vbeta_has, kjpindex*nvm, indexveg) !! add by shuai
+          CALL histwrite_p(hist_id, 'has_film', kjit, has_film, kjpindex*nvm, indexveg) !! add by shuai
+       ENDIF
+       
        CALL histwrite_p(hist_id, 'vbeta4', kjit, vbeta4, kjpindex, index)    
        CALL histwrite_p(hist_id, 'vbeta4_pft', kjit, vbeta4_pft, kjpindex*nvm, indexveg)    
        CALL histwrite_p(hist_id, 'vbeta5', kjit, vbeta5, kjpindex, index)    
@@ -1381,7 +1495,7 @@ CONTAINS
           CALL histwrite_p(hist_id, 'snowgrain',kjit,snowgrain,kjpindex*nsnow,indexsnow)
           CALL histwrite_p(hist_id, 'snowheat',kjit,snowheat,kjpindex*nsnow,indexsnow)
        END IF
-
+        
        CALL histwrite_p(hist_id, 'pgflux',kjit,pgflux,kjpindex,index)
        CALL histwrite_p(hist_id, 'soiltile',  kjit, soiltile, kjpindex*nstm, indexsoil)
        !
@@ -1397,7 +1511,8 @@ CONTAINS
        IF ( ok_co2 ) THEN
           CALL histwrite_p(hist_id, 'gsmean', kjit, gsmean, kjpindex*nvm, indexveg)    
           CALL histwrite_p(hist_id, 'gpp', kjit, gpp, kjpindex*nvm, indexveg)
-          CALL histwrite_p(hist_id, 'cimean', kjit, cimean, kjpindex*nvm, indexveg)    
+          CALL histwrite_p(hist_id, 'cimean', kjit, cimean, kjpindex*nvm, indexveg)   
+          CALL histwrite_p(hist_id, 'cresist', kjit, cresist, kjpindex*nvm, indexveg) !! add by shuai 
        ENDIF
        IF ( ok_stomate ) THEN
           CALL histwrite_p(hist_id, 'nee', kjit, co2_flux, kjpindex*nvm, indexveg)    
@@ -1426,13 +1541,17 @@ CONTAINS
 
        histvar(:)=SUM(frac_nobio(:,1:nnobio),dim=2)*100*contfrac(:)
        CALL histwrite_p(hist_id, 'residualFrac', kjit, histvar, kjpindex, index)
+!       WRITE(numout,*) "ke kindex in sechiba_main in .NOT. almaoutput end ",index
     ELSE
        ! Write history file in ALMA format 
+!       WRITE(numout,*) "ke kindex in sechiba_main in almaoutput start ",index
        CALL histwrite_p(hist_id, 'vegetfrac', kjit, veget, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'maxvegetfrac', kjit, veget_max, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'nobiofrac', kjit, frac_nobio, kjpindex*nnobio, indexnobio)
        CALL histwrite_p(hist_id, 'Qf', kjit, fusion, kjpindex, index)
        CALL histwrite_p(hist_id, 'ESoil', kjit, vevapnu, kjpindex, index)
+   
+       
        CALL histwrite_p(hist_id, 'EWater', kjit, vevapflo, kjpindex, index)
        CALL histwrite_p(hist_id, 'SWE', kjit, snow, kjpindex, index)
        histvar(:)=zero
@@ -1462,6 +1581,7 @@ CONTAINS
        IF ( ok_stomate ) THEN
              CALL histwrite_p(hist_id, 'NEE', kjit, co2_flux, kjpindex*nvm, indexveg)    
        ENDIF
+ !      WRITE(numout,*) "ke kindex in sechiba_main in almaoutput end ",index
     ENDIF ! almaoutput
     
     !! 13. Write additional output file with higher frequency
@@ -1486,11 +1606,19 @@ CONTAINS
              CALL histwrite_p(hist2_id, 'flood_frac', kjit, flood_frac, kjpindex, index)
           ENDIF
           CALL histwrite_p(hist2_id, 'vevapnu', kjit, vevapnu, kjpindex, index)
+    
           CALL histwrite_p(hist2_id, 'transpir', kjit, transpir, kjpindex*nvm, indexveg)
+          CALL histwrite_p(hist2_id, 'transpir_has', kjit, transpir_has, kjpindex*nvm, indexveg) !! add by shuai
           CALL histwrite_p(hist2_id, 'inter', kjit, vevapwet, kjpindex*nvm, indexveg)
           CALL histwrite_p(hist2_id, 'vbeta1', kjit, vbeta1, kjpindex, index)
           CALL histwrite_p(hist2_id, 'vbeta2', kjit, vbeta2, kjpindex*nvm, indexveg)
           CALL histwrite_p(hist2_id, 'vbeta3', kjit, vbeta3, kjpindex*nvm, indexveg)
+          
+          IF (ok_has) THEN
+             CALL histwrite_p(hist2_id, 'vbeta_has', kjit, vbeta_has, kjpindex*nvm, indexveg) !! add by shuai
+             CALL histwrite_p(hist2_id, 'has_film', kjit, has_film, kjpindex*nvm, indexveg) !! add by shuai
+          ENDIF
+          
           CALL histwrite_p(hist2_id, 'vbeta4', kjit, vbeta4, kjpindex, index)    
           CALL histwrite_p(hist2_id, 'vbeta5', kjit, vbeta5, kjpindex, index)    
           CALL histwrite_p(hist2_id, 'drysoil_frac', kjit, drysoil_frac, kjpindex, index)
@@ -1519,6 +1647,7 @@ CONTAINS
              CALL histwrite_p(hist2_id, 'gsmean', kjit, gsmean, kjpindex*nvm, indexveg)    
              CALL histwrite_p(hist2_id, 'gpp', kjit, gpp, kjpindex*nvm, indexveg)
              CALL histwrite_p(hist2_id, 'cimean', kjit, cimean, kjpindex*nvm, indexveg)    
+             CALL histwrite_p(hist2_id, 'cresist', kjit, cresist, kjpindex*nvm, indexveg) !! add by shuai
           ENDIF
           IF ( ok_stomate ) THEN
              CALL histwrite_p(hist2_id, 'nee', kjit, co2_flux, kjpindex*nvm, indexveg)    
@@ -1530,6 +1659,8 @@ CONTAINS
           CALL histwrite_p(hist2_id, 'nobiofrac', kjit, frac_nobio, kjpindex*nnobio, indexnobio)
           CALL histwrite_p(hist2_id, 'Qf', kjit, fusion, kjpindex, index)
           CALL histwrite_p(hist2_id, 'ESoil', kjit, vevapnu, kjpindex, index)
+          
+          
           IF ( river_routing .AND. do_floodplains ) THEN
              CALL histwrite_p(hist2_id, 'EWater', kjit, vevapflo, kjpindex, index)
              CALL histwrite_p(hist2_id, 'FloodFrac', kjit, flood_frac, kjpindex, index)
@@ -1564,8 +1695,8 @@ CONTAINS
         !have 0 Carbon content when started, instead of inheriting C of reduced PFTs
     IF (done_stomate_lcchange) THEN
        IF (.NOT. use_age_class) THEN
-           CALL slowproc_change_frac(kjpindex, f_rot_sech, lai, &
-                                 veget_max, veget, frac_nobio, totfrac_nobio, tot_bare_soil, soiltile)
+           CALL slowproc_change_frac(kjit, kjpindex, f_rot_sech, lai, &
+                                 veget_max, veget, frac_nobio, totfrac_nobio, tot_bare_soil, soiltile,havlen,nrec_trans, tot_residue,veget_init,date_s2,nmatlab) !! add by ke
        ENDIF
        done_stomate_lcchange=.FALSE.
     END IF
@@ -1577,6 +1708,7 @@ CONTAINS
             tq_cdrag, vevapp, fluxsens, fluxlat, tsol_rad, &
             netco2flux )
     END IF
+!    WRITE(numout,*) "ke kindex in sechiba_main end ",index
 
   END SUBROUTINE sechiba_main
 
@@ -1652,11 +1784,11 @@ CONTAINS
     ELSE
        !! 3.2 Call water balance from CWRR module (11 soil layers) to write restart file
         CALL hydrol_finalize( kjit,           kjpindex, rest_id,  vegstress,  &
-                        qsintveg,       humrel,         snow,     snow_age, snow_nobio, &
+                        qsintveg,    qsoverflow,   humrel,         snow,     snow_age, snow_nobio, &
                         snow_nobio_age, snowrho,  snowtemp,             &
                         snowdz,         snowheat,       fwet_out,       &
-                        snowgrain,  drysoil_frac, evap_bare_lim)
-!                        snowcap,        snowgrain,  drysoil_frac, evap_bare_lim, evap_bare_lim_pft)
+                        snowgrain,  drysoil_frac, evap_bare_lim) !! add by ke
+!                        snowcap,        snowgrain,  drysoil_frac, evap_bare_lim, evap_bare_lim_pft) !! add by ke
        rsol(:) = -un
     ENDIF
     
@@ -1692,12 +1824,12 @@ CONTAINS
     ENDIF
 
     !! 7. Call slowproc_main to add 'daily' and annual variables to restart file
-    print *,'veget_max before slowproc_finalize,',veget_max
+    !print *,'veget_max before slowproc_finalize,',veget_max
     CALL slowproc_finalize (kjit,       kjpindex,  rest_id,  index,      &
                            njsc,       lai,       height,   veget,      &
                            frac_nobio, veget_max, reinf_slope,&
                            zz_deep, zz_coef_deep, thawed_humidity, depth_organic_soil, &
-                           assim_param, frac_age )
+                           assim_param, frac_age, havlen) !! add by ke
 
     ! Compute global CO2 flux !*
     netco2flux(:) = zero
@@ -1914,6 +2046,10 @@ CONTAINS
     ALLOCATE (qsintveg(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for qsintveg','','')
     qsintveg(:,:) = undef_sechiba
+    
+    ALLOCATE (qsoverflow(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for qsoverflow','','') !! add by shuai
+
 
     ALLOCATE (tq_cdrag_pft(kjpindex,nvm),stat=ier)
     IF (ier.NE.0) THEN
@@ -1926,10 +2062,18 @@ CONTAINS
 
     ALLOCATE (vbeta2(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vbeta2','','')
+    
+
 
     ALLOCATE (vbeta3(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vbeta3','','')
+    
+    ALLOCATE (vbeta_has(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vbeta_has','','') !! add by shuai
 
+    ALLOCATE (has_film(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for has_film','','') !! add by shuai
+    
     ALLOCATE (vbeta3pot(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vbeta3pot','','')
 
@@ -1951,13 +2095,40 @@ CONTAINS
     ALLOCATE (veget(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for veget','','')
     veget(:,:)=undef_sechiba
-
+    
+!!!! add by ke   
+    ALLOCATE (veget_init(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for veget_init','','')
+    veget_init(:,:)=undef_sechiba
+ !!!! add by ke 
+ 
+!!!! add by ke   
+    ALLOCATE (alb_veg_init(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for alb_veg_init','','')
+    alb_veg_init(:,:)=undef_sechiba
+ !!!! add by ke 
+ 
     ALLOCATE (veget_max(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for veget_max','','')
 
     ALLOCATE (tot_bare_soil(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for tot_bare_soil','','')
+!!!! add by ke      
+    ALLOCATE (tot_residue(kjpindex),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for tot_residue','','')
+    
+    ALLOCATE (nrec_trans(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for nrec_trans','','')
+!!!! add by ke 
 
+    ALLOCATE(havlen(kjpindex,nvm),stat=ier)  
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for havlen','','') 
+    havlen(:,:) = zero
+!!!! add by ke 
+    ALLOCATE (nmatlab(kjpindex),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for nmatlab','','')
+    nmatlab(:) = zero
+ 
     ALLOCATE (lai(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for lai','','')
     lai(:,:)=undef_sechiba
@@ -2024,6 +2195,8 @@ CONTAINS
 
     ALLOCATE (vevapnu_pft(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vevapnu_pft','','')
+    
+
 
     ALLOCATE (t2mdiag(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for t2mdiag','','')
@@ -2185,19 +2358,27 @@ CONTAINS
     ALLOCATE (vevapwet(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for vevapwet','','')
     vevapwet(:,:)=undef_sechiba
+    
 
     ALLOCATE (transpir(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for transpir','','')
+    
+    ALLOCATE (transpir_has(kjpindex,nvm),stat=ier)
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for transpir_has','','') !! add by shuai
 
     ALLOCATE (transpot(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for transpot','','')
 
     ALLOCATE (qsintmax(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for qsintmax','','')
+ 
 
     ALLOCATE (rveget(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for rveget','','')
-
+    
+    ALLOCATE (cresist(kjpindex,nvm),stat=ier)  
+    IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for cresist','','')   !! add by shuai
+    
     ALLOCATE (rstruct(kjpindex,nvm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'sechiba_init','Pb in alloc for rstruct','','')
 
@@ -2426,8 +2607,12 @@ CONTAINS
     IF ( ALLOCATED (temp_sol_pft)) DEALLOCATE (temp_sol_pft)
     IF ( ALLOCATED (qsurf)) DEALLOCATE (qsurf)
     IF ( ALLOCATED (qsintveg)) DEALLOCATE (qsintveg)
+    IF ( ALLOCATED (qsoverflow)) DEALLOCATE (qsoverflow) !! add by shuai
     IF ( ALLOCATED (vbeta2))  DEALLOCATE (vbeta2)
+
     IF ( ALLOCATED (vbeta3)) DEALLOCATE (vbeta3)
+    IF ( ALLOCATED (vbeta_has)) DEALLOCATE (vbeta_has) !! add by shuai
+    IF ( ALLOCATED (has_film)) DEALLOCATE (has_film) !! add by shuai
     IF ( ALLOCATED (vbeta3pot)) DEALLOCATE (vbeta3pot)
     IF ( ALLOCATED (tq_cdrag_pft))  DEALLOCATE (tq_cdrag_pft)
     IF ( ALLOCATED (gsmean)) DEALLOCATE (gsmean)
@@ -2435,8 +2620,14 @@ CONTAINS
     IF ( ALLOCATED (gpp)) DEALLOCATE (gpp)
     IF ( ALLOCATED (temp_growth)) DEALLOCATE (temp_growth) 
     IF ( ALLOCATED (veget)) DEALLOCATE (veget)
+    IF ( ALLOCATED (veget_init)) DEALLOCATE (veget_init)    !! add by ke
+    IF ( ALLOCATED (alb_veg_init)) DEALLOCATE (alb_veg_init)    !! add by ke
     IF ( ALLOCATED (veget_max)) DEALLOCATE (veget_max)
     IF ( ALLOCATED (tot_bare_soil)) DEALLOCATE (tot_bare_soil)
+    IF ( ALLOCATED (tot_residue)) DEALLOCATE (tot_residue) !! add by ke
+    IF ( ALLOCATED (nrec_trans)) DEALLOCATE (nrec_trans) !! add by ke
+    IF ( ALLOCATED (havlen)) DEALLOCATE(havlen) !! add by ke
+    IF ( ALLOCATED (nmatlab)) DEALLOCATE (nmatlab)
     IF ( ALLOCATED (lai)) DEALLOCATE (lai)
     IF ( ALLOCATED (frac_age)) DEALLOCATE (frac_age)
     IF ( ALLOCATED (height)) DEALLOCATE (height)
@@ -2449,7 +2640,7 @@ CONTAINS
     IF ( ALLOCATED (vevapflo)) DEALLOCATE (vevapflo)
     IF ( ALLOCATED (vevapsno)) DEALLOCATE (vevapsno)
     IF ( ALLOCATED (vevapnu)) DEALLOCATE (vevapnu)
-    IF ( ALLOCATED (vevapnu_pft)) DEALLOCATE (vevapnu_pft)
+    IF ( ALLOCATED (vevapnu_pft)) DEALLOCATE (vevapnu_pft)   
     IF ( ALLOCATED (t2mdiag)) DEALLOCATE (t2mdiag)
     IF ( ALLOCATED (totfrac_nobio)) DEALLOCATE (totfrac_nobio)
     IF ( ALLOCATED (floodout)) DEALLOCATE (floodout)
@@ -2480,9 +2671,11 @@ CONTAINS
     IF ( ALLOCATED (k_litt)) DEALLOCATE (k_litt)
     IF ( ALLOCATED (vevapwet)) DEALLOCATE (vevapwet)
     IF ( ALLOCATED (transpir)) DEALLOCATE (transpir)
+    IF ( ALLOCATED (transpir_has)) DEALLOCATE (transpir_has) !! add by shuai
     IF ( ALLOCATED (transpot)) DEALLOCATE (transpot)
     IF ( ALLOCATED (qsintmax)) DEALLOCATE (qsintmax)
     IF ( ALLOCATED (rveget)) DEALLOCATE (rveget)
+    IF ( ALLOCATED (cresist)) DEALLOCATE (cresist) !! add by shuai
     IF ( ALLOCATED (rstruct)) DEALLOCATE (rstruct)
     IF ( ALLOCATED (snowrho)) DEALLOCATE (snowrho)
     IF ( ALLOCATED (snowgrain)) DEALLOCATE (snowgrain)
@@ -2631,7 +2824,7 @@ CONTAINS
 
   !!!! --------------------------------------------------------------
     IF (cmdin > 1010000 .OR. cmdin < 0 ) THEN
-        WRITE(numout,*) 'cmdin, ',cmdin
+!        WRITE(numout,*) 'cmdin, ',cmdin
         STOP 'cmd error in sechiba_get_cmd'
     ENDIF
     IF (cmdin == 0) THEN
@@ -2644,25 +2837,25 @@ CONTAINS
         src_rot = MOD(FLOOR(FLOAT(cmdin)/100), 100)
 
         prc_rot = FLOAT(FLOOR(FLOAT(cmdin)/10000))/100.0
-        IF (printlev >=4) THEN
-            WRITE(numout,*) 'xuhui: cmdin, tgt_rot, src_rot, prc_rot', cmdin, src_rot, tgt_rot, prc_rot
-        ENDIF
+!        IF (printlev >=4) THEN
+!            WRITE(numout,*) 'xuhui: cmdin, tgt_rot, src_rot, prc_rot', cmdin, src_rot, tgt_rot, prc_rot
+!        ENDIF
         IF (prc_rot .GT. 1.0 .AND. prc_rot .LT. 1.0+0.01) THEN ! resolve potential  precision issues
             prc_rot = 1.0
         ENDIF
         !!! consistency check
         IF (prc_rot .GT. 1.0) THEN
-            WRITE(numout,*) 'percent change larger than 1..., prc_rot',prc_rot
+!            WRITE(numout,*) 'percent change larger than 1..., prc_rot',prc_rot
             STOP 'incorrect percent rotation, sechiba_get_cmd'
         ENDIF
         IF ( (tgt_rot .GT. nvm) .OR. ( .NOT. (ok_LAIdev(tgt_rot) .OR. (tgt_rot .EQ. 1)) ) ) THEN
-            WRITE(numout,*) 'rotation target error: tgt_rot ', tgt_rot
-            WRITE(numout,*) 'nvm, ok_LAIdev', nvm, ok_LAIdev
+ !           WRITE(numout,*) 'rotation target error: tgt_rot ', tgt_rot
+ !           WRITE(numout,*) 'nvm, ok_LAIdev', nvm, ok_LAIdev
             STOP 'incorrect rotation target, sechiba_get_cmd'
         ENDIF
         IF ( (src_rot .GT. nvm) .OR. ( .NOT. (ok_LAIdev(src_rot) .OR. (src_rot .EQ. 1)) ) ) THEN
-            WRITE(numout,*) 'rotation target error: src_rot ', src_rot
-            WRITE(numout,*) 'nvm, ok_LAIdev', nvm, ok_LAIdev
+!            WRITE(numout,*) 'rotation target error: src_rot ', src_rot
+!            WRITE(numout,*) 'nvm, ok_LAIdev', nvm, ok_LAIdev
             STOP 'incorrect rotation source, sechiba_get_cmd'
         ENDIF
     ENDIF

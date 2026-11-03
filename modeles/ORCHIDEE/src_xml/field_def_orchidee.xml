@@ -52,6 +52,7 @@
     <field id="riversret" name="riversret" long_name="Return from endorheic riversD" unit="mm/d"/>
     <field id="hydrographs" name="hydrographs" long_name="Hydrographs of gridbox outflow" unit="m^3/s"/>
     <field id="evapnu_soil" name="evapnu_soil" long_name="Bare soil evap for soil type" unit="mm/d" axis_ref="nstm"/>
+
     <field id="drainage_soil" name="drainage_soil" long_name="Drainage for soil type" unit="mm/d" axis_ref="nstm"/>
     <field id="transpir_soil" name="transpir_soil" long_name="Transpir for soil type" unit="mm/d" axis_ref="nstm"/>
     <field id="runoff_soil" name="runoff_soil" long_name="Runoff for soil type" unit="mm/d" axis_ref="nstm"/>
@@ -234,6 +235,8 @@
     <field id="ECanop" name="ECanop" long_name="Interception evaporation" unit="kg/m^2/s"/>
     <field id="TVeg" name="TVeg" long_name="Transpiration" unit="kg/m^2/s"/>
     <field id="vevapnu_alma" name="ESoil" long_name="Bare soil evaporation" unit="kg/m^2/s"/>
+
+    
     <field id="evapflo_alma" name="EWater" long_name="Floodplains evaporation" unit="kg/m^2/s"/>
     <field id="SubSnow" name="SubSnow" long_name="Snow sublimation" unit="kg/m^2/s"/>
     <field id="ACond" name="ACond" long_name="Aerodynamic conductance" unit="m/s"/>

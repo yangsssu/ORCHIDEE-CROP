@@ -3250,10 +3250,10 @@ SUBROUTINE routing_main(kjit, nbpt, index, &
     DEALLOCATE(tslen, tpts, tptbas, tuparea)
     DEALLOCATE(tcode)
     !
-    WRITE(numout,*) 'Maximum topographic index :', MAXVAL(topo_resid)
+!    WRITE(numout,*) 'Maximum topographic index :', MAXVAL(topo_resid)
     ic = COUNT(topo_resid .GT. 0.)
-    WRITE(numout,*) 'Mean topographic index :', SUM(topo_resid, MASK=topo_resid .GT. 0.)/ic
-    WRITE(numout,*) 'Minimum topographic index :', MINVAL(topo_resid, MASK=topo_resid .GT. 0.)
+!    WRITE(numout,*) 'Mean topographic index :', SUM(topo_resid, MASK=topo_resid .GT. 0.)/ic
+!    WRITE(numout,*) 'Minimum topographic index :', MINVAL(topo_resid, MASK=topo_resid .GT. 0.)
     !
     !
   END SUBROUTINE routing_diagnostic
@@ -5412,7 +5412,7 @@ SUBROUTINE routing_cutbasin (nbi, nbj, nbbasins, trip, basin, basin_inbxid, nb, 
     INTEGER(i_std), DIMENSION(nbvmax)          :: outsz                !!
     CHARACTER(LEN=7)                           :: fmt                  !!
     LOGICAL                                    :: not_found            !! (true/false)
-    LOGICAL                                    :: debug=.FALSE.        !! (true/false)
+    LOGICAL                                    :: debug = .FALSE.      !! (true/false)
     !
     INTEGER(i_std), DIMENSION(8,2)             :: inc                  !!
 

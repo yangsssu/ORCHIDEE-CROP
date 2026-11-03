@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr
+END
+icfilegroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icfilegroup_attr.cpp
+END
+icfile_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icfile_attr.cpp
+END
+icfieldgroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icfieldgroup_attr.cpp
+END
+icaxisgroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icaxisgroup_attr.cpp
+END
+icgridgroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icgridgroup_attr.cpp
+END
+icvariablegroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icvariablegroup_attr.cpp
+END
+icfield_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icfield_attr.cpp
+END
+icaxis_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icaxis_attr.cpp
+END
+iccontext_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/iccontext_attr.cpp
+END
+icdomaingroup_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icdomaingroup_attr.cpp
+END
+icgrid_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icgrid_attr.cpp
+END
+icvariable_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icvariable_attr.cpp
+END
+icdomain_attr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/ioserver/svn/!svn/ver/581/XIOS/branchs/xios-1.0/src/interface/c_attr/icdomain_attr.cpp
+END

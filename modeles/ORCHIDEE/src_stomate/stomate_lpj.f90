@@ -716,10 +716,10 @@ CONTAINS
         !
         enable_grazing = .FALSE.
         CALL getin_p('ENABLE_GRAZING',enable_grazing)
-        WRITE (numout,*) 'enable_grazing',enable_grazing
-        WRITE (numout,*) 'manage',is_grassland_manag
-        WRITE (numout,*) 'cut',is_grassland_cut
-        WRITE (numout,*) 'grazed',is_grassland_grazed
+        !WRITE (numout,*) 'enable_grazing',enable_grazing
+        !WRITE (numout,*) 'manage',is_grassland_manag
+        !WRITE (numout,*) 'cut',is_grassland_cut
+        !WRITE (numout,*) 'grazed',is_grassland_grazed
 
         emideforest_biomass_accu(:,:,:,:) = zero
         emideforest_litter_accu(:,:,:,:) = zero

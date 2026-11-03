@@ -215,17 +215,30 @@ MODULE constantes_mtc
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_vis_mtc  =  &  !! leaf albedo of vegetation type, visible albedo 
   & (/ 0.00,   0.04,   0.06,   0.06,   0.06,   0.06,   0.06,  &      !! (unitless)
-  &    0.06,   0.06,   0.10,   0.10,   0.10,   0.10,   0.10  /) 
-!  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_vis_mtc  =  &  !! optimized set of parameter values, to be switched to after validation
-!  & (/ 0.00,   0.037,  0.047,  0.048,  0.06,   0.06,   0.06,  &      !! (values are different only for PFTs 2,3,4)
+!  &    0.06,   0.06,   0.10,   0.10,   0.10,   0.10,   0.10  /) 
+   &    0.06,   0.06,   0.10,   0.10,   0.20,   0.20,   0.10  /)     !! modified by ke
+!  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_vis_mtc  =  & !! optimized set of parameter values, to be switched to after validation
+!  & (/ 0.00,   0.037,  0.047,  0.048,  0.06,   0.06,   0.06,  &     !! (values are different only for PFTs 2,3,4)
 !  &    0.06,   0.06,   0.10,   0.10,   0.10,   0.10  /)
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_nir_mtc  =  &  !! leaf albedo of vegetation type, near infrared albedo
   & (/ 0.00,   0.20,   0.22,   0.22,   0.22,   0.22,   0.22,  &      !! (unitless)
   &    0.22,   0.22,   0.30,   0.30,   0.30,   0.30,   0.30  /)
-!  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_nir_mtc  =  &  !! optimized set of parameter values, to be switched to after validation
-!  & (/ 0.00,   0.218,   0.198,   0.208,  0.197,   0.232,   0.2,  &   !! (for PFTs 2-13)
+!  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_leaf_nir_mtc  =  & !! optimized set of parameter values, to be switched to after validation
+!  & (/ 0.00,   0.218,   0.198,   0.208,  0.197,   0.232,   0.2,  &  !! (for PFTs 2-13)
 !  &    0.217,  0.244,   0.246,   0.28,   0.291,   0.245  /)
+
+!!!! add by ke
+  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: alb_max_mtc  =  &       !! albedo of vegetation type, shortwave albedo
+  & (/ 0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.00,  &      !! (unitless)
+  &    0.00,   0.00,   0.00,   0.00,   0.25,   0.25,   0.25  /)
+!!!! add by ke
+
+!!!! add by ke
+  REAL(r_std), PARAMETER, DIMENSION(nvmc) :: residue_duration_mtc  =  &  !! residue duration after harvesting
+  & (/ 0.00,   0.00,   0.00,   0.00,   0.00,   0.00,   0.00, &       !! (unitless)
+  &    0.00,   0.00,   0.00,   0.00,   30.00,   30.00,   30.00  /)
+!!!! add by ke
 
 
   !
@@ -348,15 +361,15 @@ MODULE constantes_mtc
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: a1_mtc  = &                !! Empirical factor involved in the calculation of fvpd (-)
   & (/undef,    0.85,    0.85,    0.85,    0.85,    0.85,  0.85,  &     !! See Table 2 of Yin et al. (2009)
-  &    0.85,    0.85,    0.85,    0.85,    0.85,    0.85,  0.85  /)           
+  &    0.85,    0.85,    0.85,    0.85,    0.55,    0.50,  0.85  /)     !! calibration of wheat and maize from Gri, Lon, EM2, Ne1
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: b1_mtc  = &                !! Empirical factor involved in the calculation of fvpd (-)
   & (/undef,    0.14,    0.14,    0.14,    0.14,    0.14,  0.14,  &     !! See Table 2 of Yin et al. (2009)
-  &    0.14,    0.14,    0.14,    0.20,    0.14,    0.20,  0.14  /)           
+  &    0.14,    0.14,    0.14,    0.20,    0.08,    0.08,  0.14  /)     !! calibration of wheat and maize from Gri, Lon, EM2, Ne1
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: g0_mtc  = &                !! Residual stomatal conductance when irradiance approaches zero (mol CO2 m−2 s−1 bar−1)
   & (/undef, 0.00625, 0.00625, 0.00625, 0.00625, 0.00625, 0.00625,  &   !! Value from ORCHIDEE - No other reference.
-  & 0.00625, 0.00625, 0.00625, 0.01875, 0.00625, 0.01875, 0.00625  /)            !! modofy to account for the conversion for conductance to H2O to CO2 
+  & 0.00625, 0.00625, 0.00625, 0.01875, 0.00625, 0.01875, 0.00625  /)   !! modofy to account for the conversion for conductance to H2O to CO2 
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: h_protons_mtc  = &         !! Number of protons required to produce one ATP (mol mol-1)
   & (/undef,      4.,      4.,      4.,      4.,      4.,    4.,  &     !! See Table 2 of Yin et al. (2009) - h parameter
@@ -944,9 +957,14 @@ MODULE constantes_mtc
   & (/  undef,     undef,     undef,      undef,        undef,       undef,       undef,  &    
   &     undef,        undef,        undef,      0.35,     1.0,        1.0,   0.35 /)      
 
+  INTEGER(i_std), PARAMETER, DIMENSION(nvmc) :: SP_matrec_mtc  =  &    !! add by ke, duration between mat and rec
+  & (/  undef_int,     undef_int,     undef_int,      undef_int,        undef_int,       undef_int,     undef_int,  &    
+  &     undef_int,        undef_int,        undef_int,      27,     27,        27,   27 /)   
+  
+
   INTEGER(i_std), PARAMETER, DIMENSION(nvmc) :: SP_codebfroid_mtc  =  &    !! PARAMETER option of calculation of chilling requirements,  1 (no need), 2 (vernalization), 3 (development stage) 
   & (/  undef_int,     undef_int,     undef_int,      undef_int,        undef_int,       undef_int,       undef_int,  &           !!  code undef_int (vernalization), 3 (for perennial) 
-  &       undef_int,        undef_int,        undef_int,      1,    2,   1,   1 /)      
+  &       undef_int,        undef_int,        undef_int,      1,    1,   1,   1 /)      
 
 
   INTEGER(i_std), PARAMETER, DIMENSION(nvmc) :: SP_codephot_mtc  =  &    !!  option of plant photoperiodism: yes (1), no (2)
@@ -983,7 +1001,8 @@ MODULE constantes_mtc
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: SP_jvc_mtc  =  &    !! Number of vernalizing days // day
   & (/  undef,     undef,     undef,      undef,        undef,       undef,       undef,  &    
-  &       undef,        undef,        undef,      0.0,    38.0,   0.0,  0.0 /)      
+  ! &       undef,        undef,        undef,      0.0,    38.0,   0.0,  0.0 /)  
+  &       undef,        undef,        undef,      0.0,    10.0,   0.0,  0.0 /) !! modified by ke  
 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: SP_tfroid_mtc  =  &    !!optimal temperature for vernalisation // degree C 
   & (/  undef,     undef,     undef,      undef,        undef,       undef,       undef,  &    
@@ -1240,8 +1259,7 @@ MODULE constantes_mtc
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: SP_tdmin_mtc  =  &       !!Minimum threshold temperature for development // degree C
   & (/    undef,    undef,    undef,    undef,    undef,    undef,   undef,  &
   &       undef,    undef,    undef,    13.0,    0.0,    6.0,  10.8  /) 
-  
-
+ 
 
   ! STICS:: f_humerac 
   REAL(r_std), PARAMETER, DIMENSION(nvmc) :: SP_sensrsec_mtc  =  &  
@@ -1383,7 +1401,7 @@ MODULE constantes_mtc
   & (/  undef_int,     undef_int,     undef_int,      undef_int,        undef_int,       undef_int,       undef_int,  &    
   !&       undef_int,        undef_int,        undef_int,      300,     300,   235,  300 /)  ! YANG SU
   !&       undef_int,        undef_int,        undef_int,      350,     350,   350,  350 /) 
-   &       undef_int,        undef_int,        undef_int,      350,     350,   350,  350 /)
+   &       undef_int,        undef_int,        undef_int,      350,     350,   350,  350 /) ! modified by ke
 
   ! activation of frost at anthesis // code 1/2     1, no, 2, yes 
   INTEGER(i_std), PARAMETER, DIMENSION(nvmc) :: SP_codgelflo_mtc  =  &    

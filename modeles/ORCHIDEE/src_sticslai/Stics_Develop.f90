@@ -3,7 +3,7 @@
 !! Description :
 !< (routine qui prend des arguments simples)
 
-! DR 23/07/2012 latitude est pas itilisé car on passe la photoperiode qui est suffisante
+! DR 23/07/2012 latitude est pas itilis?car on passe la photoperiode qui est suffisante
 !subroutine develop2(phoi,tmax,tmin,tmin_demain,trr,P_codeh2oact,P_codeinitprec,P_codeinnact,codeulaivernal,P_psihucc, &
 !                    P_psihumin, P_codcueille,P_codefauche,P_densitesem,P_profsem,P_variete,P_ampfroid,P_belong,P_celong,         &
 !                    P_codebfroid,P_codedormance,P_codegdh, P_codegdhdeb,P_codegermin,P_codehypo,P_codeperenne,P_codephot,        &
@@ -34,7 +34,7 @@ subroutine develop2(n, in_cycle, nplt, tair,  gdh_daily, turfac,  phoi, onarrete
                     R_stlevamf, R_stamflax, R_stsenlan, R_stlaxsen, R_stlevdrp, R_stflodrp, R_stdrpmat, R_stdrpdes, densiteger,                    &  !> INOUT
                     udevair, udevcult,                                                                                               &  !> INOUT                
                     rfvi, rfpi, tdevelop, stpltger, upvtutil, stmatrec, group, tcult, stpltlev,                                      &   !>INOUT
-                    f_crop_recycle, gslen, drylen)   
+                    f_crop_recycle, gslen, drylen,nrec_trans,havlen, date,nmatlab,iplt2)  !! add by ke   
 
 
 USE Divers_develop
@@ -52,6 +52,8 @@ implicit none
  
    
   integer, intent(IN)                           :: n
+  integer, intent(IN)                           :: date !! add by ke
+  integer, intent(IN)                           :: iplt2 !! add by ke
   logical, intent(inout)                           :: in_cycle
   integer, intent(IN)                           :: nplt  
   real,    intent(IN)                           :: tair !> / Mean air temperature of the day // degree C
@@ -122,9 +124,9 @@ implicit none
   logical, intent(inout)                           :: f_crop_recycle   ! > in levee subroutine, we judge whether or not the crop emerges, if not, the in_cycle shoule be false, and crop recycle
   integer, intent(INOUT)                        :: gslen 
   integer, intent(INOUT)                        :: drylen 
-
-
-
+  integer, intent(INOUT)                        :: havlen         !! add by ke
+  INTEGER(i_std),INTENT(inout)                  :: nrec_trans     !! add by ke
+  INTEGER(i_std),INTENT(inout)                  :: nmatlab        !! add by ke
 
 ! 0.3 out
 
@@ -153,8 +155,17 @@ implicit none
 !- DR - 03/05/06
 !- dans le cas de repousse du semis par decisionsemis on ne commence pas les cumul d'unite
 
-  
+!  WRITE(numout,*) 'ke-havlen in stics0 ', n,',',nplt,',',in_cycle,',',havlen,',',nrec_trans, ',',  date, ',', date-365
   if (P_codeperenne == 1 .and. ((n /= nplt) .and. (in_cycle == .FALSE.))) then
+     if (date .GT. 366) then
+        havlen = havlen +1      !! add by ke
+        nrec_trans = n          !! add by ke
+     else
+        havlen = 0  
+        nrec_trans = 0
+     endif
+
+  !   WRITE(numout,*) 'ke-havlen in stics0 ', havlen,',',nrec_trans, ',',  date, ',', date-365
      return
   else
  
@@ -163,11 +174,27 @@ implicit none
      !! FIRST STEP: WE ACCOUNT THE GROWING LENGTH
      
      gslen = gslen + 1 
+     
+!!!!!!!!!!!!!!!!!!!! add by ke     
+  !!   WRITE(numout,*) 'doy', date  
+      
+     if ((date .GT. 365) .AND. (MOD(date, 365) .EQ. 1)) then 
+        havlen = 0  
+        nrec_trans = 0
+     else if ((date .GT. 365) .AND. (MOD(date, 365) .GT. 1) .AND. (havlen .GT. 0)) then
+        havlen = havlen +1
+        nrec_trans = n
+     else
+        havlen = 0 
+        nrec_trans = 0 
+     endif
+!!!!!!!!!!!!!!!!!!!! add by ke   
+!     WRITE(numout,*) 'ke-havlen in stics ', havlen,',',nrec_trans, ',',  date, ',', date-365
 
 
-!:    On remet à zéro les masses sèches, masses fraiches, masses des fruits, la hauteur de la plante, les variables de fixation (et le zrac ?)
-!:    Marie et Domi - 10/10/03 - bug signalé par Emmanuelle Sauboua
-!-    N'était jamais testé dans 'recolte'
+!:    On remet ?zéro les masses sèches, masses fraiches, masses des fruits, la hauteur de la plante, les variables de fixation (et le zrac ?)
+!:    Marie et Domi - 10/10/03 - bug signal?par Emmanuelle Sauboua
+!-    N'était jamais test?dans 'recolte'
 
 !    comments:
 !    reinitialization of some variables, which are related to harvest 
@@ -183,8 +210,8 @@ implicit none
           !mafrais(:)        = 0.
           !pdsfruitfrais(:)  = 0.
           !hauteur(:)        = 0. ! DR - 22/10/03
-          !demande(:)        = 0. ! PB - 03/05/2004 - remise à zéro des variables de fixation
-          !!: DR - 13/01/06 - remise à zero sinon mafrais ne revient pas nul
+          !demande(:)        = 0. ! PB - 03/05/2004 - remise ?zéro des variables de fixation
+          !!: DR - 13/01/06 - remise ?zero sinon mafrais ne revient pas nul
           !mafraisfeuille(:) = 0.
           !mafraistige(:)    = 0.
           !mafraisres(:)     = 0.
@@ -194,7 +221,7 @@ implicit none
        if (n > nrec .and. nlan > 0 .and. nrec > 0) return ! exit this subroutine
      endif
 
-!:    PB - 11/03/2005 - On remet pdsfruitfrais à zéro après la récolte.
+!:    PB - 11/03/2005 - On remet pdsfruitfrais ?zéro après la récolte.
 !:    PB - 07/08/2009 - Attention, qd n=1 et nrec=0, cette condition peut être vraie alors qu'on est pas après la récolte.
 !                       TODO: Ajouter un test sur nrec est nul ?
      !if (P_codeperenne == 2 .and. P_codcueille == 2 .and. n == (nrec+1) .and. P_codeinitprec == 2) then
@@ -247,8 +274,8 @@ implicit none
 
 
      ! NB - le 01/09/06:
-     ! effet retard du stress hydrique en phase végétative appliqué directement
-     ! sur les udevair (ou udevcult) de façon à ce qu'il agisse sur le développement
+     ! effet retard du stress hydrique en phase végétative appliqu?directement
+     ! sur les udevair (ou udevcult) de façon ?ce qu'il agisse sur le développement
      ! P_phénologique et également sur la durée de vie.
      ! modif pour Sophie pour permettre action de P_stressdev pendant tout le cycle et
      ! en n'utilisant qu'un seul des deux stress
@@ -325,12 +352,12 @@ implicit none
        !if (ndrp /= 0 .or. n > ndrpobs) then
        if (ndrp /= 0) then
          rfpi = 1.0
-       else if (P_codebfroid /= 3 .and. (nlev == 0 .or. n < nlev)) then ! pour les ligneux, photopériode active à partir de la fin de dormance
+       else if (P_codebfroid /= 3 .and. (nlev == 0 .or. n < nlev)) then ! pour les ligneux, photopériode active ?partir de la fin de dormance
          rfpi = 1.0
        !else if (P_codebfroid == 3 .and. nfindorm == 0) then
        !  rfpi = 1.0
        else
-         ! TODO: on remplace l'appel à photpd par ses résultats. photpd n'est appelé qu'une fois par pas de temps
+         ! TODO: on remplace l'appel ?photpd par ses résultats. photpd n'est appel?qu'une fois par pas de temps
          rfpi = cRFPI(phoi)
        endif
      else
@@ -344,7 +371,7 @@ implicit none
      if (P_codetemp == 2) then
        ! DR 17/08/06 si on est sur une perenne et qu'une dormance a deja ete faite
        ! on ne fait plus jouer la vernalisation sur le calcul des stades
-       ! implicitement n'est utilisé que si on est en enchainement
+       ! implicitement n'est utilis?que si on est en enchainement
        
        
        ! the calculation of upvt is done
@@ -359,7 +386,7 @@ implicit none
      else
        ! DR 17/08/06 si on est sur une perenne et qu'une dormance a deja ete faite
        ! on ne fait plus jouer la vernalisation sur le calcul des stades
-       ! implicitement n'est utilisé que si on est en enchainement
+       ! implicitement n'est utilis?que si on est en enchainement
        ! NB le 21/08/07 bug
        if (P_codebfroid == 3 .and. P_codedormance == 3 .and. nlev > 0) then
          upvt = udevair * rfpi
@@ -376,8 +403,8 @@ implicit none
 
 !     print *, 'somcour and upvt in development is', somcour, upvt
 
-     !: somcourdrp = cumul d'unité entre deux stades reproducteurs
-     !- à partir de la levee
+     !: somcourdrp = cumul d'unit?entre deux stades reproducteurs
+     !- ?partir de la levee
      if (nlev > 0) somcourdrp = somcourdrp + upvt
 
      ! dr 13/01/06: dans le cas de la prairie on ne cumule plus d'upvt si on coupe apres amf
@@ -432,7 +459,7 @@ implicit none
 !!    NB le 07/03/08
 !       if (P_codebfroid == 2 .and. P_codeperenne == 2) then
 !         somcourmont = somcourmont + upvt
-!       ! PB - 03/08/2010 - je remplace jul par jjul qui correspond à n+P_iwater-1
+!       ! PB - 03/08/2010 - je remplace jul par jjul qui correspond ?n+P_iwater-1
 !         if (jjul+((onestan2-1)*nbjsemis) == P_julvernal) then
 !           somcourmont = 0.0
 !         endif
@@ -441,14 +468,14 @@ implicit none
 !         if (somcourmont >= R_stlevamf .and. jjul+((onestan2-1)*nbjsemis) > P_julvernal)then
 !           nmontaison = n
 !           namf = n
-!!    DR et ML et SYL 16/06/09 - on supprime nvernal qui ne sert à rien
+!!    DR et ML et SYL 16/06/09 - on supprime nvernal qui ne sert ?rien
 !!   --         nvernal=0
 !           somcourmont=0.0
 !           onestan2 = 1
 !         endif
 !
 !!    si la coupe intervient après le stade montaison alors on remet
-!!    le stade à 0
+!!    le stade ?0
 !         if (sioncoupe) nmontaison=0
 !       endif
 !!    ####
@@ -487,8 +514,8 @@ implicit none
           stpltger = somcour   
           ! on affecte le cumul de température entre le semis et la levée
           ! DR 18/07/2012 pour la germination on affiche juste somcour sans le reinitialiser
-          !      somcour = 0.0        ! on remet à zéro le cumul de température courant.
-          !      if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp à la levée de dormance
+          !      somcour = 0.0        ! on remet ?zéro le cumul de température courant.
+          !      if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp ?la levée de dormance
           !      if (P_codefauche == 2) somcourfauche = 0.0
           !      if (codeulaivernal == 0) somcourutp = 0.0
        endif
@@ -497,19 +524,19 @@ implicit none
      if (nlevobs == 999) then ! pas d'observation pour la levée
        if (n  == nlev) then   ! si on est le jour de la levée
          stpltlev = somcour ! on affecte le cumul de température entre le semis et la levée
-         somcour = 0.0        ! on remet à zéro le cumul de température courant.
-         if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp à la levée de dormance
+         somcour = 0.0        ! on remet ?zéro le cumul de température courant.
+         if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp ?la levée de dormance
          if (P_codefauche == 2) somcourfauche = 0.0
          if (codeulaivernal == 0) somcourutp = 0.0
        endif
      !else                       ! levée observée, this means that we used the forced LAI, but at this moment we do not use this option
      !  if (n  == nlevobs) then  ! si on est le jour de la levée observée
      !    nlev = nlevobs         ! on force nlev
-     !    if (nger <= 0) nger = nlev  ! si la germination n'a pas encore été affectée, on la force au jour de la levée
+     !    if (nger <= 0) nger = nlev  ! si la germination n'a pas encore ét?affectée, on la force au jour de la levée
      !    ! réajustement du parcours de dl
      !    stpltlev = somcour       ! on affecte le cumul de température entre le semis et la levée
-     !    somcour = 0.0            ! on remet à zéro le cumul de température courant.'
-     !    if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp à la levée de dormance
+     !    somcour = 0.0            ! on remet ?zéro le cumul de température courant.'
+     !    if (P_codeperenne == 1) somcourdrp = 0.0 ! NB le 23/03 pour les pérenne début du décompte drp ?la levée de dormance
      !    if (P_codefauche == 2) somcourfauche = 0.0
      !    if (codeulaivernal == 0) somcourutp = 0.0
      !  endif
@@ -625,7 +652,7 @@ implicit none
        if (somcourdrp >= stlevflo .and. nflo == 0) then
          nflo = n
          stlevflo = somcourdrp
-!-   -      somcourdrp = 0.0 ! domi 04/04/01  pb canne on supprime la remise à zero
+!-   -      somcourdrp = 0.0 ! domi 04/04/01  pb canne on supprime la remise ?zero
        endif
      !else
      !  if (n == nfloobs) then
@@ -647,7 +674,7 @@ implicit none
 !     domi 04/04/01 on fait un essai
 !    DR et ML 21/01/08:
 !    SUITE AUX PBS DE calcul des sommes de temp dans le bilan
-!    lorsque on force flo ou drp => 2 modifs on enleve la remise à zero de somcourdrp si
+!    lorsque on force flo ou drp => 2 modifs on enleve la remise ?zero de somcourdrp si
 !    flo est observe (je me demande bien pourquoi on faisait ca)
 !    et R_stflodrp =somcourdrp-stlevflo
 !-   -      R_stflodrp=somcourdrp
@@ -681,24 +708,33 @@ implicit none
 !       if (somcourdrp >= P_stdrpnou .and. nnou == 0 .and. ndrp > 0) nnou = n
 !     endif
 
+!!!!!! add by ke
+     nmatlab = nmatlab
+     if (nmat .GT. 0) then
+        nmatlab = nmat
+     endif
+!     WRITE(numout,*) 'ke-nmatlab in stics', nmatlab
+!!!!!! add by ke
+     
      !: stade mat
      if (nmatobs == 999) then
        if (P_codeindetermin == 1) then   ! determinate crop 
          if (somcourdrp >= R_stdrpmat .and. nmat == 0 .and. ndrp > 0) then
+           ! WRITE(numout,*) 'nmat', nmat
            nmat = n
            R_stdrpmat = somcourdrp
            ! grain drying start
            drylen = drylen + 1
-!           print *, 'in develop, for nmat do we go here, drylen is', drylen
+           !print *, 'in develop, for nmat do we go here, drylen is', drylen
          endif
        !else
-       !  ! pour les indéterminées la maturité finale correspond à l'ensemble des P_nboite-1 vides
+       !  ! pour les indéterminées la maturit?finale correspond ?l'ensemble des P_nboite-1 vides
        !  ! Nb le 01/05 si P_nbcueille = 1
-       !  ! si P_nbcueille = 2 : la maturité correspond au début de remplissage de la dernière boite
+       !  ! si P_nbcueille = 2 : la maturit?correspond au début de remplissage de la dernière boite
        !  if (P_nbcueille == 1) then
 !-   - !           if (nbfruit == 0.0 .and. nmat == 0 .and.
-       !    ! 12/07/06  DR et IGC nous avons changé la condition de calcul de la date
-       !    ! de maturité. Avant il calculait celle-ci en fonction du nombre de grains.
+       !    ! 12/07/06  DR et IGC nous avons chang?la condition de calcul de la date
+       !    ! de maturit? Avant il calculait celle-ci en fonction du nombre de grains.
        !    ! Maintenant, on calcule en focntion de la durée de fruits.
        !    if (somcourdrp > P_dureefruit .and. nmat == 0 .and. n > ndrp .and. ndrp > 0) then
        !      nmat = n
@@ -737,7 +773,7 @@ implicit none
 
      !: stade rec
      if (nrecobs == 999) then !not forced
-       ! détemination de la date de récolte par la teneur en eau des grains à partir de la maturité
+       ! détemination de la date de récolte par la teneur en eau des grains ?partir de la maturit?
 !-   -     if (teaugrain == h2ograin .and. nrec == 0) then
 !-   -       nrec = n
 !-   -       stmatrec = somcourdrp-R_stdrpmat
@@ -748,14 +784,15 @@ implicit none
        !: Récolte
        !- PB - 18/01/2005 - pas de récolte qd culture fauchée.
        if (P_codefauche /= 1) &   ! option of cut modes for forage crops: yes (1); and no (2)
-           WRITE(numout,*) 'nrec before call', nrec
-            !WRITE(numout,*) 'nrec(:) before call', nrec(:)
+           ! WRITE(numout,*) 'nrec before call', nrec
+           ! WRITE(numout,*) 'nrec(:) before call', nrec(:)
 
            call recolte(n,ndrp, gslen, drylen, lai,        &   ! INPUT 
                         nmat, nrec,              &   ! INOUT
-                        stmatrec,group)       ! OUT
-           WRITE(numout,*) 'nrec after call', nrec
-            !WRITE(numout,*) 'nrec(:) after call', nrec(:)
+                        stmatrec,group,iplt2)       ! OUT            !! add by ke
+          ! WRITE(numout,*) 'nrec after call', nrec
+          ! WRITE(numout,*) 'ke-nrec after call', n,ndrp, gslen, drylen, lai,nmat, nrec,stmatrec,group
+          ! WRITE(numout,*) 'nrec(:) after call', nrec(:)
 
 
      endif
@@ -816,12 +853,11 @@ implicit none
 
 !    ** Determination du groupe de precocite et effet de la date butoir
 !    DR 06/01/06 ajout du test sur P_culturean = 1 pour les perennes sur une portion de leur cycle
-     WRITE(numout,*) 'P_codefauche', P_codefauche
-     WRITE(numout,*) 'nrecbutoir', nrecbutoir
-     WRITE(numout,*) 'P_codeperenne', P_codeperenne
-     WRITE(numout,*) 'P_codeinitprec', P_codeinitprec
-
-     WRITE(numout,*) 'P_culturean', P_culturean
+     ! WRITE(numout,*) 'P_codefauche', P_codefauche
+     ! WRITE(numout,*) 'nrecbutoir', nrecbutoir
+     ! WRITE(numout,*) 'P_codeperenne', P_codeperenne
+     ! WRITE(numout,*) 'P_codeinitprec', P_codeinitprec
+     ! WRITE(numout,*) 'P_culturean', P_culturean
 
 
      if (n >= nrecbutoir .and. (P_codeperenne /= 2 .or. P_codeinitprec /= 2 .or. P_culturean == 1)) then
@@ -962,7 +998,7 @@ USE Stics
     if (.not.etatvernal) then
 
       !: On active P_julvernal pour les annuelles, qui joue lorqu'il se situe après la germination.
-      !- NB et ML - 25/02/04 : à tester sur RGI CIPAN
+      !- NB et ML - 25/02/04 : ?tester sur RGI CIPAN
       !- ML - 21/04/04 : on interdit de démarrer au stade 'dor' et d'avoir jul < P_julvernal pour les cultures perennes
       if ( nger /= 0 ) then
 
@@ -1073,9 +1109,9 @@ end subroutine Stics_Develop_bfroid2
 !          nfindorm = n
 !          etatvernal = .TRUE.
 !
-!          !: DR - 20/11/06 : On est un peu perplexe , on etait sur d'avoir testé tous les cas.
+!          !: DR - 20/11/06 : On est un peu perplexe , on etait sur d'avoir test?tous les cas.
 !          !- Quand on arrive en fin de dormance, si on ne met pas nlev=0 on ne calcule plus les sommes
-!          !- d'action chaude de richardson. La date de levée a été stockée dans ilevs
+!          !- d'action chaude de richardson. La date de levée a ét?stockée dans ilevs
 !          nlev = 0
 !        else
 !          rfvi = 0.0
@@ -1095,7 +1131,7 @@ end subroutine Stics_Develop_bfroid2
 !
 !    else
 !
-!      !: ML - le 18/10/05 : Cas de la dormance calculee avec Bidabe: on demarre la dormance à ndebdorm
+!      !: ML - le 18/10/05 : Cas de la dormance calculee avec Bidabe: on demarre la dormance ?ndebdorm
 !      if (P_codedormance == 3 .and. n == ndebdorm) then
 !        etatvernal = .FALSE.
 !        rfvi = 0.0

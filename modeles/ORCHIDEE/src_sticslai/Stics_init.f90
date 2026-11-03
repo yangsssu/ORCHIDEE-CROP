@@ -301,7 +301,8 @@ subroutine Stics_init(&
   !real,dimension(kjpindex, nvm, nparts ), intent(inout)::         biomass           
   real,dimension(kjpindex, nvm), intent(inout)::         deltgrain          
   integer,dimension(kjpindex, nvm), intent(inout)::         gslen                 
-  integer,dimension(kjpindex, nvm), intent(inout)::         drylen                 
+  integer,dimension(kjpindex, nvm), intent(inout)::         drylen 
+!!  integer,dimension(kjpindex, nvm), intent(inout)::         havlen     !! add by ke                 
   real,dimension(kjpindex, nvm, 300, 5), intent(inout) :: histgrowthset
   integer, dimension(kjpindex,nvm), intent(inout) :: hist_sencourset
   integer, dimension(kjpindex,nvm), intent(inout) :: hist_latestset
@@ -388,7 +389,7 @@ subroutine Stics_init(&
           R_stdrpmat(ip, j) = SP_stdrpmat(j)
           nmat(ip, j) = 0
           nlax(ip, j) = 0
-          nrecbutoir(ip, j) = 999
+          nrecbutoir(ip, j) = 999  !! add by ke 
           group(ip, j) = 0.
           ndebdes(ip, j) = 0
           R_stdrpdes(ip, j) = SP_stdrpdes(j)
@@ -488,6 +489,7 @@ subroutine Stics_init(&
           deltgrain(ip, j) = 0.
           gslen(ip, j) = 0 
           drylen(ip, j) = 0 
+ !!         havlen(ip, j) = 0   !! add by ke
           ! FINISH THE INITIALIZATION AND RESET THE VALUE
           IF (any(ok_LAIdev(:)) .AND. any(SP_codlainet(:) == 2)) THEN
               histgrowthset(ip,j,:,:) = 0.

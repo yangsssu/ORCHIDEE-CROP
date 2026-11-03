@@ -1338,9 +1338,11 @@ SUBROUTINE mathop_r21 &
  &                            miss_val,nb_max,work_out)
       CASE('scatter')
         IF (nb_index > (nb(1)*nb(2)) ) THEN
+
           work_out(1:nb_max) = miss_val
           ierr=1
         ELSE
+
           ierr = ma_fuscat_r21(nb,work_in,nb_index,nindex, &
  &                             miss_val,nb_max,work_out)
         ENDIF
@@ -1362,6 +1364,8 @@ SUBROUTINE mathop_r21 &
  &        'was requested but with unknown function',fun)
       END SELECT
       IF (ierr > 0) THEN
+
+        CALL abort()   ! <¡ª forces a true backtrace with file:line for all callers
         CALL ipslerr(3,"mathop_r21", &
  &        'Error while executing an indexing function',fun,' ')
       ENDIF
@@ -1391,6 +1395,7 @@ SUBROUTINE mathop_r21 &
  &      'Unknown operation with a scalar',fun,' ')
     END SELECT
     IF (ierr > 0) THEN
+      
       CALL ipslerr(3,"mathop", &
  &      'Error while executing a scalar function',fun,' ')
     ENDIF

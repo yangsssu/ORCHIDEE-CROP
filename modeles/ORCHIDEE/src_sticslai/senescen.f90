@@ -751,7 +751,7 @@ USE Divers_gel
             if (boxndays(ii) > 0 .and. somtemp - boxsomsenbase(ii)  >= boxdurage(ii)) then !senescence part of this compartment
                 if (ndebsen ==0) then
                     ndebsen = n
-                    write(*,*) 'xuhui: debsen, ', ndebsen
+                    !write(*,*) 'xuhui: debsen, ', ndebsen
                 endif
 !                dlairat = boxlai(ii)/real(boxndays(ii))
 !                damsrat = boxbiom(ii)/real(boxndays(ii))

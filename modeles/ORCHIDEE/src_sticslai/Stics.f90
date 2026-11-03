@@ -366,7 +366,7 @@ contains
                             hist_latest, &
                             doyhistst, &
                             nbox, boxulai, boxndays, boxlai, boxlairem,boxtdev, boxbiom, boxbiomrem, boxdurage, boxsomsenbase, &
-                            codesla)
+                            codesla,nrec_trans, havlen, date,nmatlab) !! add by ke
 
 
        implicit none
@@ -378,14 +378,15 @@ contains
 
        
        integer(i_std), intent(IN)                           :: n    ! simulation date  // julian day 
-       logical, intent(inout)                                  :: in_cycle
-       logical, intent(inout)                                  :: f_crop_recycle
-       logical, intent(inout)                                  :: f_sen_lai
+       integer(i_std), intent(IN)                           :: date !! add by ke
+       logical, intent(inout)                               :: in_cycle
+       logical, intent(inout)                               :: f_crop_recycle
+       logical, intent(inout)                               :: f_sen_lai
        real(r_std),    intent(IN)                           :: t2m_daily  !> / Mean air temperature of the day // degree C
        real(r_std),    intent(IN)                           :: t2m_min_daily  !> / minimum air temperature of the day // degree C
        real(r_std),    intent(IN)                           :: gdh_daily  !> // daily gdh calculated according to halfhourly temperature // transmitted from stomate.f90 gdh_daily
        real(r_std),    intent(IN)                           :: phoi   !> // OUTPUT // Photoperiod // hours
-       logical, intent(IN)                           :: onarretesomcourdrp 
+       logical, intent(IN)                                  :: onarretesomcourdrp 
        real(r_std),    intent(IN), dimension(3)             :: stempdiag_cm_daily !> / soil temperature at 1 cm resolution for the sowing depth and neighbour layers // Degree C 
        real(r_std),    intent(IN), dimension(3)             :: shumdiag_cm_day     !> /soil moisture at 1 cm resolution for the sowing depth and neighbour layers // unit m3 m-3 with values ranging 0-1
 !!!!! local variable
@@ -653,6 +654,9 @@ contains
        real,    intent(INOUT)      :: msneojaune        ! Newly-formed senescent dry matter  // t.ha-1
        integer,    intent(INOUT)      :: gslen
        integer,    intent(INOUT)      :: drylen
+       integer,    intent(INOUT)      :: havlen         !! add by ke
+       INTEGER(i_std), INTENT(inout)  :: nrec_trans     !! add by ke
+       INTEGER(i_std), INTENT(inout)  :: nmatlab        !! add by ke
 
        ! assignment 
        nlevobs = 999
@@ -778,7 +782,6 @@ contains
 !           hist_latest = 0
 !           histgrowth(:,:) = 0.
 !       endif
-
 
        call laidev(n,                               &  ! IN
                    in_cycle,                        &  ! inout
@@ -907,8 +910,9 @@ contains
                    hist_latest, &
                    doyhistst, &
                    nbox, boxulai, boxndays, boxlai, boxlairem,boxtdev, &
-                   boxbiom, boxbiomrem,boxdurage, boxsomsenbase)
-
+                   boxbiom, boxbiomrem,boxdurage, boxsomsenbase,nrec_trans, havlen,date,nmatlab) !! add by ke
+!       WRITE(numout,*) 'ke-slai in stics', slai
+!       WRITE(numout,*) 'ke-somcourdrp', somcourdrp
     
     end subroutine driver_stics
 

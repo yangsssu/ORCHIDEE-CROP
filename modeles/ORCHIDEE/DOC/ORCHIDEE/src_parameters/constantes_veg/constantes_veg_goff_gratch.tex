@@ -1,0 +1,30 @@
+The subroutine qsfrict\_init uses modified Goff-Gratch equations (1946). The original formulations are : \\
+\begin{multline}
+\log e_w = \\ -7.90298 \left( \frac{T_s}{T} - 1 \right) + 5.02808 \log \left( \frac{T_s}{T} \right) 
+- 1.3816 \times 10^{-7}(10^{11.344 \left( 1-\frac{T_s}{T} \right)}-1) 
++ 8.1328 \times 10^{-3}(10^{-3.49149 \left( \frac{T_s}{T}-1 \right)}
+-1) \\ + \log e_{ws}
+\end{multline}
+where : \\
+\begin{itemize}
+ \item  $ \log(x) = \frac{\ln x}{\ln 10} $. 
+ \item  $e_w$ is the saturation water vapor pressure over a plane surface of pure ordinary liquid water (hPa).
+ \item  $T$ is the absolute air temperature in Kelvin.
+ \item  $T_s$ is the steam point temperature (373.16 K).
+ \item  $e_{ws}$ is the saturation pressure of pure ordinary liquid water at steam-point temperature (at 1 atm = 1013.25 hPa).
+\end{itemize}
+
+\begin{multline}
+\log e_i = \\ -9.09718 \times \left( \frac{T_0}{T} - 1 \right) - 3.56654 \times \log \left( \frac{T_0}{T} \right) 
++ 0.876793 \times \left( 1-\frac{T_0}{T} \right) 
++ \log e_{i0}
+\end{multline}
+where : \\
+\begin{itemize}
+ \item  $ \log(x) = \frac{\ln x}{\ln 10} $. 
+ \item  $e_i$ is the saturation water vapor pressure over a plane surface of pure ordinary water ice (hPa).
+ \item  $T$ is the absolute air temperature in Kelvin (K).
+ \item  $T_0$ is the boiling point at 1 atmosphere temperature (273.16 K).
+ \item  $e^{*}_{i0}$  is the saturation pressure of pure ordinary water ice at ice-point temperature (6.1173 hPa).
+\end{itemize}
+

@@ -1,0 +1,161 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr
+END
+ifile_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ifile_attr.F90
+END
+iaxisgroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/iaxisgroup_attr.F90
+END
+ifield_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ifield_attr.F90
+END
+idomaingroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/idomaingroup_attr.F90
+END
+icontext_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/icontext_attr.F90
+END
+igrid_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/igrid_attr.F90
+END
+ivariable_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ivariable_attr.F90
+END
+file_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/file_interface_attr.f90
+END
+axisgroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/axisgroup_interface_attr.f90
+END
+field_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/field_interface_attr.f90
+END
+domaingroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/domaingroup_interface_attr.f90
+END
+context_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/context_interface_attr.f90
+END
+grid_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/grid_interface_attr.f90
+END
+ifilegroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ifilegroup_attr.F90
+END
+variable_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/variable_interface_attr.f90
+END
+ifieldgroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ifieldgroup_attr.F90
+END
+igridgroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/igridgroup_attr.F90
+END
+ivariablegroup_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/ivariablegroup_attr.F90
+END
+filegroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/filegroup_interface_attr.f90
+END
+iaxis_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/iaxis_attr.F90
+END
+idomain_attr.F90
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/idomain_attr.F90
+END
+fieldgroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/fieldgroup_interface_attr.f90
+END
+gridgroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/gridgroup_interface_attr.f90
+END
+variablegroup_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/variablegroup_interface_attr.f90
+END
+axis_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/axis_interface_attr.f90
+END
+domain_interface_attr.f90
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran_attr/domain_interface_attr.f90
+END

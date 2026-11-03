@@ -1,0 +1,43 @@
+Wc rubisco-limited carboxylation rate
+
+Oi partial pressure of O2 (fixed to 210000 ppm)
+
+\begin{equation}
+{W_{{c}}=\frac{V_{{c}}(l)\cdot C_{{i}}(l)}{C_{{i}}(l)+K_{{c}}\cdot (1+O_{{i}}/{K_{{o}}})}}
+\end{equation}
+Vj potential rate of RuBP regeneration
+
+I incident photon flux
+
+${\alpha}$j quantum yield of RuBP regeneration 
+
+\begin{equation}
+{\alpha_{{j}}\cdot I=0{.}{8855}\cdot {{SW}}_{{{{down}}}}\cdot k\cdot e^{{-k\cdot {{LAI}}(l)}}}
+\end{equation}
+${\Theta}$ curvature of the quantum response (fixed equal to 0.7)
+
+\begin{equation}
+{V_{{j}}=\frac{\alpha_{{j}}\cdot I+V_{{j}}(l)-\sqrt{(\alpha_{{j}}\cdot I+V_{{j}}(l))^{{2}}-4\cdot \Theta \cdot \alpha_{{j}}\cdot I\cdot V_{{j}}(l)}}{2\cdot \Theta }}
+\end{equation}
+Wj RuBP regeneration-limited rate
+
+${\Gamma}$* CO2 compensation point (ppm)
+
+\begin{equation}
+{W_{{j}}=\frac{V_{{j}}\cdot C_{{i}}(l)}{4{.}5\cdot C_{{i}}(l)+{10}{.}5\cdot \Gamma ^{{?}}}}
+\end{equation}
+
+\begin{equation}
+{W={{MIN}}(W_{{c}},W_{{j}})}
+\end{equation}
+
+Rd dark respiration
+
+fdr fraction of dark respiration (fixed equal to 0.011)
+
+\begin{equation}
+{R_{{d}}=f_{{{{dr}}}}\cdot V_{{c}}(l)}
+\end{equation}
+\begin{equation}
+{A=W\cdot \left(1-\frac{\Gamma ^{{?}}}{C_{{i}}(l)}\right)-R_{{d}}}
+\end{equation}

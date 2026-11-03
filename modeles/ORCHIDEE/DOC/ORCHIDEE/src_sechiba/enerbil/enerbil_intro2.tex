@@ -1,0 +1,72 @@
+% 
+% \documentclass[11pt]{amsart}
+% \usepackage{helvet}
+% \usepackage{geometry}    
+% \geometry{a4paper} 
+% \usepackage[parfill]{parskip}  \usepackage{graphicx}
+% \usepackage{amssymb}
+% \usepackage{epstopdf}
+%
+%
+%
+% \begin{document}
+% 
+{\bf Introduction to the coupled energy budget scheme}
+ 
+The coupled energy balance scheme in ORCHIDEE is described most extensively in Dufresne \& Ghattas (2009) with further context in Best et al. (2004). The key principles are summarised here. 
+
+Figure 1 depicts how the surface layer model interacts with the atmospheric model. The model is depicted as running from left to right. The coefficients A, B, C and D are derived for each variable as a means to solve the diffusivity equation for the four state variables of windspeeds 'u' and 'v', temperature and specific humidity (we here concentrate on the latter two variables, denoted together in Figure 1 as 'X'). This diffusivity equation (with a counter-gradient term for the temperature and specific humidity versions) is differenced in such a way that it can be solved implicitly - i.e. the system is solved using information both from the system at the current time and in the next timestep (in an explicit scheme only information from the current time step is used).
+
+\includegraphics[scale=0.5]{iterative_diagram3.png}
+
+{\bf {Figure 1}: Simple schematic of coupling scheme}
+
+The end result is that the diffusivity equation in LMDZ is solved using an 'offset' varient of the Tri-Diagonal Matrix Algorithm. This differencing scheme is as described by Richtmyer et al. (1967). The scheme allows for terms of the equation to be solved in sequence, as depicted, starting from the top of the model. It takes place by deriving coefficients A, B, C, D for each layer in terms of the preceding, higher, layer on a 'downwards' sweep. ORCHIDEE assumes the place of the lower surface layer boundary condition, and provides the state variables for the lowest level of the atmospheric model. On the 'upwards' sweep, the state variables for each layer are calculated in terms of the respective coefficients and of the state variable from the preceding, lower layer.
+
+
+The key information is passed down from the atmospheric model to the surface model are the sensitivity coefficients $A_S, B_S, A_q$ and $B_q$ where, according to the lower boundary conditions of the atmospheric model, where the surface interaction takes place (Best et al., 2004):
+
+\begin{eqnarray}
+  S_1^{new} = A_S(H) + B_S \\
+  q_1^{new} = A_q(\lambda E) + B_q
+\end{eqnarray}
+
+$S^{new}_1$ is the lowest atmospheric model dry static energy and $q^{new}_1$ is the lowest atmospheric model specific humidity, both for the 'new' time step. The A, B, C and D coefficients (which are recalculated for every time step) are a function of the state variables from the old last time step (specific humidity and surface static energy), as well as an intermediate variable (S) that includes the diffusivity coefficient (k), the atmospheric pressure at the height (P) and a 'counter-gradient term' ($\gamma$). The B coefficient is also a function of P, S and g. As part of the differencing scheme, each coefficient A,B,C and D is also a function of the coefficient above, so they are calculated by 'working down' the column, as depicted.
+
+Now, although the coefficients A and B in equations (1) and (2) are known quantities, $S^{new}$, $q^{new}$, H and $\lambda E$ are not.
+
+In order to determine these quantities, we need to make use of a further set of assumptions:
+
+a) We assume that surface fluxes for a given timestep are written as below (shown here for the 'new' timestep):
+\begin{eqnarray}
+   H = k_1^h (S_1^{new}-S_s^{new}) \\
+   \lambda E =\beta k_1^q (q_1^{new} - q_s ^{new}) =\beta k_1^q (q_1^{new} - q_0 ^{new} (T_s^{new}))
+\end{eqnarray}
+
+These equations are implicit because they have been formulated for the 'new' timestep. $q_0^{new}$ is the saturated humidity that corresponds to the surface temperature $T_s^{new}$. We make the saturated humidity assumption: i.e. the air within cavities in the surface vegetation is completely saturated. This means that the vapour pressure of the vegetation may be calculated as the saturated vapour pressure at the vegetation temperature.
+
+b) We assume, by first-order Taylor series expansion, that:
+
+\begin{eqnarray}
+    q_0(T_s^{new}) = q_{sat}(T_s^{old}) + \frac {\delta q_{sat}} {\delta T}|_{T_t} (T^{new}_s - T^{old}_s)
+\end{eqnarray}
+
+c) We assume that the energy budget is obeyed over the timestep $\Delta t$ such that a change in the balance of fluxes for the surface layer corresponds exactly to the change in surface temperature:
+
+\begin{eqnarray}
+   T_s^{new}=T^{old}_s + \frac{\delta t}{C_0} \sum F
+\end{eqnarray}
+
+where:
+
+\begin{eqnarray}
+    \sum F = H + \lambda E + R_{LW} + R_{SW} + F_G
+\end{eqnarray}
+
+Combining this set of equations, as is conducted by Dufresne \& Ghattas (2009) results in the sequence of operations that is carried out in the 'enerbil' module, and is outlined below.
+
+%
+%
+%
+%
+% \end{document}

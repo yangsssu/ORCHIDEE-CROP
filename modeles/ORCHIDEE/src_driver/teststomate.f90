@@ -99,7 +99,7 @@ PROGRAM teststomate
   REAL(r_std),DIMENSION(:),ALLOCATABLE      :: temp_growth                          !! Growth temperature - Is equal to t2m_month (°C)
                                                                                     !! average ground/s) 
   REAL(r_std),DIMENSION(:),ALLOCATABLE      :: tot_bare_soil                        !! Total evaporating bare soil fraction 
-
+ 
   INTEGER(i_std),DIMENSION(:),ALLOCATABLE   :: indices_g                            !! Vector of indeces of land points, only known by root proc
   REAL(r_std),DIMENSION(:),ALLOCATABLE      :: x_indices_g                          !! Temporary vector of indeces of land points
   REAL(r_std),DIMENSION(:,:),ALLOCATABLE    :: x_neighbours_g                       !! Indeces of neighbours for each land point
@@ -652,6 +652,8 @@ PROGRAM teststomate
   a_er = a_er .OR. (ier.NE.0)
   ALLOCATE (tot_bare_soil(kjpindex),stat=ier)
   a_er = a_er .OR. (ier.NE.0)
+
+  
   ALLOCATE (frac_age_x(kjpindex,nvm,nleafages),stat=ier)
   a_er = a_er .OR. (ier.NE.0)
   ! including permafrost variables

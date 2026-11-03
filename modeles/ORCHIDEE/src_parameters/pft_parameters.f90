@@ -390,6 +390,10 @@ CONTAINS
       snowa_dec(:) = snowa_dec_mtc(pft_to_mtc(:)) 
       alb_leaf_vis(:) = alb_leaf_vis_mtc(pft_to_mtc(:))  
       alb_leaf_nir(:) = alb_leaf_nir_mtc(pft_to_mtc(:))
+      
+      alb_max(:) = alb_max_mtc(pft_to_mtc(:))                     !! add by ke
+      residue_duration(:) = residue_duration_mtc(pft_to_mtc(:))   !! add by ke
+
       !-
 
       !chaoyue+
@@ -539,6 +543,7 @@ CONTAINS
       lai_max_to_happy(:) = lai_max_to_happy_mtc(pft_to_mtc(:))  
       lai_max(:) = lai_max_mtc(pft_to_mtc(:))
       pheno_type(:) = pheno_type_mtc(pft_to_mtc(:))
+
       !
       ! 2. Leaf Onset
       !
@@ -606,6 +611,8 @@ CONTAINS
       SP_stressdev(:) = SP_stressdev_mtc(pft_to_mtc(:))
       SP_innlai(:) = SP_innlai_mtc(pft_to_mtc(:))
       SP_innsenes(:) = SP_innsenes_mtc(pft_to_mtc(:))
+      SP_matrec(:) = SP_matrec_mtc(pft_to_mtc(:))    !! add by ke
+      
       SP_codebfroid(:) = SP_codebfroid_mtc(pft_to_mtc(:))
 
       SP_codephot(:) = SP_codephot_mtc(pft_to_mtc(:))
@@ -1271,6 +1278,24 @@ CONTAINS
          WRITE(numout,*) ' Memory allocation error for alb_leaf_vis. We stop. We need nvm words = ',nvm
          STOP 'pft_parameters_alloc'
       END IF
+      
+!!!! add by ke     
+      ALLOCATE(alb_max(nvm),stat=ier)
+      l_error = l_error .OR. (ier /= 0)
+      IF (l_error) THEN
+         WRITE(numout,*) ' Memory allocation error for alb_max. We stop. We need nvm words = ',nvm
+         STOP 'pft_parameters_alloc'
+      END IF
+!!!! add by ke        
+
+!!!! add by ke     
+      ALLOCATE(residue_duration(nvm),stat=ier)
+      l_error = l_error .OR. (ier /= 0)
+      IF (l_error) THEN
+         WRITE(numout,*) ' Memory allocation error for residue_duration. We stop. We need nvm words = ',nvm
+         STOP 'pft_parameters_alloc'
+      END IF
+!!!! add by ke  
 
       ALLOCATE(alb_leaf_nir(nvm),stat=ier)
       l_error = l_error .OR. (ier /= 0)
@@ -2188,6 +2213,8 @@ CONTAINS
       l_error = l_error .OR. (ier /= 0)
       ALLOCATE(SP_innsenes(nvm),stat=ier)
       l_error = l_error .OR. (ier /= 0)
+      ALLOCATE(SP_matrec(nvm),stat=ier)    !! add by ke 
+      l_error = l_error .OR. (ier /= 0)
       ALLOCATE(SP_codebfroid(nvm),stat=ier)
       l_error = l_error .OR. (ier /= 0)
 
@@ -2331,7 +2358,8 @@ CONTAINS
       l_error = l_error .OR. (ier /= 0)
       ALLOCATE(SP_tdmin(nvm),stat=ier)
       l_error = l_error .OR. (ier /= 0)
-    
+
+     
       ! STICS:: F_humerac
 
       ALLOCATE(SP_sensrsec(nvm),stat=ier)
@@ -3014,6 +3042,7 @@ CONTAINS
 !      write(*,*) 'dlaimax: ',SP_dlaimax
 !      CALL getin_p('INNSENES',SP_innsenes)
 !      write(*,*) 'innsenes: ',SP_innsenes
+      CALL getin_p('MATREC',SP_matrec)     !! add by ke
       CALL getin_p('CODEHYPO',SP_codehypo)
       !write(*,*) 'codehypo: ',SP_codehypo
       CALL getin_p('LAIPLANTULE',SP_laiplantule)
@@ -3031,7 +3060,8 @@ CONTAINS
       CALL getin_p('STAMFLAX',SP_stamflax)
 ! YANG SU
       CALL getin_p('STFLODRP',SP_stflodrp)
-
+  
+      
 ! YANG SU
       CALL getin_p('CYC_ROT_MAX',cyc_rot_max)
 
@@ -3282,11 +3312,32 @@ CONTAINS
       !Config Key   = ALB_LEAF_NIR
       !Config Desc  = leaf albedo of vegetation type, near infrared albedo
       !Config if    = OK_SECHIBA
-      !Config Def   = .00, .20, .22, .22, .22,.22, .22, .22, .22, .30, .30, .30, .30 
+      !Config Def   = 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, .25, .25, .25 
       !Config Help  =
       !Config Units = [-]
       CALL getin_p('ALB_LEAF_NIR',alb_leaf_nir)
-      
+
+!!!! add by ke
+      !Config Key   = ALB_MAX
+      !Config Desc  = max albedo of vegetation type, shortwave albedo
+      !Config if    = OK_SECHIBA
+      !Config Def   = .00, .20, .22, .22, .22,.22, .22, .22, .22, .30, .30, .30, .30, .30
+      !Config Help  =
+      !Config Units = [-]
+      CALL getin_p('ALB_MAX',alb_max)
+!!!! add by ke
+
+!!!! add by ke
+      !Config Key   = RESIDUE_DURATION
+      !Config Desc  = residue duration of vegetation type
+      !Config if    = OK_SECHIBA
+      !Config Def   = 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 30.00, 30.00, 30.00, 30.00, 30.00 
+      !Config Help  =
+      !Config Units = [-]
+      CALL getin_p('RESIDUE_DURATION',residue_duration)
+!!!! add by ke
+
+            
       IF ( ok_bvoc ) THEN
          !
          ! BVOC
@@ -3638,7 +3689,8 @@ CONTAINS
       !Config Help  = 
       !Config Units = [-]   
       CALL getin_p('AVAILABILITY_FACT',availability_fact)
-
+      
+      
       !
       ! Allocation - stomate
       !
@@ -4292,7 +4344,10 @@ CONTAINS
    IF (ALLOCATED(snowa_aged)) DEALLOCATE(snowa_aged)
    IF (ALLOCATED(snowa_dec)) DEALLOCATE(snowa_dec)
    IF (ALLOCATED(alb_leaf_vis)) DEALLOCATE(alb_leaf_vis)
-   IF (ALLOCATED(alb_leaf_nir)) DEALLOCATE(alb_leaf_nir)   
+   IF (ALLOCATED(alb_leaf_nir)) DEALLOCATE(alb_leaf_nir)  
+   IF (ALLOCATED(alb_max)) DEALLOCATE(alb_max)                     !! add by ke
+   IF (ALLOCATED(residue_duration)) DEALLOCATE(residue_duration)   !! add by ke
+
    !chaoyue+
    IF (ALLOCATED(permafrost_veg_exists)) DEALLOCATE(permafrost_veg_exists)   
    !chaoyue-
@@ -4451,6 +4506,7 @@ CONTAINS
    IF(ALLOCATED(SP_stressdev))DEALLOCATE(SP_stressdev)
    IF(ALLOCATED(SP_innlai))DEALLOCATE(SP_innlai)
    IF(ALLOCATED(SP_innsenes))DEALLOCATE(SP_innsenes)
+   IF(ALLOCATED(SP_matrec))DEALLOCATE(SP_matrec)   !! add by ke
    IF(ALLOCATED(SP_codebfroid))DEALLOCATE(SP_codebfroid)
    IF(ALLOCATED(SP_codephot))DEALLOCATE(SP_codephot)
    IF(ALLOCATED(SP_codedormance))DEALLOCATE(SP_codedormance)
@@ -4527,7 +4583,6 @@ CONTAINS
    IF(ALLOCATED(SP_durvieF))DEALLOCATE(SP_durvieF)
    IF(ALLOCATED(SP_ratiosen))DEALLOCATE(SP_ratiosen)
    IF(ALLOCATED(SP_tdmin))DEALLOCATE(SP_tdmin)
-   
    ! STICS:: F_humerac
  
    IF(ALLOCATED(SP_sensrsec))DEALLOCATE(SP_sensrsec)

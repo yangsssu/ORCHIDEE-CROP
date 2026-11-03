@@ -4,7 +4,7 @@
 ! détemination de la date de récolte
 ! calcul de la date de récolte
 ! plusieurs critères pour la récolte
-! 1- la maturité physiologique (P_codrecolte = 1)
+! 1- la maturit?physiologique (P_codrecolte = 1)
 ! 2- la teneur en eau          (P_codrecolte = 2)
 ! 3- la teneur en sucre        (P_codrecolte = 3)
 ! 4- la teneur en protéine     (P_codrecolte = 4)
@@ -29,8 +29,8 @@ implicit none
   integer, intent(IN)    :: n  
   integer, intent(IN)    :: ndrp  
   integer, intent(IN)    :: gslen 
+!!  integer, intent(IN)  :: havlen  !! add by ke
   
-
   real,    intent(IN)    :: lai  !> // PARAMETER // minimal sugar rate at harvest // g sucre g-1 MF // PARTEC // 1 
   
 
@@ -85,7 +85,7 @@ implicit none
 
     !: NB - le 27/08 - pas de passage avant ndrp
     !: first, we check the growing season length, whether or not exceed the threshold, maxgs = 300.    
-    
+
 !    print *, 'in recolte, the lai is', lai
     if ( gslen < P_maxgs ) then
        if (ndrp == 0 .or. n == ndrp) return
@@ -96,7 +96,7 @@ implicit none
           if (P_codrecolte == 1) then
             ! NB - le 08/05/02 - ajout du test nrec
 !            print *, 'in recolte, the drylen is ', drylen
-            if (drylen < matrec) then  ! drying process start only since mature
+            if (drylen <matrec) then  ! drying process start only since mature ! modified by ke
                nrec = 0
             else 
                nrec = n
@@ -106,7 +106,7 @@ implicit none
           endif
           if (P_codrecolte == 2) then
             ! NB - le 08/05/02 - ajout du test nrec
-            if (drylen < matrec) then
+            if (drylen < matrec) then ! modified by ke
                nrec = 0
             else
                nrec = n
@@ -130,7 +130,7 @@ implicit none
           else
              drylen = drylen
           endif
-          if (drylen < matrec) then
+          if (drylen < matrec) then ! modified by ke
              nrec = 0
           else 
              nrec = n
@@ -225,19 +225,19 @@ implicit none
     !if (P_nbcueille == 2) then
 
     !  teaudecis = teaugrain
-    !  !--pas utilisé-- sucredecis = sucreder
-    !  !--pas utilisé-- huiledecis = huileder
+    !  !--pas utilis?- sucredecis = sucreder
+    !  !--pas utilis?- huiledecis = huileder
 
     !  jdepuisrec = jdepuisrec+1
     !  if ((n == nrec .or. jdepuisrec >= P_cadencerec) .and. pdsfruit > 0.) then
     !    nrecint = n
-! dr!  22/12/2010 on passé le tableau entier de rdint
+! dr!  22/12/2010 on pass?le tableau entier de rdint
     !    rdtint = pdsfruit
 !   !     rdtint(1,nbrecolte) = pdsfruit
 !   !        write(*,*)'***** dans stics_recolte',rdtint,pdsfruit
     !    nbfrint = nfruit
     !    teauint = teaudecis
-! dr!  22/12/2010 on passé le tableau entier de rdint
+! dr!  22/12/2010 on pass?le tableau entier de rdint
     !    pdsfruit  =  pdsfruit - rdtint
     !    nfruit  =  nfruit - nbfrint
 
@@ -254,8 +254,8 @@ implicit none
 
     !!: NB - le 02/07/02
     !!- domi et marie - 10/10/03
-    !!- deplacé au debut de develop car dans le cas de P_codeperenne = 1 et P_codcueille = 1 on ne passe plus
-    !!- dans recolte à partir de n = nrec
+    !!- deplac?au debut de develop car dans le cas de P_codeperenne = 1 et P_codcueille = 1 on ne passe plus
+    !!- dans recolte ?partir de n = nrec
     !!- voir avec Nadine si on le vire ici
 !-- !   if (P_codeperenne == 1) then
 !-- !     if (P_codcueille == 1) then
@@ -266,9 +266,9 @@ implicit none
 !-- !         pdsfruitfrais(:) = 0.0
     !      ! domi - 22/10/03
 !-- !         hauteur(:) = 0.
-    !      ! PB - 03/05/2004 - remise à zéro des variables de fixation
+    !      ! PB - 03/05/2004 - remise ?zéro des variables de fixation
 !-- !         demande(:)  =  0.
-    !      ! DR 13/01/06 remise à zero sinon mafrais ne revient pas nul
+    !      ! DR 13/01/06 remise ?zero sinon mafrais ne revient pas nul
 !-- !         mafraisfeuille(:) = 0.
 !-- !         mafraistige(:) = 0.
 !-- !         mafraisres(:) = 0.

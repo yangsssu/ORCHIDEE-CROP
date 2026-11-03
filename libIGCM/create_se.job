@@ -2,7 +2,7 @@
 ## OBELIX      LSCE ##
 ######################
 #PBS -N SE
-#PBS -m n
+#PBS -m a
 #PBS -j oe
 #PBS -q medium
 #PBS -o SE.$$

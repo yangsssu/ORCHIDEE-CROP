@@ -24,8 +24,8 @@ PackDefault=false
 
 #====================================================
 # set BigBrother false by default
-BigBrother=${BigBrother:=false}
-
+#BigBrother=${BigBrother:=false}
+BigBrother=false
 #====================================================
 # set BigBrother channel (AMQP or MAIL)
 # only MAIL working at present due to firewall constraint
@@ -205,6 +205,41 @@ function IGCM_sys_RshPost {
 #D-* Purpose: Send mail when simulation is over
 #D-* Examples:
 #D-
+#function IGCM_sys_SendMail {
+#  IGCM_debug_PushStack "IGCM_sys_SendMail" $@
+#  if ( $DEBUG_sys ) ; then
+#    echo "IGCM_sys_SendMail :" $@
+#  fi
+
+#  if [ X${1} = XAccounting ] ; then
+#    status=Accounting
+#    mailText=jobAccounting.mail
+#  elif ( ${ExitFlag} ) ; then
+#    status=failed
+#    mailText=jobEnd.mail
+#  else
+#    status=completed
+#    mailText=jobEnd.mail
+#  fi
+
+  # Update selected mail template
+#  while read -r line; do
+#    eval echo $line >> mail.txt ;
+#  done < ${libIGCM}/libIGCM_sys/${mailText}
+
+#  if [ ! -z ${config_UserChoices_MailName} ] ; then
+#    mail -s "${config_UserChoices_JobName} ${status}" ${config_UserChoices_MailName} < mail.txt
+#  elif [ -f ~/.forward ] ; then
+#    mail -s "${config_UserChoices_JobName} ${status}" $( cat ~/.forward ) < mail.txt
+#  else
+#    mail -s "${config_UserChoices_JobName} ${status}" ${USER} < mail.txt
+#  fi
+
+#  sleep 10
+#  rm -f mail.txt
+
+#  IGCM_debug_PopStack "IGCM_sys_SendMail"
+#}
 
 #D-#==================================================
 #D-function IGCM_sys_Mkdir

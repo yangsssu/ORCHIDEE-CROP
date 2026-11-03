@@ -566,6 +566,16 @@ CONTAINS
         !Config Units = [FLAG]
         CALL getin_p('ALB_BG_MODIS',alb_bg_modis)
         !
+        !Config Key   = ALB_BG_SENTINEL2
+        !Config Desc  = Read bare soil albedo from file with background sentinel2 data
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, the bare soil albedo is read from file
+        !Config         based on background sentinel2 data.  
+        !Config         If FALSE, computaion depends on ALB_BARE_MODEL
+        !Config Units = [FLAG]
+        CALL getin_p('ALB_BG_SENTINEL2',alb_bg_sentinel2)
+        !
         !Config Key   = Z0CDRAG_AVE
         !Config Desc  = Average method for z0
         !Config Def   = y
@@ -588,6 +598,111 @@ CONTAINS
         !Config         it imposes the same vegetation everywhere
         !Config Units = [FLAG]
         CALL getin_p('IMPOSE_AZE',impaze)
+        
+!!!!!!!!!!!!! crop residues albedo, add by ke !!!!!!!!!!!!!!!!        
+        
+        !Config Key   = OK_RESIDUES
+        !Config Desc  = Switch crop residue after harvesting
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, residue covers the grid, represented by residue fraction.
+        !Config         If FALSE, there is no residue.
+        !Config Units = [FLAG]
+        CALL getin_p('OK_RESIDUES',ok_residues)
+        
+        !Config Key   = OK_YELLOW
+        !Config Desc  = Switch crop yellow albedo
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, the surface albedo of crop is simulated by a incresing function.
+        !Config         If FALSE, the surface albedo is the default leaf albedo.
+        !Config Units = [FLAG]
+        CALL getin_p('OK_YELLOW',ok_yellow)
+        
+        !Config Key   = OK_EVAP
+        !Config Desc  = Switch soil evaporation influenced by residue
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, the soil evaporation is inhibited by residue fraction
+        !Config         If FALSE, the soil evaporation is not influenced.
+        !Config Units = [FLAG]
+        CALL getin_p('OK_EVAP',ok_evap)
+        
+        !Config Key   = OK_RESIDUE_ALB
+        !Config Desc  = Switch crop residue albedo after harvesting
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, the surface albedo of crop residues is simulated by a decreasing function.
+        !Config         If FALSE, the surface albedo is the bare soil albedo.
+        !Config Units = [FLAG]
+        CALL getin_p('OK_RESIDUE_ALB',ok_residue_alb)
+        
+        !Config Key   = OK_Z0
+        !Config Desc  = Switch surface roughness influenced by residues after harvest
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, roughness changes with residue fraction
+        !Config         If FALSE, there is no Z0 change.
+        !Config Units = [FLAG]
+        CALL getin_p('OK_Z0',ok_Z0)
+        
+        
+!!!!!!!!!!!!! crop residues albedo, add by ke !!!!!!!!!!!!!!!!  
+        !! HAS parameters, add by shuai (start)
+
+        !Config Key   = OK_HAS
+        !Config Desc  = Switch Hydraulic Activation of Stomata (HAS)
+        !Config Def   = n
+        !Config if    = OK_SECHIBA
+        !Config Help  = If TRUE, activate HAS
+        !Config         If FALSE, there is no HAS activation
+        !Config Units = [FLAG]
+        CALL getin_p('OK_HAS', ok_has)
+
+        !Config Key   = TAU_HAS_DAYS
+        !Config Desc  = HAS dry decay timescale
+        !Config Def   = 3.0
+        !Config if    = OK_HAS
+        !Config Help  = Dry decay timescale of HAS memory state
+        !Config Units = [days]
+        CALL getin_p('TAU_HAS_DAYS', tau_has_days)
+
+        !Config Key   = HAS_REF
+        !Config Desc  = Reference retention amount for HAS activation
+        !Config Def   = 0.010
+        !Config if    = OK_HAS
+        !Config Help  = Controls how strongly retained application amount activates has_store
+        !Config Units = [kg m-2]
+        CALL getin_p('HAS_REF', has_ref)
+
+        !Config Key   = K_WASH_HAS
+        !Config Desc  = Wash-off coefficient for HAS
+        !Config Def   = 0.5
+        !Config if    = OK_HAS
+        !Config Help  = Controls rain-induced wash-off of has_store
+        !Config Units = [-]
+        CALL getin_p('K_WASH_HAS', k_wash_has)
+
+        !Config Key   = THROUGHFALL_BY_PFT_FOR_HAS
+        !Config Desc  = Throughfall fraction for HAS source retention
+        !Config Def   = 0.30
+        !Config if    = OK_HAS
+        !Config Help  = Fraction of applied source that bypasses canopy retention
+        !Config Units = [-]
+        CALL getin_p('THROUGHFALL_BY_PFT_FOR_HAS', throughfall_by_pft_for_has)
+
+        !Config Key   = LW_C
+        !Config Desc  = Hygroscopic enhancement factor
+        !Config Def   = 2.0
+        !Config if    = OK_HAS
+        !Config Help  = An effective hygroscopic enhancement factor for UAN residues
+        !Config Units = [-]
+        CALL getin_p('LW_C', lw_c)
+
+        !! add by shuai (end)
+        
+        
+            
         !
         IF(impaze) THEN
            !

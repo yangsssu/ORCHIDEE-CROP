@@ -1,0 +1,13 @@
+\begin{equation}
+Flux_{pool}=
+\left\{
+  \begin{array}{ll}
+	C_{pool}\times\frac{\Delta t}{\tau_{pool}}\times\epsilon_T\times\epsilon_H & \textrm{(natural vegetation)} \\
+	C_{pool}\times\frac{\Delta t}{\tau_{pool}}\times\epsilon_T\times\epsilon_H\times 1.2 & \textrm{(C3 crops)} \\
+	C_{pool}\times\frac{\Delta t}{\tau_{pool}}\times\epsilon_T\times\epsilon_H\times 1.4 & \textrm{(C4 crops)}
+  \end{array}
+\right. \nonumber
+\end{equation}
+,where $C_{pool}$, $\Delta t$, $\tau_{pool}$, $\epsilon_T$ and $\epsilon_H$ are respectively the pool carbon
+stock, the time step, the pool turnover time, and two control coefficients
+(temperature and humidity) defined in the ::stomate\_litter module

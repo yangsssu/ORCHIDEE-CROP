@@ -49,16 +49,17 @@ PROGRAM driver
   REAL :: zlflu
   REAL :: alpha
 !-
+
   REAL, ALLOCATABLE, DIMENSION(:,:) :: &
  & swdown, coszang, precip_rain, precip_snow, tair_obs, u, v, &
  & qair_obs, pb, lwdown, &
- & eair_obs, zlev_vec, zlevuv_vec, relax
+ & eair_obs, zlev_vec, zlevuv_vec, relax !! add  by ke
 !- Variables which are forcings for SECHIBA
   REAL, ALLOCATABLE, DIMENSION(:,:) :: &
  & petAcoef, peqAcoef, petBcoef, peqBcoef, cdrag, &
  & for_u, for_v, for_swnet, for_swdown, for_coszang, for_lwdown, &
  & for_psurf, for_qair, for_tair, for_eair, &
- & for_ccanopy, for_rau
+ & for_ccanopy, for_rau 
 !!$, tmp_eair, tmp_tair, &
 !!$ & tmp_qair, tmp_pb
 !-
@@ -75,10 +76,13 @@ PROGRAM driver
   REAL, ALLOCATABLE, DIMENSION(:,:,:) :: albedo
   REAL, ALLOCATABLE, DIMENSION(:,:) :: albedo_vis
   REAL, ALLOCATABLE, DIMENSION(:,:) :: albedo_nir
+
 !-
   INTEGER, ALLOCATABLE, DIMENSION(:) :: kindex
   REAL, ALLOCATABLE, DIMENSION(:,:) :: lon, lat
   REAL, ALLOCATABLE, DIMENSION(:)   :: tmplev
+
+
 !-
   REAL :: old_tair
   REAL :: atmco2
@@ -169,16 +173,19 @@ PROGRAM driver
 !-
   CALL init_ioipsl_para
 !-
-  IF (printlev_loc>=3) THEN
-    WRITE(numout,*) 'Allocate memory for the driver :', iim, jjm, llm
-  ENDIF
+!  IF (printlev_loc>=3) THEN
+!    WRITE(numout,*) 'Allocate memory for the driver :', iim, jjm, llm
+!  ENDIF
 !-
   ALLOCATE (tmplev(llm)) 
+
+
+
   ALLOCATE &
  & (swdown(iim,jjm), coszang(iim,jjm), precip_rain(iim,jjm), precip_snow(iim,jjm), &
  &  tair_obs(iim,jjm), u(iim,jjm), v(iim,jjm), qair_obs(iim,jjm), &
  &  pb(iim,jjm), lwdown(iim,jjm), &
- &  eair_obs(iim,jjm), zlev_vec(iim,jjm), zlevuv_vec(iim,jjm), relax(iim,jjm))
+ &  eair_obs(iim,jjm), zlev_vec(iim,jjm), zlevuv_vec(iim,jjm), relax(iim,jjm)) 
 !- 
   ALLOCATE &
  & (petAcoef(iim,jjm), peqAcoef(iim,jjm), &
@@ -198,7 +205,7 @@ PROGRAM driver
  &  temp_sol_NEW(iim,jjm), temp_sol_old(iim,jjm), &
  &  dtdt(iim,jjm), coastalflow(iim,jjm), riverflow(iim,jjm), &
  &  fluxsens(iim,jjm), fluxlat(iim,jjm), emis(iim,jjm), &
- &  z0(iim,jjm), qsurf(iim,jjm))
+ &  z0(iim,jjm), qsurf(iim,jjm))   
 !!$, epot_sol(iim,jjm)
 !-
   ALLOCATE(albedo(iim,jjm,2))
@@ -220,6 +227,7 @@ PROGRAM driver
   zlev_vec(:,:) = 0.0
   zlevuv_vec(:,:) = 0.0
   relax(:,:) = 0.0
+
   petAcoef(:,:) = 0.0
   peqAcoef(:,:) = 0.0
   petBcoef(:,:) = 0.0
@@ -239,6 +247,7 @@ PROGRAM driver
   for_contfrac(:,:) = 0.0
   for_neighbours(:,:,:) = 0
   for_resolution(:,:,:) = 0.0
+
   old_zlev(:,:) = 0.0
   old_qair(:,:) = 0.0
   old_eair(:,:) = 0.0
@@ -261,6 +270,8 @@ PROGRAM driver
   lon(:,:) = 0.0
   lat(:,:) = 0.0
   tmplev(:) = 0.0
+
+
 !-
 ! We need to know the grid.
 ! Then we can initialize the restart files, and then we
@@ -315,7 +326,7 @@ PROGRAM driver
 !-
   driv_restname_in = 'NONE'
   CALL getin_p('RESTART_FILEIN',driv_restname_in)
-  if (printlev_loc>=3) WRITE(numout,*) 'INPUT RESTART_FILE : ',TRIM(driv_restname_in)
+!  if (printlev_loc>=3) WRITE(numout,*) 'INPUT RESTART_FILE : ',TRIM(driv_restname_in)
 !-
   !Config Key   = RESTART_FILEOUT
   !Config Desc  = Name of restart files to be created by the driver
@@ -328,7 +339,7 @@ PROGRAM driver
 !-
   driv_restname_out = 'driver_rest_out.nc'
   CALL getin_p('RESTART_FILEOUT', driv_restname_out)
-  if (printlev_loc>=3) WRITE(numout,*) 'OUTPUT RESTART_FILE : ',TRIM(driv_restname_out)
+!  if (printlev_loc>=3) WRITE(numout,*) 'OUTPUT RESTART_FILE : ',TRIM(driv_restname_out)
 !-
 ! Set default values for the start and end of the simulation
 ! in the forcing chronology.
@@ -345,7 +356,7 @@ PROGRAM driver
   
   driver_reset_time=.FALSE.
   CALL getin_p('DRIVER_reset_time', driver_reset_time)
-  IF (printlev_loc>=3) WRITE(numout,*) 'driver_reset_time=',driver_reset_time
+!  IF (printlev_loc>=3) WRITE(numout,*) 'driver_reset_time=',driver_reset_time
 
   IF (is_root_prc) THEN
      ! Set default values for the time variables
@@ -353,17 +364,17 @@ PROGRAM driver
      date0_rest = date0
      dt_rest = dt
 
-     IF (printlev_loc>=3) WRITE(numout,*) &
-          'Before driver restart file initialization : itau_dep_rest, date0_rest, dt_rest = ', &
-          itau_dep_rest, date0_rest, dt_rest
+!     IF (printlev_loc>=3) WRITE(numout,*) &
+!          'Before driver restart file initialization : itau_dep_rest, date0_rest, dt_rest = ', &
+!          itau_dep_rest, date0_rest, dt_rest
 
      CALL restini &
           (driv_restname_in, iim_g, jjm_g, lon_g, lat_g, llm, tmplev, &
           driv_restname_out, itau_dep_rest, date0_rest, dt_rest, rest_id, driver_reset_time)
 
-     IF (printlev_loc>=3) WRITE(numout,*) &
-          'After driver restart file initialization : itau_dep_rest, date0_rest, dt_rest = ', &
-          itau_dep_rest, date0_rest, dt_rest
+!     IF (printlev_loc>=3) WRITE(numout,*) &
+!          'After driver restart file initialization : itau_dep_rest, date0_rest, dt_rest = ', &
+!          itau_dep_rest, date0_rest, dt_rest
 
      IF (itau_dep_rest == 0 .OR. driver_reset_time) THEN
         ! Restart file did not exist or we decide to overwrite time values in it.
@@ -377,9 +388,9 @@ PROGRAM driver
         itau_fin = itau_dep+tm
      ENDIF
 
-     WRITE(numout,*) &
-          'Restart file initialized : itau_dep, itau_fin, date0_rest, dt_rest = ', &
-          itau_dep, itau_fin, date0_rest, dt_rest
+!     WRITE(numout,*) &
+!          'Restart file initialized : itau_dep, itau_fin, date0_rest, dt_rest = ', &
+!          itau_dep, itau_fin, date0_rest, dt_rest
   ENDIF
 
   ! Communicate values from root_prc to all the others
@@ -408,12 +419,13 @@ PROGRAM driver
  &   swdown, coszang, precip_rain, precip_snow, tair_obs, &
  &   u, v, qair_obs, pb, lwdown, for_contfrac, for_neighbours, for_resolution, &
  &   for_swnet, eair_obs, petAcoef, peqAcoef, petBcoef, peqBcoef, cdrag, for_ccanopy, &
- &   kindex, nbindex, force_id)
+ &   kindex, nbindex, force_id)  
 !-
   WRITE (numout,*) ">> Number of land points =",nbindex
+!  WRITE (numout,*) ">> ke pb after forcing_read =",pb,kindex
   IF (nbindex == 0) THEN
-     WRITE(numout,*) "Limits : (W,E / N,S)", limit_west, limit_east, &
-          &                             limit_north, limit_south
+!     WRITE(numout,*) "Limits : (W,E / N,S)", limit_west, limit_east, &
+!          &                             limit_north, limit_south
      CALL ipslerr_p ( 3, 'dim2_driver','number of land points error.', &
           &         ' is zero !','stop driver')
   ENDIF
@@ -443,6 +455,8 @@ PROGRAM driver
     WRITE(numout,*) ' iim, jjm, llm demandes = ', iim, jjm, llm
     CALL ipslerr_p(3,'dim2_driver','Pb in dimensions','','')
   ENDIF  
+  
+!  WRITE(numout,*) "ke kindex before 1.5: ", kindex
 !=====================================================================
 !- 1.5  Configures the time-steps and other parameters 
 !-      of the run.
@@ -558,7 +572,7 @@ PROGRAM driver
  &         ' Length of the forcing data is in time-steps','verify TIME_LENGTH parameter.')
   ENDIF
   WRITE(numout,*) '>> Time steps : true, forcing and restart : ', dt,dt_force,dt_rest
-
+! WRITE(numout,*) "ke kindex before 2.0: ", kindex 
 !=====================================================================
 !- 2.0 This section is going to define the details by which
 !-     the input data is going to be used to force the
@@ -681,6 +695,7 @@ PROGRAM driver
   ELSE
      netrad_cons = .FALSE.
   ENDIF
+!  WRITE(numout,*) "ke kindex before 3.0: ", kindex
 !=====================================================================
 !- 3.0 Finaly we can prepare all the variables before launching
 !-     the simulation !
@@ -820,7 +835,7 @@ PROGRAM driver
 !-
 ! old density is also needed because we do not yet have the right pb
 !-
-!=> obsolète ??!! (tjrs calculé après forcing_read) 
+!=> obsolète ??!! (tjrs calcul?après forcing_read) 
   IF (is_root_prc) THEN
      ALLOCATE(for_rau_g(iim_g,jjm_g))
      var_name= 'rau_old'
@@ -946,14 +961,18 @@ PROGRAM driver
   albedo(:,:,:) = 0.13
   emis(:,:) = 1.0
   z0(:,:) = 0.1
+  
 !--
 !=====================================================================
 !- 4.0 START THE TIME LOOP
 !=====================================================================
-
+!  WRITE(numout,*) "ke kindex in 4.0 before 1014",kindex
+  
   it = itau_dep+1
+!  WRITE(numout,*) "ke kindex in 4.0 before do where =",it, ',',itau_dep,',',itau_fin
   DO WHILE ( it <= itau_fin )
 !----
+!    WRITE(numout,*) "ke kindex in DO WHILE111 ",kindex
     it_force = it+for_offset
     IF (it_force < 0) THEN
       WRITE(numout,*) 'The day is not in the forcing file :', &
@@ -967,6 +986,8 @@ PROGRAM driver
 !!$    ENDIF 
 !---
     is=split_start
+!    WRITE(numout,*) "ke kindex in 4.0 before do where2 =",is, ',',split_start,',',split
+!    WRITE(numout,*) "ke kindex in DO WHILE222 ",kindex
     DO WHILE ( is <= split )
 !-----
       julian = itau2date(istp, date0_rest, dt)
@@ -984,12 +1005,15 @@ PROGRAM driver
 #endif
       ENDIF
 !----- 
+
       IF ( (it == itau_fin).AND.(is == split) ) THEN
         last_CALL = .TRUE.
       ENDIF
+!      WRITE(numout,*) "ke kindex in DO WHILE333 ",kindex
 !-----
       IF (printlev_loc>=3) WRITE(numout,*) 'Into forcing_read'
 !-----
+!      WRITE(numout,*) "ke kindex before forcing_READ  =",kindex
       CALL forcing_READ &
  &      (filename, rest_id, .FALSE., last_CALL, &
  &       it_force, istp, is, split, nb_spread, netrad_cons, &
@@ -997,13 +1021,13 @@ PROGRAM driver
  &       swdown, coszang, precip_rain, precip_snow, tair_obs, &
  &       u, v, qair_obs, pb, for_lwdown, for_contfrac, for_neighbours, for_resolution, &
  &       for_swnet, eair_obs, petAcoef, peqAcoef, petBcoef, peqBcoef, cdrag, for_ccanopy, &
- &       kindex, nbindex, force_id)
+ &       kindex, nbindex, force_id) 
 
 !-----
 !---- SECHIBA expects surface pressure in hPa
 !-----
       for_psurf(:,:)  = pb(:,:)/100.
-
+!      WRITE(numout,*) "ke kindex after forcing_READ  =",kindex
       IF (printlev_loc>=4) THEN
          WRITE(numout,*) "dim2_driver 0 ",it_force 
          WRITE(numout,*) ">> Index of land points =",kindex(1:nbindex)
@@ -1027,6 +1051,7 @@ PROGRAM driver
               & (/ ( for_swnet(ilandindex(ik), jlandindex(ik)),ik=1,nbindex ) /)
          WRITE(numout,*) "Downwelling surface short-wave flux = ", &
               & (/ ( swdown(ilandindex(ik), jlandindex(ik)),ik=1,nbindex ) /)
+            
          WRITE(numout,*) "Air temperature in Kelvin = ", &
               & (/ ( tair_obs(ilandindex(ik), jlandindex(ik)),ik=1,nbindex ) /)
          WRITE(numout,*) "Air potential energy = ", &
@@ -1056,13 +1081,14 @@ PROGRAM driver
       ENDIF
 !-----
 !---- Prepare : tmp_qair, tmp_eair, tmp_tair, tmp_pb
-!---- and     : for_u, for_v, for_lwdown, for_swnet, for_swdown
+!---- and     : for_u, for_v, for_lwdown, for_swnet, for_swdown  
 !---- All the work is done in forcing_read
 !---- We do not need the no_inter options as we will
 !---- allways interpolate
 !----- 
       IF (printlev_loc>=3) WRITE(numout,*) 'Prepare the atmospheric forcing'
 !----- 
+!      WRITE(numout,*) ' ke-albedo = ',albedo(:,:,1),',',albedo(:,:,2)
       IF (.NOT. is_watchout) THEN
          DO ik=1,nbindex
             i=ilandindex(ik)
@@ -1075,6 +1101,7 @@ PROGRAM driver
          i=ilandindex(ik)
          j=jlandindex(ik)
          for_swdown(i,j) = swdown(i,j)
+
          for_coszang(i,j) = coszang(i,j)
       ENDDO
 !----- 
@@ -1206,8 +1233,10 @@ PROGRAM driver
            i=ilandindex(ik)
            j=jlandindex(ik)
            for_swdown(i,j) = swdown(i,j)
+
            for_coszang(i,j) = coszang(i,j)
         ENDDO
+!        WRITE(numout,*) "ke kindex before in first_CALL =",kindex
         IF (printlev_loc>=4) THEN
            WRITE(numout,*) "dim2_driver first_CALL ",it_force 
            WRITE(numout,*) ">> Index of land points =",kindex(1:nbindex)
@@ -1256,10 +1285,12 @@ PROGRAM driver
            WRITE(numout,*) "Fraction of continent in the grid = ", &
              &     (/ ( for_contfrac(ilandindex(ik), jlandindex(ik)),ik=1,nbindex ) /)
         ENDIF
+      !  WRITE(numout,*) "ke-fraction debug3 ",kindex
 !-------
 !------ CALL sechiba to initialize fields
 !------ and have some initial results: emis, albedo, z0
 !-------
+!        WRITE(numout,*) "ke kindex before intersurf_initialize_2d =",kindex
         CALL intersurf_initialize_2d &
  &        (istp_old, iim, jjm, nbindex, kindex, dt, &
  &         first_CALL, .FALSE., lon, lat, for_contfrac, for_resolution, date0_rest, &
@@ -1274,8 +1305,9 @@ PROGRAM driver
 !       Output : Fluxes
  &         vevapp, fluxsens, fluxlat, coastalflow, riverflow,  &
 !       Surface temperatures and surface properties
- &         tsol_rad, temp_sol_NEW, qsurf, albedo, emis, z0 )
-
+ &         tsol_rad, temp_sol_NEW, qsurf, albedo, emis, z0) 
+!        WRITE(numout,*) "ke kindex after intersurf_initialize_2d =",kindex
+!        WRITE(numout,*) "ke-fraction debug4  ",kindex
         CALL Stop_timer(timer_global)
         CALL Stop_timer(timer_mpi)
         CALL Start_timer(timer_global)
@@ -1310,6 +1342,7 @@ PROGRAM driver
         ELSE
            albedo_vis(:,:)=albedo(:,:,1)
         ENDIF
+        
         !
         IF (is_root_prc) THEN
            var_name= 'albedo_nir'
@@ -1330,6 +1363,7 @@ PROGRAM driver
         ENDIF
         !
         DEALLOCATE(albedo_g)
+        ! WRITE(numout,*) "ke-fraction debug1  ",albedo
         !--
         ! z0 
         IF (is_root_prc) THEN
@@ -1350,12 +1384,14 @@ PROGRAM driver
              CALL scatter2D_mpi(z0_g,z0)
         DEALLOCATE(z0_g)
 !-------
+   !     WRITE(numout,*) "ke-fraction debug2  ",swdown
         DO ik=1,nbindex
            i=ilandindex(ik)
            j=jlandindex(ik)
            temp_sol_old(i,j) = temp_sol_NEW(i,j)
            for_swnet(i,j) = (1.- (albedo(i,j,1)+albedo(i,j,2))/2.)*swdown(i,j)
            for_swdown(i,j) = swdown(i,j)
+     
            for_coszang(i,j) = coszang(i,j)
         ENDDO
 !
@@ -1364,6 +1400,7 @@ PROGRAM driver
 !---- SECHIBA expects wind, temperature and humidity at the same height.
 !---- If this is not the case then we need to correct for that.
 !-----
+   !     WRITE(numout,*) "ke-fraction debug3  ",z0
         DO ik=1,nbindex 
            i=ilandindex(ik) 
            j=jlandindex(ik) 
@@ -1372,7 +1409,7 @@ PROGRAM driver
            for_v(i,j) = v(i,j) * LOG(zlev_vec(i,j)/z0(i,j)) / &
                 LOG(zlevuv_vec(i,j)/z0(i,j)) 
         END DO
-        
+    !    WRITE(numout,*) "ke-fraction debug4  ",z0 
 !-----
 !---- PRINT input value after first_CALL for printlev_loc>=3
 !-----
@@ -1484,7 +1521,7 @@ PROGRAM driver
          WRITE(numout,*) "Fraction of continent in the grid = ", &
            &     (/ ( for_contfrac(ilandindex(ik), jlandindex(ik)),ik=1,nbindex ) /)
       ENDIF
-      
+      ! WRITE(numout,*) "ke-Fractio debug1 ", kindex
       CALL intersurf_main_2d &
  &      (istp, iim, jjm, nbindex, kindex, dt, &
  &       first_CALL, last_CALL, lon, lat, for_contfrac, for_resolution, date0_rest, &
@@ -1495,14 +1532,15 @@ PROGRAM driver
  &       cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
 !     Rain, snow, radiation and surface pressure
  &       precip_rain, precip_snow, &
- &       for_lwdown, for_swnet, for_swdown, for_psurf, &
+ &       for_lwdown, for_swnet, for_swdown, for_psurf,&
 !     Output : Fluxes
  &       vevapp, fluxsens, fluxlat, coastalflow, riverflow,  &
 !     Surface temperatures and surface properties
  &       tsol_rad, temp_sol_NEW, qsurf, albedo, emis, z0, &
 !       VOC : radiation
- &       for_coszang)
-
+ !!&       for_coszang)
+ &       for_coszang) 
+      ! WRITE(numout,*) "ke-Fractio debug2 ",kindex
 !-------
       IF (printlev_loc>=4) THEN
          WRITE(numout,*) "dim2_driver outputs"
@@ -1600,6 +1638,7 @@ PROGRAM driver
 
     ENDIF
     it = it + 1
+!    WRITE(numout,*) "ke kindex final loop =",kindex
   ENDDO
 !-
 ! Archive in restart file the prognostic variables
@@ -1746,7 +1785,7 @@ PROGRAM driver
   IF(is_root_prc) THEN
      CALL restclo
      IF ( printlev_loc>=3 )  WRITE(numout,*) 'REST CLOSED'
-     CALL getin_dump
+     CALL getin_dump 
      IF ( printlev_loc>=3 )  WRITE(numout,*) 'GETIN CLOSED'
   ENDIF
 

@@ -17,21 +17,21 @@
   <!-- Sechiba file 1 -->
   <file id="sechiba1" name="sechiba_history" output_level="11" output_freq="_AUTO_" enabled="_AUTO_">
     <!-- level 1 -->
-    <field field_ref="Areas" level="1"/>
+    <field field_ref="Areas" level="20"/>
     <field field_ref="LandPoints" level="20"/>
     <field field_ref="Contfrac" level="1"/>
     <field field_ref="evap" level="1"/>
-    <field field_ref="coastalflow" level="1"/>
-    <field field_ref="riverflow" level="1"/>
+    <field field_ref="coastalflow" level="20"/>
+    <field field_ref="riverflow" level="20"/>
     <field field_ref="temp_sol_C" level="1"/>
     <field field_ref="rain" level="1"/>
     <field field_ref="snowf" level="1"/>
     <field field_ref="netrad" level="1"/>
     <field field_ref="lai" level="1"/>
-    <field field_ref="reinf_slope" level="1"/>
-    <field field_ref="soilindex" level="1"/>
-    <field field_ref="basinmap" level="1"/>
-    <field field_ref="nbrivers" level="1"/>
+    <field field_ref="reinf_slope" level="20"/>
+    <field field_ref="soilindex" level="20"/>
+    <field field_ref="basinmap" level="20"/>
+    <field field_ref="nbrivers" level="20"/>
     <field field_ref="npp" level="1"/>
     <!-- level 2 -->
     <field field_ref="subli" level="2"/>
@@ -40,7 +40,8 @@
     <field field_ref="riversret" level="2"/>
     <field field_ref="hydrographs" level="2"/>
     <field field_ref="evapnu" level="2"/>
-    <field field_ref="evapnu_soil" level="2"/>
+    <field field_ref="evapnu_soil" level="2"/>   
+    
     <field field_ref="drainage_soil" level="2"/>
     <field field_ref="transpir_soil" level="2"/>
     <field field_ref="runoff_soil" level="2"/>
@@ -48,14 +49,14 @@
     <field field_ref="qair" level="2"/>
     <field field_ref="q2m" level="2"/>
     <field field_ref="t2m" level="2"/>
-    <field field_ref="alb_vis" level="12"/>
-    <field field_ref="alb_nir" level="12"/>
-    <field field_ref="soilalb_vis" level="12"/>
-    <field field_ref="soilalb_nir" level="12"/>
-    <field field_ref="vegalb_vis" level="12"/>
-    <field field_ref="vegalb_nir" level="12"/>
-    <field field_ref="z0" level="12"/>
-    <field field_ref="roughheight" level="12"/>
+    <field field_ref="alb_vis" level="2"/>
+    <field field_ref="alb_nir" level="2"/>
+    <field field_ref="soilalb_vis" level="2"/>
+    <field field_ref="soilalb_nir" level="2"/>
+    <field field_ref="vegalb_vis" level="2"/>
+    <field field_ref="vegalb_nir" level="2"/>
+    <field field_ref="z0" level="2"/>
+    <field field_ref="roughheight" level="2"/>
     <field field_ref="transpir" level="2"/>
     <field field_ref="inter" level="2"/>
     <!-- level 3 -->
@@ -65,13 +66,13 @@
     <field field_ref="fluxlat" level="2"/>
     <field field_ref="snow" level="3"/>
     <field field_ref="snowage" level="3"/>
-    <field field_ref="snownobio" level="3"/>
-    <field field_ref="snownobioage" level="3"/>
+    <field field_ref="snownobio" level="20"/>
+    <field field_ref="snownobioage" level="20"/>
     <field field_ref="vegetfrac" level="2"/>
     <field field_ref="maxvegetfrac" level="3"/>
-    <field field_ref="tot_bare_soil" level="3"/>
-    <field field_ref="nobiofrac" level="3"/>
-    <field field_ref="flood_frac" level="3"/>
+    <field field_ref="tot_bare_soil" level="2"/>
+    <field field_ref="nobiofrac" level="20"/>
+    <field field_ref="flood_frac" level="20"/>
     <field field_ref="reinfiltration" level="3"/>
     <field field_ref="frac_bare" level="3"/>
     <field field_ref="soiltile" level="3"/>
@@ -84,13 +85,13 @@
     <field field_ref="vegetsoil_1" level="3"/>
     <field field_ref="vegetsoil_2" level="3"/>
     <field field_ref="vegetsoil_3" level="3"/>
-    <field field_ref="humtot_pro" level="3"/>
+    <field field_ref="humtot_pro" level="2"/>
     <!-- level 4 -->
     <field field_ref="dss" level="4"/>
     <field field_ref="gqsb" level="4"/>
     <field field_ref="bqsb" level="4"/>
-    <field field_ref="humtot" level="4"/>
-    <field field_ref="humtot_soil" level="4"/>
+    <field field_ref="humtot" level="2"/>
+    <field field_ref="humtot_soil" level="2"/>
     <field field_ref="SWI" level="4"/>
     <field field_ref="njsc" level="4"/>
     <field field_ref="qsintveg" level="4"/>
@@ -102,8 +103,8 @@
     <field field_ref="growth_resp" level="4"/>
     <field field_ref="precisol" level="4"/>
     <field field_ref="drysoil_frac" level="4"/>
-    <field field_ref="evapot" level="4"/>
-    <field field_ref="evapot_corr" level="4"/>
+    <field field_ref="evapot" level="2"/>
+    <field field_ref="evapot_corr" level="2"/>
     <!-- level 5 -->
     <field field_ref="swnet" level="5"/>
     <field field_ref="swdown" level="5"/>
@@ -135,7 +136,7 @@
     <field field_ref="Wind" level="8"/>
     <field field_ref="qsatt" level="8"/>
     <field field_ref="vbeta1" level="8"/>
-    <field field_ref="vbeta4" level="8"/>
+    <field field_ref="vbeta4" level="2"/>
     <field field_ref="vbeta5" level="8"/>
     <field field_ref="gsmean" level="8"/>
     <field field_ref="humrel" level="1"/>
@@ -144,7 +145,7 @@
     <field field_ref="vbeta3" level="10"/>
     <field field_ref="rveget" level="10"/>
     <field field_ref="rsol" level="10"/>
-    <field field_ref="vbeta2" level="10"/>
+    <field field_ref="vbeta2" level="2"/>
     <field field_ref="qsintmax" level="10"/>
     <!-- level 11 -->
     <field field_ref="mrsos" level="11"/>
@@ -235,6 +236,7 @@
     <field field_ref="riverflow" level="12"/>
     <field field_ref="tsol_rad" level="12"/>
     <field field_ref="vevapnu" level="2"/>
+    
     <field field_ref="temp_sol_C" level="2"/>
     <field field_ref="qsurf" level="12"/>
     <field field_ref="albedo" level="2"/>
@@ -273,8 +275,8 @@
     <field field_ref="transpir_soil" level="4"/>
     <field field_ref="runoff_soil" level="4"/>
     <!-- level 5 -->
-    <field field_ref="tsol_max" level="5"/>
-    <field field_ref="tsol_min" level="5"/>
+    <field field_ref="tsol_max" level="1"/>
+    <field field_ref="tsol_min" level="1"/>
     <field field_ref="snow" level="5"/>
     <field field_ref="snowage" level="5"/>
     <field field_ref="snownobio" level="5"/>

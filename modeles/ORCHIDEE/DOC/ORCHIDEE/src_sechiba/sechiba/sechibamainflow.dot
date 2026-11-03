@@ -1,0 +1,205 @@
+digraph test {
+ratio=5.208
+node [style=filled]
+"if l_first_sechib" -> "1.1 Initialize most of sechiba's variables
+      CALL sechiba_init"
+"if l_first_sechib" -> "2. Computes SECHIBA's variables
+2.1 Initialize variables at each time step
+    CALL sechiba_var_init
+2.2 Compute diffusion coefficients
+    CALL diffuco_main
+2.3 Compute energy balance
+    CALL enerbil_main"
+"1.1 Initialize most of sechiba's variables
+      CALL sechiba_init" -> "if ldrestart_read"
+"if ldrestart_read" -> "1.2 Initialize some variables of energy
+budget from restart file
+      CALL restget_p"
+"if ldrestart_read" -> "1.3 Initialize stomate's variables
+    CALL slowproc_main 
+1.4 Initialize diffusion coefficients
+    CALL diffuco_main
+1.5 Initialize remaining variables of energy budget
+    CALL enerbil_main"
+"1.2 Initialize some variables of energy
+budget from restart file
+      CALL restget_p" -> "1.3 Initialize stomate's variables
+    CALL slowproc_main 
+1.4 Initialize diffusion coefficients
+    CALL diffuco_main
+1.5 Initialize remaining variables of energy budget
+    CALL enerbil_main"
+"1.3 Initialize stomate's variables
+    CALL slowproc_main 
+1.4 Initialize diffusion coefficients
+    CALL diffuco_main
+1.5 Initialize remaining variables of energy budget
+    CALL enerbil_main" -> "if ldrestart_read"
+"if ldrestart_read" -> "1.6 Initialize some hydrological 
+variables from restart file
+     CALL restget_p"
+"if ldrestart_read" -> "if NOT 
+hydrol_cwrr"
+"1.6 Initialize some hydrological 
+variables from restart file
+     CALL restget_p" -> "if NOT 
+hydrol_cwrr"
+"if NOT 
+hydrol_cwrr" -> "1.7.1 Initialize remaining hydrological
+variables - 3 soil layers
+         CALL hydrolc_main"
+"if NOT 
+hydrol_cwrr" -> "1.7.2 Initialize remaining hydrological
+variables - 11 soil layers
+        CALL hydrol_main"
+"1.7.1 Initialize remaining hydrological
+variables - 3 soil layers
+         CALL hydrolc_main" -> "if ldrestart_read"
+"1.7.2 Initialize remaining hydrological
+variables - 11 soil layers
+        CALL hydrol_main" -> "if ldrestart_read"
+"if ldrestart_read" -> "1.8 Initialize some waterbalance
+variables from restart file
+     CALL restget_p"
+"if ldrestart_read" -> "1.9 Initialise surface parameters
+      CALL condveg_main
+1.10 Initialisation soil thermodynamics
+      CALL thermosoil_main"
+"1.9 Initialise surface parameters
+      CALL condveg_main
+1.10 Initialisation soil thermodynamics
+      CALL thermosoil_main" -> "if ldrestart_read"
+"if ldrestart_read" -> "1.11 Initialize some soil thermodynamics
+from restart file
+       CALL restget_p"
+"if ldrestart_read" -> "if
+river_routing
+nbp_glo > 1"
+"1.11 Initialize some soil thermodynamics
+from restart file
+       CALL restget_p" -> "if
+river_routing
+nbp_glo > 1"
+"if
+river_routing
+nbp_glo > 1" -> "1.12.1 Initialize river routing
+           CALL routing_main"
+"1.12.1 Initialize river routing
+           CALL routing_main" -> "1.13 Write internal variables to output fields
+1.14 Deallocate memory"
+"1.12.2 No routing, set variables to zero" -> "1.13 Write internal variables to output fields
+1.14 Deallocate memory"
+"1.13 Write internal variables to output fields
+1.14 Deallocate memory" -> "RETURN, so sechiba main is called
+twice during the first run. Once to
+initialize and once to calculate "
+"2. Computes SECHIBA's variables
+2.1 Initialize variables at each time step
+    CALL sechiba_var_init
+2.2 Compute diffusion coefficients
+    CALL diffuco_main
+2.3 Compute energy balance
+    CALL enerbil_main" -> "if NOT 
+hydrol_cwrr"
+"if NOT 
+hydrol_cwrr" -> "2.4.1 Compute water balance 3-soil layers
+         CALL hydrolc_main"
+"if NOT 
+hydrol_cwrr" -> "2.4.1 Compute water balance 3-soil layers
+         CALL hydrolc_main"
+"2.4.1 Compute water balance 3-soil layers
+         CALL hydrolc_main" -> "2.5 Remaining components of the energy 
+      balance
+     CALL enerbil_fusion
+2.6 Compute surface variables
+      CALL condveg_main
+2.7 Compute soil thermodynamics
+      CALL thermosoil_main"
+"2.4.1 Compute water balance 3-soil layers
+         CALL hydrolc_main" -> "2.5 Remaining components of the energy 
+      balance
+     CALL enerbil_fusion
+2.6 Compute surface variables
+      CALL condveg_main
+2.7 Compute soil thermodynamics
+      CALL thermosoil_main"
+"2.5 Remaining components of the energy 
+      balance
+     CALL enerbil_fusion
+2.6 Compute surface variables
+      CALL condveg_main
+2.7 Compute soil thermodynamics
+      CALL thermosoil_main" -> "if
+river_routing
+nbp_glo > 1"
+"if
+river_routing
+nbp_glo > 1" -> "2.8.1 Compute river routing
+           CALL routing_main"
+"2.8.1 Compute river routing
+           CALL routing_main" -> "2.9 Compute slow processes
+      CALL slowproc_main
+2.10 Compute global CO2 flux
+2.11 Swap old for new values
+      CALL sechiba_end
+2.12 Write internal variables to output fields
+2.13 Write global variables to history files
+2.14 Write additional output file"
+"2.8.2 No routing, set variables to zero" -> "2.9 Compute slow processes
+      CALL slowproc_main
+2.10 Compute global CO2 flux
+2.11 Swap old for new values
+      CALL sechiba_end
+2.12 Write internal variables to output fields
+2.13 Write global variables to history files
+2.14 Write additional output file"
+"2.9 Compute slow processes
+      CALL slowproc_main
+2.10 Compute global CO2 flux
+2.11 Swap old for new values
+      CALL sechiba_end
+2.12 Write internal variables to output fields
+2.13 Write global variables to history files
+2.14 Write additional output file" -> "if ldrestart_write"
+"if ldrestart_write" -> "3. Write restart file for the next simulation
+3.1 Call diffuco_main to write restart files
+     CALL diffuco_main
+3.2 Call energy balance to write restart files
+     CALL enerbil_main"
+"if ldrestart_write" -> "END"
+"if NOT 
+hydrol_cwrr" -> "3.3.1 Restart values for 3-soil layers
+         CALL hydrolc_main"
+"if NOT 
+hydrol_cwrr" -> "3.3.2 Restart values for 11-soil layers
+         CALL hydrol_main"
+"3.3.1 Restart values for 3-soil layers
+         CALL hydrolc_main" -> "3.4 Wrire surface variables to restart file
+      CALL condveg_main
+3.5 Write soil thermodynamic to restart files
+      CALL thermosoil_main"
+"3.3.2 Restart values for 11-soil layers
+         CALL hydrol_main" -> "3.4 Wrire surface variables to restart file
+      CALL condveg_main
+3.5 Write soil thermodynamic to restart files
+      CALL thermosoil_main"
+"3.4 Wrire surface variables to restart file
+      CALL condveg_main
+3.5 Write soil thermodynamic to restart files
+      CALL thermosoil_main" -> "if
+river_routing
+nbp_glo > 1"
+"if
+river_routing
+nbp_glo > 1" -> "3.6.1 Compute river routing
+           CALL routing_main"
+"if
+river_routing
+nbp_glo > 1" -> "3.6.2 No routing, set variables to zero"
+"3.6.2 No routing, set variables to zero" -> "3.7 Wrire daily/annual variables to restart file
+      CALL slowproc_main
+3.8 Write remaining variables to restart files"
+"3.7 Wrire daily/annual variables to restart file
+      CALL slowproc_main
+3.8 Write remaining variables to restart files" -> "END"
+}

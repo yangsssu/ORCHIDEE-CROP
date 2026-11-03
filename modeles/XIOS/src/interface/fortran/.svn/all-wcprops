@@ -1,0 +1,161 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ioserver/svn/!svn/ver/529/XIOS/branchs/xios-1.0/src/interface/fortran
+END
+idata.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/idata.F90
+END
+gridgroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/gridgroup_interface.f90
+END
+variablegroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/variablegroup_interface.f90
+END
+xios_fortran_prefix.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/xios_fortran_prefix.hpp
+END
+axis_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/axis_interface.f90
+END
+idate.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/idate.F90
+END
+domain_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/domain_interface.f90
+END
+ifile.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/ifile.F90
+END
+ixml_tree.F90
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/ixml_tree.F90
+END
+ixios.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/529/XIOS/branchs/xios-1.0/src/interface/fortran/ixios.F90
+END
+ifield.F90
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/ifield.F90
+END
+icontext.F90
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/icontext.F90
+END
+igrid.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/igrid.F90
+END
+ivariable.F90
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/ivariable.F90
+END
+oasis_interface.F90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/oasis_interface.F90
+END
+file_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/file_interface.f90
+END
+axisgroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/axisgroup_interface.f90
+END
+field_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/field_interface.f90
+END
+domaingroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/domaingroup_interface.f90
+END
+context_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/context_interface.f90
+END
+grid_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/grid_interface.f90
+END
+variable_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/variable_interface.f90
+END
+filegroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/filegroup_interface.f90
+END
+iaxis.F90
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/iaxis.F90
+END
+idomain.F90
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/idomain.F90
+END
+fieldgroup_interface.f90
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/fortran/fieldgroup_interface.f90
+END

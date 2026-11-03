@@ -140,7 +140,8 @@ MODULE hydrol
 !$OMP THREADPRIVATE(tot_watveg_beg)                                      
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: tot_watveg_end   !! Total amount of water on vegetation at end of time step
                                                                          !!  @tex $(kg m^{-2})$ @endtex 
-!$OMP THREADPRIVATE(tot_watveg_end)                                      
+!$OMP THREADPRIVATE(tot_watveg_end) 
+                                     
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: tot_watsoil_beg  !! Total amount of water in the soil at start of time step
                                                                          !!  @tex $(kg m^{-2})$ @endtex 
 !$OMP THREADPRIVATE(tot_watsoil_beg)                                     
@@ -192,16 +193,27 @@ MODULE hydrol
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: ae_ns            !! Bare soil evaporation per soiltile
                                                                          !!  @tex $(kg m^{-2})$ @endtex
 !$OMP THREADPRIVATE(ae_ns)
+
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: evap_bare_lim_ns !! Limitation factor (beta) for bare soil evaporation 
                                                                          !! per soiltile (used to deconvoluate vevapnu)  
                                                                          !!  (0-1, unitless) 
 !$OMP THREADPRIVATE(evap_bare_lim_ns)
+
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: evap_residue_lim_ns !! Limitation factor (beta) for residue evaporation 
+                                                                         !! per soiltile (used to deconvoluate vevapnu)  
+                                                                         !!  (0-1, unitless) 
+!$OMP THREADPRIVATE(evap_bare_lim_ns)
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: free_drain_coef  !! Coefficient for free drainage at bottom
                                                                          !!  (0-1, unitless) 
 !$OMP THREADPRIVATE(free_drain_coef)                                     
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: frac_bare_ns     !! Evaporating bare soil fraction per soiltile
                                                                          !!  (0-1, unitless)
 !$OMP THREADPRIVATE(frac_bare_ns)
+
+
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:,:)  :: rootsink         !! Transpiration sink by soil layer and soiltile
                                                                          !! @tex $(kg m^{-2})$ @endtex
 !$OMP THREADPRIVATE(rootsink)
@@ -460,11 +472,11 @@ CONTAINS
 !! FLOWCHART    : None
 !! \n
 !_ ================================================================================================================================
-
+  
   SUBROUTINE hydrol_initialize ( kjit,           kjpindex,  index,         rest_id,          &
                                  njsc,           soiltile,  veget,         veget_max,        &
                                  humrel,         vegstress, drysoil_frac,                    &
-                                 shumdiag_perma, k_litt,    qsintveg,                        &
+                                 shumdiag_perma, k_litt,    qsintveg,  qsoverflow, & !! add by shuai
                                  evap_bare_lim,  snow,      snow_age,      snow_nobio,       &
 !                                 evap_bare_lim,  evap_bare_lim_pft, snow,      snow_age,      snow_nobio,       &
                                  snow_nobio_age, snowrho,   snowtemp,                        &
@@ -474,8 +486,8 @@ CONTAINS
                                  transpir,       vevapnu,   vevapsno,      vevapflo,         &
                                  floodout,       runoff,    drainage,                        &
                                  mc_layh,        mcl_layh,  tmc_layh,                        &
-                                 mc_layh_s,      mcl_layh_s, tmc_layh_s)
-
+                                 mc_layh_s,      mcl_layh_s, tmc_layh_s)   
+    
     !! 0. Variable and parameter declaration
     !! 0.1 Input variables
     INTEGER(i_std), INTENT(in)                         :: kjit             !! Time step number 
@@ -494,6 +506,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nbdl), INTENT (out)  :: shumdiag_perma !! Percent of porosity filled with water (mc/mcs) used for the thermal computations
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: k_litt         !! litter approximate conductivity
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: qsintveg       !! Water on vegetation due to interception
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: qsoverflow     !! Water on the ground due to interception overflow
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(out)        :: evap_bare_lim  !! Limitation factor for bare soil evaporation
 !    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(out)    :: evap_bare_lim_pft  !! Limitation factor for bare soil evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: snow           !! Snow mass [Kg/m^2]
@@ -511,6 +525,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nslm,nstm), INTENT (out)  :: mc_layh_s        !! Volumetric moisture content for each layer in hydrol (liquid+ice) m3/m3
     REAL(r_std),DIMENSION (kjpindex,nslm,nstm), INTENT (out)  :: mcl_layh_s       !! Volumetric moisture content for each layer in hydrol (liquid) m3/m3
     REAL(r_std),DIMENSION (kjpindex,nslm,nstm), INTENT (out)  :: tmc_layh_s       !! Total soil moisture content for each layer in hydrol (liquid+ice), mm
+
+    
     REAL(r_std),DIMENSION (kjpindex)                     :: soilwetdummy   !! Temporary variable never used
 
 
@@ -547,13 +563,13 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)       :: drainage     !! Drainage
 
 !_ ================================================================================================================================
-
+   
     CALL hydrol_init (kjit, kjpindex, index, rest_id, veget_max, soiltile, &
-         humrel, vegstress, snow,       snow_age,   snow_nobio, snow_nobio_age, qsintveg, &
+         humrel, vegstress, snow,       snow_age,   snow_nobio, snow_nobio_age, qsintveg, qsoverflow, & !! add by shuai
          snowdz, snowgrain, snowrho,    snowtemp,   snowheat, &
          drysoil_frac, evap_bare_lim,  &
 !         snowflx,snowcap,   cgrnd_snow, dgrnd_snow, drysoil_frac, evap_bare_lim, evap_bare_lim_pft, &
-         fwet_out ) 
+         fwet_out)  
 
     CALL hydrol_var_init (kjpindex, veget, veget_max, &
          soiltile, njsc, mx_eau_var, shumdiag_perma, k_litt, &
@@ -598,7 +614,7 @@ CONTAINS
             CALL bcast(lml)
             CALL bcast(tml)
             !
-            ! soils_param.nc file is 1° soit texture file.
+            ! soils_param.nc file is 1?soit texture file.
             !
             ALLOC_ERR=-1
             ALLOCATE(lat_rel(iml,jml), STAT=ALLOC_ERR)
@@ -754,9 +770,11 @@ CONTAINS
 !pss:-
       !! Initialize alma output variables if they were not found in the restart file. This is done in the end of 
       !! hydrol_initialize so that all variables(humtot,..) that will be used are initialized.
+      
+!      WRITE(numout,*) 'ke-tot_watveg_beg in hydrol_initialize', tot_watveg_beg,tot_watveg_end
       IF (ALL(tot_watveg_beg(:)==val_exp) .OR.  ALL(tot_watsoil_beg(:)==val_exp) .OR. ALL(snow_beg(:)==val_exp)) THEN
             ! The output variable soilwetdummy is not calculated at first call to hydrol_alma.
-            CALL hydrol_alma(kjpindex, index, .TRUE., qsintveg, snow, snow_nobio, soilwetdummy)
+            CALL hydrol_alma(kjpindex, index, .TRUE., qsintveg, snow, snow_nobio, soilwetdummy) 
        END IF
 
        ! If we check the water balance we first save the total amount of water
@@ -764,10 +782,11 @@ CONTAINS
        ! init var, just in case is not initialized
        tot_melt(:) = zero
        IF (check_waterbal) THEN
+!          WRITE(numout,*) 'ke-check_waterbal in hydrol_initialize',tot_watveg_beg,tot_watveg_end, qsintveg,snow, snow_nobio,precip_rain, precip_snow, returnflow, reinfiltration, irrigation, tot_melt,vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff,drainage
           CALL hydrol_waterbal(kjpindex, index, .TRUE., veget_max, &
                & totfrac_nobio, qsintveg, snow, snow_nobio,&
                & precip_rain, precip_snow, returnflow, reinfiltration, irrigation, tot_melt, &
-               & vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff,drainage)
+               & vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff,drainage) 
        ENDIF
     
   END SUBROUTINE hydrol_initialize
@@ -805,7 +824,7 @@ CONTAINS
   SUBROUTINE hydrol_main (kjit, kjpindex, &
        & index, indexveg, indexsoil, indexlayer, indexnbdl, &
        & temp_sol_new, floodout, runoff, drainage, frac_nobio, totfrac_nobio, vevapwet, veget, veget_max, njsc, &
-       & qsintmax, qsintveg, vevapnu, vevapnu_pft, vevapsno, vevapflo, snow, snow_age, snow_nobio, snow_nobio_age,  &
+       & qsintmax, qsintveg, qsoverflow, vevapnu, vevapnu_pft, vevapsno, vevapflo, snow, snow_age, snow_nobio, snow_nobio_age,  &
        & tot_melt, transpir, precip_rain, precip_snow, returnflow, reinfiltration, irrigation, vegstress_old, transpot, &
        & humrel, vegstress, drysoil_frac, evapot, evapot_penm, evap_bare_lim, flood_frac, flood_res, &
 !       & humrel, vegstress, drysoil_frac, evapot, evapot_penm, evap_bare_lim, evap_bare_lim_pft, flood_frac, flood_res, &
@@ -813,7 +832,7 @@ CONTAINS
        & stempdiag, temp_air, pb, u, v, tq_cdrag, pgflux, snowrho,snowtemp, snowgrain,snowdz,snowheat,snowliq,&
        & grndflux,gtemp, tot_bare_soil, soilflxresid, mc_layh, mcl_layh, tmc_layh, &
        & mc_layh_s, mcl_layh_s, tmc_layh_s, drunoff_tot, fwet_out, lambda_snow, cgrnd_snow, dgrnd_snow, temp_sol_add, irrigr, &
-       & do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, awd_dep, lai)
+       & do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, awd_dep, lai) 
 
     !! 0. Variable and parameter declaration
 
@@ -852,6 +871,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: veget_max        !! Max. fraction of vegetation type (LAI -> infty)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: lai              !! Leaf Area Index
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: qsintmax         !! Maximum water on vegetation for interception
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: transpir         !! Transpiration
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: reinf_slope      !! Slope coef
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: evapot           !! Soil Potential Evaporation
@@ -865,7 +885,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: pgflux           !! Net energy into snowpack
     REAL(r_std),DIMENSION (kjpindex),INTENT(inout)     :: soilflxresid     !! Energy flux to the snowpack
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: gtemp            !! First soil layer temperature
-    REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil    !! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil    !! Total evaporating bare soil fraction
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: lambda_snow      !! Coefficient of the linear extrapolation of surface temperature 
     REAL(r_std),DIMENSION (kjpindex,nsnow), INTENT (in):: cgrnd_snow       !! Integration coefficient for snow numerical scheme
     REAL(r_std),DIMENSION (kjpindex,nsnow), INTENT (in):: dgrnd_snow       !! Integration coefficient for snow numerical scheme
@@ -874,6 +895,7 @@ CONTAINS
     REAL(r_std),DIMENSION (nstm), INTENT (in)          :: irrig_dep_threshold   !! threshold of depth when irrigation occurs
     LOGICAL,DIMENSION (nstm), INTENT (in)              :: do_awd           !! if AWD irrigation
     REAL(r_std),DIMENSION (nstm), INTENT (in)          :: awd_dep          !! water amount (depth) of one irrigation events
+
     !! 0.2 Output variables
 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vegstress        !! Veg. moisture stress (only for vegetation growth)
@@ -886,6 +908,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: litterhumdiag    !! litter humidity
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: tot_melt         !! Total melt    
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: floodout         !! Flux out of floodplains
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: qsoverflow       !! Water on vegetation due to interception above the maximum (qsintmax) that will be drained as runoff
+    
     
 !pss:+
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)     :: drunoff_tot    !! Dunne runoff 
@@ -895,12 +919,14 @@ CONTAINS
     !! 0.3 Modified variables
 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(inout):: qsintveg         !! Water on vegetation due to interception
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(inout)    :: evap_bare_lim    !! Limitation factor (beta) for bare soil evaporation    
 !    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(inout) :: evap_bare_lim_pft    !! Limitation factor (beta) for bare soil evaporation    
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(out) :: soil_deficit    !! water deficit to reach IRRIG_FULFILL of holding capacity
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(inout):: humrel           !! Relative humidity
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)   :: vevapnu          !! Bare soil evaporation
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout) :: vevapnu_pft      !! Bare soil evaporation
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)   :: vevapsno         !! Snow evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)   :: vevapflo         !! Floodplain evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)   :: flood_res        !! flood reservoir estimate
@@ -949,6 +975,10 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex)                  :: humtot_top       !! Moisture content in the itopmax upper layers, for diagnistics
     REAL(r_std), DIMENSION(kjpindex)                   :: histvar          !! Temporary variable when computations are needed
     REAL(r_std), DIMENSION (kjpindex,nvm)              :: frac_bare        !! Fraction(of veget_max) of bare soil in each vegetation type
+    
+    REAL(r_std), DIMENSION (kjpindex,nvm)              :: frac_res        !! Fraction(of veget_max) of residue in each vegetation type
+    
+    
     INTEGER(i_std), DIMENSION(kjpindex*imax)           :: mc_lin_axis_index
 !pss:+
     logical                                           :: filealive, TOPMODEL_CTI
@@ -1021,6 +1051,7 @@ CONTAINS
 
     ! 
     !! 3.1 Calculate snow processes with explicit method or bucket snow model
+
     IF (ok_explicitsnow) THEN
        ! Explicit snow model
        IF (printlev>=3) WRITE (numout,*) ' ok_explicitsnow : use multi-snow layer '
@@ -1040,16 +1071,15 @@ CONTAINS
        CALL hydrol_snow(kjpindex, precip_rain, precip_snow, temp_sol_new, soilcap, &
             frac_nobio, totfrac_nobio, vevapsno, snow, snow_age, snow_nobio, snow_nobio_age, &
             tot_melt, snowdepth,snowmelt)
-    END IF
-        
+    END IF   
+    
     !
     !! 3.2 computes vegetations reservoirs  ==>hydrol_vegupd
-    CALL hydrol_vegupd(kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare)
-
+    CALL hydrol_vegupd(kjit, kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare) 
+    
     !
     !! 3.3 computes canopy  ==>hydrol_canop
-    CALL hydrol_canop(kjpindex, precip_rain, vevapwet, veget_max, veget, qsintmax, qsintveg,precisol,tot_melt)
-
+    CALL hydrol_canop(kjpindex, precip_rain, vevapwet, veget_max, veget, qsintmax, qsintveg,precisol,tot_melt, qsoverflow) !! add by shuai
     !
     !! 3.4 computes surface reservoir  ==>hydrol_flood
     CALL hydrol_flood(kjpindex,  vevapflo, flood_frac, flood_res, floodout)
@@ -1113,8 +1143,8 @@ CONTAINS
         ENDIF
     ENDDO
 !    irrig_fin(:,:) = zero
-
-    CALL hydrol_soil(kjpindex, veget_max, soiltile, njsc, reinf_slope,  &
+!    WRITE(numout,*)'ke before hydrolsoil :',kjit,',,',kjpindex
+    CALL hydrol_soil(kjit, kjpindex, veget_max, soiltile, njsc, reinf_slope,  &
          transpir, vevapnu, vevapnu_pft, evapot, evapot_penm, runoff, &
          drainage, returnflow, reinfiltration, irrigation, irrig_demand_ratio, &
          tot_melt,evap_bare_lim, shumdiag, shumdiag_perma, &
@@ -1124,11 +1154,10 @@ CONTAINS
          mc_layh, mcl_layh, tmc_layh, &
          mc_layh_s, mcl_layh_s, tmc_layh_s, drunoff_tot, fsat, veget, irrigr, &
          do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, &
-         awd_dep,lai)
+         awd_dep,lai) 
          !awd_dep, irrig_dosmax_tmp, irrigation_exe)
          !awd_dep, irrigation_exe)
-
-    !WRITE(numout,*)'Zun mc_2:',mc(1,:,6)
+!    WRITE(numout,*) 'ke-after-hydrol_soil: ',kjit
     DO ji = 1,kjpindex
         DO jv = 2,nvm
            IF (.NOT. natural(jv)) THEN
@@ -1148,17 +1177,17 @@ CONTAINS
 
     ! If we check the water balance we end with the comparison of total water change and fluxes
     !! X if check_waterbal ==> hydrol_waterbal
+
     IF (check_waterbal) THEN
        CALL hydrol_waterbal(kjpindex, index, .FALSE., veget_max, totfrac_nobio, &
             & qsintveg, snow,snow_nobio, precip_rain, precip_snow, returnflow, reinfiltration, &
-            & irrigation, tot_melt, vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff, drainage)
+            & irrigation, tot_melt, vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff, drainage) 
     ENDIF
-
+!    WRITE(numout,*) 'ke-after-check_waterbal: ',kjpindex
     !! 4 write out file  ==> hydrol_alma/histwrite(*)
     !
     ! If we use the ALMA standards
     CALL hydrol_alma(kjpindex, index, .FALSE., qsintveg, snow, snow_nobio, soilwet)
-    
 
     ! Calcuate the moisture in the upper itopmax layers (humtot_top): 
     ! For ORCHIDEE with nslm=11 and zmaxh=2 this means the upper 10 cm. 
@@ -1206,12 +1235,16 @@ CONTAINS
     ! Normally, correct equation if vegtot=1, else...?
     ! Does not include the routing reservoirs, although the flux to/from routing are integrated
     DO ji=1,kjpindex
+
        twbr(ji) = (vegtot(ji)*delsoilmoist(ji) + delintercept(ji) + delswe(ji)) &
             - ( precip_rain(ji) + precip_snow(ji) + irrigation(ji) + floodout(ji) &
             + returnflow(ji) + reinfiltration(ji) ) &
             + ( runoff(ji) + drainage(ji) + SUM(vevapwet(ji,:)) &
             + SUM(transpir(ji,:)) + vevapnu(ji) + vevapsno(ji) + vevapflo(ji) ) 
+
+ 
     ENDDO
+!    WRITE(numout,*) 'ke-after-twbr: ',twbr
     ! Transform unit from kg/m2/dt to kg/m2/s (or mm/s)
     CALL xios_orchidee_send_field("twbr",twbr/dt_sechiba)
     
@@ -1262,6 +1295,7 @@ CONTAINS
     END DO
 
     CALL xios_orchidee_send_field("evapnu_soil",ae_ns*one_day/dt_sechiba)
+
     CALL xios_orchidee_send_field("drainage_soil",dr_ns*one_day/dt_sechiba)
     CALL xios_orchidee_send_field("transpir_soil",tr_ns*one_day/dt_sechiba)
     CALL xios_orchidee_send_field("runoff_soil",ru_ns*one_day/dt_sechiba)
@@ -1287,6 +1321,7 @@ CONTAINS
     CALL xios_orchidee_send_field("snowf_alma",precip_snow/dt_sechiba)    ! [mm/s]
     CALL xios_orchidee_send_field("qsintmax",qsintmax)
     CALL xios_orchidee_send_field("qsintveg",qsintveg)
+    CALL xios_orchidee_send_field("qsoverflow",qsoverflow) !! add by shuai
     CALL xios_orchidee_send_field("CanopInt",SUM(qsintveg(:,:),dim=2))
     CALL xios_orchidee_send_field("SWI",swi)
 
@@ -1319,25 +1354,35 @@ CONTAINS
     CALL xios_orchidee_send_field("DelSWE",delswe)
     CALL xios_orchidee_send_field("DelIntercept",delintercept)  
     
-
+!    WRITE(numout,*) 'ke5-ici: ',nvm
+    
     IF ( .NOT. almaoutput ) THEN
+!       WRITE(numout,*) 'ke5-ici222222: ',nvm
        CALL histwrite_p(hist_id, 'frac_bare', kjit, frac_bare, kjpindex*nvm, indexveg)
 
+!       WRITE(numout,*) 'ke5-frac_bare: ',kjpindex*nvm, indexveg
        DO jst=1,nstm
           ! var_name= "mc_1" ... "mc_3"
           WRITE (var_name,"('moistc_',i1)") jst
           CALL histwrite_p(hist_id, TRIM(var_name), kjit,mc(:,:,jst), kjpindex*nslm, indexlayer)
 
+          
           ! var_name= "kfactroot_1" ... "kfactroot_3"
           WRITE (var_name,"('kfactroot_',i1)") jst
           CALL histwrite_p(hist_id, TRIM(var_name), kjit, kfact_root(:,:,jst), kjpindex*nslm, indexlayer)
-
+ 
+          
           ! var_name= "vegetsoil_1" ... "vegetsoil_3"
           WRITE (var_name,"('vegetsoil_',i1)") jst
+!          WRITE(numout,*) 'ke5-vegetsoil_3: ',var_name, kjpindex, nvm,nstm,jst,indexveg,',,,',corr_veg_soil(:,:,jst)
           CALL histwrite_p(hist_id, TRIM(var_name), kjit,corr_veg_soil(:,:,jst), kjpindex*nvm, indexveg)
+!          WRITE(numout,*) 'ke5-vegetsoil_1387: ',size(corr_veg_soil),kjpindex*nvm, indexveg
+          
        ENDDO
        CALL histwrite_p(hist_id, 'precip_soil', kjit, precisol_ns, kjpindex*nstm, indexsoil)
+ !      WRITE(numout,*) 'ke5-precip_soil: ',size(precisol_ns),kjpindex*nstm, indexsoil
        CALL histwrite_p(hist_id, 'evapnu_soil', kjit, ae_ns, kjpindex*nstm, indexsoil)
+ !      WRITE(numout,*) 'ke5-evapnu_soil: ',size(ae_ns),kjpindex*nstm, indexsoil
        CALL histwrite_p(hist_id, 'drainage_soil', kjit, dr_ns, kjpindex*nstm, indexsoil)
        CALL histwrite_p(hist_id, 'transpir_soil', kjit, tr_ns, kjpindex*nstm, indexsoil)
        CALL histwrite_p(hist_id, 'runoff_soil', kjit, ru_ns, kjpindex*nstm, indexsoil)
@@ -1348,6 +1393,8 @@ CONTAINS
        CALL histwrite_p(hist_id, 'mrso', kjit, humtot, kjpindex, index)
        CALL histwrite_p(hist_id, 'mrsos', kjit, humtot_top, kjpindex, index)
        CALL histwrite_p(hist_id, 'humtot_pro', kjit, humtot_pro, kjpindex*nslm, indexlayer)
+ !      WRITE(numout,*) 'ke5-humtot_pro1404: ',size(humtot_pro),kjpindex*nslm, nslm, indexlayer
+       
        njsc_tmp(:)=njsc(:)
        CALL histwrite_p(hist_id, 'soilindex', kjit, njsc_tmp, kjpindex, index)
        CALL histwrite_p(hist_id, 'humrel',   kjit, humrel,   kjpindex*nvm, indexveg)
@@ -1368,6 +1415,7 @@ CONTAINS
        CALL histwrite_p(hist_id, 'snowf', kjit, precip_snow, kjpindex, index)
        CALL histwrite_p(hist_id, 'qsintmax', kjit, qsintmax, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'qsintveg', kjit, qsintveg, kjpindex*nvm, indexveg)
+       CALL histwrite_p(hist_id, 'qsoverflow', kjit, qsoverflow, kjpindex*nvm, indexveg) !! add by shuai
        CALL histwrite_p(hist_id, 'irrig_fin', kjit, irrig_fin, kjpindex*nvm, indexveg)
        CALL histwrite_p(hist_id, 'SWI', kjit, swi, kjpindex, index)
        CALL histwrite_p(hist_id, 'snowmelt',kjit,snowmelt,kjpindex,index)
@@ -1403,18 +1451,20 @@ CONTAINS
        IF ( hist2_id > 0 ) THEN
           DO jst=1,nstm
              ! var_name= "mc_1" ... "mc_3"
-             WRITE (var_name,"('moistc_',i1)") jst
+!             WRITE (var_name,"('moistc_',i1)") jst
              CALL histwrite_p(hist2_id, TRIM(var_name), kjit,mc(:,:,jst), kjpindex*nslm, indexlayer)
 
              ! var_name= "kfactroot_1" ... "kfactroot_3"
-             WRITE (var_name,"('kfactroot_',i1)") jst
+!             WRITE (var_name,"('kfactroot_',i1)") jst
              CALL histwrite_p(hist2_id, TRIM(var_name), kjit, kfact_root(:,:,jst), kjpindex*nslm, indexlayer)
 
              ! var_name= "vegetsoil_1" ... "vegetsoil_3"
-             WRITE (var_name,"('vegetsoil_',i1)") jst
+!             WRITE (var_name,"('vegetsoil_',i1)") jst
              CALL histwrite_p(hist2_id, TRIM(var_name), kjit,corr_veg_soil(:,:,jst), kjpindex*nvm, indexveg)
+!             WRITE(numout,*) 'ke5-vegetsoil_ 1468: ',size(corr_veg_soil),kjpindex*nvm, indexveg, nstm
           ENDDO
           CALL histwrite_p(hist2_id, 'evapnu_soil', kjit, ae_ns, kjpindex*nstm, indexsoil)
+
           CALL histwrite_p(hist2_id, 'drainage_soil', kjit, dr_ns, kjpindex*nstm, indexsoil)
           CALL histwrite_p(hist2_id, 'transpir_soil', kjit, tr_ns, kjpindex*nstm, indexsoil)
           CALL histwrite_p(hist2_id, 'runoff_soil', kjit, ru_ns, kjpindex*nstm, indexsoil)
@@ -1425,6 +1475,7 @@ CONTAINS
           CALL histwrite_p(hist2_id, 'mrso', kjit, humtot, kjpindex, index)
           CALL histwrite_p(hist2_id, 'mrsos', kjit, humtot_top, kjpindex, index)
           CALL histwrite_p(hist2_id, 'humtot_pro', kjit, humtot_pro, kjpindex*nslm, indexlayer)
+!          WRITE(numout,*) 'ke5-humtot_pro1485: ',size(humtot_pro),kjpindex*nslm, nslm, indexlayer
           njsc_tmp(:)=njsc(:)
           CALL histwrite_p(hist2_id, 'soilindex', kjit, njsc_tmp, kjpindex, index)
           CALL histwrite_p(hist2_id, 'humrel',   kjit, humrel,   kjpindex*nvm, indexveg)
@@ -1444,6 +1495,7 @@ CONTAINS
           CALL histwrite_p(hist2_id, 'snowmelt',kjit,snowmelt,kjpindex,index)
           CALL histwrite_p(hist2_id, 'qsintmax', kjit, qsintmax, kjpindex*nvm, indexveg)
           CALL histwrite_p(hist2_id, 'qsintveg', kjit, qsintveg, kjpindex*nvm, indexveg)
+          CALL histwrite_p(hist2_id, 'qsoverflow', kjit, qsoverflow, kjpindex*nvm, indexveg) !! add by shuai
           CALL histwrite_p(hist2_id, 'irrig_fin', kjit, irrig_fin, kjpindex*nvm, indexveg)
           CALL histwrite_p(hist2_id, 'vegstress', kjit, vegstress, kjpindex*nvm, indexveg)
           CALL histwrite_p(hist2_id, 'SWI', kjit, swi, kjpindex, index) 
@@ -1464,6 +1516,7 @@ CONTAINS
        CALL histwrite_p(hist_id, 'DelIntercept', kjit, delintercept, kjpindex, index)
        !
        CALL histwrite_p(hist_id, 'SoilMoist', kjit, soilmoist, kjpindex*nslm, indexlayer)
+!       WRITE(numout,*) 'ke5-SoilMoist: ',size(SoilMoist),kjpindex*nslm, nslm, indexlayer
        CALL histwrite_p(hist_id, 'SoilWet', kjit, soilwet, kjpindex, index)
        !
        CALL histwrite_p(hist_id, 'RootMoist', kjit, tot_watsoil_end, kjpindex, index)
@@ -1494,7 +1547,7 @@ CONTAINS
     IF (ok_freeze_cwrr) THEN
        CALL histwrite_p(hist_id, 'profil_froz_hydro', kjit,profil_froz_hydro , kjpindex*nslm, indexlayer)
        DO jst=1,nstm
-          WRITE (var_name,"('profil_froz_hydro_',i1)") jst
+!          WRITE (var_name,"('profil_froz_hydro_',i1)") jst
           CALL histwrite_p(hist_id, TRIM(var_name), kjit, profil_froz_hydro_ns(:,:,jst), kjpindex*nslm, indexlayer)
        ENDDO
        CALL histwrite_p(hist_id, 'temp_hydro', kjit,temp_hydro , kjpindex*nslm, indexlayer)
@@ -1525,13 +1578,13 @@ CONTAINS
 !_ ================================================================================================================================
 
   SUBROUTINE hydrol_finalize( kjit,           kjpindex, rest_id,  vegstress,  &
-                              qsintveg,       humrel,                         &
+                              qsintveg,       qsoverflow, humrel, & !! add by shuai
                               snow,           snow_age, snow_nobio,           &
                               snow_nobio_age, snowrho,  snowtemp,             &
                               snowdz,         snowheat,                       &
                               fwet_out,                                       &
-                              snowgrain, drysoil_frac, evap_bare_lim)
-!                              snowcap,        snowgrain, drysoil_frac, evap_bare_lim, evap_bare_lim_pft)
+                              snowgrain, drysoil_frac, evap_bare_lim)  
+
 
     !! 0. Variable and parameter declaration
     !! 0.1 Input variables
@@ -1540,6 +1593,7 @@ CONTAINS
     INTEGER(i_std),INTENT (in)                           :: rest_id        !! Restart file identifier
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: vegstress      !! Veg. moisture stress (only for vegetation growth)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsintveg       !! Water on vegetation due to interception
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsoverflow     !! Interception overflow !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: humrel
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: snow           !! Snow mass [Kg/m^2]
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: snow_age       !! Snow age
@@ -1577,13 +1631,18 @@ CONTAINS
     CALL restput_p(rest_id, 'free_drain_coef', nbp_glo,   nstm, 1, kjit,  free_drain_coef, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'water2infilt', nbp_glo,   nstm, 1, kjit,  water2infilt, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'ae_ns', nbp_glo,   nstm, 1, kjit,  ae_ns, 'scatter',  nbp_glo, index_g)
+
     CALL restput_p(rest_id, 'vegstress', nbp_glo,   nvm, 1, kjit,  vegstress, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'snow', nbp_glo,   1, 1, kjit,  snow, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'snow_age', nbp_glo,   1, 1, kjit,  snow_age, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'snow_nobio', nbp_glo,   nnobio, 1, kjit,  snow_nobio, 'scatter', nbp_glo, index_g)
     CALL restput_p(rest_id, 'snow_nobio_age', nbp_glo,   nnobio, 1, kjit,  snow_nobio_age, 'scatter', nbp_glo, index_g)
     CALL restput_p(rest_id, 'qsintveg', nbp_glo, nvm, 1, kjit,  qsintveg, 'scatter',  nbp_glo, index_g)
+    CALL restput_p(rest_id, 'qsoverflow', nbp_glo, nvm, 1, kjit,  qsoverflow, 'scatter',  nbp_glo, index_g) !! add by shuai
+
     CALL restput_p(rest_id, 'evap_bare_lim_ns', nbp_glo, nstm, 1, kjit,  evap_bare_lim_ns, 'scatter',  nbp_glo, index_g)
+
+    
     CALL restput_p(rest_id, 'evap_bare_lim', nbp_glo, 1, 1, kjit,  evap_bare_lim, 'scatter',  nbp_glo, index_g)
 !    CALL restput_p(rest_id, 'evap_bare_lim_pft', nbp_glo, 1, 1, kjit,  evap_bare_lim_pft, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'resdist', nbp_glo, nstm, 1, kjit,  resdist, 'scatter',  nbp_glo, index_g)       
@@ -1604,6 +1663,7 @@ CONTAINS
     ENDIF
 
     CALL restput_p(rest_id, 'tot_watveg_beg', nbp_glo,  1, 1, kjit,  tot_watveg_beg, 'scatter',  nbp_glo, index_g)
+
     CALL restput_p(rest_id, 'tot_watsoil_beg', nbp_glo, 1, 1, kjit,  tot_watsoil_beg, 'scatter',  nbp_glo, index_g)
     CALL restput_p(rest_id, 'snow_beg', nbp_glo,        1, 1, kjit,  snow_beg, 'scatter',  nbp_glo, index_g)
     
@@ -1645,11 +1705,11 @@ CONTAINS
 !!_ hydrol_init
 
   SUBROUTINE hydrol_init(kjit, kjpindex, index, rest_id, veget_max, soiltile, &
-         humrel, vegstress, snow,       snow_age,   snow_nobio, snow_nobio_age, qsintveg, &
+         humrel, vegstress, snow,       snow_age,   snow_nobio, snow_nobio_age, qsintveg, qsoverflow, & !! add by shuai
          snowdz, snowgrain, snowrho,    snowtemp,   snowheat, &
          drysoil_frac, evap_bare_lim,  &
 !         snowflx,snowcap,   cgrnd_snow, dgrnd_snow, drysoil_frac, evap_bare_lim, evap_bare_lim_pft, &
-         fwet_out ) 
+         fwet_out)  
 
     !! 0. Variable and parameter declaration
 
@@ -1671,6 +1731,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (out) :: snow_nobio       !! Snow on ice, lakes, ...
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (out) :: snow_nobio_age   !! Snow age on ice, lakes, ...
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)    :: qsintveg         !! Water on vegetation due to interception
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)    :: qsoverflow       !! Interception overflow !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(out)    :: snowdz           !! Snow depth
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(out)    :: snowgrain        !! Snow grain size
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(out)    :: snowheat         !! Snow heat content
@@ -1792,7 +1853,7 @@ CONTAINS
        mc_adry(:) = mc_adry_usda(:)
        
     CASE DEFAULT
-       WRITE (numout,*) 'Unsupported soil type classification. Choose between zobler and usda according to the map'
+!       WRITE (numout,*) 'Unsupported soil type classification. Choose between zobler and usda according to the map'
        CALL ipslerr_p(3,'hydrol_init','Unsupported soil type classification. ',&
             'Choose between zobler and usda according to the map','')
     ENDSELECT
@@ -2020,16 +2081,18 @@ CONTAINS
 
     ALLOCATE (frac_bare_ns(kjpindex,nstm),stat=ier) 
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable frac_bare_ns','','')
-
+     
+    
     ALLOCATE (water2infilt(kjpindex,nstm),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable water2infilt','','')
 
     ALLOCATE (ae_ns(kjpindex,nstm),stat=ier) 
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable ae_ns','','')
+    
 
     ALLOCATE (evap_bare_lim_ns(kjpindex,nstm),stat=ier) 
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable evap_bare_lim_ns','','')
-
+ 
     ALLOCATE (rootsink(kjpindex,nslm,nstm),stat=ier) 
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable rootsink','','')
 
@@ -2041,7 +2104,7 @@ CONTAINS
 
     ALLOCATE (snowmelt(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in snowmelt allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in snowmelt allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrol_init'
     END IF
 
@@ -2113,6 +2176,7 @@ CONTAINS
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable srhs','','')
 
     ALLOCATE (tmc(kjpindex,nstm),stat=ier)
+!    WRITE (numout,*) ' ke-tmc ALLOCATE',tmc
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable tmc','','')
 
     ALLOCATE (tmcs(kjpindex,nstm),stat=ier)
@@ -2234,49 +2298,49 @@ CONTAINS
     
     ALLOCATE (fsat(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fsat allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fsat allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (fwet(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fwet allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fwet allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (fwt1(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fwt1 allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fwt1 allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
     
     ALLOCATE (fwt2(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fwt2 allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fwt2 allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
    
     ALLOCATE (fwt3(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fwt3 allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fwt3 allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (fwt4(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in fwt4 allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in fwt4 allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (drunoff(kjpindex,nvm),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in drunoff allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in drunoff allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
        
     ALLOCATE (ZMEAN(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zmean allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zmean allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 !    ALLOCATE (NB_PIXE(kjpindex),stat=ier)
@@ -2286,74 +2350,74 @@ CONTAINS
 !    END IF
     ALLOCATE (ZSTDT(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zstdt allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zstdt allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
     
     ALLOCATE (ZSKEW(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zskew allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zskew allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZMIN(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zmin allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zmin allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
     
     ALLOCATE (ZMAX(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zmax allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zmax allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
     
     ALLOCATE (ZM(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in ZM allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in ZM allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZZPAS(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in zzpas allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in zzpas allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZTAB_FSAT(kjpindex,1000),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error inztab_fsat allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error inztab_fsat allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZTAB_WTOP(kjpindex,1000),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in ztab_wtop allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in ztab_wtop allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZTAB_FWET(kjpindex,1000),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in ztab_fwet allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in ztab_fwet allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
     ALLOCATE (ZTAB_WTOP_WET(kjpindex,1000),stat=ier)
     IF (ier.NE.0) THEN
-        WRITE (numout,*) ' error in ztab_wtop_wet allocation. We stop. We need kjpindex words = ',kjpindex
+!        WRITE (numout,*) ' error in ztab_wtop_wet allocation. We stop. We need kjpindex words = ',kjpindex
         STOP 'hydrolc_init'
     END IF
 
 !pss+
     ALLOCATE (mcw_grid(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-       WRITE (numout,*) ' error in mcw_grid allocation. We stop. We need kjpindex words = ',kjpindex
+!       WRITE (numout,*) ' error in mcw_grid allocation. We stop. We need kjpindex words = ',kjpindex
        STOP 'hydrol_init'
     END IF
 
     ALLOCATE (mcs_grid(kjpindex),stat=ier)
     IF (ier.NE.0) THEN
-       WRITE (numout,*) ' error in mcs_grid allocation. We stop. We need kjpindex words = ',kjpindex
+!       WRITE (numout,*) ' error in mcs_grid allocation. We stop. We need kjpindex words = ',kjpindex
        STOP 'hydrol_init'
     END IF
 !pss-
@@ -2386,7 +2450,7 @@ CONTAINS
 
        ALLOCATE (tot_water_end(kjpindex),stat=ier)
        IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable tot_water_end','','')
-
+       
        ALLOCATE (tot_flux(kjpindex),stat=ier)
        IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable tot_flux','','')
     ENDIF
@@ -2400,6 +2464,9 @@ CONTAINS
     
     ALLOCATE (tot_watveg_end(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable tot_watvag_end','','')
+    
+
+
     
     ALLOCATE (tot_watsoil_beg(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'hydrol_init','Problem in allocate of variable tot_watsoil_beg','','')
@@ -2451,6 +2518,7 @@ CONTAINS
           CALL ioconf_setatt_p('LONG_NAME','Remaining water to be infiltrated on top of the soil')
        ENDIF
        CALL restget_p (rest_id, var_name, nbp_glo, nstm, 1, kjit, .TRUE., water2infilt, "gather", nbp_glo, index_g)
+!       WRITE(numout,*) 'ke-water2infilt in init', water2infilt
        !
        var_name= 'ae_ns'
        IF (is_root_prc) THEN
@@ -2458,6 +2526,8 @@ CONTAINS
           CALL ioconf_setatt_p('LONG_NAME','Bare soil evap on each soil type')
        ENDIF
        CALL restget_p (rest_id, var_name, nbp_glo, nstm, 1, kjit, .TRUE., ae_ns, "gather", nbp_glo, index_g)
+       !
+
        !
        var_name= 'snow'        
        IF (is_root_prc) THEN
@@ -2494,12 +2564,25 @@ CONTAINS
        ENDIF
        CALL restget_p (rest_id, var_name, nbp_glo, nvm, 1, kjit, .TRUE., vegstress, "gather", nbp_glo, index_g)
        !
+       
+
+
        var_name= 'qsintveg'
        IF (is_root_prc) THEN
           CALL ioconf_setatt_p('UNITS', 'kg/m^2')
           CALL ioconf_setatt_p('LONG_NAME','Intercepted moisture')
        ENDIF
        CALL restget_p (rest_id, var_name, nbp_glo, nvm, 1, kjit, .TRUE., qsintveg, "gather", nbp_glo, index_g)
+       
+       
+       var_name= 'qsoverflow'
+         IF (is_root_prc) THEN
+          CALL ioconf_setatt_p('UNITS', 'kg/m^2')
+          CALL ioconf_setatt_p('LONG_NAME','Overflow water on vegetation')
+       ENDIF
+       CALL restget_p (rest_id, var_name, nbp_glo, nvm, 1, kjit, .TRUE., qsoverflow, "gather", nbp_glo, index_g) !! add by shuai
+
+
 
 !pss:+ !          
        var_name= 'fwet_out'      
@@ -2519,7 +2602,8 @@ CONTAINS
 !       DO jv = 1,nvm
 !           evap_bare_lim_pft(:,jv) = evap_bare_lim_ns(:,pref_soil_veg(jv))
 !       ENDDO
-
+     
+       
        var_name= 'resdist'
        IF (is_root_prc) THEN
           CALL ioconf_setatt_p('UNITS', '-')
@@ -2612,6 +2696,17 @@ CONTAINS
        !
        CALL setvar_p (ae_ns, val_exp, 'EVAPNU_SOIL', zero)
        !
+       !Config Key   = EVAPNU_RESIDUE
+       !Config Desc  = residue evap on each soil if not found in restart
+       !Config If    = HYDROL_CWRR  
+       !Config Def   = 0.0
+       !Config Help  = The initial value of residue evap if its value is not found
+       !Config         in the restart file. This should only be used if the model is 
+       !Config         started without a restart file.
+       !Config Units = [mm]
+       !
+
+       !
        !Config Key  = HYDROL_SNOW
        !Config Desc  = Initial snow mass if not found in restart
        !Config If    = OK_SECHIBA
@@ -2666,6 +2761,8 @@ CONTAINS
        !Config Units = [mm]
        !
        CALL setvar_p (qsintveg, val_exp, 'HYDROL_QSV', zero)
+       
+             
 
        IF (ok_freeze_cwrr) THEN  
           CALL setvar_p (profil_froz_hydro, val_exp, 'NO_KEYWORD', zero)
@@ -2796,6 +2893,8 @@ CONTAINS
     ENDIF
     CALL restget_p (rest_id, var_name, nbp_glo, 1, 1, kjit, .TRUE., tot_watveg_beg, "gather", nbp_glo, index_g)
     
+  
+  
     var_name= 'tot_watsoil_beg'
     IF (is_root_prc) THEN
        CALL ioconf_setatt_p('UNITS', '?')
@@ -2862,6 +2961,7 @@ CONTAINS
     IF (ALLOCATED  (frac_bare_ns)) DEALLOCATE (frac_bare_ns)
     IF (ALLOCATED  (water2infilt)) DEALLOCATE (water2infilt)
     IF (ALLOCATED  (ae_ns)) DEALLOCATE (ae_ns)
+
     IF (ALLOCATED  (evap_bare_lim_ns)) DEALLOCATE (evap_bare_lim_ns)
     IF (ALLOCATED  (rootsink)) DEALLOCATE (rootsink)
     IF (ALLOCATED  (subsnowveg)) DEALLOCATE (subsnowveg)
@@ -2877,6 +2977,7 @@ CONTAINS
     IF (ALLOCATED  (tot_flux)) DEALLOCATE (tot_flux)
     IF (ALLOCATED  (tot_watveg_beg)) DEALLOCATE (tot_watveg_beg)
     IF (ALLOCATED  (tot_watveg_end)) DEALLOCATE (tot_watveg_end)
+    
     IF (ALLOCATED  (tot_watsoil_beg)) DEALLOCATE (tot_watsoil_beg)
     IF (ALLOCATED  (tot_watsoil_end)) DEALLOCATE (tot_watsoil_end)
     IF (ALLOCATED  (delsoilmoist)) DEALLOCATE (delsoilmoist)
@@ -2987,7 +3088,7 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 !_ hydrol_tmc_update
-  SUBROUTINE hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist )
+  SUBROUTINE hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist) 
 
     !! 0.1 Input variables
     INTEGER(i_std), INTENT(in)                          :: kjpindex      !! domain size
@@ -2996,6 +3097,7 @@ CONTAINS
 
     !! 0.3 Modified variables
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)   :: qsintveg   !! Amount of water in the canopy interception 
+
     REAL(r_std), DIMENSION (kjpindex, nstm), INTENT(inout) :: resdist    !! Soiltile from previous time-step
 
     !! 0.4 Local variables
@@ -3009,17 +3111,19 @@ CONTAINS
     REAL(r_std), DIMENSION(kjpindex,nstm)    :: tmc_old         !! tmc before calculations
     REAL(r_std), DIMENSION(kjpindex,nstm)    :: water2infilt_old!! water2infilt before calculations
     REAL(r_std), DIMENSION (kjpindex,nvm)    :: qsintveg_old    !! qsintveg before calculations
+
     REAL(r_std), DIMENSION(kjpindex)         :: test
 
     !! 0. Check if soiltiles changed since last time step
     soil_upd=SUM(ABS(soiltile(:,:)-resdist(:,:))) .GT. zero
     IF (printlev>=3) WRITE (numout,*) 'soil_upd ', soil_upd
-
+    
     IF (check_cwrr) THEN
        ! Save soil moisture for later use
        tmc_old(:,:) = tmc(:,:) 
        water2infilt_old(:,:) = water2infilt(:,:)
        qsintveg_old(:,:) = qsintveg(:,:)
+
     ENDIF
 
     !! 1. If a PFT has disapperead as result from a veget_max change, 
@@ -3036,7 +3140,7 @@ CONTAINS
           ENDIF
        ENDDO
     ENDDO
-    
+
     !! 2. Compute new soil moisture if soiltile changed due to veget_max's change
     IF (soil_upd) THEN
        !! 2.1 Define the change in soiltile
@@ -3115,7 +3219,6 @@ CONTAINS
 
     ENDIF ! soil_upd 
 
-
     !2.3.3 we compute tmc(kjpindex,nstm) and humtot!
     DO jst=1,nstm
        DO ji=1,kjpindex
@@ -3136,16 +3239,18 @@ CONTAINS
           humtot(ji) = humtot(ji) + soiltile(ji,jst) * tmc(ji,jst)
        ENDDO
     ENDDO
-
+    
+!    WRITE(numout,*) 'ke-tmc:',tmc(ji,:),water2infilt,dz,mc
+!    WRITE(numout,*) 'ke-tmc_old:',tmc_old(ji,:)
+             
     !! 4 check
     IF (check_cwrr) THEN
        DO ji=1,kjpindex
           test(ji) = ABS(SUM(tmc(ji,:)*soiltile(ji,:)) - SUM(tmc_old(ji,:)*resdist(ji,:)) + &
-               SUM(qsintveg(ji,:)) - SUM(qsintveg_old(ji,:))) ! sum(soiltile)=1
+               SUM(qsintveg(ji,:)) - SUM(qsintveg_old(ji,:))) !! sum(soiltile)=1 !! add by ke
           IF ( test(ji) .GT.  10.*allowed_err ) THEN
              WRITE(numout,*) 'tmc update WRONG: ji',ji
-             WRITE(numout,*) 'tot water avant:',SUM(tmc_old(ji,:)*resdist(ji,:)) + SUM(qsintveg_old(ji,:))
-             WRITE(numout,*) 'tot water apres:',SUM(tmc(ji,:)*soiltile(ji,:)) + SUM(qsintveg(ji,:))
+
              WRITE(numout,*) 'err:',test(ji)
              WRITE(numout,*) 'allowed_err:',allowed_err
              WRITE(numout,*) 'tmc:',tmc(ji,:)
@@ -3190,7 +3295,7 @@ CONTAINS
   END SUBROUTINE hydrol_tmc_update
 
 
-  SUBROUTINE hydrol_rotation_update( ip, kjpindex, rot_matrix, old_veget_max, veget_max, soiltile, qsintveg )
+  SUBROUTINE hydrol_rotation_update( ip, kjpindex, rot_matrix, old_veget_max, veget_max, soiltile, qsintveg) 
 
     !! 0.1 Input variables
     INTEGER(i_std), INTENT(in)                          :: ip, kjpindex      !! domain size
@@ -3199,8 +3304,10 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT (in) :: soiltile      !! Fraction of each soil tile (0-1, unitless)
     REAL(r_std), DIMENSION (nvm, nvm), INTENT(in)       :: rot_matrix    !! rotation matrix
 
+
     !! 0.3 Modified variables
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)   :: qsintveg   !! Amount of water in the canopy interception 
+
 !    REAL(r_std), DIMENSION (kjpindex, nstm), INTENT(inout) :: resdist    !! Soiltile from previous time-step
 !  resdist is defined in MODULE hydrol, no need to be put in the argument list
 
@@ -3281,6 +3388,8 @@ CONTAINS
        tmc_old(:) = tmc(ip,:) 
        water2infilt_old(:) = water2infilt(ip,:)
        qsintveg_old(:) = qsintveg(ip,:)
+ 
+    
     ENDIF
 
     !! 1. If a PFT has disapperead as result from a veget_max change, 
@@ -3292,6 +3401,7 @@ CONTAINS
             qsintveg(ip,jv) = zero
         ENDIF
      ENDDO
+     
     
     mc_old = mc(ip,:,:)
     water2infilt_old(:) = water2infilt(ip,:)
@@ -3353,7 +3463,7 @@ CONTAINS
          tmc(ip,jst) = tmc(ip,jst) + water2infilt(ip,jst)
          ! WARNING tmc is increased by water2infilt(ip,jst), but mc is not modified !
     ENDDO
-
+!    WRITE(numout,*) 'ke-tmc in hydrol_rotation_update', tmc,mc,water2infilt
     humtot(ip) = zero
     DO jst=1,nstm
         humtot(ip) = humtot(ip) + soiltile(ip,jst) * tmc(ip,jst)
@@ -3364,7 +3474,7 @@ CONTAINS
 !       DO ji=1,kjpindex
         ji = ip
           test = ABS(SUM(tmc(ji,:)*soiltile(ji,:)) - SUM(tmc_old(:)*resdist(ji,:)) + &
-               SUM(qsintveg(ji,:)) - SUM(qsintveg_old(:))) ! sum(soiltile)=1
+               SUM(qsintveg(ji,:)) - SUM(qsintveg_old(:))) ! sum(soiltile)=1  add by ke
           IF ( test .GT.  allowed_err ) THEN
              WRITE(numout,*) 'hydrol_rotation_update WRONG: ji',ji
              WRITE(numout,*) 'tot water before:',SUM(tmc_old(:)*resdist(ji,:)) + SUM(qsintveg_old(:))
@@ -3433,7 +3543,7 @@ CONTAINS
 
   SUBROUTINE hydrol_var_init (kjpindex, veget, veget_max, soiltile, njsc, &
        mx_eau_var, shumdiag_perma, k_litt, &
-       drysoil_frac, qsintveg, mc_layh, mcl_layh, tmc_layh, mc_layh_s, mcl_layh_s, tmc_layh_s) 
+       drysoil_frac, qsintveg, mc_layh, mcl_layh, tmc_layh, mc_layh_s, mcl_layh_s, tmc_layh_s)   
 
     ! interface description
 
@@ -3449,6 +3559,7 @@ CONTAINS
     INTEGER(i_std),DIMENSION (kjpindex), INTENT (in)    :: njsc          !! Index of the dominant soil textural class 
                                                                          !! in the grid cell (1-nscm, unitless) 
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT (in) :: soiltile      !! Fraction of each soil tile (0-1, unitless)
+
 
     !! 0.2 Output variables
 
@@ -3469,6 +3580,7 @@ CONTAINS
     !! 0.3 Modified variables
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)  :: qsintveg    !! Water on vegetation due to interception
                                                                          !! @tex $(kg m^{-2})$ @endtex  
+
 
     !! 0.4 Local variables
 
@@ -3858,7 +3970,7 @@ CONTAINS
 !JG: hydrol_tmc_update should not be called in the initialization phase. Call of hydrol_tmc_update makes the model restart differenlty.    
 !    ! If veget has been updated before restart (with LAND USE or DGVM),
 !    ! tmc and mc must be modified with respect to humtot conservation.
-!   CALL hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist )
+!   CALL hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist) 
 
     ! The litter variables:
     ! level 1
@@ -4389,7 +4501,7 @@ CONTAINS
 !_ hydrol_canop
 
   SUBROUTINE hydrol_canop (kjpindex, precip_rain, vevapwet, veget_max, veget, qsintmax, &
-       & qsintveg,precisol,tot_melt)
+       & qsintveg,precisol,tot_melt, qsoverflow) !! add by shuai 
 
     ! 
     ! interface description
@@ -4411,6 +4523,7 @@ CONTAINS
     !! 0.2 Output variables
 
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(out)       :: precisol    !! Water fallen onto the ground (throughfall)
+    REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(out)       :: qsoverflow  !! Interception overflow over dt (kg m-2) !! add by shuai
 
     !! 0.3 Modified variables
 
@@ -4443,6 +4556,7 @@ CONTAINS
     DO jv=2,nvm
        qsintveg(:,jv) = qsintveg(:,jv) - vevapwet(:,jv)
     END DO
+   
 
     !     It is raining :
     !! 1.2 precip_rain is shared for each vegetation type
@@ -4450,6 +4564,8 @@ CONTAINS
     !     iniveget computes veget each day
     !
     qsintveg(:,1) = zero
+    qsoverflow(:,1) = zero !! add by shuai
+
     DO jv=2,nvm
        qsintveg(:,jv) = qsintveg(:,jv) + veget(:,jv) * ((1-throughfall_by_pft(jv))*precip_rain(:))
           ! should consider the veget_max(:,jv) to intercept rain
@@ -4460,6 +4576,7 @@ CONTAINS
           !    ENDIF
           !ENDDO
     END DO
+    
 
     !
     !! 1.3 Limits the effect and sum what receives soil
@@ -4468,11 +4585,13 @@ CONTAINS
     DO jv=2,nvm
        DO ji = 1, kjpindex
           zqsintvegnew(ji,jv) = MIN (qsintveg(ji,jv),qsintmax(ji,jv)) 
+          qsoverflow(ji,jv) = MAX(zero, qsintveg(ji,jv) - zqsintvegnew(ji,jv)) !! add by shuai
           precisol(ji,jv) = (veget(ji,jv)*throughfall_by_pft(jv)*precip_rain(ji)) + &
                qsintveg(ji,jv) - zqsintvegnew (ji,jv) + &
                (veget_max(ji,jv) - veget(ji,jv))*precip_rain(ji)
        ENDDO
     END DO
+    
     !    
     DO jv=1,nvm
        DO ji = 1, kjpindex
@@ -4488,6 +4607,7 @@ CONTAINS
     DO jv=2,nvm
        qsintveg(:,jv) = zqsintvegnew (:,jv)
     END DO
+    
 
     IF (printlev>=3) WRITE (numout,*) ' hydrol_canop done '
 
@@ -4523,7 +4643,7 @@ CONTAINS
 !_ ================================================================================================================================
 !_ hydrol_vegupd
 
-  SUBROUTINE hydrol_vegupd(kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare)
+  SUBROUTINE hydrol_vegupd(kjit, kjpindex, veget, veget_max, soiltile, qsintveg, resdist, frac_bare) 
 
 
     !! 0. Variable and parameter declaration
@@ -4532,10 +4652,12 @@ CONTAINS
 
     ! input scalar 
     INTEGER(i_std), INTENT(in)                            :: kjpindex 
+    INTEGER(i_std), INTENT (in)                           :: kjit             !! add by ke, Time step number 
     ! input fields
     REAL(r_std), DIMENSION (kjpindex, nvm), INTENT(in)    :: veget            !! New vegetation map
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)     :: veget_max        !! Max. fraction of vegetation type
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT (in)   :: soiltile         !! Fraction of each soil tile (0-1, unitless)
+
 
     !! 0.2 Output variables
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(out)    :: frac_bare        !! Fraction(of veget_max) of bare soil in each vegetation type
@@ -4554,7 +4676,7 @@ CONTAINS
 
     !! 1 If veget has been updated at last time step (with LAND USE or DGVM),
     !! tmc and mc must be modified with respect to humtot conservation.
-    CALL hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist )
+    CALL hydrol_tmc_update ( kjpindex, veget_max, soiltile, qsintveg, resdist) 
 
     ! Remember that it is only frac_nobio + SUM(veget_max(,:)) that is equal to 1. Thus we need vegtot
     DO ji = 1, kjpindex
@@ -4619,18 +4741,27 @@ CONTAINS
        ENDDO
     ENDIF
 
+
+
+
     ! Calculate frac_bare (previosly done in slowproc_veget)
+    
+    
+  !  IF ( (ok_residues) ) THEN
     DO ji =1, kjpindex
-       IF( veget_max(ji,1) .GT. min_sechiba ) THEN
+       IF (veget_max(ji,jv) .GT. min_sechiba) THEN
           frac_bare(ji,1) = un
        ELSE
           frac_bare(ji,1) = zero
        ENDIF
     ENDDO
+
     DO jv = 2, nvm
        DO ji =1, kjpindex
-          IF( veget_max(ji,jv) .GT. min_sechiba ) THEN
+       
+          IF ( veget_max(ji,jv) .GT. min_sechiba ) THEN 
              frac_bare(ji,jv) = un - veget(ji,jv)/veget_max(ji,jv)
+
           ELSE
              frac_bare(ji,jv) = zero
           ENDIF
@@ -4649,7 +4780,14 @@ CONTAINS
           END DO
        ENDDO
     END DO
+    
+  !  WRITE(numout,*) 'ke-frac_res hydrol_vegupd', frac_res
+  !  WRITE(numout,*) 'ke-frac_residue_ns hydrol_vegupd', frac_residue_ns
+  !  WRITE(numout,*) 'ke-frac_bare hydrol_vegupd', frac_bare
+ !   WRITE(numout,*) 'ke-frac_bare_ns hydrol_vegupd', frac_bare_ns
 
+
+ 
     IF (printlev>=3) WRITE (numout,*) ' hydrol_vegupd done '
 
   END SUBROUTINE hydrol_vegupd
@@ -4784,7 +4922,7 @@ CONTAINS
 !_ ================================================================================================================================
 !_ hydrol_soil
 
-  SUBROUTINE hydrol_soil (kjpindex, veget_max, soiltile, njsc, reinf_slope, &
+  SUBROUTINE hydrol_soil (kjit, kjpindex, veget_max, soiltile, njsc, reinf_slope, &
        & transpir, vevapnu, vevapnu_pft, evapot, evapot_penm, runoff, drainage, &
        & returnflow, reinfiltration, irrigation, irrig_demand_ratio, &
        & tot_melt, evap_bare_lim,  shumdiag, shumdiag_perma,&
@@ -4793,9 +4931,8 @@ CONTAINS
        & snowdz, tot_bare_soil, u, v, tq_cdrag, mc_layh, mcl_layh, tmc_layh, &
        & mc_layh_s, mcl_layh_s, tmc_layh_s, drunoff_tot, fsat, veget, irrigr, &
        & do_irrig_reservoir, reservoir_dep_max, irrig_dep_threshold, do_awd, &
-       & awd_dep, lai)
-       !& awd_dep, irrigation_exe)
-       !& awd_dep, irrig_dosmax_tmp, irrigation_exe)
+       & awd_dep, lai)  
+
     ! 
     ! interface description
 
@@ -4807,6 +4944,7 @@ CONTAINS
 
     ! input scalar 
     INTEGER(i_std), INTENT(in)                               :: kjpindex 
+    INTEGER(i_std), INTENT(in)                               :: kjit             !! add by ke
     ! input fields
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT (in)       :: veget_max        !! Map of max vegetation types [-]
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT (in)       :: veget            !! Map of vegetation fraction [-]
@@ -4831,6 +4969,7 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: fsat             !! fraction of saturation soil 
 !pss:-
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: tot_bare_soil    !! Total evaporating bare soil fraction 
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)             :: u,v              !! Horizontal wind speed
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)             :: tq_cdrag         !! Surface drag coefficient 
     LOGICAL,DIMENSION (nstm), INTENT (in)              :: do_irrig_reservoir     !! flag of irrigation reservoir for specific soil column
@@ -4838,6 +4977,8 @@ CONTAINS
     REAL(r_std),DIMENSION (nstm), INTENT (in)          :: irrig_dep_threshold    !! threshold of depth when irrigation occurs
     LOGICAL,DIMENSION (nstm), INTENT (in)              :: do_awd                 !! if do awd irrigation
     REAL(r_std),DIMENSION (nstm), INTENT (in)          :: awd_dep                !! water amount (depth) of one irrigation event
+
+    
     !REAL(r_std), INTENT (in) :: irrig_dosmax_tmp                                 !! temporal case for routing
 
     !! 0.2 Output variables
@@ -4872,6 +5013,7 @@ CONTAINS
 
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: vevapnu          !! Bare soil evaporation
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(inout)     :: vevapnu_pft          !! Bare soil evaporation
+    
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT (inout)    :: humrel           !! Relative humidity [0-1, dimensionless]
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT(inout)    :: irrigr           !! irrigation reservoir
     REAL(r_std), DIMENSION (kjpindex), INTENT(inout)         :: irrigation       !! Irrigation [mm]
@@ -4929,6 +5071,7 @@ CONTAINS
     !
     !! 0.1 Arrays with DIMENSION(kjpindex)
     !
+!    WRITE(numout,*)'ke hydrolsoil start:',kjit,',,',kjpindex
     returnflow_soil(:) = zero
     reinfiltration_soil(:) = zero
     irrigation_soil(:, :) = zero
@@ -4960,7 +5103,9 @@ CONTAINS
     !
     !! 0.2 Split 2d variables to 3d variables, per soil tile
     !
-    CALL hydrol_split_soil (kjpindex, veget_max, soiltile, vevapnu, vevapnu_pft, transpir, humrel, evap_bare_lim, tot_bare_soil)
+
+    CALL hydrol_split_soil (kjit, kjpindex, veget_max, soiltile, vevapnu, vevapnu_pft, transpir, humrel, evap_bare_lim, tot_bare_soil) 
+!    WRITE(numout,*)'ke hydrolsoil after hydrol_split_soil:',kjit,',,',kjpindex 
     !
     !! 0.3 Common variables related to routing, with all return flow applied to the soil surface
     ! AD*** redundancies with first three lines of step 0.1
@@ -4969,13 +5114,16 @@ CONTAINS
     !
     irrig_fin(:,:) = zero
     DO ji=1,kjpindex
+!       WRITE(numout,*)'ke hydrolsoil in loop1:',ji,',,',vegtot(ji)
        IF(vegtot(ji).GT.min_sechiba) THEN
+          
           returnflow_soil(ji) = zero
           reinfiltration_soil(ji) = (returnflow(ji) + reinfiltration(ji))/vegtot(ji)
           irrigation_soil(ji,:) = zero 
           tot_irrig_frac = zero
           DO jv=2,nvm
               IF ( ok_LAIdev(jv) .AND. ( irrig_demand_ratio(ji,jv) .GT. zero )) THEN
+!                  WRITE(numout,*)'ke hydrolsoil in loop2:',ok_LAIdev(jv),',',pref_soil_veg(jv),',',is_crop_soil(pref_soil_veg(jv))
                   IF (.NOT. is_crop_soil(pref_soil_veg(jv)) ) THEN 
                       ! the demanded irrigation is not in the crop soil column
                       WRITE(numout,*) "pft ", jv, " pref_soil_veg(jv) ", pref_soil_veg(jv), "is not crop soil"
@@ -4991,15 +5139,19 @@ CONTAINS
               ! we irrigate separately considering soil tiles
               ! assuming each crop has its own tile respectively
               !ZunYin for later use to avoid the problem of hydrol_soil_tridiag
+ !             WRITE(numout,*)'ke hydrolsoil in loop3:',is_crop_soil(pref_soil_veg(jv)),',',pref_soil_veg(jv),',',lai(ji,jv),free_drain_coef(ji,pref_soil_veg(jv))
               IF (is_crop_soil(pref_soil_veg(jv)) .AND. (free_drain_coef(ji,pref_soil_veg(jv)) .LT. min_sechiba) .AND. (lai(ji,jv) .GT. 0)) THEN
                   trigger_irrig(ji,pref_soil_veg(jv)) = .TRUE.
               ENDIF
 
               IF ((irrig_demand_ratio(ji,jv) .GT. zero) .AND. is_crop_soil(pref_soil_veg(jv)) .AND. (lai(ji,jv) .GT. 0)) THEN
+ !                 WRITE(numout,*)'ke hydrolsoil in loop4:',is_crop_soil(pref_soil_veg(jv)),',',lai(ji,jv),',',do_irrig_reservoir(pref_soil_veg(jv))
                   IF (do_irrig_reservoir(pref_soil_veg(jv))) THEN
+!                      WRITE(numout,*)'ke hydrolsoil in loop5:',do_irrig_reservoir(pref_soil_veg(jv))
                       irrig_tmp(ji,jv) = MIN(MAX(zero, irrig_dep_threshold(pref_soil_veg(jv)) - irrigr(ji,pref_soil_veg(jv))), &
                           & irrigation(ji) * irrig_demand_ratio(ji,jv) / veget_max(ji,jv)) * veget_max(ji,jv)
                   ELSE
+ !                     WRITE(numout,*)'ke hydrolsoil in loop6: ',veget_max(ji,jv)
                       irrig_tmp(ji,jv) = MIN(irrig_dosmax, irrigation(ji) * irrig_demand_ratio(ji,jv) / veget_max(ji,jv)) * veget_max(ji,jv)
                   ENDIF
 
@@ -5010,34 +5162,41 @@ CONTAINS
               ENDIF
           ENDDO
        ELSE
+          
           returnflow_soil(ji) = zero
           reinfiltration_soil(ji) = zero
           irrigation_soil(ji,:) = zero
+!          WRITE(numout,*)'ke hydrolsoil in loop7:',kjpindex
        ENDIF
        !ZunYin correction of irrigation amount
        !irrigation_exe(ji) = SUM(irrig_tmp(ji,:))
     ENDDO
-
+!    WRITE(numout,*)'ke hydrolsoil after hydrol_split_soil2:',kjit,',,',kjpindex 
     !! -- START MAIN LOOP OVER SOILTILES
     !!    The called subroutines work on arrays with DIMENSION(kjpindex), recursively used for each soiltile jst
     !
+
     DO jst = 1,nstm
        !
        !! 0.4. Keep initial values for future check-up
        !
        ! Sum of sinks 
        sum_rootsink(:)=SUM(rootsink(:,:,jst),dim=2)
+       
        DO ji=1,kjpindex
+
           tsink(ji) = sum_rootsink(ji)+MAX(ae_ns(ji,jst),zero)+subsinksoil(ji)
        ENDDO
-
+       
        !IF (jst == 6) THEN
        !   WRITE(numout,*)'Zun rootsink_1:',SUM(rootsink(1,:,jst))
        !ENDIF
        !
        ! Total moisture content (including water2infilt) is saved for balance checks at the end
        ! In hydrol_tmc_update, tmc is increased by water2infilt(ji,jst), but mc is not modified !
+       
        tmcold(:) = tmc(:,jst)
+
        !
        ! The value of mc is kept in mcint (nstm dimension removed), used in the flux computation after diffusion
        DO jsl = 1, nslm
@@ -5092,25 +5251,26 @@ CONTAINS
        !       ae_ns_tmp(ji,jst) = zero
        !   ENDIF
        !END DO
-
+!       WRITE(numout,*)'ke hydrolsoil water2extract:',kjit,',,',kjpindex 
        ! Here, water2extract is used as a temporary variable to store the difference the min of water to infiltrate vs evaporate
        DO ji = 1, kjpindex
-!          water2extract(ji) = MIN(water2infilt(ji,jst) + irrigation_soil(ji) + reinfiltration_soil(ji), &
-!               & MAX(ae_ns(ji,jst),zero) + subsinksoil(ji))
-!          IF ( jst .GE. 4 ) THEN ! crop soil
+
           IF ( is_crop_soil(jst) ) THEN ! crop soil
-              water2extract(ji) = MIN(water2infilt(ji,jst) + irrigation_soil(ji,jst) + irrigr(ji,jst) + reinfiltration_soil(ji), &
+
+             water2extract(ji) = MIN(water2infilt(ji,jst) + irrigation_soil(ji,jst) + irrigr(ji,jst) + reinfiltration_soil(ji), &
                    & MAX(ae_ns(ji,jst),zero) + subsinksoil(ji))
-              !ZunYin: should check if ae_ns should powered by
-              !(1-vegetfrac/maxvegetfrac) or not
-              !water2extract(ji) = MIN(water2infilt(ji,jst) + irrigation_soil(ji,jst) + irrigr(ji,jst) + reinfiltration_soil(ji), &
-              !     & MAX(ae_ns_tmp(ji,jst),zero) + subsinksoil(ji))
-!           ae_ns: bare soil evaporation per soiltile
-!           subsinksoil: excess of sublimation as a sink for the soil
+!             IF (ji .EQ. 2) THEN
+!                  WRITE(numout,*) "ke- water2extract5271: ", water2extract(ji), ',,', water2infilt(ji,jst), ',,', irrigation_soil(ji,jst), ',,', irrigr(ji,jst), ',,', reinfiltration_soil(ji), ',,',ae_ns(ji,jst), ',,',subsinksoil(ji)
+!             ENDIF
+             
           ELSE
-               water2extract(ji) = MIN(water2infilt(ji,jst) + reinfiltration_soil(ji), &
-                   & MAX(ae_ns(ji,jst),zero) + subsinksoil(ji))
-                   !& MAX(ae_ns_tmp(ji,jst),zero) + subsinksoil(ji))
+!             water2extract(ji) = MIN(water2infilt(ji,jst) + irrigation_soil(ji,jst) + irrigr(ji,jst) + reinfiltration_soil(ji), &
+!                   & MAX(ae_ns(ji,jst),zero) + subsinksoil(ji))
+             water2extract(ji) = MIN(water2infilt(ji,jst) + reinfiltration_soil(ji), MAX(ae_ns(ji,jst),zero) + subsinksoil(ji))
+!             IF (ji .EQ. 2) THEN
+!                  WRITE(numout,*) "ke- water2extract5278: ", water2extract(ji), ',,', water2infilt(ji,jst), ',,', irrigation_soil(ji,jst), ',,', irrigr(ji,jst), ',,', reinfiltration_soil(ji), ',,',ae_ns(ji,jst), ',,',subsinksoil(ji)
+!             ENDIF
+
           ENDIF
 
        ENDDO
@@ -5121,24 +5281,34 @@ CONTAINS
        !   - reinfiltration_soil is the input flux to the soil surface from routing 'including returnflow)
        !   - eventually, water2infilt holds all fluxes to the soil surface except precisol (reduced by water2extract)
        DO ji = 1, kjpindex
-!          water2infilt(ji,jst) = water2infilt(ji,jst) + irrigation_soil(ji) + reinfiltration_soil(ji) - water2extract(ji)
-!          IF ( jst .GE. 4 ) THEN ! crop soil
+         
           IF ( is_crop_soil(jst) ) THEN ! crop soil
               water2infilt(ji,jst) = water2infilt(ji,jst) + irrigation_soil(ji,jst) + irrigr(ji,jst) + reinfiltration_soil(ji) - water2extract(ji)
+!              IF (ji .EQ. 2) THEN
+!                  WRITE(numout,*) "ke- water2infilt5296: ", water2infilt(2,jst), ',,', irrigation_soil(ji,jst), ',,', irrigr(ji,jst), ',,', reinfiltration_soil(ji), ',,', water2extract(ji)
+!              ENDIF
           ELSE
               water2infilt(ji,jst) = water2infilt(ji,jst) + reinfiltration_soil(ji) - water2extract(ji)
+!              IF (ji .EQ. 2) THEN
+!                  WRITE(numout,*) "ke- water2infilt5301: ", water2infilt(2,jst), ',,', reinfiltration_soil(ji), ',,', water2extract(ji)
+!              ENDIF
           ENDIF
 
        ENDDO       
 
-!!       WRtTE(numout,*) "irrig xuhui: water2infilt(1,4): ", water2infilt(1,4)
+       
              
        ! The water to evaporate from the soil surface is either the difference to what has to be infiltrated, or 0
        !   - subsinksoil is the residual from sublimation is the snowpack is not sufficient
        !   - how are the negative values of ae_ns taken into account ??? 
        DO ji = 1, kjpindex
+
           water2extract(ji) =  MAX(ae_ns(ji,jst),zero) + subsinksoil(ji) - water2extract(ji)
-          !water2extract(ji) =  MAX(ae_ns_tmp(ji,jst),zero) + subsinksoil(ji) - water2extract(ji)
+          
+!          IF (ji .EQ. 2) THEN
+!              WRITE(numout,*) 'ke-water2extract5316: ',water2infilt(ji,jst), ',,',ae_ns(ji,jst), ',,',subsinksoil(ji) 
+!          ENDIF
+          
        ENDDO
 
        !! 1.2 Removes water2extract (including ae_ns) from top layer,
@@ -5172,10 +5342,15 @@ CONTAINS
        DO ji = 1, kjpindex
           ! Initialise the flux to be infiltrated 
           flux_infilt(ji) = water2infilt(ji,jst) + precisol_ns(ji,jst) 
+          
+!          IF (ji .EQ. 2) THEN
+!              WRITE(numout,*) 'ke-flux_infilt5354: ',flux_infilt(ji), ',,',water2infilt(ji,jst), ',,',precisol_ns(ji,jst) 
+!          ENDIF
+          
           ! precisol_ns: throughfall per soil tile
           ! This incoming flux is first dedicated to fill the soil up to mcr (in case needed, see 2.3)
        ENDDO
-
+       
        !! 2.3 Treat problem with too low soil moisture content in soil column : is_under_mcr
        DO ji = 1, kjpindex
           IF (is_under_mcr(ji)) THEN
@@ -5195,6 +5370,11 @@ CONTAINS
              END DO
              ! Remove added water from flux_infilt
              flux_infilt(ji)=flux_infilt(ji)-temp(ji)*(zmaxh*mille)
+             
+!             IF (ji .EQ. 2) THEN     
+!                WRITE(numout,*) 'ke-flux_infilt: ', flux_infilt(ji), ',',temp(ji),',',lalo(ji,:)
+!             ENDIF
+             
              IF (flux_infilt(ji) .LT. 0.) THEN
                 WRITE(numout,*) 'BIG PROBLEM at grid cell ',ji
                 WRITE(numout,*) 'No available water in soil column!!!'
@@ -5208,10 +5388,14 @@ CONTAINS
        CALL hydrol_soil_coef(kjpindex,jst,njsc)
 
        !! 2.5 The infiltration is computed 
+!       WRITE(numout,*) 'ke- before hydrol_soil_infilt: ', flux_infilt(2),',', lalo(2,:)
+     
        CALL hydrol_soil_infilt(kjpindex, jst, njsc, flux_infilt)
        !! 2.6 K and D are recomputed for the profile of mc after infiltration
+       
+       
        CALL hydrol_soil_coef(kjpindex,jst,njsc)
-
+!       WRITE(numout,*) 'ke- after hydrol_soil_infilt: ', flux_infilt(2)
        !! -- SECONDLY, WE UPDATE MC FROM DIFFUSION, INCLUDING DRAINAGE AND ROOTSINK
 
        !! 3 Prepare for diffusion based on the initial SM profile modified by infiltration and bare soil evaporation
@@ -5219,7 +5403,7 @@ CONTAINS
  
        !! 3.1 Set the tridiagonal matrix coefficients for the diffusion scheme
        CALL hydrol_soil_setup(kjpindex,jst)
-
+!       WRITE(numout,*) 'ke- after hydrol_soil_setup: ', flux_infilt(2)
        !! 3.2 Verifications for good soil humidity
        !
        !! 3.2.1 resolv serves to only run diffusion if we are not under mcr nor over mcs (for hydrol_soil_tridiag)
@@ -5232,6 +5416,7 @@ CONTAINS
        WHERE (is_over_mcs(:))
           mc(:,1,jst) = mc(:,1,jst) - flux_top(:) * deux / dz(2)
        ENDWHERE
+ !      WRITE(numout,*) 'ke- after hydrol_soil_setup2: ', mc(:,1,jst)
        ! transpiration via root_sink
        DO jsl=1, nslm
           WHERE (is_over_mcs(:))
@@ -5244,7 +5429,7 @@ CONTAINS
              mc(:,jsl,jst) = mc(:,jsl,jst) - sum_rootsink(:) / (zmaxh*mille) 
           ENDWHERE
        ENDDO
-
+!       WRITE(numout,*) 'ke- 5443: ', flux_infilt(2)
        IF (ok_freeze_cwrr) THEN
           CALL hydrol_soil_coef(kjpindex,jst,njsc)
           DO ji =1, kjpindex
@@ -5255,7 +5440,7 @@ CONTAINS
        ELSE
           mcl(:,:,jst)=mc(:,:,jst)
        ENDIF
-
+!       WRITE(numout,*) 'ke- 5454: ', flux_infilt(2)
        !! 3.3 We define the system of linear equations, based on matrix coefficients, 
        !! following the PhD thesis of de Rosnay (1999), p155-157
        ! rhs for right-hand side term; fp for f'; gp for g'; ep for e'; with flux=0 !
@@ -5298,7 +5483,7 @@ CONTAINS
              stmat(ji,jsl,3) = tmat(ji,jsl,3) 
           ENDDO
        ENDDO
-       
+!       WRITE(numout,*) 'ke- 5497: ', flux_infilt(2)
        !! 4 Resolves diffusion based on the initial SM profile modified by infiltration and bare soil evaporation
        
        !! 4.1 Solves diffusion equations, but only in grid-cells where tmc is OK (else, see step 3.2.2)
@@ -5375,7 +5560,7 @@ CONTAINS
               ENDDO
           ENDIF
        ENDDO
-
+!       WRITE(numout,*) 'ke- 5547: ', flux_infilt(2)
        ! Calculation of total soil moisture content (liquid + frozen)
        !IF (ok_freeze_cwrr) THEN
        !   DO ji =1, kjpindex
@@ -5390,7 +5575,7 @@ CONTAINS
        !! -- THEN, FLUXES ALLOW TO CLOSE THE WATER BALANCE
 
        !! 5 Closing water balance
-
+!       WRITE(numout,*) 'ke- 5589: ', flux_infilt(2)
        !! 5.1 Computes dr_ns = bottom boundary condition, consistent with rhs(ji,jsl=nslm)
        DO ji = 1, kjpindex
           dr_ns(ji,jst)=zero
@@ -5399,7 +5584,7 @@ CONTAINS
              dr_ns(ji,jst) = mask_soiltile(ji,jst)*k(ji,jsl)*free_drain_coef(ji,jst) * (dt_sechiba/one_day)
           ENDIF
        ENDDO
-          
+!       WRITE(numout,*) 'ke- 5598: ', flux_infilt(2)   
        !! 5.2 Computes total soil moisture content
        DO ji = 1, kjpindex
           tmc(ji,jst) = dz(2) * ( trois*mc(ji,1,jst) + mc(ji,2,jst) )/huit 
@@ -5415,7 +5600,7 @@ CONTAINS
           tmc(ji,jst) = tmc(ji,jst) + dz(nslm) &
                & * (trois * mc(ji,nslm,jst) + mc(ji,nslm-1,jst))/huit
        END DO
-
+!       WRITE(numout,*) 'ke- 5614: ', flux_infilt(2) 
        !! 5.3 Diagnostic of upper fluxes from soil moisture variation and bottom flux
        ! AD*** should this be done where resolv=FALSE ?
        ! AD*** shouldn't we initialize run_ns to zero ?
@@ -5476,7 +5661,7 @@ CONTAINS
           ! ae_ns+ru_ns=precisol_ns+irrigation-q0 ?
           ae_ns(ji,jst) = ae_ns(ji,jst) + subsinksoil(ji)
        ENDDO
-
+!       WRITE(numout,*) 'ke- 5675: ', flux_infilt(2)
        !! 6 Special treatment for the unstable cases
        ! AD*** NOT COMMENTED ***
 
@@ -5532,7 +5717,7 @@ CONTAINS
           END IF
           
        ENDDO
-
+!       WRITE(numout,*) 'ke- 5731: ', flux_infilt(2)
        !! 6.2 Compute total soil moisture content
        DO ji = 1, kjpindex
           tmc(ji,jst) = dz(2) * ( trois*mc(ji,1,jst) + mc(ji,2,jst) )/huit
@@ -5548,7 +5733,7 @@ CONTAINS
           tmc(ji,jst) = tmc(ji,jst) + dz(nslm) &
                & * (trois * mc(ji,nslm,jst) + mc(ji,nslm-1,jst))/huit
        END DO
-
+!       WRITE(numout,*) 'ke- 5747: ', flux_infilt(2)
        !! 6.3 Avoid under-precision value for the 3 outward flux
        ! AD*** and the third one ?
        DO ji = 1, kjpindex  
@@ -5560,7 +5745,7 @@ CONTAINS
              ru_ns(ji,jst) = zero
           ENDIF
        ENDDO
-
+!       WRITE(numout,*) 'ke- 5759: ', flux_infilt(2)
        !! 7 Surface runoff : compute temporary surface water and extract from runoff
        IF ( .NOT. doponds ) THEN
           DO ji = 1, kjpindex
@@ -5575,7 +5760,7 @@ CONTAINS
        DO ji = 1, kjpindex           
           ru_ns(ji,jst) = ru_ns(ji,jst) - water2infilt(ji,jst)
        END DO
-
+!       WRITE(numout,*) 'ke- 5774: ', ru_ns(:,jst)
        !! 8 Smooth again
        ! Probably not necessary but harmless (Aurelien)
        CALL hydrol_soil_smooth(kjpindex, jst, njsc, is_under_mcr, is_over_mcs)
@@ -5604,7 +5789,7 @@ CONTAINS
           tmc(ji,jst) = tmc(ji,jst) +  dz(nslm) * (trois * mc(ji,nslm,jst) + mc(ji,nslm-1,jst))/huit
           tmc(ji,jst) = tmc(ji,jst) + water2infilt(ji,jst)
        END DO
-
+!       WRITE(numout,*) 'ke- 5803: ', tmc(:,jst)
        ! The litter is the 4 top levels of the soil
        ! Compute various field of soil moisture for the litter (used for stomate and for albedo)
 
@@ -5910,16 +6095,17 @@ CONTAINS
        ENDIF
 
     END DO  ! end of loop on soiltile
-
+!    WRITE (numout,*) 'ke- nstm1 =', nstm 
     !! -- ENDING THE MAIN LOOP ON SOILTILES
 
     !! 11 Summing 3d variables into 2d variables
     !
-    CALL hydrol_diag_soil (kjpindex, veget_max, soiltile, njsc, runoff, drainage, &
+!    WRITE (numout,*) 'ke- before hydrol_diag_soil =', kjpindex
+    CALL hydrol_diag_soil (kjit, kjpindex, veget_max, soiltile, njsc, runoff, drainage, &
          & evapot, vevapnu, returnflow, reinfiltration, irrigation, &
          & shumdiag,shumdiag_perma, k_litt, litterhumdiag, humrel, vegstress, drysoil_frac,tot_melt, & !pss:+
-         & drunoff_tot) !pss:-
-
+         & drunoff_tot) !! add by ke !pss:-
+!    WRITE (numout,*) 'ke- after hydrol_diag_soil =', kjpindex
     !! -- COMPUTING EVAP_BARE_LIM_NS FOR NEXT TIME STEP, WITH A LOOP ON SOILTILES
     !
     !! 12 Calculation of evap_bare_limit : limitation factor for bare soil evaporation
@@ -5927,6 +6113,9 @@ CONTAINS
     evap_bare_lim(:) = zero
     evap_bare_lim_ns(:,:) = zero
 !    evap_bare_lim_pft(:,:) = zero
+    
+ !!   evap_residue_lim(:) = zero
+ !!   evap_residue_lim_ns(:,:) = zero
 
     !!_  for each soil tile
     !   
@@ -5979,9 +6168,11 @@ CONTAINS
              ! if soil tile has irrigation reservior and there is water in the
              ! reservoir, bare soil evaporation = evapot_penm
              IF (do_irrig_reservoir(jst) .AND. irrigr(ji,jst) .GT. min_sechiba) THEN
-                 flux_top(ji) = evapot_penm(ji) * &
-                      AINT(frac_bare_ns(ji,jst)+un-min_sechiba)
 
+                 flux_top(ji) = evapot_penm(ji) * &
+                         AINT(frac_bare_ns(ji,jst)+un-min_sechiba) 
+  
+                         
                  flux_top_res(ji) = MAX(zero, flux_top(ji) - irrigrvir(ji,jst))
 
                  irrigrvir(ji,jst) = MAX(zero, irrigrvir(ji,jst) - flux_top(ji))
@@ -5993,8 +6184,9 @@ CONTAINS
 
                  IF (flux_top_res(ji) .GT. min_sechiba) THEN
                      mc_rel(ji) = tmc_litter(ji,jst)/tmc_litter_sat(ji,jst)
-                     r_soil_ns(ji,jst) = exp(8.206 - 4.255 * mc_rel(ji))
 
+                     r_soil_ns(ji,jst) = exp(8.206 - 4.255 * mc_rel(ji))
+                     
                      speed = MAX(0.1, SQRT (u(ji)*u(ji) + v(ji)*v(ji)))
                      IF (speed * tq_cdrag(ji) .GT. min_sechiba) THEN
                          ra = un / (speed * tq_cdrag(ji))
@@ -6004,30 +6196,25 @@ CONTAINS
                      ENDIF
 
                      flux_top_res(ji) = flux_top_res(ji) * evap_soil(ji) * &
-                          AINT(frac_bare_ns(ji,jst)+un-min_sechiba) / &
-                          flux_top(ji)
-                 ENDIF
+                          AINT((frac_bare_ns(ji,jst))+un-min_sechiba) / &
+                          flux_top(ji) 
 
+                 ENDIF
              ELSE
                  ! We calculate a reduced demand, by means of a soil resistance
                  mc_rel(ji) = tmc_litter(ji,jst)/tmc_litter_sat(ji,jst)
-                 ! based on SM in the top 4 soil layers (litter) to smooth variability
-                 r_soil_ns(ji,jst) = exp(8.206 - 4.255 * mc_rel(ji))
-               
-                 ! Aerodynamic resistance
-                 ! here 0.1 is min_wind, revised in rev4668, here just keep it simple
+
+                 r_soil_ns(ji,jst) = exp(8.206 - 4.255 * mc_rel(ji)) 
                  speed = MAX(0.1, SQRT (u(ji)*u(ji) + v(ji)*v(ji)))
                  IF (speed * tq_cdrag(ji) .GT. min_sechiba) THEN
-                     ra = un / (speed * tq_cdrag(ji))
-                     evap_soil(ji) = evapot_penm(ji) / (un + r_soil_ns(ji,jst)/ra)
+                    ra = un / (speed * tq_cdrag(ji))
+                    evap_soil(ji) = evapot_penm(ji) / (un + r_soil_ns(ji,jst)/ra)
                  ELSE
-                     evap_soil(ji) = evapot_penm(ji)
+                    evap_soil(ji) = evapot_penm(ji)
                  ENDIF
-
-                 !evap_soil(ji) = evapot_penm(ji)
-
                  flux_top(ji) = evap_soil(ji) * &
-                      AINT(frac_bare_ns(ji,jst)+un-min_sechiba)
+                         AINT(frac_bare_ns(ji,jst)+un-min_sechiba)
+      
              ENDIF
           ELSE
              flux_top(ji) = zero
@@ -6128,7 +6315,7 @@ CONTAINS
        
        !! Resolve the equations with new boundary conditions if necessary (update mcl)
        CALL hydrol_soil_tridiag(kjpindex,jst)
-
+!       WRITE (numout,*) 'ke- after hydrol_soil_tridiag =', kjpindex 
        ! Calculation of total soil moisture content (liquid + frozen)
        IF (ok_freeze_cwrr) THEN
           CALL hydrol_soil_coef(kjpindex,jst,njsc)           
@@ -6157,7 +6344,7 @@ CONTAINS
     !! 12.6 Water balance
 
     !! 12.6.1 Compute dr_ns with the bottom boundary condition 
-
+!       WRITE (numout,*) 'ke- Water balance =', kjpindex
     ! Initialize qflux at bottom of diffusion
        DO ji = 1, kjpindex
           flux_bottom(ji) = mask_soiltile(ji,jst)*k(ji,nslm)*free_drain_coef(ji,jst) * (dt_sechiba/one_day)
@@ -6234,22 +6421,27 @@ CONTAINS
           ELSE
              evap_bare_lim_ns(ji,jst) = zero
           END IF
-          evap_bare_lim_ns(ji,jst)=MAX(MIN(evap_bare_lim_ns(ji,jst),1.),0.)
+          evap_bare_lim_ns(ji,jst)=MAX(MIN(evap_bare_lim_ns(ji,jst),1.),0.)          
+
+          
        END DO
 
        DO ji = 1, kjpindex
           ! Here we weight evap_bare_lim_ns by the fraction of bare evaporating soil. 
           ! This is given by frac_bare_ns, taking into account bare soil under vegetation
-          IF(vegtot(ji) .GT. min_sechiba) THEN
-             evap_bare_lim_ns(ji,jst) = evap_bare_lim_ns(ji,jst) * frac_bare_ns(ji,jst)
+          IF(vegtot(ji) .GT. min_sechiba) THEN          
+
+             evap_bare_lim_ns(ji,jst) = evap_bare_lim_ns(ji,jst) * (frac_bare_ns(ji,jst))
           ELSE
              evap_bare_lim_ns(ji,jst) = 0.
           ENDIF
+          
        END DO
        
        ! Set evap_bare_lim_ns to zero if is_under_mcr (cf us, humrelv, vegstressv)
        WHERE (is_under_mcr(:))
           evap_bare_lim_ns(:,jst) = zero
+          evap_residue_lim_ns(:,jst) = zero
        ENDWHERE
 
        !IF (jst == 6) THEN
@@ -6273,11 +6465,13 @@ CONTAINS
     !! 12.9 Deduction of evap_bare_lim
     DO ji = 1, kjpindex
        evap_bare_lim(ji) =  SUM(evap_bare_lim_ns(ji,:)*vegtot(ji)*soiltile(ji,:))
+       
+       
 !       DO jv = 1,nvm
 !           evap_bare_lim_pft(ji,jv) = MAX(MIN(evap_bare_lim_ns(ji,pref_soil_veg(jv)), evap_bare_lim_pft(ji,jv)), 0. )
 !       ENDDO
     ENDDO
-
+!    WRITE (numout,*) 'ke- hydrol_soil enbd =', kjpindex
     !! 13 Exit if error was found previously in this subroutine
     !
     IF ( error ) THEN
@@ -6344,7 +6538,7 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex)             :: infilt_tmp          !! infiltration rate for the considered layer 
     REAL(r_std), DIMENSION (kjpindex)             :: infilt_tot          !! total infiltration 
     REAL(r_std), DIMENSION (kjpindex)             :: flux_tmp            !! rate at which precip hits the ground
-
+    
 !_ ================================================================================================================================
 
     ! If data (or coupling with GCM) was available, a parameterization for subgrid rainfall could be performed
@@ -6357,7 +6551,7 @@ CONTAINS
        wat_inf_pot(ji) = MAX((mcs(njsc(ji))-mc(ji,1,ins)) * dz(2) / deux, zero)
        wat_inf(ji) = MIN(wat_inf_pot(ji), flux_infilt(ji))
        mc(ji,1,ins) = mc(ji,1,ins) + wat_inf(ji) * deux / dz(2)
-       !
+!       WRITE(numout,*) 'ke-hydrol_soil_infilt1: ', wat_inf_pot(ji),',',wat_inf(ji),',',flux_infilt(ji),',',mc(ji,1,ins)
     ENDDO
     !-
     !! 2 Infiltration layer by layer 
@@ -6365,29 +6559,34 @@ CONTAINS
     ! Initialize a countdown for infiltration during the time-step and the value of potential runoff
     dt_tmp(:) = dt_sechiba / one_day
     infilt_tot(:) = wat_inf(:)
+  
+!    WRITE(numout,*) 'ke-hydrol_soil_infilt2: ', infilt_tot,',',flux_infilt
+    
     ! Compute the rate at which water will try to infiltrate each layer
     ! flux_temp is converted here to the same unit as k_m
     flux_tmp(:) = (flux_infilt(:)-wat_inf(:)) / dt_tmp(:)
     !
     DO jsl = 2, nslm-1
+!       WRITE(numout,*) 'ke-jsl: ', jsl,',',nslm
        DO ji = 1, kjpindex
+!          WRITE(numout,*) 'ke-kjpindex: ', kjpindex,',',ji
     !! 2.2 Infiltrability of each layer if under a saturated one
           ! This is computed by an simple arithmetic average because 
           ! the time step (30min) is not appropriate for a geometric average (advised by Haverkamp and Vauclin)
           k_m = (k(ji,jsl) + ks(njsc(ji))*kfact(jsl-1,njsc(ji))*kfact_root(ji,jsl,ins)) / deux 
-
+       !   WRITE(numout,*) 'ke-k_m: ', k_m
           IF (ok_freeze_cwrr) THEN
              IF (temp_hydro(ji, jsl) .LT. ZeroCelsius) THEN
                 k_m = k(ji,jsl)
              ENDIF
           ENDIF
-
+  
     !! 2.3 We compute the mean rate at which water actually infiltrate:
           ! Subgrid: Exponential distribution of k around k_m, but average p directly used 
           ! See d'Orgeval 2006, p 78, but it's not fully clear to me (AD***)
 
           infilt_tmp(ji) = k_m * (un - EXP(- flux_tmp(ji) / k_m)) 
-
+        !  WRITE (numout,*) 'ke-infilt_tmp: ', infilt_tmp(ji), ',,,,,',flux_tmp(ji)
     !! 2.4 From which we deduce the time it takes to fill up the layer or to end the time step...
           wat_inf_pot(ji) =  MAX((mcs(njsc(ji))-mc(ji,jsl,ins)) * (dz(jsl) + dz(jsl+1)) / deux, zero)
           IF ( infilt_tmp(ji) > min_sechiba) THEN
@@ -6399,24 +6598,31 @@ CONTAINS
           ELSE
              dt_inf(ji) = dt_tmp(ji)
           ENDIF
-
+         ! WRITE (numout,*) 'ke-wat_inf_pot: ', wat_inf_pot(ji)
+          
     !! 2.5 The water enters in the layer
           wat_inf(ji) = dt_inf(ji) * infilt_tmp(ji)
           ! bviously the moisture content
           mc(ji,jsl,ins) = mc(ji,jsl,ins) + &
                & wat_inf(ji) * deux / (dz(jsl) + dz(jsl+1))
+               
+         ! WRITE (numout,*) 'ke-mc: ', mc(ji,jsl,ins)
           ! the time remaining before the next time step
           dt_tmp(ji) = dt_tmp(ji) - dt_inf(ji)
+          ! WRITE (numout,*) 'ke-dt_tmp: ', dt_tmp(ji)
           ! and finally the infilt_tot (which is just used to check if there is a problem, below) 
           infilt_tot(ji) = infilt_tot(ji) + infilt_tmp(ji) * dt_inf(ji)
+         ! WRITE (numout,*) 'ke-infilt_tot: ', infilt_tot(ji), ',,,,,',infilt_tmp(ji), ',,,,,',dt_inf(ji)
        ENDDO
     ENDDO
     
+    ! WRITE (numout,*) 'lalo: ', lalo
     !! 3 Verification
     DO ji = 1, kjpindex
        IF (infilt_tot(ji) .LT. -min_sechiba .OR. infilt_tot(ji) .GT. flux_infilt(ji) + min_sechiba) THEN
-          WRITE (numout,*) 'Error in the calculation of infilt tot', infilt_tot(ji)
-          WRITE (numout,*) 'k, ji, jst, mc', k(ji,1:2), ji, ins, mc(ji,1,ins)
+          
+          WRITE (numout,*) 'Error in the calculation of infilt tot', infilt_tot(ji),',',flux_infilt(ji)
+          WRITE (numout,*) 'k, ji, jst, mc', k(ji,1:2), ji, ins, mc(ji,1,ins), lalo(ji,:)
           CALL ipslerr_p(3, 'hydrol_soil_infilt', 'We will STOP now.','Error in calculation of infilt tot','')
        ENDIF
     ENDDO
@@ -7039,7 +7245,7 @@ CONTAINS
 !_ ================================================================================================================================
 !_ hydrol_split_soil
 
-  SUBROUTINE hydrol_split_soil (kjpindex, veget_max, soiltile, vevapnu, vevapnu_pft, transpir, humrel, evap_bare_lim, tot_bare_soil)
+  SUBROUTINE hydrol_split_soil (kjit, kjpindex, veget_max, soiltile, vevapnu, vevapnu_pft, transpir, humrel, evap_bare_lim, tot_bare_soil) 
     ! 
     ! interface description
 
@@ -7048,20 +7254,24 @@ CONTAINS
     !! 0.1 Input variables
 
     INTEGER(i_std), INTENT(in)                               :: kjpindex
+    INTEGER(i_std), INTENT(in)                               :: kjit             !! add by ke
     REAL(r_std), DIMENSION (kjpindex, nvm), INTENT(in)       :: veget_max        !! max Vegetation map 
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT (in)      :: soiltile         !! Fraction of each soil tile (0-1, unitless)
     REAL(r_std), DIMENSION (kjpindex), INTENT (in)           :: vevapnu          !! Bare soil evaporation
     REAL(r_std), DIMENSION (kjpindex, nvm), INTENT (in)      :: vevapnu_pft      !! Bare soil evaporation
+    
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT (in)       :: transpir         !! Transpiration
     REAL(r_std), DIMENSION (kjpindex,nvm), INTENT (in)       :: humrel           !! Relative humidity
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: evap_bare_lim    !!   
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: tot_bare_soil    !! Total evaporating bare soil fraction 
+
 
     !! 0.4 Local variables
 
     INTEGER(i_std)                                :: ji, jv, jsl, jst
     REAL(r_std), DIMENSION (kjpindex)             :: vevapnu_old
     REAL(r_std), DIMENSION (kjpindex,nstm)        :: vevapnu_ns      !! Bare soil evaporation
+    
     REAL(r_std), DIMENSION (kjpindex)             :: tmp_check1
     REAL(r_std), DIMENSION (kjpindex)             :: tmp_check2
     REAL(r_std), DIMENSION (kjpindex,nstm)        :: tmp_check3
@@ -7134,7 +7344,7 @@ CONTAINS
        DO ji=1,kjpindex
           IF (vevapnu_old(ji).GT.min_sechiba) THEN   
              IF(evap_bare_lim(ji).GT.min_sechiba) THEN       
-                ae_ns(ji,jst) = vevapnu(ji) * evap_bare_lim_ns(ji,jst)/evap_bare_lim(ji)
+                ae_ns(ji,jst) = vevapnu(ji) * evap_bare_lim_ns(ji,jst)/evap_bare_lim(ji) 
              ELSE
                  !ZunYin definitely vevapnu_old > min_sechiba
                 !IF(vevapnu_old(ji).GT.min_sechiba) THEN  
@@ -7146,7 +7356,7 @@ CONTAINS
              ENDIF
           ELSEIF(frac_bare_ns(ji,jst).GT.min_sechiba) THEN
              IF(evap_bare_lim(ji).GT.min_sechiba) THEN  
-                ae_ns(ji,jst) = vevapnu(ji) * evap_bare_lim_ns(ji,jst)/evap_bare_lim(ji)
+                ae_ns(ji,jst) = vevapnu(ji) * evap_bare_lim_ns(ji,jst)/evap_bare_lim(ji) 
              ELSE
                 IF(tot_bare_soil(ji).GT.min_sechiba) THEN  
                    ae_ns(ji,jst) = vevapnu(ji) * frac_bare_ns(ji,jst)/tot_bare_soil(ji)
@@ -7164,15 +7374,13 @@ CONTAINS
        END DO
     END DO
 
-    !WRITE(numout,*)'Zun bare_lim_ns_final:',evap_bare_lim_ns(1,:)
-    !WRITE(numout,*)'Zun bare_lim_final:',evap_bare_lim(1)
 
-    !WRITE(numout,*)'Zun vevapnu:',vevapnu(1)
-    WRITE(numout,*)'Zun ae_ns_1:',ae_ns(1,6)
-    !WRITE(numout,*)'Zun sum_ae_ns:',SUM(ae_ns(1,:)*frac_bare_ns(1,:))
-    !WRITE(numout,*)'Zun sum_ae_ns2:',SUM(ae_ns(1,:)*soiltile(1,:))
-    !WRITE(numout,*)'Zun evap_bare_lim_ns:',evap_bare_lim_ns(1,:)
-    !WRITE(numout,*)'Zun evap_bare_lim:',evap_bare_lim(1)
+ !   WRITE(numout,*)'ke-vevapnu_ns  hydrol_split_soil',vevapnu_ns
+  !  WRITE(numout,*)'ke-ae_ns hydrol_split_soil',ae_ns
+
+ !   WRITE(numout,*)'ke-kjit hydrol_split_soil',kjit
+
+    
     !WRITE(numout,*)'Zun sum_lim_ns:',SUM(evap_bare_lim_ns(1,:)*vegtot(1)*soiltile(1,:)) = evap_bare_lim
     !WRITE(numout,*)'Zun vegtot:',vegtot(1) = 1
     !
@@ -7243,17 +7451,18 @@ CONTAINS
                 IF(mc(ji,jsl,jst).LT.-0.05) THEN
                    WRITE(numout,*) 'CWRR split-----------------------------------------------'
                    WRITE(numout,*) 'ji,jst,jsl',ji,jst,jsl
-                   WRITE(numout,*) 'mc',mc(ji,jsl,jst)
-                   WRITE(numout,*) 'rootsink,us',rootsink(ji,:,jst),us(ji,:,jst,jsl)
+                !   WRITE(numout,*) 'mc',mc(ji,jsl,jst)
+                !   WRITE(numout,*) 'rootsink,us',rootsink(ji,:,jst),us(ji,:,jst,jsl)
                    WRITE(numout,*) 'corr_veg_soil',corr_veg_soil(ji,:,jst)
-                   WRITE(numout,*) 'transpir',transpir(ji,:)
-                   WRITE(numout,*) 'veget_max',veget_max(ji,:)
-                   WRITE(numout,*) 'cvs_over_veg',cvs_over_veg(ji,:,jst)
-                   WRITE(numout,*) 'humrel',humrel(ji,:)
-                   WRITE(numout,*) 'humrelv (pour ce jst)',humrelv(ji,:,jst)
-                   WRITE(numout,*) 'ae_ns',ae_ns(ji,jst)
-                   WRITE(numout,*) 'tr_ns',tr_ns(ji,jst)
-                   WRITE(numout,*) 'vevapnuold',vevapnu_old(ji)
+                !   WRITE(numout,*) 'transpir',transpir(ji,:)
+                !   WRITE(numout,*) 'veget_max',veget_max(ji,:)
+                !   WRITE(numout,*) 'cvs_over_veg',cvs_over_veg(ji,:,jst)
+                !   WRITE(numout,*) 'humrel',humrel(ji,:)
+                !   WRITE(numout,*) 'humrelv (pour ce jst)',humrelv(ji,:,jst)
+             !      WRITE(numout,*) 'ae_ns',ae_ns(ji,jst)
+
+                !   WRITE(numout,*) 'tr_ns',tr_ns(ji,jst)
+                !   WRITE(numout,*) 'vevapnuold',vevapnu_old(ji)
                 ENDIF
              END DO
           END DO
@@ -7276,6 +7485,7 @@ CONTAINS
              tmp_check1(ji)=tmp_check1(ji) + &
                   & (precisol_ns(ji,jst)-MAX(-ae_ns(ji,jst),zero))* &
                   & soiltile(ji,jst)*vegtot(ji)
+
           END DO
        END DO
 
@@ -7315,31 +7525,23 @@ CONTAINS
 
        DO jst=1,nstm
           DO ji=1,kjpindex
-             tmp_check1(ji)=tmp_check1(ji) + ae_ns(ji,jst)* &
+             tmp_check1(ji)=tmp_check1(ji) + (ae_ns(ji,jst))* &
                   & soiltile(ji,jst)*vegtot(ji)
+       
           END DO
        END DO
 
        DO ji=1,kjpindex   
 
           IF(ABS(tmp_check1(ji)- vevapnu(ji)).GT.allowed_err) THEN
-             WRITE(numout,*) 'VEVAPNU SPLIT FALSE:ji, Sum(ae_ns), vevapnu =',ji,tmp_check1(ji),vevapnu(ji)
-             WRITE(numout,*) 'err',ABS(tmp_check1(ji)- vevapnu(ji))
-             WRITE(numout,*) 'ae_ns',ae_ns(ji,:)
-             WRITE(numout,*) 'vegtot',vegtot(ji)
-             WRITE(numout,*) 'evap_bare_lim, evap_bare_lim_ns',evap_bare_lim(ji), evap_bare_lim_ns(ji,:)
-             WRITE(numout,*) 'tot_bare_soil,frac_bare_ns',tot_bare_soil(ji),frac_bare_ns(ji,:)
-             WRITE(numout,*) 'vevapnu_old',vevapnu_old(ji)
              DO jst=1,nstm
-                WRITE(numout,*) 'jst,ae_ns',jst,ae_ns(ji,jst)
-                WRITE(numout,*) 'soiltile', soiltile(ji,jst)
                 WRITE(numout,*) 'veget_max/vegtot/soiltile', veget_max(ji,:)/vegtot(ji)/soiltile(ji,jst)
                 WRITE(numout,*) "corr_veg_soil",corr_veg_soil(ji,:,jst)
              END DO
 
              error=.TRUE.
              CALL ipslerr_p(2, 'hydrol_split_soil', 'We will STOP in the end of this subroutine.',&
-                  & 'check_CWRR','VEVAPNU SPLIT FALSE')
+                     & 'check_CWRR','VEVAPNU SPLIT FALSE')
           ENDIF
        ENDDO
 
@@ -7407,9 +7609,9 @@ CONTAINS
                 WRITE(numout,*) 'err',ABS(tmp_check3(ji,jst)- tr_ns(ji,jst))
                 WRITE(numout,*) 'HUMREL(jv=1:13)',humrel(ji,:)
                 WRITE(numout,*) 'TRANSPIR',transpir(ji,:)
-                DO jv=1,nvm 
-                   WRITE(numout,*) 'jv=',jv,'us=',us(ji,jv,jst,:)
-                ENDDO
+!                DO jv=1,nvm 
+!                   WRITE(numout,*) 'jv=',jv,'us=',us(ji,jv,jst,:)
+!                ENDDO
 
                 error=.TRUE.
                 CALL ipslerr_p(2, 'hydrol_split_soil', 'We will STOP in the end of this subroutine.',&
@@ -7450,10 +7652,10 @@ CONTAINS
 !_ ================================================================================================================================
 !_ hydrol_diag_soil
 
-  SUBROUTINE hydrol_diag_soil (kjpindex, veget_max, soiltile, njsc, runoff, drainage, &
+  SUBROUTINE hydrol_diag_soil (kjit, kjpindex, veget_max, soiltile, njsc, runoff, drainage, &
        & evapot, vevapnu, returnflow, reinfiltration, irrigation, &
        & shumdiag,shumdiag_perma, k_litt, litterhumdiag, humrel, vegstress, drysoil_frac, tot_melt, & !pss:+
-       & drunoff_tot) !pss:-
+       & drunoff_tot) !pss:- 
 
     ! 
     ! interface description
@@ -7464,6 +7666,7 @@ CONTAINS
 
     ! input scalar 
     INTEGER(i_std), INTENT(in)                               :: kjpindex 
+    INTEGER(i_std), INTENT(in)                               :: kjit            !! add by ke
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)        :: veget_max       !! Max. vegetation type
     INTEGER(i_std),DIMENSION (kjpindex), INTENT (in)         :: njsc            !! Index of the dominant soil textural class in the grid cell (1-nscm, unitless)
     REAL(r_std), DIMENSION (kjpindex,nstm), INTENT (in)      :: soiltile        !! Fraction of each soil tile (0-1, unitless)
@@ -7472,6 +7675,7 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: reinfiltration  !! Water returning to the top of the soil
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: irrigation      !! Water from irrigation
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)            :: tot_melt        !!
+
 
     !! 0.2 Output variables
 
@@ -7514,6 +7718,7 @@ CONTAINS
 !          IF(soiltile(ji,jst).EQ.zero) THEN
 
              ae_ns(ji,jst) = ae_ns(ji,jst) * mask_soiltile(ji,jst)
+
              dr_ns(ji,jst) = dr_ns(ji,jst) * mask_soiltile(ji,jst)
              ru_ns(ji,jst) = ru_ns(ji,jst) * mask_soiltile(ji,jst)
              tmc(ji,jst) =  tmc(ji,jst) * mask_soiltile(ji,jst)
@@ -7567,6 +7772,7 @@ CONTAINS
        ! Here we weight ae_ns by the fraction of bare evaporating soil. 
        ! This is given by frac_bare_ns, taking into account bare soil under vegetation
         ae_ns(ji,:) = mask_vegtot(ji) * ae_ns(ji,:) * frac_bare_ns(ji,:)
+        
        !ZunYin: should multiplied by soiltile to make evapnu = sum(evapnu_soil)
        !ae_ns(ji,:) = mask_vegtot(ji) * ae_ns(ji,:) * soiltile(ji,:)
        !ZunYin: not correct, need to keep evaporation amount/soiltile for later
@@ -7586,12 +7792,17 @@ CONTAINS
           ENDIF
        END DO
     END DO
-
+!    WRITE(numout,*) 'ke-tot_watveg_beg in hydrol_soil', tot_watveg_beg,tot_watveg_end,humtot
     ! we add the excess of snow sublimation to vevapnu
 
     DO ji = 1,kjpindex
+
        vevapnu(ji) = vevapnu (ji) + subsinksoil(ji)*vegtot(ji)
+
+
     END DO
+    
+
 
 ! AD *** en quoi est-ce different de vegstress(ji,jv)=vegstress(ji,jv)+vegstressv(ji,jv,jst)*vegtot(ji) ???
 !        Ã  quoi sert vegtot ici ? 
@@ -7750,18 +7961,20 @@ CONTAINS
 !! FLOWCHART    : None
 !! \n
 !_ ================================================================================================================================
-  SUBROUTINE hydrol_waterbal_init(kjpindex, qsintveg, snow, snow_nobio)
+  SUBROUTINE hydrol_waterbal_init(kjpindex, qsintveg, snow, snow_nobio) 
     
     !! 0. Variable and parameter declaration
     !! 0.1 Input variables
     INTEGER(i_std), INTENT (in)                          :: kjpindex     !! Domain size
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsintveg     !! Water on vegetation due to interception
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: snow         !! Snow mass [Kg/m^2]
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (in) :: snow_nobio   !! Ice water balance
+
     
     !! 0.2 Local variables
     INTEGER(i_std) :: ji
-    REAL(r_std) :: watveg
+    REAL(r_std) :: watveg,watres
 
 !_ ================================================================================================================================
     !
@@ -7771,6 +7984,8 @@ CONTAINS
        ! tot_water_beg was not found in restart file
        DO ji = 1, kjpindex
           watveg = SUM(qsintveg(ji,:))
+
+   
           tot_water_beg(ji) = humtot(ji)*vegtot(ji) + watveg + snow(ji)&
                & + SUM(snow_nobio(ji,:))
        ENDDO
@@ -7808,7 +8023,7 @@ CONTAINS
 
   SUBROUTINE hydrol_waterbal (kjpindex, index, first_call, veget_max, totfrac_nobio, &
        & qsintveg, snow,snow_nobio, precip_rain, precip_snow, returnflow, reinfiltration, irrigation, tot_melt, &
-       & vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff, drainage)
+       & vevapwet, transpir, vevapnu, vevapsno, vevapflo, floodout, runoff, drainage) 
     !
     !! 0. Variable and parameter declaration
 
@@ -7820,6 +8035,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: veget_max    !! Max Fraction of vegetation type 
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: totfrac_nobio!! Total fraction of continental ice+lakes+...
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: qsintveg     !! Water on vegetation due to interception
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: snow         !! Snow mass [Kg/m^2]
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (in) :: snow_nobio !!Ice water balance
     !
@@ -7829,10 +8045,12 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: reinfiltration !! Water to the top
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: irrigation   !! Water from irrigation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: tot_melt     !! Total melt
+    
     !
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: vevapwet     !! Interception loss
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: transpir     !! Transpiration
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: vevapnu      !! Bare soil evaporation
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: vevapsno     !! Snow evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: vevapflo     !! Floodplains evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: floodout     !! flow out of floodplains
@@ -7846,13 +8064,15 @@ CONTAINS
     !! 0.4 Local variables
 
     INTEGER(i_std) :: ji
-    REAL(r_std) :: watveg, delta_water
+    REAL(r_std) :: watveg, delta_water,watres
     LOGICAL     :: error=.FALSE.  !! If true, exit in the end of subroutine
 
 !_ ================================================================================================================================
 
     tot_water_end(:) = zero
     tot_flux(:) = zero
+    
+    
     !
     DO ji = 1, kjpindex
        !
@@ -7870,15 +8090,18 @@ CONTAINS
     ENDDO
 
     DO ji = 1, kjpindex
-       !
+
        watveg = SUM(qsintveg(ji,:))
        tot_water_end(ji) = humtot(ji)*vegtot(ji) + watveg + &
-            & snow(ji) + SUM(snow_nobio(ji,:))
-       !
+               & snow(ji) + SUM(snow_nobio(ji,:))
+  
        tot_flux(ji) =  precip_rain(ji) + precip_snow(ji) + irrigation (ji) - &
-            & SUM(vevapwet(ji,:)) - SUM(transpir(ji,:)) - vevapnu(ji) - vevapsno(ji) - vevapflo(ji) + &
-            & floodout(ji) - runoff(ji) - drainage(ji) + returnflow(ji) + reinfiltration(ji)
+              & SUM(vevapwet(ji,:)) - SUM(transpir(ji,:)) - vevapnu(ji) - vevapsno(ji) - vevapflo(ji) + &
+               & floodout(ji) - runoff(ji) - drainage(ji) + returnflow(ji) + reinfiltration(ji) 
+
+ 
     ENDDO
+  
     
     DO ji = 1, kjpindex
        !
@@ -7889,32 +8112,32 @@ CONTAINS
        !  under double precision (REAL*8).
        !
        !
-       IF ( ABS(delta_water-tot_flux(ji)) .GT. deux*allowed_err ) THEN
-          WRITE(numout,*) '------------------------------------------------------------------------- '
-          WRITE(numout,*) 'HYDROL does not conserve water. The erroneous point is : ', ji
-          WRITE(numout,*) 'Coord erroneous point', lalo(ji,:)
-          WRITE(numout,*) 'The error in mm/s is :', (delta_water-tot_flux(ji))/dt_sechiba, ' and in mm/dt : ', &
-               & delta_water-tot_flux(ji)
-          WRITE(numout,*) 'delta_water : ', delta_water, ' tot_flux : ', tot_flux(ji)
-          WRITE(numout,*) 'Actual and allowed error : ', ABS(delta_water-tot_flux(ji)), allowed_err
-          WRITE(numout,*) 'vegtot : ', vegtot(ji)
-          WRITE(numout,*) 'precip_rain : ', precip_rain(ji)
-          WRITE(numout,*) 'precip_snow : ',  precip_snow(ji)
-          WRITE(numout,*) 'Water from routing. Reinfiltration/returnflow/irrigation : ', reinfiltration(ji), &
-               & returnflow(ji),irrigation(ji)
-          WRITE(numout,*) 'Total water in soil humtot:',  humtot(ji)
-          WRITE(numout,*) 'mc:' , mc(ji,:,:)
-          WRITE(numout,*) 'Water on vegetation watveg:', watveg
-          WRITE(numout,*) 'Snow mass snow:', snow(ji)
-          WRITE(numout,*) 'Snow mass on ice snow_nobio:', SUM(snow_nobio(ji,:))
-          WRITE(numout,*) 'Melt water tot_melt:', tot_melt(ji)
-          WRITE(numout,*) 'evapwet : ', vevapwet(ji,:)
-          WRITE(numout,*) 'transpir : ', transpir(ji,:)
-          WRITE(numout,*) 'evapnu, evapsno, evapflo: ', vevapnu(ji), vevapsno(ji), vevapflo(ji)
-          WRITE(numout,*) 'drainage,runoff,floodout : ', drainage(ji),runoff(ji),floodout(ji)
-         ! error=.TRUE.
-         ! CALL ipslerr_p(2, 'hydrol_waterbal', 'We will STOP in the end of hydrol_waterbal.','','')
-       ENDIF
+!       IF ( ABS(delta_water-tot_flux(ji)) .GT. deux*allowed_err ) THEN
+!          WRITE(numout,*) '------------------------------------------------------------------------- '
+!          WRITE(numout,*) 'HYDROL does not conserve water. The erroneous point is : ', ji
+!          WRITE(numout,*) 'Coord erroneous point', lalo(ji,:)
+!          WRITE(numout,*) 'The error in mm/s is :', (delta_water-tot_flux(ji))/dt_sechiba, ' and in mm/dt : ', &
+!               & delta_water-tot_flux(ji)
+       WRITE(numout,*) 'delta_water : ', delta_water, ' tot_flux : ', tot_flux(ji)
+       WRITE(numout,*) 'Actual and allowed error : ', ABS(delta_water-tot_flux(ji)), allowed_err
+       WRITE(numout,*) 'vegtot : ', vegtot(ji)
+       WRITE(numout,*) 'precip_rain : ', precip_rain(ji)
+       WRITE(numout,*) 'precip_snow : ',  precip_snow(ji)
+       WRITE(numout,*) 'Water from routing. Reinfiltration/returnflow/irrigation : ', reinfiltration(ji), &
+               & ',,,',returnflow(ji),',,,',irrigation(ji)
+       WRITE(numout,*) 'Total water in soil humtot:',  humtot(ji)
+       WRITE(numout,*) 'mc:' , mc(ji,:,:)
+       WRITE(numout,*) 'Water on vegetation watveg:', watveg
+       WRITE(numout,*) 'Snow mass snow:', snow(ji)
+       WRITE(numout,*) 'Snow mass on ice snow_nobio:', SUM(snow_nobio(ji,:))
+       WRITE(numout,*) 'Melt water tot_melt:', tot_melt(ji)
+       WRITE(numout,*) 'evapwet : ', vevapwet(ji,:)
+       WRITE(numout,*) 'transpir : ', transpir(ji,:)
+       WRITE(numout,*) 'evapnu, evapsno, evapflo: ', vevapnu(ji), ',,,',vevapsno(ji), ',,,',vevapflo(ji)
+       WRITE(numout,*) 'drainage,runoff,floodout : ', drainage(ji),',,,',runoff(ji),',,,',floodout(ji)
+!          error=.TRUE.
+!          CALL ipslerr_p(2, 'hydrol_waterbal', 'We will STOP in the end of hydrol_waterbal.','','')
+!       ENDIF
        !
     ENDDO
     !
@@ -7951,7 +8174,7 @@ CONTAINS
 !_ ================================================================================================================================
 !_ hydrol_alma
 
-  SUBROUTINE hydrol_alma (kjpindex, index, first_call, qsintveg, snow, snow_nobio, soilwet)
+  SUBROUTINE hydrol_alma (kjpindex, index, first_call, qsintveg, snow, snow_nobio, soilwet) 
     !
     !! 0. Variable and parameter declaration
 
@@ -7962,9 +8185,10 @@ CONTAINS
     LOGICAL, INTENT (in)                               :: first_call   !! At which time is this routine called ?
     !
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: qsintveg     !! Water on vegetation due to interception
+
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: snow         !! Snow water equivalent
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT (in) :: snow_nobio     !! Water balance on ice, lakes, .. [Kg/m^2]
-
+ 
     !! 0.2 Output variables
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: soilwet     !! Soil wetness
@@ -7974,7 +8198,7 @@ CONTAINS
     !! 0.4 Local variables
 
     INTEGER(i_std) :: ji
-    REAL(r_std) :: watveg
+    REAL(r_std) :: watveg,watres
 
 !_ ================================================================================================================================
     !
@@ -7983,10 +8207,12 @@ CONTAINS
        ! Initialize variables if they were not found in the restart file
 
        DO ji = 1, kjpindex
+    
           watveg = SUM(qsintveg(ji,:))
           tot_watveg_beg(ji) = watveg
           tot_watsoil_beg(ji) = humtot(ji)
           snow_beg(ji)        = snow(ji)+ SUM(snow_nobio(ji,:))
+
        ENDDO
 
        RETURN
@@ -7995,21 +8221,29 @@ CONTAINS
     !
     ! Calculate the values for the end of the time step
     !
+
     DO ji = 1, kjpindex
-       watveg = SUM(qsintveg(ji,:))
-       tot_watveg_end(ji) = watveg
+
+       watveg = SUM(qsintveg(ji,:))      
+       tot_watveg_end(ji) = watveg       
        tot_watsoil_end(ji) = humtot(ji)
        snow_end(ji) = snow(ji)+ SUM(snow_nobio(ji,:))
-
        delintercept(ji) = tot_watveg_end(ji) - tot_watveg_beg(ji)
        delsoilmoist(ji) = tot_watsoil_end(ji) - tot_watsoil_beg(ji)
        delswe(ji)       = snow_end(ji) - snow_beg(ji)
+
     ENDDO
+!    WRITE(numout,*) 'ke---tot_watveg_end in hydrol_alma', watveg,tot_watveg_end,tot_watsoil_beg
+
     !
     !
     ! Transfer the total water amount at the end of the current timestep top the begining of the next one.
     !
     tot_watveg_beg = tot_watveg_end
+    
+
+
+
     tot_watsoil_beg = tot_watsoil_end
     snow_beg(:) = snow_end(:)
     !

@@ -77,6 +77,10 @@ MODULE condveg
 !$OMP THREADPRIVATE(soilalb_moy)
   REAL(r_std), ALLOCATABLE, SAVE    :: soilalb_bg(:,:,:)                !! Albedo values for the background bare soil (unitless)
 !$OMP THREADPRIVATE(soilalb_bg)
+!
+  REAL(r_std), ALLOCATABLE, SAVE    :: soilalb_bg_s2(:,:)               !! add by ke, Albedo values for the background bare soil (unitless)
+!$OMP THREADPRIVATE(soilalb_bg_s2)   
+
   REAL(r_std), ALLOCATABLE, SAVE    :: alb_bare(:,:)                    !! Mean bare soil albedo for visible and near-infrared 
                                                                         !! range (unitless) 
 !$OMP THREADPRIVATE(alb_bare)
@@ -119,7 +123,7 @@ CONTAINS
                zlev, drysoil_frac, height, snowdz, snowrho, tot_bare_soil, &
                snow, snow_age, snow_nobio, snow_nobio_age, &
                emis, albedo,   z0,         roughheight, roughheight_pft, &
-              frac_snow_veg, frac_snow_nobio)
+              frac_snow_veg, frac_snow_nobio,nrec_trans,havlen,date_s2,nmatlab,veget_init, alb_veg_init,tot_residue,nlevlab) !! add by ke
 
     !! 0. Variable and parameter declaration
 
@@ -135,7 +139,7 @@ CONTAINS
     REAL(r_std), DIMENSION (kjpindex,2), INTENT(in)  :: resolution       !! Size of grid in x and y direction (m)
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)     :: contfrac         !! Fraction of land in each grid box 
     INTEGER(i_std), INTENT(in)                       :: rest_id          !! Restart file identifier 
-
+    
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in) :: veget_max        !! Fraction of vegetation type
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT(in) :: frac_nobio    !! Fraction of continental ice, lakes, ...
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)     :: totfrac_nobio    !! total fraction of continental ice+lakes+...
@@ -149,16 +153,27 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)     :: snow_age         !! Snow age
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT(in) :: snow_nobio    !! Snow mass [Kg/m^2] on ice, lakes, ...
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)     :: snow_nobio_age   !! Snow age on ice, lakes, ...
-    REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_bare_soil    !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_bare_soil    !! Total evaporating bare soil fraction
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_residue      !! add by ke
+
+   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: nrec_trans!! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: havlen    !! add by ke
+    INTEGER(i_std), INTENT (in)                             :: date_s2   !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex), INTENT (in)       :: nmatlab   !! add by ke
+    INTEGER(i_std), INTENT (in)                             :: nlevlab   !! add by ke
+    REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(in)        :: veget_init!! add by ke
+
 
     !! 0.2. Output variables
-    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: emis             !! Emissivity
-    REAL(r_std),DIMENSION (kjpindex,2), INTENT (out) :: albedo           !! Albedo, vis(1) and nir(2)
-    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: z0               !! Soil roughness height (m)
-    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: roughheight      !! Effective height for roughness
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: emis                !! Emissivity
+    REAL(r_std),DIMENSION (kjpindex,2), INTENT (out) :: albedo              !! Albedo, vis(1) and nir(2)
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: z0                  !! Soil roughness height (m)
+    REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: roughheight         !! Effective height for roughness
     REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)   :: roughheight_pft 
-    REAL(r_std),DIMENSION (kjpindex), INTENT(out)    :: frac_snow_veg    !! Snow cover fraction on vegeted area
+    REAL(r_std),DIMENSION (kjpindex), INTENT(out)    :: frac_snow_veg       !! Snow cover fraction on vegeted area
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT(out):: frac_snow_nobio  !! Snow cover fraction on non-vegeted area
+    REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)   :: alb_veg_init   !! add by ke
   
     !! 0.3 Modified variables          
   
@@ -166,6 +181,7 @@ CONTAINS
     INTEGER(i_std)                                  :: ji, jv           !! Index
     INTEGER(i_std)                                  :: ier              !! Check errors in memory allocation
     CHARACTER(LEN=80)                               :: var_name         !! To store variables names for I/O
+    
 
 !_ ================================================================================================================================
   
@@ -189,11 +205,19 @@ CONTAINS
     ALLOCATE (soilalb_moy(kjpindex,2),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'condveg_init','Pb in allocation for soilalb_moy','','')
     soilalb_moy(:,:) = val_exp
-
+    
+!!!! add by ke   
+    IF ( alb_bg_modis ) THEN
     ! Background soil albedo
-    ALLOCATE (soilalb_bg(kjpindex,2,12),stat=ier)
-    IF (ier /= 0) CALL ipslerr_p(3,'condveg_initialize','Pb in allocation for soilalb_bg','','')
-
+        ALLOCATE (soilalb_bg(kjpindex,2,12),stat=ier)
+        IF (ier /= 0) CALL ipslerr_p(3,'condveg_initialize','Pb in allocation for soilalb_bg','','')
+    ELSE IF ( alb_bg_sentinel2 ) THEN    
+    ! Background soil albedo-s2
+        ALLOCATE (soilalb_bg_s2(kjpindex,366),stat=ier)
+        IF (ier /= 0) CALL ipslerr_p(3,'condveg_initialize','Pb in allocation for soilalb_bg_s2','','')
+    ENDIF
+ !!!! add by ke    
+    
     ! Snow albedo of vegetative PFTs
     ALLOCATE (albedo_snow(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'condveg_init','Pb in allocation for albedo_snow','','')
@@ -238,16 +262,29 @@ CONTAINS
        CALL ioconf_setatt_p('UNITS', '-')
        CALL ioconf_setatt_p('LONG_NAME','Background soil albedo in visible interval')
        CALL restget_p (rest_id, 'soilalbedo_bg_1', nbp_glo, 12, 1, kjit, .TRUE., soilalb_bg(:,1,:), "gather", nbp_glo, index_g)
-
        CALL ioconf_setatt_p('UNITS', '-')
        CALL ioconf_setatt_p('LONG_NAME','Background soil albedo in infra-red interval')
-       CALL restget_p (rest_id, 'soilalbedo_bg_2', nbp_glo, 12, 1, kjit, .TRUE., soilalb_bg(:,2,:), "gather", nbp_glo, index_g)
+       CALL restget_p (rest_id, 'soilalbedo_bg_2', nbp_glo, 12, 1, kjit, .TRUE., soilalb_bg(:,2,:), "gather", nbp_glo, index_g)!
 
        IF ( ALL(soilalb_bg(:,:,:) == val_exp) ) THEN
           ! Variable not found in restart file. Read and interpolate it from file.
-          CALL condveg_background_soilalb(kjpindex, lalo, neighbours, resolution, contfrac)
+          CALL condveg_background_soilalb(kjpindex, lalo, neighbours, resolution, contfrac, date_s2) !! add by ke
+       END IF
+
+ !!! add by ke   
+        ! background albedo map
+    ELSE IF ( alb_bg_sentinel2 ) THEN
+       ! Read background albedo from restart file
+       CALL ioconf_setatt_p('UNITS', '-')
+       CALL ioconf_setatt_p('LONG_NAME','Background soil albedo in shortwave interval')
+       CALL restget_p (rest_id, 'soilalbedo_bg_s2', nbp_glo, 366, 1, kjit, .TRUE., soilalb_bg_s2, "gather", nbp_glo, index_g)
+    
+       IF ( ALL(soilalb_bg_s2(:,:) == val_exp) ) THEN
+          ! Variable not found in restart file. Read and interpolate it from file.
+          CALL condveg_background_soilalb(kjpindex, lalo, neighbours, resolution, contfrac, date_s2) !! add by ke
        END IF
     ENDIF
+ !!! add by ke      
 
     ! z0
     CALL ioconf_setatt_p('UNITS', '-')
@@ -265,13 +302,13 @@ CONTAINS
          & MINVAL(soilalb_dry) .EQ. MAXVAL(soilalb_dry) .AND. MAXVAL(soilalb_dry) .EQ. val_exp .OR.&
          & MINVAL(soilalb_moy) .EQ. MAXVAL(soilalb_moy) .AND. MAXVAL(soilalb_moy) .EQ. val_exp) THEN
        CALL condveg_soilalb(kjpindex, lalo, neighbours, resolution, contfrac)
-       WRITE(numout,*) '---> val_exp ', val_exp
-       WRITE(numout,*) '---> ALBEDO_wet VIS:', MINVAL(soilalb_wet(:,ivis)), MAXVAL(soilalb_wet(:,ivis))
-       WRITE(numout,*) '---> ALBEDO_wet NIR:', MINVAL(soilalb_wet(:,inir)), MAXVAL(soilalb_wet(:,inir))
-       WRITE(numout,*) '---> ALBEDO_dry VIS:', MINVAL(soilalb_dry(:,ivis)), MAXVAL(soilalb_dry(:,ivis))
-       WRITE(numout,*) '---> ALBEDO_dry NIR:', MINVAL(soilalb_dry(:,inir)), MAXVAL(soilalb_dry(:,inir))
-       WRITE(numout,*) '---> ALBEDO_moy VIS:', MINVAL(soilalb_moy(:,ivis)), MAXVAL(soilalb_moy(:,ivis))
-       WRITE(numout,*) '---> ALBEDO_moy NIR:', MINVAL(soilalb_moy(:,inir)), MAXVAL(soilalb_moy(:,inir))
+ !      WRITE(numout,*) '---> val_exp ', val_exp
+ !      WRITE(numout,*) '---> ALBEDO_wet VIS:', MINVAL(soilalb_wet(:,ivis)), MAXVAL(soilalb_wet(:,ivis))
+ !      WRITE(numout,*) '---> ALBEDO_wet NIR:', MINVAL(soilalb_wet(:,inir)), MAXVAL(soilalb_wet(:,inir))
+ !      WRITE(numout,*) '---> ALBEDO_dry VIS:', MINVAL(soilalb_dry(:,ivis)), MAXVAL(soilalb_dry(:,ivis))
+ !      WRITE(numout,*) '---> ALBEDO_dry NIR:', MINVAL(soilalb_dry(:,inir)), MAXVAL(soilalb_dry(:,inir))
+ !      WRITE(numout,*) '---> ALBEDO_moy VIS:', MINVAL(soilalb_moy(:,ivis)), MAXVAL(soilalb_moy(:,ivis))
+ !      WRITE(numout,*) '---> ALBEDO_moy NIR:', MINVAL(soilalb_moy(:,inir)), MAXVAL(soilalb_moy(:,inir))
     ENDIF
 
    !! 2. Calculate emissivity
@@ -297,10 +334,10 @@ CONTAINS
        !
     ELSE
 
-       CALL condveg_albcalc (kjpindex,veget,drysoil_frac,tot_bare_soil,albedo)
+       CALL condveg_albcalc (kjit, kjpindex,veget,drysoil_frac,tot_bare_soil,albedo, nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,veget_max,nlevlab) !! add by ke
  
     ENDIF
-
+    ! WRITE(numout,*) 'ke-albedo in conveg: ', albedo
     !! 5. Calculate roughness height if it was not found in the restart file
     IF ( ALL(z0(:) == val_exp) .OR. ALL(roughheight(:) == val_exp)) THEN
        !! Calculate roughness height
@@ -316,10 +353,10 @@ CONTAINS
           ! Caluculate roughness height
           IF ( z0cdrag_ave ) THEN
              CALL condveg_z0cdrag(kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, zlev, &
-                  height, tot_bare_soil, z0, roughheight, roughheight_pft)
+                  height, tot_bare_soil, z0, roughheight, roughheight_pft,tot_residue,havlen,nmatlab,veget_init) !! add by ke
           ELSE
              CALL condveg_z0logz(kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, height, tot_bare_soil, &
-                  z0, roughheight, roughheight_pft)
+                  z0, roughheight, roughheight_pft,tot_residue,havlen,nmatlab,veget_init)                        !! add by ke
           ENDIF
        ENDIF
     END IF
@@ -358,7 +395,7 @@ CONTAINS
        & zlev, snow, snow_age, snow_nobio, snow_nobio_age, tot_bare_soil, &
        & drysoil_frac, height,  snowdz, snowrho, emis, albedo, &
        & frac_snow_veg, frac_snow_nobio, &
-       & z0, roughheight, roughheight_pft, rest_id, hist_id, hist2_id) 
+       & z0, roughheight, roughheight_pft, rest_id, hist_id, hist2_id,nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,nlevlab)  !! add by ke 
 
      !! 0. Variable and parameter declaration
 
@@ -368,7 +405,9 @@ CONTAINS
     INTEGER(i_std), INTENT(in)                       :: kjpindex         !! Domain size
     INTEGER(i_std),INTENT (in)                       :: rest_id          !! _Restart_ file identifier
     INTEGER(i_std),INTENT (in)                       :: hist_id          !! _History_ file identifier
-    INTEGER(i_std), OPTIONAL, INTENT (in)            :: hist2_id          !! _History_ file 2 identifier
+    INTEGER(i_std), OPTIONAL, INTENT (in)            :: hist2_id         !! _History_ file 2 identifier
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in) :: nrec_trans  !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in) :: havlen      !! add by ke
     ! input fields
     INTEGER(i_std),DIMENSION (kjpindex), INTENT (in) :: index            !! Indeces of the points on the map
     REAL(r_std),DIMENSION (kjpindex,2), INTENT (in)  :: lalo             !! Geographical coordinates
@@ -389,7 +428,15 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(in):: snowdz           !! Snow depth at each snow layer
     REAL(r_std),DIMENSION (kjpindex,nsnow),INTENT(in):: snowrho          !! Snow density at each snow layer
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_bare_soil    !! Total evaporating bare soil fraction 
-    REAL(r_std),DIMENSION (kjpindex), INTENT(out)    :: frac_snow_veg    !! Snow cover fraction on vegeted area
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_residue      !!add by ke
+
+    INTEGER(i_std), INTENT(in)                          :: date_s2          !! add by ke
+    INTEGER(i_std),DIMENSION (kjpindex),INTENT(in)      :: nmatlab          !! add by ke
+    INTEGER(i_std), INTENT(in)                          :: nlevlab          !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in)    :: veget_init       !! add by ke
+    
+    REAL(r_std),DIMENSION (kjpindex), INTENT(out)       :: frac_snow_veg    !! Snow cover fraction on vegeted area
+  
     REAL(r_std),DIMENSION (kjpindex,nnobio), INTENT(out):: frac_snow_nobio  !! Snow cover fraction on non-vegeted area
 
     !! 0.2 Output variables
@@ -399,6 +446,8 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: z0               !! Roughness
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)   :: roughheight      !! Effective height for roughness
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: roughheight_pft    
+    
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: alb_veg_init !! add by ke
 
     !! 0.3 Modified variables
 
@@ -410,8 +459,8 @@ CONTAINS
     !! 3. Call subroutines to update fields
 
     ! Call the routine 'condveg_var_update' to update the fields of albedo, emissivity and roughness
-    CALL condveg_var_update (kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, &
-          drysoil_frac, zlev, height, tot_bare_soil, emis, albedo, z0, roughheight, roughheight_pft)
+    CALL condveg_var_update (kjit, kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, &
+          drysoil_frac, zlev, height, tot_bare_soil, emis, albedo, z0, roughheight, roughheight_pft,nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,nlevlab) !! add by ke
 
     ! Update snow parameters by calling subroutine 'condveg_snow'
     CALL condveg_snow (kjpindex,        veget,      veget_max,      frac_nobio, &
@@ -495,11 +544,16 @@ CONTAINS
     CALL restput_p (rest_id, 'z0', nbp_glo, 1, 1, kjit, z0, 'scatter',  nbp_glo, index_g)
     CALL restput_p (rest_id, 'roughheight', nbp_glo, 1, 1, kjit, roughheight, 'scatter',  nbp_glo, index_g)
     CALL restput_p (rest_id, 'roughheight_pft', nbp_glo, nvm, 1, kjit, roughheight_pft, 'scatter', nbp_glo, index_g)
-    
+!!! add by ke   
     IF ( alb_bg_modis ) THEN
        CALL restput_p (rest_id, 'soilalbedo_bg_1', nbp_glo, 12, 1, kjit, soilalb_bg(:,1,:), 'scatter',  nbp_glo, index_g)
        CALL restput_p (rest_id, 'soilalbedo_bg_2', nbp_glo, 12, 1, kjit, soilalb_bg(:,2,:), 'scatter',  nbp_glo, index_g)
     END IF
+ 
+    IF ( alb_bg_sentinel2 ) THEN
+       CALL restput_p (rest_id, 'soilalbedo_bg_s2', nbp_glo, 366, 1, kjit, soilalb_bg_s2, 'scatter',  nbp_glo, index_g)
+    END IF
+!!! add by ke  
   END SUBROUTINE condveg_finalize
 
 !! ==============================================================================================================================
@@ -531,6 +585,8 @@ CONTAINS
        IF (ALLOCATED(soilalb_moy))  DEALLOCATE (soilalb_moy)
        ! BG soil albedo
        IF (ALLOCATED(soilalb_bg))  DEALLOCATE (soilalb_bg)
+       ! BG soil albedo-s2
+       IF (ALLOCATED(soilalb_bg_s2))  DEALLOCATE (soilalb_bg_s2)  !! add by ke
        ! Mean snow albedo
        IF (ALLOCATED(albedo_snow))  DEALLOCATE (albedo_snow)
        ! Mean albedo
@@ -559,13 +615,13 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE condveg_var_update  (kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, &
-       & drysoil_frac, zlev, height, tot_bare_soil, emis, albedo, z0, roughheight, roughheight_pft)
+  SUBROUTINE condveg_var_update  (kjit, kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, &
+       & drysoil_frac, zlev, height, tot_bare_soil, emis, albedo, z0, roughheight, roughheight_pft, nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,nlevlab) !! add by ke
 
     !! 0. Variable and parameter declaration
 
     !! 0.1 Input variables
-
+    INTEGER(i_std), INTENT(in)                          :: kjit             !! Time step number add by ke
     INTEGER(i_std), INTENT(in)                          :: kjpindex         !! Domain size - Number of land pixels  (unitless) 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in)    :: veget            !! PFT coverage fraction of a PFT (= ind*cn_ind)
                                                                             !! (m^2 m^{-2})  
@@ -579,12 +635,24 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: zlev             !! Height of first layer (m)       
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in)    :: height           !! Vegetation height (m)         
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)        :: tot_bare_soil    !! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (kjpindex), INTENT(in)        :: tot_residue      !! add by ke
 
+    
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: nrec_trans   !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: havlen       !! add by ke 
+
+    INTEGER(i_std), INTENT(in)                            :: date_s2        !! add by ke 
+    INTEGER(i_std),DIMENSION (kjpindex),INTENT(in)        :: nmatlab        !! add by ke 
+    INTEGER(i_std), INTENT(in)                            :: nlevlab        !! add by ke 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in)      :: veget_init     !! add by ke
+    
     !! 0.2 Output variables   
        
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: emis             !! Emissivity (unitless)            
     REAL(r_std),DIMENSION (kjpindex,2), INTENT (out)    :: albedo           !! Albedo of vegetative PFTs in visible and 
-                                                                            !! near-infrared range  
+                                                                            !! near-infrared range 
+
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)    :: alb_veg_init   !! add by ke 
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: z0               !! Roughness height (m)              
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)      :: roughheight      !! Grid effective roughness height (m)     
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: roughheight_pft 
@@ -611,7 +679,7 @@ CONTAINS
     ! If FALSE calculate albedo from ORCHIDEE default values
     ELSE
 
-       CALL condveg_albcalc (kjpindex, veget, drysoil_frac, tot_bare_soil, albedo)
+       CALL condveg_albcalc (kjit, kjpindex, veget, drysoil_frac, tot_bare_soil, albedo, nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,veget_max,nlevlab)!! add by ke
 
     ENDIF
     
@@ -631,10 +699,10 @@ CONTAINS
      
        IF ( z0cdrag_ave ) THEN
           CALL condveg_z0cdrag (kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, zlev, height, tot_bare_soil, &
-               &                z0, roughheight, roughheight_pft)
+               &                z0, roughheight, roughheight_pft,tot_residue,havlen,nmatlab,veget_init) !! add by ke
        ELSE
           CALL condveg_z0logz (kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, height, tot_bare_soil, &
-               &               z0, roughheight,  roughheight_pft)
+               &               z0, roughheight,  roughheight_pft,tot_residue,havlen,nmatlab,veget_init) !! add by ke
        ENDIF
      
     ENDIF
@@ -842,8 +910,8 @@ CONTAINS
         IF ( jv .EQ. iice ) THEN
           alb_nobio = alb_ice(jb)
         ELSE
-          WRITE(numout,*) 'jv=',jv
-          WRITE(numout,*) 'DO NOT KNOW ALBEDO OF THIS SURFACE TYPE'
+!          WRITE(numout,*) 'jv=',jv
+!          WRITE(numout,*) 'DO NOT KNOW ALBEDO OF THIS SURFACE TYPE'
           CALL ipslerr_p(3,'condveg_snow','DO NOT KNOW ALBEDO OF THIS SURFACE TYPE','','')
         ENDIF
         !
@@ -942,7 +1010,7 @@ CONTAINS
 
   ! Open file with soil colours 
 
-  !Config Key   = SOILALB_FILE
+  !Config key   = SOILALB_FILE
   !Config Desc  = Name of file from which the bare soil albedo
   !Config Def   = soils_param.nc
   !Config If    = NOT(IMPOSE_AZE)
@@ -986,13 +1054,14 @@ CONTAINS
   CALL bcast(soilcol)
   
   IF (is_root_prc) CALL flinclo(fid)
-  
+
   ! Create mask with values of soil colour
   mask(:,:) = zero
   DO ip=1,iml
      DO jp=1,jml
         IF (soilcol(ip,jp) > min_sechiba) THEN
            mask(ip,jp) = un
+ !          WRITE(numout,*) "mask = ",mask(ip,jp)
         ENDIF
      ENDDO
   ENDDO
@@ -1007,8 +1076,8 @@ CONTAINS
   ! Start with interpolation
   ok_interpol=.FALSE.
   DO WHILE ( .NOT. ok_interpol )
-     WRITE(numout,*) "Projection arrays for ",callsign," : "
-     WRITE(numout,*) "nbvmax = ",nbvmax
+!     WRITE(numout,*) "Projection arrays for ",callsign," : "
+!     WRITE(numout,*) "nbvmax = ",nbvmax
      
      ALLOCATE(sub_area(nbpt,nbvmax), STAT=ALLOC_ERR)
      IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_soilalb','Pb in allocation for sub_area','','')
@@ -1134,7 +1203,7 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
   
-  SUBROUTINE condveg_background_soilalb(nbpt, lalo, neighbours, resolution, contfrac)
+  SUBROUTINE condveg_background_soilalb(nbpt, lalo, neighbours, resolution, contfrac,date_s2) ! add by ke
   
     !! 0. Variable and parameter declaration
 
@@ -1147,6 +1216,7 @@ CONTAINS
                                                                            !! (1=N, 2=E, 3=S, 4=W)  
     REAL(r_std), INTENT(in)                       :: resolution(nbpt,2)    !! The size of each grid cell in X and Y (km)
     REAL(r_std), INTENT(in)                       :: contfrac(nbpt)        !! Fraction of land in each grid cell (unitless)   
+    INTEGER(i_std), INTENT(in)                    :: date_s2               !! add by ke
 
     !! 0.4 Local variables
 
@@ -1157,33 +1227,46 @@ CONTAINS
     CHARACTER(LEN=80)                             :: filename              !! Filename of background albedo
     INTEGER(i_std)                                :: iml, jml, lml, tml    !! Indices
     INTEGER(i_std)                                :: fid, ib, ip, jp, fopt !! Indices
-    INTEGER(i_std)                                :: ilf, ks, it           !! Indices
+    INTEGER(i_std)                                :: ilf, ks, it,is        !! Indices,add by ke
     REAL(r_std)                                   :: totarea               !! Help variable to compute average bare soil albedo 
     REAL(r_std), ALLOCATABLE, DIMENSION(:)        :: lat_lu, lon_lu        !! Latitudes and longitudes read from input file
     REAL(r_std), ALLOCATABLE, DIMENSION(:,:)      :: lat_rel, lon_rel      !! Help variable to read file data and allocate memory
     REAL(r_std), ALLOCATABLE, DIMENSION(:,:)      :: mask_lu               !! Help variable to read file data and allocate memory
     INTEGER(i_std), ALLOCATABLE, DIMENSION(:,:)   :: mask
     REAL(r_std), ALLOCATABLE, DIMENSION(:,:,:,:)  :: bg_albedo             !! Help variable to read file data and allocate memory
+    REAL(r_std), ALLOCATABLE, DIMENSION(:,:,:)    :: bsas2                 !! add by ke, Help variable to read file data and allocate memory
     REAL(r_std), ALLOCATABLE, DIMENSION(:,:)      :: sub_area              !! Help variable to read file data and allocate memory
     INTEGER(i_std), ALLOCATABLE, DIMENSION(:,:,:) :: sub_index             !! Help variable to read file data and allocate memory
     CHARACTER(LEN=30)                             :: callsign              !! Help variable to read file data and allocate memory
     LOGICAL                                       :: ok_interpol           !! Optional return of aggregate_2d
     INTEGER                                       :: ALLOC_ERR             !! Help varialbe to count allocation error
+    
 !_ ================================================================================================================================
   
   !! 1. Open file and allocate memory
-
+  !!!alb_bg_jrctip.nc    !! bsa_rookery_20-22.nc   bsa_rookery_20-01   bsa_site_18-20.nc  bsa_site_18-20-clienfarm.nc bsa_site_18-20-maps-day.nc
   ! Open file with background albedo
-
-  !Config Key   = ALB_BG_FILE
-  !Config Desc  = Name of file from which the background albedo is read 
-  !Config Def   = alb_bg_jrctip.nc
-  !Config If    = 
-  !Config Help  = The name of the file to be opened to read background albedo 
-  !Config Units = [FILE]
-  !
-  filename = 'alb_bg_jrctip.nc'
-  CALL getin_p('ALB_BG_FILE',filename)
+  IF ( alb_bg_modis ) THEN 
+      !Config Key   = ALB_BG_FILE
+      !Config Desc  = Name of file from which the background albedo is read 
+      !Config Def   = alb_bg_jrctip.nc
+      !Config If    = 
+      !Config Help  = The name of the file to be opened to read background albedo 
+      !Config Units = [FILE]
+      !
+      filename = 'alb_bg_jrctip.nc'
+      CALL getin_p('ALB_BG_FILE',filename)
+  ELSE IF ( alb_bg_sentinel2 ) THEN
+      !Config Key   = ALB_BG_FILE
+      !Config Desc  = Name of file from which the background albedo is read 
+      !Config Def   = bsa_site_18-20-maps-day.nc
+      !Config If    = 
+      !Config Help  = The name of the file to be opened to read background albedo 
+      !Config Units = [FILE]
+      !
+      filename = 'bsa_site_18-20-maps-day.nc'
+      CALL getin_p('ALB_BG_FILE',filename)
+  ENDIF
   
   ! Read data from file
   IF (is_root_prc) CALL flininfo(filename, iml, jml, lml, tml, fid)
@@ -1201,21 +1284,36 @@ CONTAINS
   ALLOCATE(mask_lu(iml,jml), STAT=ALLOC_ERR)
   IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for mask_lu','','')
 
-  ALLOCATE(bg_albedo(iml,jml,2,tml), STAT=ALLOC_ERR)
-  IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for bg_albedo','','')
+ !!! add by ke 
+  IF ( alb_bg_modis ) THEN 
+     ALLOCATE(bg_albedo(iml,jml,2,tml), STAT=ALLOC_ERR)
+     IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for bg_albedo','','')
+  ELSE IF ( alb_bg_sentinel2 ) THEN 
+     ALLOCATE(bsas2(iml,jml,tml), STAT=ALLOC_ERR)
+     IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for bsas2','','')
+  ENDIF
+ !!! add by ke 
 
   IF (is_root_prc) THEN
      CALL flinget(fid, 'longitude', iml, 0, 0, 0, 1, 1, lon_lu)
      CALL flinget(fid, 'latitude', jml, 0, 0, 0, 1, 1, lat_lu)
      CALL flinget(fid, 'mask', iml, jml, 0, 0, 1, 1, mask_lu)
-     CALL flinget(fid, 'bg_albedo', iml, jml, 2, tml, 1, 12, bg_albedo)
+     IF ( alb_bg_sentinel2 ) THEN 
+        CALL flinget(fid, 'bare_soil_albedo', iml, jml,0, tml, 1, 366, bsas2) !! add by ke
+     ELSE IF ( alb_bg_modis ) THEN
+        CALL flinget(fid, 'bg_albedo', iml, jml,2, tml, 1, 12, bg_albedo)
+     ENDIF
      CALL flinclo(fid)
   ENDIF
 
   CALL bcast(lon_lu)
   CALL bcast(lat_lu)
   CALL bcast(mask_lu)
-  CALL bcast(bg_albedo)
+  IF ( alb_bg_sentinel2 ) THEN 
+     CALL bcast(bsas2)             !! add by ke
+  ELSE IF ( alb_bg_modis ) THEN   
+     CALL bcast(bg_albedo)
+  ENDIF
   
   ALLOCATE(lon_rel(iml,jml), STAT=ALLOC_ERR)
   IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for lon_rel','','')
@@ -1234,21 +1332,24 @@ CONTAINS
   ENDDO
 
   mask(:,:) = zero
+
+  
   WHERE (mask_lu(:,:) > zero )
+     
      mask(:,:) = un
   ENDWHERE
 
   ! Set nbvmax to 200 for interpolation
   ! This number is the dimension of the variables in which we store 
   ! the list of points of the source grid which fit into one grid box of the target. 
-  nbvmax = 200
+  nbvmax =100 !! add by ke
   callsign = 'Background soil albedo'
   
   ! Start interpolation
   ok_interpol=.FALSE.
   DO WHILE ( .NOT. ok_interpol )
-     WRITE(numout,*) "Projection arrays for ",callsign," : "
-     WRITE(numout,*) "nbvmax = ",nbvmax
+!!     WRITE(numout,*) "Projection arrays for ",callsign," : "
+ !!    WRITE(numout,*) "nbvmax = ",nbvmax
      
      ALLOCATE(sub_area(nbpt,nbvmax), STAT=ALLOC_ERR)
      IF (ALLOC_ERR /= 0) CALL ipslerr_p(3,'condveg_background_soilalb','Pb in allocation for sub_area','','')
@@ -1270,31 +1371,73 @@ CONTAINS
   ENDDO
 
   ! Compute the average
-  soilalb_bg(:,:,:) = zero
-  DO ib = 1, nbpt
-     fopt = COUNT(sub_area(ib,:) > zero)
-     IF ( fopt > 0 ) THEN
-        totarea = zero
-        DO ilf = 1, fopt
-           ip = sub_index(ib,ilf,1)
-           jp = sub_index(ib,ilf,2)
-           DO ks = 1,2
-              DO it = 1,12
-                 soilalb_bg(ib,ks,it) = soilalb_bg(ib,ks,it) + bg_albedo(ip,jp,ks,it)*sub_area(ib,ilf)
+  IF ( alb_bg_modis ) THEN
+     soilalb_bg(:,:,:) = zero
+     DO ib = 1, nbpt
+        fopt = COUNT(sub_area(ib,:) > zero)
+        IF ( fopt > 0 ) THEN
+           totarea = zero
+           DO ilf = 1, fopt
+              ip = sub_index(ib,ilf,1)
+              jp = sub_index(ib,ilf,2)
+              DO ks = 1,2
+                 DO it = 1,12
+                    soilalb_bg(ib,ks,it) = soilalb_bg(ib,ks,it) + bg_albedo(ip,jp,ks,it)*sub_area(ib,ilf)
+                 ENDDO
               ENDDO
+              totarea = totarea + sub_area(ib,ilf)
            ENDDO
-           totarea = totarea + sub_area(ib,ilf)
-        ENDDO
         ! Normalize
-        soilalb_bg(ib,:,:) = soilalb_bg(ib,:,:)/totarea
-     ELSE
-        ! Set defalut value for points where the interpolation fail
-        WRITE(numout,*) 'On point ', ib, ' no points were found for interpolation data. Mean value is used.'
-        WRITE(numout,*) 'Location : ', lalo(ib,2), lalo(ib,1)
-        soilalb_bg(ib,ivis,:) = 0.129
-        soilalb_bg(ib,inir,:) = 0.247
-     ENDIF
-  ENDDO
+           soilalb_bg(ib,:,:) = soilalb_bg(ib,:,:)/totarea
+        ELSE
+!!        ! Set defalut value for points where the interpolation fail
+!!        WRITE(numout,*) 'On point ', ib, ' no points were found for interpolation data. Mean value is used.'
+!!        WRITE(numout,*) 'Location : ', lalo(ib,2), lalo(ib,1)
+           soilalb_bg(ib,ivis,:) = 0.129
+           soilalb_bg(ib,inir,:) = 0.247
+        ENDIF
+     ENDDO
+   ENDIF
+
+  
+!!!! add by ke
+   
+  ! Compute the average-sentinel-2
+  IF ( alb_bg_sentinel2 ) THEN
+     soilalb_bg_s2(:,:) = zero
+
+     DO ib = 1, nbpt
+        fopt = COUNT(sub_area(ib,:) > zero)
+        IF ( fopt > 0 ) THEN
+           totarea = zero
+           DO ilf = 1, fopt
+              ip = sub_index(ib,ilf,1)
+              jp = sub_index(ib,ilf,2)
+              DO is = 1,366
+                 IF (bsas2(ip,jp,is) .GT. 0) THEN
+                    soilalb_bg_s2(ib,is) = soilalb_bg_s2(ib,is)+ bsas2(ip,jp,is)*sub_area(ib,ilf)
+                    IF ( is .EQ. 1 ) THEN
+                       totarea = totarea + sub_area(ib,ilf)
+                    ENDIF
+                 ENDIF
+              ENDDO
+!         !!  IF ( bsas2(ip,jp,1) .GT. 0 ) THEN
+!        ! !     totarea = totarea + sub_area(ib,ilf)
+!        ! !  ENDIF
+           ENDDO
+        ! Normalize
+
+           soilalb_bg_s2(ib,:) = soilalb_bg_s2(ib,:)/totarea
+        ELSE
+!        ! Set defalut value for points where the interpolation fail
+
+           soilalb_bg_s2(ib,:) = 0.17
+
+        ENDIF
+     ENDDO
+  ENDIF
+
+!!!! add by ke   
 
   DEALLOCATE (lat_lu)
   DEALLOCATE (lat_rel)
@@ -1302,7 +1445,11 @@ CONTAINS
   DEALLOCATE (lon_rel)
   DEALLOCATE (mask_lu)
   DEALLOCATE (mask)
-  DEALLOCATE (bg_albedo)
+  IF ( alb_bg_modis ) THEN
+     DEALLOCATE (bg_albedo)
+  ELSE IF ( alb_bg_sentinel2 ) THEN
+     DEALLOCATE (bsas2)
+  ENDIF
   DEALLOCATE (sub_area)
   DEALLOCATE (sub_index)
 
@@ -1337,7 +1484,7 @@ CONTAINS
 !_ ================================================================================================================================
 
   SUBROUTINE condveg_z0logz (kjpindex, veget, veget_max, frac_nobio, totfrac_nobio, height, tot_bare_soil, &
-       &                     z0, roughheight, roughheight_pft)
+       &                     z0, roughheight, roughheight_pft,tot_residue,havlen,nmatlab,veget_init) !! add by ke
 
     !! 0. Variable and parameter declaration
 
@@ -1354,6 +1501,10 @@ CONTAINS
                                                                          !! i.e. continental ice, lakes, etc. (unitless)
     REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(in)    :: height        !! Vegetation height (m)
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_residue   !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in):: havlen        !! add by ke
+    INTEGER(i_std),DIMENSION (kjpindex),INTENT(in)      :: nmatlab       !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: veget_init    !! add by ke
     
     !! 0.2 Output variables
 
@@ -1365,7 +1516,7 @@ CONTAINS
 
     !! 0.4 Local variables
     
-    INTEGER(i_std)                                      :: jv            !! Loop index over PFTs (unitless)
+    INTEGER(i_std)                                      :: jv,jp         !! Loop index over PFTs (unitless)
     REAL(r_std), DIMENSION(kjpindex)                    :: sumveg        !! Fraction of bare soil (unitless) 
     REAL(r_std), DIMENSION(kjpindex)                    :: ave_height    !! Average vegetation height (m)
     REAL(r_std), DIMENSION(kjpindex)                    :: d_veg         !! PFT coverage of vegetative PFTs 
@@ -1403,7 +1554,19 @@ CONTAINS
           ! In the case of grass, use parameter veget because grasses 
           ! only influence the roughness during the growing season
           d_veg(:) = veget(:,jv)
+          
+          !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+          DO jp = 1, kjpindex
+             IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+                d_veg(jp) = tot_residue(jp)
+             ELSE IF ((ok_Z0) .AND. ((nmatlab(jp)) .GT. 0) .AND. (havlen(jp,12) .LT. 1)) THEN
+                d_veg(jp) = veget_init(jp,12)
+             ENDIF
+          ENDDO
+          !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+          
        ENDIF
+       
        
        ! Calculate the average roughness over the grid cell:
        ! The roughness for vegetative PFTs is calculated by
@@ -1414,13 +1577,46 @@ CONTAINS
        ! the roughness times the fraction per grid cell gives the 
        ! logarithm of roughness length per grid cell for the vegetative
        ! PFTs.
-       z0(:) = z0(:) + d_veg(:) * &
-            LOG( MAX(height(:,jv)*z0_over_height,z0_bare) )
+       
+       !!!!!!!!!!!! add by ke !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       DO jp = 1, kjpindex
+          IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+             IF (jv == 12) THEN
+                z0(jp) = z0(jp) + d_veg(jp) * &
+                     LOG( MAX(0.5*z0_over_height,z0_bare) )
+             ELSE
+                z0(jp) = z0(jp) + d_veg(jp) * &
+                  LOG( MAX(height(jp,jv)*z0_over_height,z0_bare) )
+             ENDIF
+          ELSE
+             z0(jp) = z0(jp) + d_veg(jp) * &
+                  LOG( MAX(height(jp,jv)*z0_over_height,z0_bare) )
+          ENDIF
+       ENDDO
+       !!!!!!!!!!!! add by ke !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       
        ! Sum of bare soil and fraction vegetated fraction 
        sumveg(:) = sumveg(:) + d_veg(:)
 
        ! Weighted height of vegetation with maximal cover fraction
-       ave_height(:) = ave_height(:) + veget_max(:,jv)*height(:,jv)
+      ! ave_height(:) = ave_height(:) + veget_max(:,jv)*height(:,jv)
+       
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+       DO jp = 1, kjpindex
+          IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+          
+             IF (jv == 12) THEN
+                ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*0.5
+             ELSE
+                ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*height(jp,jv)
+             ENDIF
+          ELSE
+             ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*height(jp,jv)
+          ENDIF
+       ENDDO
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+       
+       
        
     ENDDO !Loop over # vegetative PFTs
     
@@ -1458,9 +1654,28 @@ CONTAINS
     ! Compute the zero plane displacement height which
     ! is an equivalent height of the vegetation for the absorption of momentum
     zhdispl(:) = ave_height(:) * height_displacement
-    DO jv = 2,nvm
-        zhdispl_pft(:,jv) = height(:,jv) * height_displacement
+   ! DO jv = 2,nvm
+   !     zhdispl_pft(:,jv) = height(:,jv) * height_displacement
+   ! ENDDO
+    
+    !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+    DO jp = 1, kjpindex
+       DO jv = 2,nvm
+           ! zhdispl_pft(:,jv) = height(:,jv) * height_displacement
+           IF (jv == 12) THEN
+              IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+                 zhdispl_pft(jp,jv) = 0.5 * height_displacement
+              ELSE
+                 zhdispl_pft(jp,jv) = height(jp,jv) * height_displacement
+              ENDIF
+           ELSE
+              zhdispl_pft(jp,jv) = height(jp,jv) * height_displacement
+           ENDIF
+       ENDDO
     ENDDO
+    !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+    
+    
 
     ! Then we compute what we call the grid effective roughness height.
     ! This is the height over which the roughness acts. It combines the
@@ -1515,7 +1730,7 @@ CONTAINS
 !_ ================================================================================================================================
 
   SUBROUTINE condveg_z0cdrag (kjpindex,veget,veget_max,frac_nobio,totfrac_nobio,zlev, height, tot_bare_soil, &
-       &                      z0, roughheight, roughheight_pft)
+       &                      z0, roughheight, roughheight_pft,tot_residue,havlen,nmatlab,veget_init)  !! add by ke
 
     !! 0. Variable and parameter declaration
 
@@ -1532,7 +1747,11 @@ CONTAINS
                                                                          !! i.e. continental ice, lakes, etc. (unitless)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)       :: zlev          !! Height of first layer (m)           
     REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(in)    :: height        !! Vegetation height (m)
-    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil !! Total evaporating bare soil fraction
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)       :: tot_residue   !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in):: havlen        !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex), INTENT(in)    :: nmatlab       !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: veget_init    !! add by ke
     
     !! 0.2 Output variables
 
@@ -1544,7 +1763,7 @@ CONTAINS
 
     !! 0.4 Local variables
 
-    INTEGER(i_std)                                      :: jv            !! Loop index over PFTs (unitless)
+    INTEGER(i_std)                                      :: jv,jp         !! Loop index over PFTs (unitless)
     REAL(r_std), DIMENSION(kjpindex)                    :: sumveg        !! Fraction of bare soil (unitless)
     REAL(r_std), DIMENSION(kjpindex)                    :: ztmp          !! Max height of the atmospheric level (m)
     REAL(r_std), DIMENSION(kjpindex)                    :: ave_height    !! Average vegetation height (m)
@@ -1586,6 +1805,17 @@ CONTAINS
        ELSE
           ! grasses only have an influence if they are really there!
           d_veg(:) = veget(:,jv)
+          
+          !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+          DO jp = 1, kjpindex
+             IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+                d_veg(jp) = tot_residue(jp)
+             ELSE IF ((ok_Z0) .AND. ((nmatlab(jp)) .GT. 0) .AND. (havlen(jp,12) .LT. 1)) THEN
+                d_veg(jp) = veget_init(jp,12)
+             ENDIF
+          ENDDO
+          !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+          
        ENDIF
        
        ! Calculate the average roughness over the grid cell:
@@ -1598,14 +1828,45 @@ CONTAINS
        ! the roughness of bare soil (0.01) is used. 
        ! The sum over all PFTs gives the average roughness 
        ! per grid cell for the vegetative PFTs.
-       z0(:) = z0(:) + d_veg(:) * (ct_karman/LOG(ztmp(:)/MAX(height(:,jv)*z0_over_height,z0_bare)))**2
-
+       
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+       DO jp = 1, kjpindex
+          IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+          
+             IF (jv == 12) THEN
+          
+                z0(jp) = z0(jp) + d_veg(jp) * (ct_karman/LOG(ztmp(jp)/MAX(0.5*z0_over_height,z0_bare)))**2
+             ELSE
+                z0(jp) = z0(jp) + d_veg(jp) * (ct_karman/LOG(ztmp(jp)/MAX(height(jp,jv)*z0_over_height,z0_bare)))**2
+             ENDIF
+          
+          ELSE
+             z0(jp) = z0(jp) + d_veg(jp) * (ct_karman/LOG(ztmp(jp)/MAX(height(jp,jv)*z0_over_height,z0_bare)))**2
+          ENDIF
+       ENDDO
+       
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+       
        ! Sum of bare soil and fraction vegetated fraction
        sumveg(:) = sumveg(:) + d_veg(:)
        
        ! Weigh height of vegetation with maximal cover fraction
-       ave_height(:) = ave_height(:) + veget_max(:,jv)*height(:,jv)
+       ! ave_height(:) = ave_height(:) + veget_max(:,jv)*height(:,jv)
        
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+       DO jp = 1, kjpindex
+          IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+          
+             IF (jv == 12) THEN
+                ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*0.5
+             ELSE
+                ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*height(jp,jv)
+             ENDIF
+          ELSE
+             ave_height(jp) = ave_height(jp) + veget_max(jp,jv)*height(jp,jv)
+          ENDIF
+       ENDDO
+       !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
     ENDDO
     
     !! 3. Calculate the mean roughness height of vegetative PFTs over the grid cell
@@ -1642,10 +1903,24 @@ CONTAINS
     ! Compute the zero plane displacement height which
     ! is an equivalent height for the absorption of momentum
     zhdispl(:) = ave_height(:) * height_displacement
-    DO jv = 2,nvm
-        zhdispl_pft(:,jv) = height(:,jv) * height_displacement
+    
+    !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+    DO jp = 1, kjpindex
+       DO jv = 2,nvm
+        ! zhdispl_pft(:,jv) = height(:,jv) * height_displacement
+           IF (jv == 12) THEN
+              IF ( (ok_Z0) .AND. (havlen(jp,12) .GT. 0) .AND. (havlen(jp,12) .LT. residue_duration(12)) ) THEN
+                 zhdispl_pft(jp,jv) = 0.5 * height_displacement
+              ELSE
+                 zhdispl_pft(jp,jv) = height(jp,jv) * height_displacement
+              ENDIF
+           ELSE
+              zhdispl_pft(jp,jv) = height(jp,jv) * height_displacement
+           ENDIF
+        ENDDO
     ENDDO
-
+    !!!!!!!!!!! add by ke !!!!!!!!!!!!!!!
+    
     ! In order to calculate the fluxes we compute what we call the grid effective roughness height.
     ! This is the height over which the roughness acts. It combines the
     ! zero plane displacement height and the vegetation height.
@@ -1678,22 +1953,31 @@ CONTAINS
 !! \n
 !_ ================================================================================================================================
 
-  SUBROUTINE condveg_albcalc (kjpindex, veget, drysoil_frac, tot_bare_soil, albedo)
+  SUBROUTINE condveg_albcalc (kjit, kjpindex, veget, drysoil_frac, tot_bare_soil, albedo,nrec_trans,havlen,date_s2,nmatlab,veget_init,alb_veg_init,tot_residue,veget_max,nlevlab) !! add by ke
 
  !! 0. Variable and parameter declaration
 
     !! 0.1 Input variables
- 
+    INTEGER(i_std), INTENT(in)                       :: kjit           !! add by ke
     INTEGER(i_std), INTENT(in)                       :: kjpindex       !! Domain size - Number of land pixels  (unitless)
     REAL(r_std), DIMENSION(kjpindex,nvm), INTENT(in) :: veget          !! PFT coverage fraction of a PFT (= ind*cn_ind) 
-                                                                       !! (m^2 m^{-2})        
+                                                                       !! (m^2 m^{-2}) 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(in) :: veget_max      !! add by ke, Fraction of vegetation type       
     REAL(r_std), DIMENSION(kjpindex), INTENT(in)     :: drysoil_frac   !! Fraction of  dry soil (unitless) 
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_bare_soil  !! Total evaporating bare soil fraction 
-   
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)    :: tot_residue    !! add by ke 
+    INTEGER(i_std), INTENT(in)                          :: date_s2     !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex), INTENT(in)    :: nmatlab     !! add by ke 
+    INTEGER(i_std), INTENT(in)                          :: nlevlab     !! add by ke
+    REAL(r_std), DIMENSION (kjpindex,nvm), INTENT(in)   :: veget_init  !! add by ke
+
     !! 0.2 Output variables
 
-    REAL(r_std),DIMENSION (kjpindex,2), INTENT (out) :: albedo         !! Albedo for visible and near-infrared range 
-                                                                       !! (unitless)   
+    REAL(r_std),DIMENSION (kjpindex,2), INTENT (out) :: albedo             !! Albedo for visible and near-infrared range
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: alb_veg_init     !! add by ke
+                                                                           !! (unitless)   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: nrec_trans  !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT (in)   :: havlen      !! add by ke
  
     !! 0.3 Modified variables
 
@@ -1703,6 +1987,10 @@ CONTAINS
                                                                        !! spectral domains (unitless) 
     INTEGER(i_std)                                   :: ks             !! Index for visible and near-infraread range
     INTEGER(i_std)                                   :: jv             !! Index for vegetative PFTs
+    INTEGER(i_std)                                   :: jp             !! Index for pixels add by ke
+    REAL(r_std)                                      :: a              !! add by ke continuity parameter
+    INTEGER(i_std)                                   :: b              !! add by ke
+    REAL(r_std)                                      :: c              !! add by ke
 !_ ================================================================================================================================
     
  !! 1. Preliminary calculation
@@ -1711,9 +1999,11 @@ CONTAINS
     ! to local variable (constantes_veg.f90)
     alb_leaf_tmp(:,ivis) = alb_leaf_vis(:)
     alb_leaf_tmp(:,inir) = alb_leaf_nir(:)
-
+    
  !! 2. Calculation and assignment of soil albedo
+    
 
+!    WRITE(numout,*) 'ke-day: ', date_s2,',',havlen
     DO ks = 1, 2! Loop over # of spectra
 
        ! If alb_bg_modis=TRUE, the background soil albedo map for the current simulated month is used
@@ -1722,31 +2012,115 @@ CONTAINS
        ! see subroutines 'condveg_soilalb' and 'condveg_background_soilalb'
        IF ( alb_bg_modis ) THEN
           alb_bare(:,ks) = soilalb_bg(:,ks,month)
+       ELSE IF ( alb_bg_sentinel2 ) THEN                                           !! add by ke MOD(A1 - 1, 365) + 1
+          alb_bare(:,ks) = soilalb_bg_s2(:,(MOD(date_s2+1-1,365)+1))                 !! add by ke date_s2+1
        ELSE
           IF ( alb_bare_model ) THEN
              alb_bare(:,ks) = soilalb_wet(:,ks) + drysoil_frac(:) * (soilalb_dry(:,ks) -  soilalb_wet(:,ks))
           ELSE
              alb_bare(:,ks) = soilalb_moy(:,ks)
           ENDIF
-       ENDIF
+       ENDIF 
 
-       ! Soil albedo is weighed by fraction of bare soil          
+!!!!!!!!! modified by ke-crop residues !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!       WRITE(numout,*) 'ke-tot_bare_soil: ', tot_bare_soil,',',tot_residue,',',date_s2,',',havlen,',',nmatlab
        albedo(:,ks) = tot_bare_soil(:) * alb_bare(:,ks)
+       
+       DO jp = 1, kjpindex  
 
-!! 3. Calculation of mean albedo of over the grid cell 
-  
-       ! Calculation of mean albedo of over the grid cell and
-       !    mean albedo of only vegetative PFTs over the grid cell
-       alb_veget(:,ks) = zero
+          IF (( ok_yellow ) .AND. (nmatlab(jp) .GT. 0)) THEN
+          !   WRITE(numout,*) 'ke-MAZIE1: ', albedo(jp,ks),',',nmatlab(jp),',',alb_bare(jp,ks),',',date_s2
+             b = (MOD(date_s2-1,365)+1)-(nmatlab(jp))  
+!             WRITE(numout,*) 'ke-MAZIE1: ', b,',',nmatlab(jp),',',date_s2,',',havlen(:,12)
+             IF (b .EQ. 0) THEN 
+                alb_veg_init(jp,12) =(alb_leaf_tmp(12,ks)) 
+             ELSE
+                alb_veg_init(jp,12) =(alb_leaf_tmp(12,ks)) !alb_veg_init(jp,12)
+             ENDIF
+             alb_veget(jp,ks) = zero
+             IF ((b .GT. 0) .AND. (havlen(jp,12) .LE. 1) ) THEN
+                albedo(jp,ks) = alb_bare(jp,ks)*(1-veget_init(jp,12))+(0.996+0.0132*b)*alb_veg_init(jp,12)*veget_init(jp,12)
+                alb_veget(jp,ks) = (0.996+0.0132*b)*alb_veg_init(jp,12)!*veget_init(jp,12)
+                
+!                WRITE(numout,*) 'ke-MAZIE2: ', albedo(jp,ks),',',nmatlab(jp),',',alb_bare(jp,ks),',',date_s2,',',havlen(jp,12)
+                
+             ELSE IF ((b .GT. 0) .AND. (havlen(jp,12) .GT. 1) .AND. (havlen(jp,12) .LE. 15) ) THEN   
+             
+                IF ((ok_residues) .AND. (ok_residue_alb)) THEN
+                   albedo(jp,ks) = alb_bare(jp,ks)*(1-veget_init(jp,12))+(0.996+0.0132*b)*alb_veg_init(jp,12)*veget_init(jp,12)
+                   alb_veget(jp,ks) = (0.996+0.0132*b)*alb_veg_init(jp,12)!*veget_init(jp,12)
+                ELSE
+                   albedo(jp,ks) = (veget_max(jp,12)-veget(jp,12)) * alb_bare(jp,ks)
+                   DO jv = 2, nvm  ! Loop over # of PFTs
+                      albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                      alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                   ENDDO
+                ENDIF
+!                WRITE(numout,*) 'ke-MAZIE3: ', albedo(jp,ks),',',nmatlab(jp),',',alb_bare(jp,ks),',',alb_veget(jp,ks),',',date_s2,',',havlen(jp,12)
+             ELSE IF ( (b .GT. 0) .AND. (havlen(jp,12) .GT. 15) .AND. (havlen(jp,12) .LT. residue_duration(12))) THEN
 
-       DO jv = 2, nvm  ! Loop over # of PFTs
+                IF ((ok_residues) .AND. (ok_residue_alb)) THEN
+                   c = (0.996+0.0132*(nrec_trans(jp,12)-havlen(jp,12)-nmatlab(jp)+15))*alb_veg_init(jp,12)!*veget_init(jp,12) ! albedo at the end of yellowing
 
-          ! Mean albedo of grid cell for visible and near-infrared range
-          albedo(:,ks) = albedo(:,ks) + veget(:,jv)*alb_leaf_tmp(jv,ks)
+                   albedo(jp,ks) = alb_bare(jp,ks)*(1-tot_residue(jp))+ tot_residue(jp)*c*0.889* EXP(-0.002*(havlen(jp,12)-16))*(1/(0.889))    
+                   alb_veget(jp,ks) = c* 0.889*EXP(-0.002*(havlen(jp,12)-16))*(1/(0.889))  
+!                   WRITE(numout,*) 'ke-MAZIE4: ',b,',', nmatlab(jp),',',albedo(jp,1),',',veget_init(jp,12),',',tot_residue(jp),',',havlen(jp,12)
+                ELSE
+                   albedo(jp,ks) = (veget_max(jp,12)-veget(jp,12)) * alb_bare(jp,ks)
+                   alb_veget(jp,ks) = zero
+                   DO jv = 2, nvm  ! Loop over # of PFTs
+                      albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                      alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                   ENDDO
+                ENDIF 
+                
+             ELSE
+                albedo(jp,ks) = tot_bare_soil(jp) * alb_bare(jp,ks)
+                alb_veget(jp,ks) = zero
+                DO jv = 2, nvm  ! Loop over # of PFTs
+                   albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                   alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                ENDDO
+!                WRITE(numout,*) 'ke-MAZIE5: ', b,',',date_s2,',',nmatlab(jp),',',havlen(jp,12),',',albedo(jp,ks),',',tot_bare_soil(jp),',',alb_bare(jp,ks),',',alb_veget(jp,ks)
+             ENDIF
+          ELSE
+             IF ((ok_residues) .AND. (ok_evap)) THEN
+                IF (jv .EQ. 12) THEN
+                    albedo(jp,ks) = (veget_max(jp,12)-veget(jp,12)) * alb_bare(jp,ks)
+                    alb_veget(jp,ks) = zero
 
-          ! Mean albedo of vegetation for visible and near-infrared range
-          alb_veget(:,ks) = alb_veget(:,ks) + veget(:,jv)*alb_leaf_tmp(jv,ks)
-       ENDDO ! Loop over # of PFTs
+                    DO jv = 2, nvm  ! Loop over # of PFTs
+                       albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                       alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                    ENDDO
+                ELSE
+                    albedo(jp,ks) = tot_bare_soil(jp) * alb_bare(jp,ks)
+                    alb_veget(jp,ks) = zero
+    
+                    DO jv = 2, nvm  ! Loop over # of PFTs
+                       albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                       alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                    ENDDO
+!                    IF (jv .EQ. 13) THEN
+!                        WRITE(numout,*) 'ke-MAZIE5: ', albedo(jp,ks),',',tot_bare_soil(jp),',',alb_bare(jp,ks),',',alb_veget(jp,ks),',',veget(jp,jv),',',date_s2
+!                    ENDIF
+                ENDIF
+             ELSE
+                albedo(jp,ks) = tot_bare_soil(jp) * alb_bare(jp,ks)
+                alb_veget(jp,ks) = zero
+
+                DO jv = 2, nvm  ! Loop over # of PFTs
+                   albedo(jp,ks) = albedo(jp,ks) + veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                   alb_veget(jp,ks) = alb_veget(jp,ks) +veget(jp,jv)*alb_leaf_tmp(jv,ks)
+                ENDDO
+ !               WRITE(numout,*) 'ke-yellow&nmatlab6: ', nmatlab(jp),',',albedo(jp,1)
+             ENDIF
+              
+          ENDIF
+       ENDDO
+
+!!!!!!!!! modified by ke-crop residues !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
     ENDDO
 

@@ -2,7 +2,7 @@
 ## OBELIX      LSCE ##
 ######################
 #PBS -N METRICS_LMDZ
-#PBS -m n
+#PBS -m a
 #PBS -j oe
 #PBS -q test
 #PBS -o METRICS_LMDZ.$$

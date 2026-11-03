@@ -46,7 +46,7 @@
 !!   It has been possible to test the robustness of the above formalisation on a variety of crops, including crops where there is an overlap between the
 !!   vegetative phase and the reproductive phase (soybean and flax for example).  However, when trophic competition between leaves and fruits is a driving force
 !!   for the production and management of the crop (for example tomato, sugarbeet), this formalisation is unsuitable.  We therefore calculate the deltai variable
-!!   so as to take trophic monitoring into consideration in the case of crops described as ‘indeterminate’, by introducing a trophic stress index (splai).
+!!   so as to take trophic monitoring into consideration in the case of crops described as ‘indeterminate? by introducing a trophic stress index (splai).
 !!   As a consequence, the LAI can decrease markedly during the theoretical growth phase if the crop is experiencing severe stresses during the harvested
 !!   organs filling phase.
 ! *-----------------------------------------------------------------------------------------------------------------------------------------------------------* c
@@ -88,7 +88,7 @@ implicit none
 !integer, intent(IN)    :: P_codeperenne  !> // PARAMETER // option defining the annual (1) or perenial (2) character of the plant // code 1/2 // PARPLT // 0 
 !integer, intent(IN)    :: P_codetemp  !> // PARAMETER // option calculation mode of heat time for the plant : with air temperature (1)  or crop temperature (2) // code 1/2 // PARPLT // 0 
 real,    intent(IN)    :: turfac   !> // OUTPUT // Index of turgescence water stress  // 0-1
-!real,    intent(IN)    :: innlai   !> // OUTPUT // Index of nitrogen stress active on leaf growth // P_innmin à 1
+!real,    intent(IN)    :: innlai   !> // OUTPUT // Index of nitrogen stress active on leaf growth // P_innmin ?1
 !real,    intent(IN)    :: P_laiplantule  !> // PARAMETER // Plantlet Leaf index at the plantation // m2 leaf  m-2 soil // PARPLT // 1 
 !real,    intent(IN)    :: P_phyllotherme  !> // PARAMETER // thermal duration between the apparition of two successive leaves on the main stem // degree C day // PARPLT // 1
 real,    intent(IN)    :: udevair   !> // OUTPUT // Effective temperature for the development, computed with TAIR // degree.days
@@ -251,18 +251,18 @@ real :: tdevelop
         !lai(n) = 0.0
         lai = 0.0
         return
-        !: TODO - le somfeuille=0 après le return est inutile, il n'est jamais exécuté. BUG ?
+        !: TODO - le somfeuille=0 après le return est inutile, il n'est jamais exécut? BUG ?
         somfeuille = 0.
       endif
     endif
-
+!    WRITE(numout,*) 'ke-lai in STICSCALLAI111', lai,',',P_laiplantule
     ! le jour de la levée, si plantation par plantule, on force le lai du jour précédent
     if (n == nlev .and. P_codehypo == 2 .and. namf == 0) then
       !lai(n-1) = P_laiplantule
       pdlai = P_laiplantule   ! // pdlai lai of previous day
     endif
 
-    !: à la récolte (nrec+1)
+    !: ?la récolte (nrec+1)
     !: 
     if (nrec > 0 .and. n > nrec) then
       ! En cas de moisson, on enlève les feuilles.
@@ -306,7 +306,7 @@ real :: tdevelop
     !: 2b) lai de départ non nul pour les cultures qui se plantent
     !--      if (n == nlev .and. P_codehypo == 2 .and. namf == 0) then
     !--        lai(n-1) = P_laiplantule
-    !--!: NB - le 21/04 - sbv remplacé par slavert
+    !--!: NB - le 21/04 - sbv remplac?par slavert
     !--        ms(n-1) = lai(n-1)/P_slamin*100.0
     !--!: NB - ajout de P_QNplante0 - le 21/04
     !--        QNplante = (P_adilmax * ms(n-1) * 10) + P_QNplante0
@@ -325,11 +325,13 @@ real :: tdevelop
       if (codeulaivernal == 1) then
         !ulai(n) = 1 + (P_vlaimax - 1) * (somcour + reajust) / (P_stlevamf + reajust)
         ulai = 1 + (P_vlaimax - 1) * (somcour + reajust) / (P_stlevamf + reajust)
+ !       WRITE(numout,*) 'ke-lai in STICSCALLAI222-codeulaivernal == 1', ulai,',',P_vlaimax,',',somcour,',',reajust,',',P_stlevamf
       else
         if (somcourutp <= P_stlevamf) then
 !          print *, 'in lai the somcourutp is,', somcourutp
           !ulai(n) = 1 + (P_vlaimax - 1) * (somcourutp + reajust) / (P_stlevamf + reajust)
           ulai = 1 + (P_vlaimax - 1) * (somcourutp + reajust) / (P_stlevamf + reajust)
+!          WRITE(numout,*) 'ke-lai in STICSCALLAI222-somcourutp <= P_stlevamf', ulai,',',P_vlaimax,',',somcourutp,',',reajust,',',P_stlevamf
         else
           !ulai(n) = ulai(n-1)
           ulai = pdulai
@@ -338,7 +340,7 @@ real :: tdevelop
     endif
   
 
-!    print *, 'wu: in calai process the ulai is', ulai
+    
 
     !: 3b) calcul de ulai entre amf et lax
    
@@ -363,7 +365,7 @@ real :: tdevelop
 
 !    print *, 'wu: in calai process the ulai is', ulai
 
-    !: 3c) ulai maximal atteint à drp pour les indéterminées
+    !: 3c) ulai maximal atteint ?drp pour les indéterminées
     if (P_codeindetermin == 2 .and. ndrp > 0) then
       !ulai(n) = P_udlaimax
       ulai = P_udlaimax
@@ -376,8 +378,8 @@ real :: tdevelop
 !: 4. CALCUL du DELTAI BRUT
 !--------------------------
 
-    !: 4a) calcul du facteur densité efdensite actif à partir de P_laicomp
-    !- calcul de l'effet densité sur la mise en place du LAI pour les stics-plante
+    !: 4a) calcul du facteur densit?efdensite actif ?partir de P_laicomp
+    !- calcul de l'effet densit?sur la mise en place du LAI pour les stics-plante
 
     !: calculation of the effective density, to address the density effects on LAI development
 
@@ -416,7 +418,7 @@ real :: tdevelop
     ! ** 4b) température efficace de croissance: limitation par P_tcmax
     ! NB le 13/06/06
     ! introduction d'une température maximale d'arrêt de croissance
-    ! foliaire P_Tcxstop à l'occasion étude Françoise sur fourrages méditerranéens
+    ! foliaire P_Tcxstop ?l'occasion étude Françoise sur fourrages méditerranéens
     !      P_tcxstop = 30.0
 
     !: addressing the effective temperature
@@ -441,8 +443,8 @@ real :: tdevelop
 
     !: 4c) calcul du deltai
     !- quelle que soit l'option LAI choisie, LAI net ou LAI brut :
-    !-  * la croissance s'arrête à LAX pour les déterminées
-    !-  * la croissance s'arrête à SEN pour les indéterminées
+    !-  * la croissance s'arrête ?LAX pour les déterminées
+    !-  * la croissance s'arrête ?SEN pour les indéterminées
     if (P_codeindetermin == 1) nstopfeuille = nlax
     if (P_codeindetermin == 2) nstopfeuille = nsen
 
@@ -465,7 +467,7 @@ real :: tdevelop
         ! DR 07/03/08 integration des modifs du 28/02/07 P_dlaimax n'etait actif
         ! et introduction de P_codedlaimin
         ! NB et FR le 28/02/07
-        ! introduction d'une ordonnée à l'origine pour la croissance des feuilles
+        ! introduction d'une ordonnée ?l'origine pour la croissance des feuilles
         ! DR on vire le P_codedlaimin et on met P_dlaimin dans le fichier plante
   
         deltai = P_dlaimax * efdensite * densite &
@@ -486,7 +488,7 @@ real :: tdevelop
 
       !: NB - le 28/05 - on lève toujours
       !- 10/01 - ajout d'un test sur l'enchainement des perennes
-      ! TODO: voir si on pourrait remplacer ce test par un booléen qui dirait si la plante a levé ou pas. ex: *if (isLevee) then*
+      ! TODO: voir si on pourrait remplacer ce test par un booléen qui dirait si la plante a lev?ou pas. ex: *if (isLevee) then*
 
       !if (n > nlev .or. (P_codeperenne == 2 .and. P_codeinitprec == 2 .and. numcult > 1)) then
       if (nlev > 0 .or. (P_codeperenne == 2 .and. P_codeinitprec == 2)) then
@@ -510,7 +512,7 @@ real :: tdevelop
       !  splai = max(splai,0.0)
       !  splai = min(splai,1.0)
 
-      !  ! NB le 21/04 recalcul d'un sbv approprié
+      !  ! NB le 21/04 recalcul d'un sbv appropri?
       !  sbvmin = P_slamin / (1.0 + P_tigefeuil)
       !  fpv = deltai * splai * 1e4 / sbvmin
       !  deltai  =  deltai*splai
@@ -521,7 +523,7 @@ real :: tdevelop
   
         !: limitation si le rayonnement est vraiment insuffisant
         !- après AMF (cas des cultures associées)
-        !- NB le 21/04 recalcul d'un sbv approprié
+        !- NB le 21/04 recalcul d'un sbv appropri?
         !- NB le 15/05/02 calcul de fpv pour les pérennes
 
         sbvmin = P_slamin / (1.0 + P_tigefeuil)
@@ -531,7 +533,7 @@ real :: tdevelop
         !: ajout des remobilisations possible pour faire redémarrer le
         !- lai en cas de couvert complètement sec
         !- NB le 13/06/06
-        !- NB le 27/06/06 attention delatremobil était déjà compté dans dltams
+        !- NB le 27/06/06 attention delatremobil était déj?compt?dans dltams
         
         ! at this moment, we do not consider the remobilization,
         ! we adjust the process
@@ -650,7 +652,7 @@ real :: tdevelop
 
           endif
      else
-          !: option LAI brut la sénescence (dltaisen) est calculé dans le spg senescen
+          !: option LAI brut la sénescence (dltaisen) est calcul?dans le spg senescen
           !lai(n) = lai(n-1) + deltai - dltaisen  ! we do not consider the net calculation, so...
           lai = pdlai + deltai - dltaisen
      endif
@@ -664,7 +666,7 @@ real :: tdevelop
       !--dltaisen = 0.0
     endif
 
-    ! NB - le 22/04 - à cause précisison dans les soustractions
+    ! NB - le 22/04 - ?cause précisison dans les soustractions
     !if (lai(n) <= 1e-4 .and. nstopfeuille > 0) then
     !  lai(n) = 0.
     !endif
@@ -673,7 +675,7 @@ real :: tdevelop
        lai = 0.0
     endif
 
-!: 7. senescence foliaire due à des stress  pour l'option LAInet
+!: 7. senescence foliaire due ?des stress  pour l'option LAInet
 !: Addressing the senescence of lai, see senescen.f90 
 !---------------------------------------------------------------
 

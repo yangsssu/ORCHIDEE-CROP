@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/ioserver/svn/!svn/ver/573/XIOS/branchs/xios-1.0/src/interface/c
+END
+icutil.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icutil.hpp
+END
+icfield.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icfield.cpp
+END
+icaxis.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icaxis.cpp
+END
+iccontext.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/ioserver/svn/!svn/ver/521/XIOS/branchs/xios-1.0/src/interface/c/iccontext.cpp
+END
+icgrid.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icgrid.cpp
+END
+icvariable.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icvariable.cpp
+END
+oasis_cinterface.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/oasis_cinterface.cpp
+END
+icdomain.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icdomain.cpp
+END
+icdata.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/573/XIOS/branchs/xios-1.0/src/interface/c/icdata.cpp
+END
+oasis_cinterface.hpp
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/oasis_cinterface.hpp
+END
+icdate.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icdate.cpp
+END
+icfile.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icfile.cpp
+END
+icxml_tree.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/ioserver/svn/!svn/ver/504/XIOS/branchs/xios-1.0/src/interface/c/icxml_tree.cpp
+END

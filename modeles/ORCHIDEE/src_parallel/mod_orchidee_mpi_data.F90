@@ -240,7 +240,7 @@ CONTAINS
   INTEGER :: ierr
 
   CALL xios_orchidee_finalize
-
+  WRITE(numout,*) 'ke-error ',ierr
   CALL MPI_FINALIZE(ierr)
 #endif
    

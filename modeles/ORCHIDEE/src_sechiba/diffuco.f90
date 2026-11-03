@@ -60,6 +60,7 @@ MODULE diffuco
   USE ioipsl_para 
   USE xios_orchidee
   USE chemistry, ONLY : chemistry_initialize, chemistry_bvoc
+  USE stomate, ONLY : N_add_has !! add by shuai
   IMPLICIT NONE
 
   ! public routines :
@@ -73,7 +74,8 @@ MODULE diffuco
 !$OMP THREADPRIVATE(leaf_ci)
   REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:)      :: wind                      !! Wind module (m s^{-1})
 !$OMP THREADPRIVATE(wind)
-
+  REAL(r_std), ALLOCATABLE, SAVE, DIMENSION (:,:)    :: has_store                 !! current HAS activation (-) !! add by shuai
+!$OMP THREADPRIVATE(has_store)
 CONTAINS
 
 
@@ -138,15 +140,15 @@ CONTAINS
        ldq_cdrag_from_gcm = .TRUE.
     ENDIF
     CALL getin_p('CDRAG_from_GCM', ldq_cdrag_from_gcm)
-    IF (printlev>=2) WRITE(numout,*) "ldq_cdrag_from_gcm = ",ldq_cdrag_from_gcm
+!    IF (printlev>=2) WRITE(numout,*) "ldq_cdrag_from_gcm = ",ldq_cdrag_from_gcm
 
-    IF (printlev>=2) WRITE(numout,*) 'getting restart of q_cdrag_pft'
+!    IF (printlev>=2) WRITE(numout,*) 'getting restart of q_cdrag_pft'
     var_name = 'cdrag_pft'
     CALL restget_p (rest_id, var_name, nbp_glo, nvm, 1, kjit, .TRUE., temppft, "gather", nbp_glo, index_g)
     IF (MINVAL(temppft) < MAXVAL(temppft) .OR. MAXVAL(temppft) .NE. val_exp) THEN
         q_cdrag_pft(:,:) = temppft(:,:)
     ENDIF
-    IF (printlev>=2) WRITE(numout,*) 'done restart of q_cdrag_pft'
+!    IF (printlev>=2) WRITE(numout,*) 'done restart of q_cdrag_pft'
 
     !! 2. Allocate module variables
 
@@ -158,9 +160,18 @@ CONTAINS
 
     ALLOCATE (wind(kjpindex),stat=ier)
     IF (ier /= 0) CALL ipslerr_p(3,'diffuco_initialize','Problem in allocate of variable wind','','')
+    
+    IF (ok_has) THEN
+       ALLOCATE (has_store(kjpindex,nvm), stat=ier)
+       IF (ier /= 0) THEN
+          CALL ipslerr_p(3,'diffuco_initialize', 'Problem in allocate of has_store','','')  !! add by shuai
+       ENDIF
+       has_store(:,:) = zero
+    ENDIF
+    
 
     !! 3. Read variables from restart file
-    IF (printlev>=3) WRITE (numout,*) 'Read DIFFUCO variables from restart file'
+!    IF (printlev>=3) WRITE (numout,*) 'Read DIFFUCO variables from restart file'
 
     CALL ioconf_setatt_p('UNITS', 's/m')
     CALL ioconf_setatt_p('LONG_NAME','Structural resistance')
@@ -170,6 +181,17 @@ CONTAINS
           rstruct(:,jv) = rstruct_const(jv)
        ENDDO
     ENDIF
+    
+    IF (ok_has) THEN
+       temppft(:,:) = val_exp
+       CALL restget_p(rest_id, 'has_store', nbp_glo, nvm, 1, kjit, .TRUE., temppft, 'gather', nbp_glo, index_g) !! add by shuai
+       IF (ALL(temppft(:,:) == val_exp)) THEN
+          has_store(:,:) = zero
+       ELSE
+          has_store(:,:) = MAX(zero, MIN(un, temppft(:,:)))
+       ENDIF
+    ENDIF
+    
     
     ! the following variable is read only if CO2 is calculated
     IF ( ok_co2 ) THEN
@@ -195,7 +217,7 @@ CONTAINS
     ENDIF
         
     !! 4. Initialize chemistry module
-    IF (printlev>=3) WRITE(numout,*) "ok_bvoc:",ok_bvoc
+!    IF (printlev>=3) WRITE(numout,*) "ok_bvoc:",ok_bvoc
     IF ( ok_bvoc ) CALL chemistry_initialize(kjpindex, lalo, neighbours, resolution)
     
   END SUBROUTINE diffuco_initialize
@@ -279,7 +301,7 @@ CONTAINS
      & swnet, swdown, coszang, ccanopy, humrel, veget, veget_max, lai, qsintveg, qsintmax, assim_param, &
      & vbeta , vbeta_pft, valpha, vbeta1, vbeta2, vbeta3, vbeta3pot, vbeta4, vbeta4_pft, vbeta5, gsmean, rveget, rstruct, cimean, gpp, &
      & lalo, neighbours, resolution, ptnlev1, precip_rain, frac_age, tot_bare_soil, &
-     & hist_id, hist2_id)
+     & hist_id, hist2_id,tot_residue,nrec_trans,havlen,date_s2,nmatlab,veget_init,qsoverflow, has_film, vbeta_has, cresist) !! add by ke and add by shuai
 
   !! 0. Variable and parameter declaration
 
@@ -330,8 +352,10 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: veget_max        !! Max. fraction of vegetation type (LAI->infty)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: lai              !! Leaf area index (m^2 m^{-2})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: qsintveg         !! Water on vegetation due to interception (kg m^{-2})
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: qsintmax         !! Maximum water on vegetation for interception 
                                                                            !! (kg m^{-2})
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)     :: qsoverflow       !! Interception overflow (kg m-2) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm,npco2), INTENT (in) :: assim_param !! min+max+opt temps, vcmax, vjmax
                                                                            !! for photosynthesis (K ??)
     REAL(r_std),DIMENSION (kjpindex,2),   INTENT (in)  :: lalo               !! Geographical coordinates
@@ -341,25 +365,35 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: ptnlev1            !! 1st level of soil temperature (Kelvin)
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)      :: precip_rain        !! Rain precipitation expressed in mm/tstep
     REAL(r_std),DIMENSION (kjpindex,nvm,nleafages), INTENT (in)  :: frac_age !! Age efficiency for isoprene emissions (from STOMATE)
-    REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil      !! Total evaporating bare soil fraction 
+    REAL(r_std),DIMENSION (kjpindex), INTENT(in)       :: tot_bare_soil      !! Total evaporating bare soil fraction
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)      :: tot_residue        !! add by ke, total residue amount
+    INTEGER(i_std),INTENT (in)                         :: date_s2            !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex),INTENT(in)    :: nmatlab            !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in):: nrec_trans        !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in):: havlen            !! add by ke
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)   :: veget_init        !! add by ke
 
     !! 0.2 Output variables
 
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: vbeta            !! Total beta coefficient (-)
-    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta_pft            !! Total beta coefficient (-)
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta_pft        !! Total beta coefficient (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: valpha           !! Total alpha coefficient (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: vbeta1           !! Beta for sublimation (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: vbeta4           !! Beta for bare soil evaporation (-)
-    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)  :: vbeta4_pft       !! Beta for bare soil evaporation (-)
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta4_pft       !! Beta for bare soil evaporation (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)     :: vbeta5           !! Beta for floodplains
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: gsmean           !! Mean stomatal conductance to CO2 (umol m-2 s-1) 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta2           !! Beta for interception loss (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)    :: has_film         !! HAS film (-) !! add by shuai     
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)    :: vbeta_has        !! Beta for HAS transpiration (-) !! add by shuai    
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)    :: cresist          !! Canopy exchange limitation factor (-) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta3           !! Beta for transpiration (-)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: vbeta3pot        !! Beta for potential transpiration
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: rveget           !! Stomatal resistance for the whole canopy (s m^{-1})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: rstruct          !! Structural resistance for the vegetation
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out) :: cimean           !! Mean leaf Ci (ppm)  
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT(out)  :: gpp              !! Assimilation ((gC m^{-2} s^{-1}), total area)  
+
 
     !! 0.3 Modified variables
  
@@ -383,13 +417,20 @@ CONTAINS
     !ZunYin for correct transpot
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: humrel_tmp         !! Soil moisture stress (within range 0 to 1)
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: vbeta3_tmp         !! Beta for transpiration (-)
-    !REAL(r_std),DIMENSION (kjpindex,nvm)     :: vbeta3pot_tmp      !! Beta for potential transpiration
+    !REAL(r_std),DIMENSION (kjpindex,nvm)    :: vbeta3pot_tmp      !! Beta for potential transpiration
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: rveget_tmp         !! Stomatal resistance for the whole canopy (s m^{-1})
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: rstruct_tmp        !! Structural resistance for the vegetation
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: cimean_tmp         !! Mean leaf Ci (ppm)  
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: gsmean_tmp         !! Mean stomatal conductance to CO2 (umol m-2 s-1) 
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: gpp_tmp            !! Assimilation ((gC m^{-2} s^{-1}), total area)  
     REAL(r_std),DIMENSION (kjpindex,nvm)     :: cim_tmp            !! Intercellular CO2 over nlai 
+    REAL(r_std),DIMENSION(kjpindex,nvm)      :: cresist_tmp         !! Canopy exchange limitation factor (-) !! add by shuai  
+
+    LOGICAL,DIMENSION(kjpindex,nvm)          :: has_source_event    !! add by shuai
+    REAL(r_std),DIMENSION(kjpindex,nvm)      :: has_source_amount   !! add by shuai
+    INTEGER(i_std)                           :: nstep_day           !! add by shuai
+    INTEGER(i_std)                           :: step_in_day         !! add by shuai
+    INTEGER(i_std)                           :: pulse_step          !! add by shuai
 
 !_ ================================================================================================================================
     
@@ -414,12 +455,11 @@ CONTAINS
   !! 2. Make an estimation of the saturated humidity at the surface
 
     CALL qsatcalc (kjpindex, temp_sol, pb, qsatt)
-
+     
   !! 3. Calculate the beta coefficient for sublimation
   
     CALL diffuco_snow (kjpindex, qair, qsatt, rau, u, v, q_cdrag, &
          & snow, frac_nobio, totfrac_nobio, snow_nobio, vbeta1)
-
 
     CALL diffuco_flood (kjpindex, qair, qsatt, rau, u, v, q_cdrag, evapot, evapot_corr, &
          & flood_frac, flood_res, vbeta5)
@@ -427,8 +467,10 @@ CONTAINS
   !! 4. Calculate the beta coefficient for interception
 
     CALL diffuco_inter (kjpindex, qair, qsatt, rau, u, v, q_cdrag, q_cdrag_pft, humrel, veget, &
-       & qsintveg, qsintmax, rstruct, vbeta2, vbeta23) 
+       & qsintveg, qsintmax, rstruct, vbeta2, vbeta23,tot_residue,nrec_trans,havlen,date_s2,nmatlab,veget_init) !! add by Ke
 
+  !! Water deficit sensitivity test !! add by shuai
+  !! humrel(:,:) = 0.5_r_std
 
   !! 5. Calculate the beta coefficient for transpiration
 
@@ -439,6 +481,7 @@ CONTAINS
       !vbeta3pot_tmp = vbeta3pot
       rveget_tmp = rveget
       rstruct_tmp = rstruct
+      cresist_tmp = cresist   !! add by shuai
       cimean_tmp = cimean
       gsmean_tmp = gsmean
       gpp_tmp = gpp
@@ -448,14 +491,15 @@ CONTAINS
       CALL diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_growth, rau, u, v, q_cdrag, q_cdrag_pft, humrel, &
                               assim_param, ccanopy, &
                               veget, veget_max, lai, qsintveg, qsintmax, vbeta3, vbeta3pot, &
-                              rveget, rstruct, cimean, gsmean, gpp, vbeta23, cim)
+                              rveget, rstruct,cresist,  cimean, gsmean, gpp, vbeta23, cim)
 
       !ZunYin test run without water stress (humrel = 1) to correct transpot
+
       CALL diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_growth, rau, u, v, q_cdrag, q_cdrag_pft, humrel_tmp, &
                               assim_param, ccanopy, &
                               !veget, veget_max, lai, qsintveg, qsintmax, vbeta3_tmp, vbeta3pot_tmp, &
                               veget, veget_max, lai, qsintveg, qsintmax, vbeta3_tmp, vbeta3pot, &
-                              rveget_tmp, rstruct_tmp, cimean_tmp, gsmean_tmp, gpp_tmp, vbeta23, cim_tmp)
+                              rveget_tmp, rstruct_tmp, cresist_tmp, cimean_tmp, gsmean_tmp, gpp_tmp, vbeta23, cim_tmp)
 
     ELSE
 
@@ -465,6 +509,8 @@ CONTAINS
            & gsmean, vbeta23)
 
     ENDIF
+    
+!    WRITE(numout,*) 'ke-vbeta3 : ', vbeta3,',',veget,',',qsintveg,',',humrel,',',q_cdrag,',',rveg_pft,',',rveget,',',rstruct
     !
     !biogenic emissions
     !
@@ -475,14 +521,45 @@ CONTAINS
             veget, hist_id, hist2_id, kjit, index, &
             indexlai, indexveg)
     ENDIF
-    !
-    ! combination of coefficient : alpha and beta coefficient
-    ! beta coefficient for bare soil
-    !
+    
+    !! HAS source input !! add by shuai (start)
+    IF (ok_has .AND. has_use_nfert_file) THEN
+       has_source_event(:,:)  = .FALSE.
+       has_source_amount(:,:) = 0._r_std
 
+       ! Convert the prescribed daily UAN input into a single pulse at 12:00.
+       ! The pulse is assumed to occur at the beginning of the corresponding
+       ! time step and is subsequently subject to depletion and rainfall wash-off.
+       nstep_day   = INT(one_day / dt_sechiba)
+       step_in_day = MOD(kjit-1, nstep_day) + 1
+       pulse_step  = INT(12.0_r_std * 3600._r_std / dt_sechiba) + 1
+
+       IF (step_in_day == pulse_step) THEN
+          DO jv = 2, nvm
+             has_source_event(:,jv)  = (N_add_has(:,jv) > 0._r_std) .AND. &
+                                       (veget_max(:,jv) > min_sechiba)
+             has_source_amount(:,jv) = N_add_has(:,jv)
+          ENDDO
+       ENDIF
+
+       CALL diffuco_has (kjpindex, q2m, t2m, pb, &
+                         veget, veget_max, humrel, qsintveg, qsintmax, qsoverflow, cresist, &
+                         has_source_event, has_source_amount, &
+                         has_store, has_film, vbeta_has)
+
+    ELSE
+       has_source_event(:,:)  = .FALSE.
+       has_source_amount(:,:) = 0._r_std
+       vbeta_has(:,:) = zero
+       has_film(:,:)  = zero
+    ENDIF
+    !! add by shuai (end)
+    
+    ! beta coefficient for bare soil    
 !    CALL diffuco_bare (kjpindex, u, v, q_cdrag, rsol, evap_bare_lim, evap_bare_lim_pft, humrel, &
+
     CALL diffuco_bare (kjpindex, u, v, q_cdrag, rsol, evap_bare_lim, humrel, &
-         veget, veget_max, tot_bare_soil, vbeta2, vbeta3, vbeta4, vbeta4_pft)
+         veget, veget_max, tot_bare_soil, vbeta2, vbeta3, vbeta4, vbeta4_pft, tot_residue,nrec_trans,havlen,date_s2,nmatlab)  !! add by Ke
 
   !! 6. Combine the alpha and beta coefficients
 
@@ -492,7 +569,7 @@ CONTAINS
 !    WRITE(numout,*) 'vbeta_pft(1,:)', vbeta_pft(1,:)
 !    WRITE(numout,*) 'tot_bare_soil(1)',tot_bare_soil(1)
     CALL diffuco_comb (kjpindex, humrel, rau, u, v, q_cdrag, pb, qair, temp_sol, temp_air, snow, &
-       & veget, veget_max, lai, tot_bare_soil, vbeta1, vbeta2, vbeta3, vbeta4, vbeta4_pft, valpha, vbeta, vbeta_pft, qsintmax)
+       & veget, veget_max, lai, tot_bare_soil, vbeta1, vbeta2, vbeta3, vbeta_has, vbeta4, vbeta4_pft, valpha, vbeta, vbeta_pft, qsintmax,nrec_trans,havlen,nmatlab,veget_init)!! add by Ke
 !    WRITE(numout,*) 'xuhui: after diffuco_comb'
 !    WRITE(numout,*) 'vbeta(1)', vbeta(1)
 !    WRITE(numout,*) 'vbeta_pft(1,:)', vbeta_pft(1,:)
@@ -509,6 +586,7 @@ CONTAINS
     CALL xios_orchidee_send_field("Day",julian_diff_2d)
     CALL xios_orchidee_send_field("Year_length",year_length_2d)
     IF ( ok_co2 ) CALL xios_orchidee_send_field('cim', cim)
+    IF ( ok_has ) CALL xios_orchidee_send_field('has_store', has_store) !! add by shuai
 
     IF ( .NOT. almaoutput ) THEN
        CALL histwrite_p(hist_id, 'raero', kjit, raero, kjpindex, index)
@@ -519,6 +597,7 @@ CONTAINS
        CALL histwrite_p(hist_id, 'Day', kjit, julian_diff_2d,kjpindex,index)
        CALL histwrite_p(hist_id, 'Year_length', kjit, year_length_2d,kjpindex,index)
        IF ( ok_co2 ) CALL histwrite_p(hist_id, 'cim', kjit, cim, kjpindex*nvm, indexveg)
+       IF ( ok_has ) CALL histwrite_p(hist_id, 'has_store', kjit, has_store, kjpindex*nvm, indexveg) !! add by shuai
 
        IF ( hist2_id > 0 ) THEN
           CALL histwrite_p(hist2_id, 'raero', kjit, raero, kjpindex, index)
@@ -568,7 +647,7 @@ CONTAINS
 !_ ================================================================================================================================
     
   !! 1. Prepare the restart file for the next simulation
-    IF (printlev>=3) WRITE (numout,*) 'Complete restart file with DIFFUCO variables '
+!    IF (printlev>=3) WRITE (numout,*) 'Complete restart file with DIFFUCO variables '
 
     CALL restput_p (rest_id, 'rstruct', nbp_glo, nvm, 1, kjit, rstruct, 'scatter',  nbp_glo, index_g)
 
@@ -583,6 +662,9 @@ CONTAINS
           CALL restput_p (rest_id, var_name, nbp_glo, nvm, 1, kjit, leaf_ci(:,:,ilai), 'scatter',  nbp_glo, index_g)
        END DO
     END IF
+    IF (ok_has) THEN
+       CALL restput_p (rest_id, 'has_store', nbp_glo, nvm, 1, kjit, has_store, 'scatter', nbp_glo, index_g) !! add by shuai
+    ENDIF
   
   END SUBROUTINE diffuco_finalize
 
@@ -609,7 +691,8 @@ CONTAINS
   SUBROUTINE diffuco_clear()
 
     IF (ALLOCATED (leaf_ci)) DEALLOCATE (leaf_ci)
-
+    IF (ALLOCATED (has_store)) DEALLOCATE (has_store) !!add by shuai
+    IF (ALLOCATED (wind)) DEALLOCATE (wind)
   END SUBROUTINE diffuco_clear
 
 
@@ -923,7 +1006,7 @@ CONTAINS
 
     END DO
 
-    IF (printlev>=3) WRITE (numout,*) ' not ldqcdrag_from_gcm : diffuco_aero done '
+!    IF (printlev>=3) WRITE (numout,*) ' not ldqcdrag_from_gcm : diffuco_aero done '
 
   END SUBROUTINE diffuco_aero
 
@@ -1095,6 +1178,7 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: flood_frac !! fraction of floodplains
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: evapot     !! Potential evaporation
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)            :: evapot_corr!! Potential evaporation2
+    
     ! output fields
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)           :: vbeta5     !! Beta for floodplains
 
@@ -1205,7 +1289,7 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
 !_ ================================================================================================================================
 
   SUBROUTINE diffuco_inter (kjpindex, qair, qsatt, rau, u, v, q_cdrag, q_cdrag_pft, humrel, veget, &
-     & qsintveg, qsintmax, rstruct, vbeta2, vbeta23)
+     & qsintveg, qsintmax, rstruct, vbeta2, vbeta23,tot_residue,nrec_trans,havlen,date_s2,nmatlab,veget_init) !! add by ke
    
   !! 0 Variable and parameter declaration
 
@@ -1219,30 +1303,38 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: v          !! Northward Lowest level wind speed (m s^{-1})
     REAL(r_std),DIMENSION (kjpindex), INTENT (in)        :: q_cdrag    !! Product of Surface drag coefficient and wind 
                                                                        !! speed (m s^{-1})
-    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: q_cdrag_pft   !!Product of Surface drag coefficient and wind
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: q_cdrag_pft!!Product of Surface drag coefficient and wind
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: humrel     !! Soil moisture stress (within range 0 to 1)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget      !! vegetation fraction for each type (fraction)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsintveg   !! Water on vegetation due to interception (kg m^{-2})
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsintmax   !! Maximum water on vegetation (kg m^{-2})
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: rstruct    !! architectural resistance (s m^{-1})
-    
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)        :: tot_residue!! add by ke 
+    INTEGER(i_std),INTENT (in)                           :: date_s2    !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: nrec_trans !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: havlen     !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex), INTENT(in)     :: nmatlab    !! add by ke 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget_init !! add by ke
     !! 0.2 Output variables
     
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: vbeta2     !! Beta for interception loss (-)
+    
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)   :: vbeta23    !! Beta for fraction of wetted foliage that will 
                                                                        !! transpire (-)
 
     !! 0.4 Local variables
 
     INTEGER(i_std)                                       :: ji, jv                               !! (-), (-)
-    REAL(r_std)                                          :: zqsvegrap, ziltest, zrapp, speed     !!
+    REAL(r_std)                                          :: zqsvegrap, ziltest, zrapp, speed      !!
 !_ ================================================================================================================================
 
   !! 1. Initialize
 
     vbeta2(:,:) = zero
     vbeta23(:,:) = zero
-   
+
   !! 2. The beta coefficient for interception by vegetation. 
     
     DO jv = 2,nvm
@@ -1253,82 +1345,48 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
 
             zqsvegrap = zero
             IF (qsintmax(ji,jv) .GT. min_sechiba ) THEN
-
-            !! \latexonly 
-            !!     \input{diffucointer1.tex}
-            !! \endlatexonly
-            !!
-            !! We calculate the wet fraction of vegetation as  the ration between the intercepted water and the maximum water 
-            !! on the vegetation. This ratio defines the wet portion of vegetation that will be submitted to interception loss.
-            !!
                 zqsvegrap = MAX(zero, qsintveg(ji,jv) / qsintmax(ji,jv))
+
             END IF
-
-            !! \latexonly 
-            !!     \input{diffucointer2.tex}
-            !! \endlatexonly
             speed = MAX(min_wind, wind(ji))
-
-            !! Calculation of $\beta_3$, the canopy transpiration resistance
-            !! \latexonly 
-            !!     \input{diffucointer3.tex}
-            !! \endlatexonly
+            !!!!!!! modified by ke
             IF (.NOT. ok_LAIdev(jv)) THEN
-                vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag(ji) * rstruct(ji,jv)))
+                IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+                    vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag(ji) * rstruct(ji,jv)))
+                    vbeta2(ji,12) = veget_init(ji,12) * zqsvegrap * (un / (un + speed * q_cdrag(ji) * rstruct(ji,12)))
+                ELSE
+                    vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag(ji) * rstruct(ji,jv)))
+                ENDIF
             ELSE
-                vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag_pft(ji,jv) * rstruct(ji,jv)))
-                ! for crops, assuming separate field with separate drag
-                ! coefficient for each crop
-                ! this will affect the estimates of transpiration, xuhui
+                IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+                    vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag_pft(ji,jv) * rstruct(ji,jv)))
+                    vbeta2(ji,12) = veget_init(ji,12) * zqsvegrap * (un / (un + speed * q_cdrag_pft(ji,12) * rstruct(ji,12)))
+                ELSE
+                    vbeta2(ji,jv) = veget(ji,jv) * zqsvegrap * (un / (un + speed * q_cdrag_pft(ji,jv) * rstruct(ji,jv)))
+                ENDIF
+            !!!!!!! modified by ke
             ENDIF
-            
-            !! We here determine the limitation of interception loss by the water stored on the leaf. 
-            !! A first approximation of interception loss is obtained using the old values of
-            !! qair and qsol_sat, which are functions of temp-sol and pb. (see call of 'qsatcalc')
-            !! \latexonly 
-            !!     \input{diffucointer4.tex}
-            !! \endlatexonly
             ziltest = dt_sechiba * vbeta2(ji,jv) * speed * q_cdrag(ji) * rau(ji) * &
                & ( qsatt(ji) - qair(ji) )
 
             IF ( ziltest .GT. zero ) THEN
-
-                !! \latexonly 
-                !!     \input{diffucointer5.tex}
-                !! \endlatexonly
                 zrapp = qsintveg(ji,jv) / ziltest
                 IF ( zrapp .LT. un ) THEN
-                   
-                    !! \latexonly 
-                    !!     \input{diffucointer6.tex}
-                    !! \endlatexonly
-                    !!
-		    !! Once the whole water stored on foliage has evaporated, transpiration can take place on the fraction
-                    !! 'zqsvegrap'.
                    IF ( humrel(ji,jv) >= min_sechiba ) THEN
                       vbeta23(ji,jv) = MAX(vbeta2(ji,jv) - vbeta2(ji,jv) * zrapp, zero)
                    ELSE
-                      ! We don't want transpiration when the soil cannot deliver it
                       vbeta23(ji,jv) = zero
                    ENDIF
-                    
-                    !! \latexonly 
-                    !!     \input{diffucointer7.tex}
-                    !! \endlatexonly
-                    vbeta2(ji,jv) = vbeta2(ji,jv) * zrapp
+                   vbeta2(ji,jv) = vbeta2(ji,jv) * zrapp
                 ENDIF
             ENDIF
-        END IF
-!        ! Autre formulation possible pour l'evaporation permettant une transpiration sur tout le feuillage
-!        !commenter si formulation Nathalie sinon Tristan
-!        speed = MAX(min_wind, wind(ji))
-!        
-!        vbeta23(ji,jv) = MAX(zero, veget(ji,jv) * (un / (un + speed * q_cdrag(ji) * rstruct(ji,jv))) - vbeta2(ji,jv))
+         ENDIF
+            
 
       END DO
 
     END DO
-
+     
     IF (printlev>=3) WRITE (numout,*) ' diffuco_inter done '
 
   END SUBROUTINE diffuco_inter
@@ -1372,7 +1430,7 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
 
 !  SUBROUTINE diffuco_bare (kjpindex, u, v, q_cdrag, rsol, evap_bare_lim, evap_bare_lim_pft, humrel, &
   SUBROUTINE diffuco_bare (kjpindex, u, v, q_cdrag, rsol, evap_bare_lim, humrel, &
-       & veget, veget_max, tot_bare_soil, vbeta2, vbeta3, vbeta4, vbeta4_pft)
+       & veget, veget_max, tot_bare_soil, vbeta2, vbeta3, vbeta4, vbeta4_pft,tot_residue,nrec_trans,havlen,date_s2,nmatlab) !! add by ke
 
     !! 0. Variable and parameter declaration
 
@@ -1392,6 +1450,11 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: vbeta2         !! Beta for Interception 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)  :: vbeta3         !! Beta for Transpiration 
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)      :: tot_bare_soil  !! Total evaporating bare soil fraction 
+    REAL(r_std), DIMENSION (kjpindex), INTENT(in)      :: tot_residue    !! add by ke 
+    INTEGER(i_std),INTENT (in)                         :: date_s2        !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex),INTENT(in)    :: nmatlab        !! add by ke 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in)  :: nrec_trans  !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in)  :: havlen      !! add by ke
 
     !! 0.2 Output variables
     
@@ -1401,6 +1464,8 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
     !! 0.3 Modified variables
         
     !! 0.4 Local variables
+    REAL(r_std)                                    :: beta_update        !! add by ke
+    REAL(r_std)                                    :: beta_update_pft    !! add by ke
     REAL(r_std)                                    :: humveg_prod
 
     INTEGER(i_std)                                     :: ji, jv
@@ -1436,7 +1501,9 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
              !vbeta4(ji) = tot_bare_soil(ji) *humrel(ji,1)* (un / (un + speed * q_cdrag(ji) * rsol(ji)))
              ! Nathalie - le 28 mars 2006 - vbeta4 n'etait pas calcule en fonction de
              ! rsol mais de rsol_cste * hdry! Dans ce cas inutile de calculer rsol(ji)!!
-             vbeta4(ji) = tot_bare_soil(ji) * (un / (un + speed * q_cdrag(ji) * rsol(ji)))
+             
+             vbeta4(ji) = tot_bare_soil(ji) * (un / (un + speed * q_cdrag(ji) *rsol(ji)))
+
              
           ENDIF
           !Commenter la ligne ci-dessous si calcul Nathalie sinon Tristan
@@ -1447,23 +1514,77 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
     ELSE
        DO ji = 1, kjpindex
 
-          ! The limitation by 1-beta2-beta3 is due to the fact that evaporation under vegetation is possible
-          !! \latexonly 
-          !!     \input{diffucobare3.tex}
-          !! \endlatexonly
-          vbeta4(ji) = MIN(evap_bare_lim(ji), un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+!          vbeta4(ji) = MIN(evap_bare_lim(ji), un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
 
+!!!! modified by ke       
+
+          IF ( (ok_residues) .AND. (havlen(ji,12) .GT. 0) .AND. (havlen(ji,12) .LT. residue_duration(12)) ) THEN
+             IF (ok_evap) THEN
+
+                beta_update = (un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+             
+                vbeta4(ji) = MIN(evap_bare_lim(ji), beta_update ) 
+                vbeta4(ji) = vbeta4(ji)*(0.7+0.3*tot_bare_soil(ji))
+             ELSE
+                vbeta4(ji) = MIN(evap_bare_lim(ji), un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+             ENDIF 
+          ELSE IF ( (ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+            ! beta_update = (0.6+0.4*tot_bare_soil(ji))*(un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+             
+            ! vbeta4(ji) = MIN(0.6+0.4*(tot_bare_soil(ji))*evap_bare_lim(ji), beta_update ) 
+             vbeta4(ji) = MIN(evap_bare_lim(ji), un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+          ELSE
+             vbeta4(ji) = MIN(evap_bare_lim(ji), un - SUM(vbeta2(ji,:)+vbeta3(ji,:)))
+             
+          ENDIF
+   !       WRITE(numout,*) 'ke-rsol in diffuco', rsol(ji)
+!!!! modified by ke 
+
+!!!! modified by ke           
           DO jv = 1,nvm
-              IF ( veget_max(ji,jv) .GT. 0 ) THEN
-!                  vbeta4_pft(ji,jv) = MIN(evap_bare_lim_pft(ji,jv), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
-                  vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
-              ELSE
-                  vbeta4_pft(ji,jv) = 0
-              ENDIF
+!             IF ( veget_max(ji,jv) .GT. 0 ) THEN
+!                 vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+!             ELSE
+!                 vbeta4_pft(ji,jv) = 0
+!             ENDIF
+             
+             IF (jv .NE. 12) THEN
+                 IF ( veget_max(ji,jv) .GT. 0 ) THEN
+                    vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+                 ELSE
+                    vbeta4_pft(ji,jv) = 0
+                 ENDIF
+             ELSE
+                 IF ( veget_max(ji,jv) .GT. 0 ) THEN
+ 
+                     IF (( ok_residues ).AND. (havlen(ji,jv) .GT. 0) .AND. (havlen(ji,jv) .LT. residue_duration(jv)) ) THEN
+
+                         IF (ok_evap) THEN
+
+                            beta_update_pft = (veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+
+                            vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), beta_update_pft ) 
+                            vbeta4_pft(ji,jv) = vbeta4_pft(ji,jv) *(0.7+0.3*tot_bare_soil(ji))
+                         ELSE
+                            vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+                         ENDIF
+                     ELSE IF ( (ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,jv) .LT. 1)) THEN
+                      !   beta_update_pft = (0.6+0.4*tot_bare_soil(ji))*(veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+                         vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+                      !   vbeta4_pft(ji,jv) = MIN((0.5+0.5*tot_bare_soil(ji))*evap_bare_lim(ji), beta_update_pft ) 
+                     ELSE
+                         vbeta4_pft(ji,jv) = MIN(evap_bare_lim(ji), veget_max(ji,jv) - (vbeta2(ji,jv)+vbeta3(ji,jv)))
+                     ENDIF
+                 ELSE
+                     vbeta4_pft(ji,jv) = 0
+                 ENDIF
+             ENDIF
+!!!! modified by ke                          
           ENDDO
+
        END DO
     ENDIF
-
+  !  WRITE(numout,*) 'ke-vbeta4 in diffuco', vbeta4,',',vbeta2,',',vbeta3,',',havlen,',',evap_bare_lim,',',SUM(vbeta2(ji,:)+vbeta3(ji,:))
     IF (printlev>=3) WRITE (numout,*) ' diffuco_bare done '
     
   END SUBROUTINE diffuco_bare
@@ -1629,7 +1750,7 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
             !! \endlatexonly
             zqsvegrap(ji) = MAX(zero, qsintveg(ji,jv) / qsintmax(ji,jv))
          ENDIF
-         
+!         WRITE(numout,*) 'ke-qsintveg2 : ', qsintveg(ji,jv),',',qsintmax(ji,jv),',',lai(ji,jv),veget(ji,jv)
          IF ( ( veget(ji,jv)*lai(ji,jv) .GT. min_sechiba ) .AND. &
               ( kzero(jv) .GT. min_sechiba ) .AND. &
               ( swnet(ji) .GT. min_sechiba ) ) THEN
@@ -1663,6 +1784,8 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
             vbeta3(ji,jv) = vbeta3(ji,jv) + MIN( vbeta23(ji,jv), &
                  veget(ji,jv) * zqsvegrap(ji) * humrel(ji,jv) * &
                  (un / (un + speed * q_cdrag(ji) * (rveg_pft(jv)*(rveget(ji,jv) + rstruct(ji,jv))))))
+                 
+!            WRITE(numout,*) 'ke-vbeta3 : ', vbeta3(ji,jv),',',veget(ji,jv),',',zqsvegrap(ji),',',humrel(ji,jv),',',speed,',',q_cdrag(ji),',',rveg_pft(jv),',',rveget(ji,jv),',',rstruct(ji,jv)
             ! Fin ajout Nathalie
             ! Autre possibilite permettant la transpiration sur toute la canopee
             !Commenter si formulation Nathalie sinon Tristan
@@ -1796,7 +1919,7 @@ SUBROUTINE diffuco_snow (kjpindex, qair, qsatt, rau, u, v,q_cdrag, &
 
 SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_growth, rau, u, v, q_cdrag, q_cdrag_pft,  humrel, &
                                 assim_param, Ca, &
-                                veget, veget_max, lai, qsintveg, qsintmax, vbeta3, vbeta3pot, rveget, rstruct, &
+                                veget, veget_max, lai, qsintveg, qsintmax, vbeta3, vbeta3pot, rveget, rstruct, cresist, &
                                 cimean, gsmean, gpp, vbeta23, cim)
 
     !
@@ -1855,6 +1978,7 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)       :: rveget           !! stomatal resistance of vegetation 
                                                                                  !! @tex ($s m^{-1}$) @endtex
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)       :: rstruct          !! structural resistance @tex ($s m^{-1}$) @endtex
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)        :: cresist          !! Canopy exchange limitation factor (unitless) !! add by shuai
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)       :: cimean           !! mean intercellular CO2 concentration 
                                                                                  !! @tex ($\mu mol mol^{-1}$) @endtex
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (out)       :: gsmean           !! mean stomatal conductance to CO2 (umol m-2 s-1)
@@ -1957,7 +2081,7 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     REAL(r_std)                           :: a,b,c,d,m,f,j,g,h,i,l,p,q,r         !! Variables used for solving the cubic equation (see Yin et al. (2009))
     REAL(r_std)                           :: QQ,UU,PSI,x1,x2,x3                      !! Variables used for solving the cubic equation (see Yin et al. (2009))
                                         
-    REAL(r_std)                           :: cresist                             !! coefficient for resistances (??)
+   ! REAL(r_std)                           :: cresist                             !! coefficient for resistances (??)
     CHARACTER(LEN=150)                    :: printstr, printstr2                 !! For temporary uses
     REAL(r_std), DIMENSION(kjpindex)      :: laisum                              !! when calculating cim over nlai
 
@@ -1975,9 +2099,11 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     !! \endlatexonly
 ! @}
 ! @codeinc
+
     DO jl = 1, nlai+1
       laitab(jl) = laimax*(EXP(lai_level_depth*REAL(jl-1,r_std))-1.)/(EXP(lai_level_depth*REAL(nlai,r_std))-un)
     ENDDO
+
 ! @endcodeinc
 
 ! @addtogroup Photosynthesis
@@ -1991,11 +2117,13 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     !! \endlatexonly
 ! @}
 ! @codeinc
+
     DO jl = 1, nlai
       DO jv = 1, nvm
         light(jv,jl) = exp( -ext_coeff(jv)*laitab(jl) )
       ENDDO
     ENDDO 
+
 ! @endcodeinc
     !
     ! Photosynthesis parameters
@@ -2028,11 +2156,12 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
 !      ( qair(:) * pb(:) / (0.622+qair(:)*0.378) ) / &
 !      ( qsatt(:)*pb(:) / (0.622+qsatt(:)*0.378 ) )
 ! @codeinc
+
     CALL qsatcalc (kjpindex, t2m, pb, qsatt)
     air_relhum(:) = &
       ( q2m(:) * pb(:) / (Tetens_1+q2m(:)* Tetens_2) ) / &
       ( qsatt(:)*pb(:) / (Tetens_1+qsatt(:)*Tetens_2 ) )
-
+    
 
     VPD(:) = ( qsatt(:)*pb(:) / (Tetens_1+qsatt(:)*Tetens_2 ) ) &
          - ( q2m(:) * pb(:) / (Tetens_1+q2m(:)* Tetens_2) )
@@ -2049,6 +2178,8 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     rstruct(:,1) = rstruct_const(1)
     rveget(:,:) = undef_sechiba
     rveget_min(:,:) = undef_sechiba
+    cresist(:,:) = zero !! add by shuai
+
     !
     vbeta3(:,:) = zero
     vbeta3pot(:,:) = zero
@@ -2056,6 +2187,7 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
     gpp(:,:) = zero
     !
     cimean(:,1) = Ca(:)
+
     !
     ! @addtogroup Photosynthesis
     ! @{   
@@ -2094,18 +2226,19 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
 !!         IF ( ( lai(ji,jv) .GT. 0.01 ) .AND. & !! original
 !!         IF ( ( lai(ji,jv) .GT. 0.001 ) .AND. & !! I think this one is better
 !in precision, but it will affect the general performance
+
            IF ( ( (ok_LAIdev(jv) .AND. (lai(ji,jv) .GT. 0.001) ) .OR. ( (.NOT. ok_LAIdev(jv)) .AND. (lai(ji,jv) .GT. 0.01) ) ) .AND. &
               ( veget_max(ji,jv) .GT. min_sechiba ) ) THEN
 
 #ifdef STRICT_CHECK 
+
             IF (vcmax(ji, jv) <= 0) THEN
-               WRITE(printstr, *)  'coordinates lat=', lalo(ji, 1),' long=', lalo(ji, 2), 'PFT=', jv
-               WRITE(printstr2, *) 'lai=', lai(ji,jv), '  vcmax=', vcmax(ji,jv)
+!               WRITE(printstr, *)  'coordinates lat=', lalo(ji, 1),' long=', lalo(ji, 2), 'PFT=', jv
+!               WRITE(printstr2, *) 'lai=', lai(ji,jv), '  vcmax=', vcmax(ji,jv)
                CALL ipslerr_p(3, 'diffuco_trans_co2', 'vcmax must be bigger than 0 to be consistent with lai', & 
                               TRIM(printstr), TRIM(printstr2))
             ENDIF
 #endif
-
             IF ( ( veget(ji,jv) .GT. min_sechiba ) .AND. &
                  ( swdown(ji) .GT. min_sechiba )   .AND. &
                  ( temp_growth(ji) .GT. tphoto_min(jv) ) .AND. &
@@ -2119,9 +2252,10 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
                !
                assimilate(ji) = .FALSE.
                nina=nina+1
-               index_non_assi(nina)=ji
+               index_non_assi(nina)=ji              
                !
             ENDIF
+
          ELSE
             !
             assimilate(ji) = .FALSE.
@@ -2130,10 +2264,8 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
             !
          ENDIF
          !
-
       ENDDO
       !
-
       gstot(:) = zero
       assimtot(:) = zero
       Rdtot(:)=zero
@@ -2214,16 +2346,11 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
       ! section Methods/Data of Kattge & Knorr
       vj(:) = ( arJV(jv) + brJV(jv) *  MAX(11., MIN(temp_growth(:),35.)) ) * vcmax(:,jv) * T_Jmax(:)
 
-      
-
-
       ! @endcodeinc
       !
       KmC(:)=KmC25(jv)*T_KmC(:)
       KmO(:)=KmO25(jv)*T_KmO(:)
       gamma_star(:) = gamma_star25(jv)*T_gamma_star(:)
-
-
 
       ! low_gamma_star is defined by Yin et al. (2009)
       ! as the half of the reciprocal of Sco - See Table 2
@@ -2560,7 +2687,6 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
          ENDIF
       ENDDO  ! loop over LAI steps
 
-
       !! Calculated intercellular CO2 over nlai needed for the chemistry module
       cim(:,:)=0.
       laisum(:)=0
@@ -2651,20 +2777,23 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
             !  (un / (un + speed * q_cdrag(iainia) * (rveget(iainia,jv) + &
             !   rstruct(iainia,jv))))
             !! Global resistance of the canopy to evaporation
+
             IF (.NOT. ok_LAIdev(jv)) THEN
-                cresist=(un / (un + speed * q_cdrag(iainia) * &
+                cresist(iainia,jv)=(un / (un + speed * q_cdrag(iainia) * &
                      (rveg_pft(jv)*(rveget(iainia,jv) + rstruct(iainia,jv)))))
             ELSE  ! croplands, xuhui
                 ! using pft specific drag coefficient 
-                cresist=(un / (un + speed * q_cdrag_pft(iainia,jv) * &
-                    (rveg_pft(jv)*(rveget(iainia,jv) + rstruct(iainia,jv)))))   
+                cresist(iainia,jv)=(un / (un + speed * q_cdrag_pft(iainia,jv) * &
+                    (rveg_pft(jv)*(rveget(iainia,jv) + rstruct(iainia,jv))))) 
+   
             ENDIF
 
             IF ( humrel(iainia,jv) >= min_sechiba ) THEN
                vbeta3(iainia,jv) = veget_max(iainia,jv) * &
-                    (un - zqsvegrap(iainia)) * cresist + &
+                    (un - zqsvegrap(iainia)) * cresist(iainia,jv) + &
                     MIN( vbeta23(iainia,jv), veget_max(iainia,jv) * &
-                    zqsvegrap(iainia) * cresist )
+                    zqsvegrap(iainia) * cresist(iainia,jv) )
+
             ELSE
                ! Because of a minimum conductance g0, vbeta3 cannot be zero even if humrel=0
                ! in the above equation.
@@ -2673,8 +2802,7 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
             END IF
 
             ! vbeta3pot for computation of potential transpiration (needed for irrigation)
-            vbeta3pot(iainia,jv) = MAX(zero, veget_max(iainia,jv) * cresist)
-
+            vbeta3pot(iainia,jv) = MAX(zero, veget_max(iainia,jv) * cresist(iainia,jv))
             !
             !
          ENDDO
@@ -2687,6 +2815,166 @@ SUBROUTINE diffuco_trans_co2 (kjpindex, lalo, swdown, pb, qsurf, q2m, t2m, temp_
 
 
 END SUBROUTINE diffuco_trans_co2
+
+
+!! ================================================================================================================================
+!!  SUBROUTINE: diffuco_has
+!!
+!!  Process-based representation of hydraulic activation of stomata (HAS)
+!!  induced by hygroscopic films on leaf surfaces
+!!
+!!  - Represents HAS as an additional liquid water loss pathway without modifying transpiration beta3
+!!  - Updates has_store, a dimensionless surface hygroscopic reservoir constrained to [0,1]
+!!  - Accounts for event-driven UAN replenishment, exponential depletion, and rainfall wash-off
+!!  - Computes has_film from RH-dependent leaf wetness, constrained by has_store and the dry-leaf area remaining after interception
+!!  - Represents suppression of microscale hygroscopic films by macroscale intercepted water through
+!!    the dry-leaf fraction (1 - qsintveg/qsintmax)
+!!  - Computes vbeta_has from has_film, current vegetation fraction, and the canopy exchange limitation factor
+!!  - The humrel constraint is currently disabled
+!!
+!!  IMPORTANT: This routine updates has_store and computes has_film and vbeta_has.
+!!  The resulting vbeta_has is subsequently used to calculate the HAS water flux in enerbil.f90.
+!! ================================================================================================================================
+
+SUBROUTINE diffuco_has (kjpindex, q2m, t2m, pb, &
+                        veget, veget_max, humrel, qsintveg, qsintmax, qsoverflow, cresist, &
+                        has_source_event, has_source_amount, &
+                        has_store, has_film, vbeta_has)
+    IMPLICIT NONE
+
+    !!  0. Variable and parameter declaration
+
+    !!  0.1 Input variables
+
+    INTEGER(i_std),INTENT(in)                               :: kjpindex           !! Number of grid points (domain size)
+    REAL(r_std),DIMENSION(kjpindex),INTENT(in)              :: q2m                !! 2 m specific humidity (kg kg-1)
+    REAL(r_std),DIMENSION(kjpindex),INTENT(in)              :: t2m                !! 2 m air temperature (K)
+    REAL(r_std),DIMENSION(kjpindex),INTENT(in)              :: pb                 !! Surface air pressure (Pa)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: veget              !! Vegetation fraction per PFT (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: veget_max          !! Maximum vegetation fraction per PFT (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: humrel             !! Relative soil moisture availability (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: qsintveg           !! Intercepted canopy water (kg m-2)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: qsintmax           !! Maximum interception capacity (kg m-2)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: qsoverflow         !! Interception overflow (kg m-2)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: cresist            !! Canopy exchange limitation factor (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)          :: has_source_amount  !! HAS source amount (kg m-2)
+    LOGICAL,DIMENSION(kjpindex,nvm),INTENT(in)              :: has_source_event   !! HAS source event
+
+    !! 0.2 Output variables
+
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)         :: has_film           !! Effective hygroscopic film fraction (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(out)         :: vbeta_has          !! HAS evaporation efficiency factor (-)
+
+
+    !! 0.3 Modified variables
+
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(inout)       :: has_store          !! HAS activation potential / surface hygroscopic reservoir (-)
+
+    !! 0.4 Local variables
+
+    INTEGER(i_std)                                          :: ji, jv             !! Loop indices
+    REAL(r_std),DIMENSION(kjpindex)                         :: qsatt              !! Saturation specific humidity at 2 m (kg kg-1)
+    REAL(r_std),DIMENSION(kjpindex)                         :: air_relhum         !! Relative humidity at 2 m (-)
+    REAL(r_std)                                             :: tau_sec            !! HAS dry decay timescale (s)
+    REAL(r_std)                                             :: decay_dry          !! Dry decay factor (-)
+    REAL(r_std)                                             :: has_add            !! HAS source injection strength (-)
+    REAL(r_std)                                             :: has_ret            !! Retention amount of deposited material (kg m-2)
+    REAL(r_std)                                             :: wash_frac          !! Rain-induced wash-off fraction (-)
+    REAL(r_std)                                             :: lw_frac            !! RH-based fractional leaf wetness (-)
+    REAL(r_std)                                             :: zqsvegrap          !! Relative canopy interception storage fraction (-)
+!_ ================================================================================================================================
+
+    ! Saturation specific humidity and relative humidity at 2 m
+    CALL qsatcalc(kjpindex, t2m, pb, qsatt)
+
+    air_relhum(:) = (q2m(:) * pb(:) / (Tetens_1 + q2m(:) * Tetens_2)) / &
+                    (qsatt(:) * pb(:) / (Tetens_1 + qsatt(:) * Tetens_2))
+
+    ! Dry depletion factor
+    tau_sec   = MAX(1.0_r_std, tau_has_days) * 86400.0_r_std
+    decay_dry = EXP(-dt_sechiba / tau_sec)
+
+    ! Update has_store (0-1): UAN injection, dry depletion, and rainfall wash-off
+    DO jv = 2, nvm
+      DO ji = 1, kjpindex
+
+        ! Injection when an application event occurs
+        IF (has_source_event(ji,jv)) THEN
+          has_ret = (un - throughfall_by_pft_for_has) * has_source_amount(ji,jv)
+
+          IF (has_ref > 0._r_std) THEN
+            has_add = un - EXP(-has_ret / has_ref)
+          ELSE
+            has_add = un
+          END IF
+
+          has_store(ji,jv) = MIN(un, has_store(ji,jv) + has_add)
+        END IF
+
+        ! Dry depletion of the updated HAS storage
+        has_store(ji,jv) = has_store(ji,jv) * decay_dry
+
+        ! Wash-off driven by canopy interception overflow
+        IF (k_wash_has > zero .AND. qsoverflow(ji,jv) > zero) THEN
+          wash_frac = un - EXP(-k_wash_has * qsoverflow(ji,jv))
+          has_store(ji,jv) = has_store(ji,jv) * (un - wash_frac)
+        END IF
+
+        IF (has_store(ji,jv) < 1.e-12_r_std) has_store(ji,jv) = zero
+        IF (has_store(ji,jv) > un)           has_store(ji,jv) = un
+
+      END DO
+    END DO
+
+    ! Micro film area fraction from RH-dependent leaf wetness
+    has_film(:,1) = zero
+
+    DO jv = 2, nvm
+      DO ji = 1, kjpindex
+
+        zqsvegrap = zero
+        IF (qsintmax(ji,jv) > min_sechiba) THEN
+          zqsvegrap = MAX(zero, MIN(un, qsintveg(ji,jv) / qsintmax(ji,jv)))
+        END IF
+
+        ! RH-dependent fractional leaf wetness (Burkhardt et al., 2009)
+        lw_frac = lw_a * EXP(lw_b * air_relhum(ji)) * lw_c
+        has_film(ji,jv) = MIN(MAX(zero, un - zqsvegrap), MAX(zero, lw_frac * has_store(ji,jv)))
+
+      END DO
+    END DO
+
+    ! vbeta_has: controlled by has_film, current vegetation fraction, and canopy exchange limiter (cresist)
+    vbeta_has(:,1) = zero
+
+    DO jv = 2, nvm
+      DO ji = 1, kjpindex
+
+        IF (has_film(ji,jv) > zero .AND. veget(ji,jv) > min_sechiba) THEN
+          vbeta_has(ji,jv) = veget(ji,jv) * has_film(ji,jv) * cresist(ji,jv)
+          vbeta_has(ji,jv) = MAX(zero, MIN(un, vbeta_has(ji,jv)))
+        ELSE
+          vbeta_has(ji,jv) = zero
+        END IF
+
+      !   ! Sensitivity test: force has_film = 1 in vbeta_has calculation
+      !   IF (veget(ji,jv) > min_sechiba) THEN
+      !     vbeta_has(ji,jv) = veget(ji,jv) * un * cresist(ji,jv)
+      !     vbeta_has(ji,jv) = MAX(zero, MIN(un, vbeta_has(ji,jv)))
+      !   ELSE
+      !     vbeta_has(ji,jv) = zero
+      !   END IF
+
+        ! Water source constraints (root-zone water supply)
+        ! IF (humrel(ji,jv) < min_sechiba) vbeta_has(ji,jv) = zero
+        ! As long as the leaves remain alive, water may still be supplied through &
+        ! internal hydraulic pathways to salt films on the leaf surface, &
+        ! thereby sustaining HAS. Therefore, HAS should not be forced to zero solely because humrel is very low.
+
+      END DO
+    END DO
+
+  END SUBROUTINE diffuco_has
 
 
 !! ================================================================================================================================
@@ -2775,7 +3063,8 @@ END SUBROUTINE diffuco_trans_co2
 !_ ================================================================================================================================
 
   SUBROUTINE diffuco_comb (kjpindex, humrel, rau, u, v, q_cdrag, pb, qair, temp_sol, temp_air, &
-       & snow, veget, veget_max, lai, tot_bare_soil, vbeta1, vbeta2, vbeta3 , vbeta4, vbeta4_pft, valpha, vbeta, vbeta_pft, qsintmax)    
+       & snow, veget, veget_max, lai, tot_bare_soil, vbeta1, vbeta2, vbeta3 , vbeta_has, & !! add by shuai
+       vbeta4, vbeta4_pft, valpha, vbeta, vbeta_pft, qsintmax,nrec_trans,havlen,nmatlab,veget_init)     !! add by ke
     
     ! Ajout qsintmax dans les arguments de la routine Nathalie / le 13-03-2006
 
@@ -2797,31 +3086,38 @@ END SUBROUTINE diffuco_trans_co2
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget_max  !! Maximum fraction of vegetation type (fraction)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: lai        !! Leaf area index (m^2 m^{-2})
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: qsintmax   !! Maximum water on vegetation (kg m^{-2})
+
     REAL(r_std), DIMENSION (kjpindex), INTENT(in)        :: tot_bare_soil!! Total evaporating bare soil fraction 
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: nrec_trans !! add by ke   
+    INTEGER(i_std), DIMENSION (kjpindex,nvm), INTENT(in) :: havlen     !! add by ke
+    INTEGER(i_std), DIMENSION (kjpindex),INTENT(in)      :: nmatlab    !! add by ke 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (in)    :: veget_init !! add by ke
 
     !! 0.2 Output variables
     
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: valpha     !! Total Alpha coefficient (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (out)       :: vbeta      !! Total beta coefficient (-)
-    REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)  :: vbeta_pft    !! Total beta coefficient (-)
+    REAL(r_std),DIMENSION (kjpindex, nvm), INTENT (out)  :: vbeta_pft  !! Total beta coefficient (-)
 
     !! 0.3 Modified variables 
     
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)     :: vbeta1     !! Beta for sublimation (-)
     REAL(r_std),DIMENSION (kjpindex), INTENT (inout)     :: vbeta4     !! Beta for Bare soil evaporation (-) 
-    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout)  :: vbeta4_pft !! Beta for Bare soil evaporation (-) 
+    REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout) :: vbeta4_pft !! Beta for Bare soil evaporation (-) 
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout) :: humrel     !! Soil moisture stress (within range 0 to 1)
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout) :: vbeta2     !! Beta for interception loss (-)
+    REAL(r_std),DIMENSION(kjpindex,nvm),INTENT(in)       :: vbeta_has  !! Beta for HAS microscale film (-) !! add by shuai
+
     REAL(r_std),DIMENSION (kjpindex,nvm), INTENT (inout) :: vbeta3     !! Beta for Transpiration (-)
     
     !! 0.4 Local variables
     
     INTEGER(i_std)                                       :: ji, jv
     REAL(r_std)                                          :: zevtest, zsoil_moist, zrapp
-    REAL(r_std), DIMENSION(kjpindex)                     :: vbeta2sum, vbeta3sum
-!!    REAL(r_std), DIMENSION(kjpindex)                     :: vegetsum, vegetsum2
+    REAL(r_std), DIMENSION(kjpindex)                     :: vbeta2sum, vbeta3sum, vbeta2ressum, vbeta_hassum !! add by shuai
+!!    REAL(r_std), DIMENSION(kjpindex)                   :: vegetsum, vegetsum2
     REAL(r_std), DIMENSION(kjpindex)                     :: qsatt
-    LOGICAL, DIMENSION(kjpindex)                         :: toveg, tosnow
+    LOGICAL, DIMENSION(kjpindex)                         :: toveg, tosnow, tores
     REAL(r_std)                                          :: coeff_dew_veg
 !_ ================================================================================================================================
     
@@ -2830,21 +3126,14 @@ END SUBROUTINE diffuco_trans_co2
     !! \endlatexonly
     vbeta2sum(:) = zero
     vbeta3sum(:) = zero
+    vbeta2ressum(:) = zero !! add by ke
+    vbeta_hassum(:) = zero !! add by shuai 
     DO jv = 1, nvm
       vbeta2sum(:) = vbeta2sum(:) + vbeta2(:,jv)
       vbeta3sum(:) = vbeta3sum(:) + vbeta3(:,jv)
-!      IF ok_LAIdev(jv) THEN
-!          vbeta_pft(:,jv) = vbeta4(:)/tot_bare_soil*(veget_max(:,1) + veget_max(:,jv) - veget(:,jv)) &
-!                            + vbeta2(:,jv)/veget_max(:,jv) + vbeta3(:,jv)/veget_max(:,jv)
-!          WHERE (tot_bare_soil(:)>0)
-!              vbeta_pft(:,jv) = vbeta4_pft(:,jv)/tot_bare_soil(:)*(veget_max(:,jv) - veget(:,jv)) &
-!              ! vbeta4_pft is not yet correctly calculated
-!    !          vbeta_pft(:,jv) = vbeta4(:)/tot_bare_soil(:)*(veget_max(:,jv) - veget(:,jv)) &
-!                                + vbeta2(:,jv) + vbeta3(:,jv) !!! this eq. is problematic, when veget_max(:,1)>0
-!          ELSEWHERE
-!              vbeta_pft(:,jv) = vbeta2(:,jv) + vbeta3(:,jv)
-!          ENDWHERE
-!      ENDIF
+      IF (ok_has) THEN
+        vbeta_hassum(:) = vbeta_hassum(:) + vbeta_has(:,jv) !! add by shuai (coupled mode)
+      ENDIF 
     ENDDO 
 
     WHERE (vbeta_pft(:,:) .LT. min_sechiba)
@@ -2870,9 +3159,16 @@ END SUBROUTINE diffuco_trans_co2
     DO ji = 1, kjpindex
 
       IF  (snow(ji) .LT. snowcri) THEN
-
-          vbeta(ji) = vbeta4(ji) + vbeta2sum(ji) + vbeta3sum(ji)
-
+          IF (((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+              vbeta(ji) = (vbeta4(ji) + vbeta2sum(ji) + vbeta3sum(ji))
+          ELSE
+              vbeta(ji) = (vbeta4(ji) + vbeta2sum(ji) + vbeta3sum(ji))
+          ENDIF
+          
+          IF (ok_has) THEN
+            vbeta(ji) = vbeta(ji) + vbeta_hassum(ji)  !! add by shuai (coupled mode)
+          ENDIF
+        
           IF (vbeta(ji) .LT. min_sechiba)  THEN
              vbeta(ji) = zero
           END IF
@@ -2880,7 +3176,12 @@ END SUBROUTINE diffuco_trans_co2
 !          !!!!! crops xuhui
           DO jv = 1, nvm
              IF ( veget(ji,jv) .GT. 0 ) THEN
-                 vbeta_pft(ji,jv) = vbeta4_pft(ji,jv) + (vbeta2(ji,jv) + vbeta3(ji,jv))
+                 vbeta_pft(ji,jv) = (vbeta4_pft(ji,jv) + (vbeta2(ji,jv) + vbeta3(ji,jv)))
+                 
+                 IF (ok_has) THEN
+                   vbeta_pft(ji,jv) = vbeta_pft(ji,jv) + vbeta_has(ji,jv)   !! add by shuai (coupled mode)
+                 ENDIF
+            
              ENDIF
              IF (vbeta_pft(ji,jv) .LT. min_sechiba) THEN
                  vbeta_pft(ji,jv) = zero
@@ -2892,7 +3193,7 @@ END SUBROUTINE diffuco_trans_co2
 
     ENDDO
 
-    
+
   !! 3 If we are in presence of dew:
      
     CALL qsatcalc (kjpindex, temp_sol, pb, qsatt)
@@ -2906,6 +3207,7 @@ END SUBROUTINE diffuco_trans_co2
     !! \endlatexonly
     toveg(:) = .FALSE.
     tosnow(:) = .FALSE.
+    tores(:) = .FALSE.    !! add by ke
     DO ji = 1, kjpindex
       IF ( qsatt(ji) .LT. qair(ji) ) THEN
           IF (temp_air(ji) .GT. tp_00) THEN
@@ -2914,6 +3216,7 @@ END SUBROUTINE diffuco_trans_co2
               !! If it is not freezing dew is put into the 
               !! interception reservoir and onto the bare soil.
               toveg(ji) = .TRUE.
+
           ELSE
 
               !! 9.3.1.2  If it is freezing, 
@@ -2948,6 +3251,8 @@ END SUBROUTINE diffuco_trans_co2
         ENDDO
         valpha(ji) = un
       ENDIF
+      
+   
       IF ( tosnow(ji) ) THEN
         vbeta1(ji) = un
         vbeta4(ji) = zero
@@ -2991,7 +3296,9 @@ END SUBROUTINE diffuco_trans_co2
                  vbeta2(ji,jv) = coeff_dew_veg*tot_bare_soil(ji)
               ELSE
                  vbeta2(ji,jv) = coeff_dew_veg*veget(ji,jv)
-             !vbeta2(ji,jv) = veget(ji,jv)
+                 IF ((ok_evap) .AND. ((nmatlab(ji)) .GT. 0) .AND. (havlen(ji,12) .LT. 1)) THEN
+                     vbeta2(ji,12) = coeff_dew_veg*veget_init(ji,12)   ! add by ke 
+                 ENDIF
               ENDIF
            ELSE
               vbeta2(ji,jv) = zero
@@ -2999,8 +3306,9 @@ END SUBROUTINE diffuco_trans_co2
            vbeta(ji) = vbeta(ji) + vbeta2(ji,jv)
            vbeta_pft(ji,jv) = vbeta_pft(ji,jv) + vbeta2(ji,jv)
         ENDIF
+
         IF ( tosnow(ji) ) vbeta2(ji,jv) = zero
-        
+
       ENDDO
       
     ENDDO
@@ -3026,6 +3334,7 @@ END SUBROUTINE diffuco_trans_co2
     DO ji = 1, kjpindex
        IF ( qsatt(ji) .LT. qair(ji) ) THEN
           vbeta2(ji,1) = zero
+
        ENDIF
     ENDDO
 

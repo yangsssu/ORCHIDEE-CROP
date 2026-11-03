@@ -107,9 +107,9 @@ CONTAINS
        lrestart_read, lrestart_write, lon, lat, zcontfrac, zresolution, date0, &
        zlev, u, v, qair, temp_air, epot_air, ccanopy, &
        cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-       precip_rain, precip_snow, lwdown, swnet, swdown, pb, &
+       precip_rain, precip_snow, lwdown, swnet, swdown, pb, & 
        vevapp, fluxsens, fluxlat, coastalflow, riverflow, &
-       tsol_rad, temp_sol_new, qsurf, albedo, emis, z0)
+       tsol_rad, temp_sol_new, qsurf, albedo, emis, z0)  !! add by ke
 
     IMPLICIT NONE
 
@@ -144,6 +144,7 @@ CONTAINS
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: zcontfrac     !! Fraction of continent in the grid
     REAL(r_std),DIMENSION (iim,jjm,2), INTENT(in)           :: zresolution   !! resolution in x and y dimensions
 
+  
     !! 0.2 Output variables
     REAL(r_std),DIMENSION (iim,jjm), INTENT(out)            :: z0            !! Surface roughness
     REAL(r_std),DIMENSION (iim,jjm), INTENT(out)            :: coastalflow   !! Diffuse flow of water into the ocean (m^3/dt)
@@ -170,6 +171,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex)                      :: zlwdown       !! Work array to keep lwdown
     REAL(r_std),DIMENSION (kjpindex)                      :: zswnet        !! Work array to keep swnet
     REAL(r_std),DIMENSION (kjpindex)                      :: zswdown       !! Work array to keep swdown
+
     REAL(r_std),DIMENSION (kjpindex)                      :: ztemp_air     !! Work array to keep temp_air
     REAL(r_std),DIMENSION (kjpindex)                      :: zepot_air     !! Work array to keep epot_air
     REAL(r_std),DIMENSION (kjpindex)                      :: zccanopy      !! Work array to keep ccanopy
@@ -279,6 +281,7 @@ CONTAINS
     ! 1. gather input fields from kindex array
     !    Warning : I'm not sure this interface with one dimension array is the good one
     !
+ !   WRITE(numout,*) "ke pb in intersurf_initialize_2d0 ",pb
     DO ik=1, kjpindex
       
        j = ((kindex(ik)-1)/iim) + 1
@@ -302,7 +305,6 @@ CONTAINS
        zpeqBcoef(ik)    = peqBcoef(i,j)
        zcdrag(ik)       = cdrag(i,j)
        zpb(ik)          = pb(i,j)
-       
     ENDDO
     !
     IF (check_INPUTS) THEN
@@ -376,7 +378,7 @@ CONTAINS
          rest_id_stom, hist_id_stom, hist_id_stom_IPCC,                         &
          zcoastal,     zriver,       ztsol_rad,     zvevapp,     zqsurf,        &
          zz0,          zalbedo,      zfluxsens,     zfluxlat,    zemis,         &
-         znetco2,      zcarblu,      ztemp_sol_new, zcdrag)
+         znetco2,      zcarblu,      ztemp_sol_new, zcdrag) !! add by ke
     
     IF ( printlev_loc >= 3 ) WRITE(numout,*) 'out of sechiba_initialize'
     !
@@ -453,10 +455,10 @@ CONTAINS
        lrestart_read, lrestart_write, lon, lat, zcontfrac, zresolution, date0, &
        zlev, u, v, qair, temp_air, epot_air, ccanopy, &
        cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-       precip_rain, precip_snow, lwdown, swnet, swdown, pb, &
+       precip_rain, precip_snow, lwdown, swnet, swdown, pb, & 
        vevapp, fluxsens, fluxlat, coastalflow, riverflow, &
        tsol_rad, temp_sol_new, qsurf, albedo, emis, z0, &
-       coszang)
+       coszang)   
 
     IMPLICIT NONE
 
@@ -479,6 +481,7 @@ CONTAINS
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: lwdown        !! Down-welling long-wave flux 
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: swnet         !! Net surface short-wave flux
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: swdown        !! Downwelling surface short-wave flux
+  
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: coszang       !! Cosine of the solar zenith angle (unitless)
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: temp_air      !! Air temperature in Kelvin
     REAL(r_std),DIMENSION (iim,jjm), INTENT(in)             :: epot_air      !! Air potential energy
@@ -504,7 +507,6 @@ CONTAINS
     REAL(r_std),DIMENSION (iim,jjm), INTENT(out)            :: fluxsens      !! Sensible chaleur flux
     REAL(r_std),DIMENSION (iim,jjm), INTENT(out)            :: fluxlat       !! Latent chaleur flux
     REAL(r_std),DIMENSION (iim,jjm), INTENT(out)            :: emis          !! Emissivity
-
     !! 0.3 Modified variables
     REAL(r_std),DIMENSION (iim,jjm), INTENT(inout)          :: cdrag         !! Cdrag
 
@@ -518,6 +520,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex)                      :: zlwdown       !! Work array to keep lwdown
     REAL(r_std),DIMENSION (kjpindex)                      :: zswnet        !! Work array to keep swnet
     REAL(r_std),DIMENSION (kjpindex)                      :: zswdown       !! Work array to keep swdown
+
     REAL(r_std),DIMENSION (kjpindex)                      :: zcoszang      !! Work array to keep coszang
     REAL(r_std),DIMENSION (kjpindex)                      :: ztemp_air     !! Work array to keep temp_air
     REAL(r_std),DIMENSION (kjpindex)                      :: zepot_air     !! Work array to keep epot_air
@@ -564,11 +567,13 @@ CONTAINS
     ! 1. gather input fields from kindex array
     !    Warning : I'm not sure this interface with one dimension array is the good one
     !
+!    WRITE(numout,*) "ke kindex in intersurf_main_2d ",kindex
+    
     DO ik=1, kjpindex
       
        j = ((kindex(ik)-1)/iim) + 1
        i = (kindex(ik) - (j-1)*iim)
-       
+  !     WRITE(numout,*) "ik=",ik," k=",kindex(ik)," -> (i,j)=",i,j," pb(i,j)=",pb(i,j)
        zu(ik)           = u(i,j)
        zv(ik)           = v(i,j)
        zzlev(ik)        = zlev(i,j)
@@ -578,6 +583,7 @@ CONTAINS
        zlwdown(ik)      = lwdown(i,j)
        zswnet(ik)       = swnet(i,j)
        zswdown(ik)      = swdown(i,j)
+
        zcoszang(ik)     = coszang(i,j)
        ztemp_air(ik)    = temp_air(i,j)
        zepot_air(ik)    = epot_air(i,j)
@@ -590,6 +596,8 @@ CONTAINS
        zpb(ik)          = pb(i,j)
        
     ENDDO
+ !   WRITE(numout,*) 'kjpindex=', kjpindex, ' size(zpb)=', SIZE(zpb)
+ !   WRITE(numout,*) "ke zpb in intersurf_main_2d ",zpb
     !
     IF (check_INPUTS) THEN
        WRITE(numout,*) "Intersurf_main_2D :"
@@ -628,6 +636,7 @@ CONTAINS
     !
     IF ( printlev_loc >= 3 ) WRITE(numout,*) 'Calling sechiba_main'
     
+    ! kindex in intersurf_main_2d before sechiba_main ",kindex
     CALL sechiba_main (itau_sechiba, iim*jjm, kjpindex, kindex, date0_shifted, &
          lrestart_read, lrestart_write, &
          lalo, contfrac, neighbours, resolution, &
@@ -636,7 +645,8 @@ CONTAINS
          zprecip_rain ,zprecip_snow,  zlwdown, zswnet, zswdown, zcoszang, zpb, &
          zvevapp, zfluxsens, zfluxlat, zcoastal, zriver, znetco2, zcarblu, &
          ztsol_rad, ztemp_sol_new, zqsurf, zalbedo, zemis, zz0, &
-         rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC ) 
+         rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC) 
+  !  WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main ",kindex
     
     IF ( printlev_loc >= 3 ) WRITE(numout,*) 'out of sechiba_main'
 
@@ -656,6 +666,7 @@ CONTAINS
     emis(:,:)         = undef_sechiba 
     cdrag(:,:)        = undef_sechiba 
     !
+!    WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main1 ",kindex
     DO ik=1, kjpindex
       
     
@@ -677,7 +688,8 @@ CONTAINS
        cdrag(i,j)        = zcdrag(ik)
 
     ENDDO
-
+!    WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main2 ",kindex
+    
     CALL xios_orchidee_send_field("LandPoints" ,(/ ( REAL(ik), ik=1,kjpindex ) /))
     CALL xios_orchidee_send_field("Areas", area)
     CALL xios_orchidee_send_field("Contfrac",contfrac)
@@ -699,7 +711,7 @@ CONTAINS
     CALL xios_orchidee_send_field("swdown",zswdown)
     ! zpb in hPa, output in Pa
     CALL xios_orchidee_send_field("Psurf",zpb*100.)
-    
+!    WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main3 ",kindex
     IF ( .NOT. almaoutput ) THEN
        !
        !  scattered during the writing
@@ -753,6 +765,7 @@ CONTAINS
        CALL histwrite_p (hist2_id, 'RadT', itau_sechiba, ztemp_sol_NEW, kjpindex, kindex)
     ENDIF
     !
+!    WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main4 ",kindex
     IF ( is_omp_root ) THEN
        IF ( (dw .EQ. xrdt) .AND. hist_id > 0 ) THEN
           ! Syncronize output but only if flag ok_histsync is set to true
@@ -773,7 +786,7 @@ CONTAINS
        riverflow(i,j) = riverflow(i,j)/xrdt
        
     ENDDO
-    
+ !   WRITE(numout,*) "ke kindex in intersurf_main_2d after sechiba_main5 ",kindex
     IF (printlev_loc >=3) WRITE (numout,*) ' intersurf_main done '
 
     CALL ipslnlf_p(new_number=old_fileout)
@@ -861,7 +874,7 @@ CONTAINS
        precip_rain, precip_snow, lwdown, swnet, swdown, pb, &
        vevapp, fluxsens, fluxlat, coastalflow, riverflow, &
        tsol_rad, temp_sol_new, qsurf, albedo, emis, z0, lon_scat_g, lat_scat_g, q2m, t2m, &
-       field_out_names, fields_out, field_in_names, fields_in)
+       field_out_names, fields_out, field_in_names, fields_in) !! add by ke
 
     USE mod_orchidee_para
     IMPLICIT NONE
@@ -886,6 +899,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: lwdown         !! Down-welling long-wave flux 
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: swnet          !! Net surface short-wave flux
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: swdown         !! Downwelling surface short-wave flux
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: temp_air       !! Air temperature in Kelvin
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: epot_air       !! Air potential energy
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)           :: petAcoef       !! Coeficients A from the PBL resolution
@@ -1252,7 +1266,7 @@ CONTAINS
          rest_id_stom, hist_id_stom, hist_id_stom_IPCC,                         &
          zcoastal,     zriver,       ztsol_rad,     zvevapp,     zqsurf,        &
          zz0,          zalbedo,      zfluxsens,     zfluxlat,    zemis,         &
-         znetco2,      zcarblu,      ztemp_sol_new, zcdrag)
+         znetco2,      zcarblu,      ztemp_sol_new, zcdrag) !! add by ke
     
     IF ( printlev_loc>=3 ) WRITE(numout,*) 'Out of sechiba_initialize'
 
@@ -1341,11 +1355,11 @@ CONTAINS
        lrestart_read, lrestart_write, latlon, zcontfrac, zneighbours, zresolution, date0, &
        zlev,  u, v, qair, temp_air, epot_air, ccanopy, &
        cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-       precip_rain, precip_snow, lwdown, swnet, swdown, pb, &
+       precip_rain, precip_snow, lwdown, swnet, swdown, pb,& 
        vevapp, fluxsens, fluxlat, coastalflow, riverflow, &
        tsol_rad, temp_sol_new, qsurf, albedo, emis, z0, lon_scat_g, lat_scat_g, q2m, t2m, &
        field_out_names, fields_out, field_in_names, fields_in, &
-       coszang)  
+       coszang)   
 
     USE mod_orchidee_para
     IMPLICIT NONE
@@ -1370,6 +1384,7 @@ CONTAINS
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: lwdown          !! Down-welling long-wave flux 
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: swnet           !! Net surface short-wave flux
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: swdown          !! Downwelling surface short-wave flux
+
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: temp_air        !! Air temperature in Kelvin
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: epot_air        !! Air potential energy
     REAL(r_std),DIMENSION (kjpindex), INTENT(in)          :: ccanopy         !! CO2 concentration in the canopy
@@ -1477,10 +1492,10 @@ CONTAINS
             lrestart_read, lrestart_write, latlon, zcontfrac, zneighbours, zresolution, date0, &
             zlev,  u, v, qair, temp_air, epot_air, &
             cdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-            precip_rain, precip_snow, lwdown, swnet, swdown, pb, &
+            precip_rain, precip_snow, lwdown, swnet, swdown, pb, & 
             vevapp, fluxsens, fluxlat, coastalflow, riverflow, &
             tsol_rad, temp_sol_new, qsurf, albedo, emis, z0, lon_scat_g, lat_scat_g, q2m, t2m, &
-            field_out_names, fields_out, field_in_names, fields_in )  
+            field_out_names, fields_out, field_in_names, fields_in) 
 
        ! Return from subroutine intersurf_main_gathered
        RETURN
@@ -1652,10 +1667,10 @@ CONTAINS
          lalo, contfrac, neighbours, resolution, &
          zlev, u, v, qair, q2m_loc, t2m_loc, temp_air, epot_air, zccanopy, &
          zcdrag, petAcoef, peqAcoef, petBcoef, peqBcoef, &
-         zprecip_rain ,zprecip_snow,  lwdown, swnet, swdown, zcoszang, pb, &
+         zprecip_rain ,zprecip_snow,  lwdown, swnet, swdown, zcoszang, pb,& 
          zvevapp, zfluxsens, zfluxlat, zcoastal, zriver, znetco2, zcarblu, &
          ztsol_rad, ztemp_sol_new, zqsurf, zalbedo, zemis, zz0, &
-         rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC ) 
+         rest_id, hist_id, hist2_id, rest_id_stom, hist_id_stom, hist_id_stom_IPCC) 
 
     IF ( printlev_loc>=3 ) WRITE(numout,*) 'out of SECHIBA'
 
@@ -2934,6 +2949,10 @@ CONTAINS
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
           CALL histdef(hist_id, 'evapnu', 'Bare soil evaporation', 'mm/d', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+     !!!! add by Ke 
+!          CALL histdef(hist_id, 'evapres', 'residue evaporation', 'mm/d', &
+!               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
+        !!!! add by Ke             
           CALL histdef(hist_id, 'runoff', 'Surface runoff', 'mm/d', &
                & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(2), dt,dw)
           CALL histdef(hist_id, 'drainage', 'Deep drainage', 'mm/d', &
@@ -2982,7 +3001,7 @@ CONTAINS
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, tmax(2), dt,dw) 
    
           CALL histdef(hist_id, 'irrig_fin', 'final application of irrigation', 'mm', &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(7), dt,dw)
 
           CALL histdef(hist_id, 'water2infilt', 'infiltrate water', 'mm', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(1), dt,dw)
@@ -2992,6 +3011,11 @@ CONTAINS
           IF ( hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'evapnu_soil', 'Bare soil evap for soil type', 'mm/d', &
                   & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+  !! add by ke                
+!             CALL histdef(hist_id, 'evapres_res', 'residue evap for soil type', 'mm/d', &
+!                  & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2), dt,dw)
+  !! add by ke                
+                  
              CALL histdef(hist_id, 'precip_soil', 'Precip for soil type','mm/d', &
                   & iim,jjm, hori_id, nstm, 1, nstm, soltax_id, 32, fluxop(2),dt,dw)            
              CALL histdef(hist_id, 'drainage_soil', 'Drainage for soil type', 'mm/d', &
@@ -3013,25 +3037,25 @@ CONTAINS
                & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
           ! Fin ajouts Nathalie
           CALL histdef(hist_id, 'alb_vis', 'Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(7), dt,dw)
           CALL histdef(hist_id, 'alb_nir', 'Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, ave(7), dt,dw)
           ! Ajouts Nathalie - Septembre 2008
           CALL histdef(hist_id, 'soilalb_vis', 'Soil Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'soilalb_nir', 'Soil Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'vegalb_vis', 'Vegetation Albedo visible', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'vegalb_nir', 'Vegetation Albedo near infrared', '1', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           ! Fin ajouts Nathalie - Septembre 2008
           CALL histdef(hist_id, 'z0', 'Surface roughness', 'm',  &
                & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
           CALL histdef(hist_id, 'roughheight', 'Effective roughness height', 'm',  &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(2), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'roughheight_pft', 'Effect roughness height pft', 'm',  &
-               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(3), dt,dw)
+               & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, avescatter(7), dt,dw)
           CALL histdef(hist_id, 'transpir', 'Transpiration', 'mm/d', &
                & iim,jjm, hori_id, nvm, 1, nvm, vegax_id, 32, fluxop(2), dt,dw)
           CALL histdef(hist_id, 'inter', 'Interception loss', 'mm/d', &
@@ -3367,7 +3391,7 @@ CONTAINS
 !                CALL histdef(hist_id, 'irrigation', 'Net irrigation', 'mm/d', &
 !                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(8), dt,dw)
                 CALL histdef(hist_id, 'netirrig', 'Net irrigation requirement', 'mm/d', &
-                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(8), dt,dw)
+                     & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
                 CALL histdef(hist_id, 'irrigmap', 'Map of irrigated surfaces', 'm^2', &
                      & iim,jjm, hori_id, 1,1,1, -99, 32, once(8), dt,dw)
              ENDIF
@@ -3387,7 +3411,7 @@ CONTAINS
           ENDIF
           ! define irrigation regardless of river_routing and do_irrigation
           CALL histdef(hist_id, 'irrigation', 'Net irrigation', 'mm/d', &
-               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(1), dt,dw)
+               & iim,jjm, hori_id, 1,1,1, -99, 32, fluxop(7), dt,dw)
 
           IF ( hydrol_cwrr ) THEN
              CALL histdef(hist_id, 'k_litt', 'Litter cond', 'mm/d', &
@@ -4038,6 +4062,7 @@ CONTAINS
              ENDIF
              CALL histdef(hist2_id, 'vevapnu', 'Bare soil evaporation', 'mm/d', &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, fluxop2(2), dt, dw2)
+            
              CALL histdef(hist2_id, 'temp_sol', 'New Surface Temperature', 'C', &
                   & iim,jjm, hori_id2, 1,1,1, -99, 32, avecels2(2), dt, dw2)
              CALL histdef(hist2_id, 'qsurf', 'Near surface specific humidity', 'g/g',  &
@@ -4132,6 +4157,10 @@ CONTAINS
              IF ( hydrol_cwrr ) THEN
                 CALL histdef(hist2_id, 'evapnu_soil', 'Bare soil evap for soil type', 'mm/d', &
                      & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(4), dt, dw2)
+    !!! add by ke            
+!                CALL histdef(hist2_id, 'evapres_res', 'residue evap for soil type', 'mm/d', &
+ !                    & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(4), dt, dw2)
+    !!! add by ke                
                 CALL histdef(hist2_id, 'drainage_soil', 'Drainage for soil type', 'mm/d', &
                      & iim,jjm, hori_id2, nstm, 1, nstm, soltax_id2, 32, fluxop2(4), dt, dw2)
                 CALL histdef(hist2_id, 'transpir_soil', 'Transpir for soil type', 'mm/d', &

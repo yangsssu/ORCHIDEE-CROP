@@ -5,7 +5,7 @@
 !
 ! LICENCE      : IPSL (2006)
 ! This software is governed by the CeCILL licence see ORCHIDEE/ORCHIDEE_CeCILL.LIC
-!
+! 
 !>\BRIEF        Calculates the soil temperatures by solving the heat
 !! diffusion equation within the soil. This module is only used with CWRR hydrology.
 !!

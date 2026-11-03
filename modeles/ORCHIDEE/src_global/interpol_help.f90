@@ -32,7 +32,7 @@ MODULE interpol_help
      MODULE PROCEDURE aggregate_2d_p, aggregate_vec_p
   END INTERFACE
   !
-  LOGICAL, PARAMETER                              :: check_grid=.TRUE.
+  LOGICAL, PARAMETER                              :: check_grid = .FALSE.
   !
 CONTAINS
   !
@@ -259,13 +259,13 @@ CONTAINS
        ENDDO
     ENDIF
     !
-    WRITE(numout,*) 'We will work with ', nbind, ' points of the fine grid'
+    !WRITE(numout,*) 'We will work with ', nbind, ' points of the fine grid'
     !
-    WRITE(numout,*) 'searchind(:,:) : ', searchind(:,:) 
-    WRITE(numout,*) 'Aggregate_2d : ', callsign
+    !WRITE(numout,*) 'searchind(:,:) : ', searchind(:,:) 
+    !WRITE(numout,*) 'Aggregate_2d : ', callsign
 #ifdef INTERPOL_ADVANCE
-    WRITE(numout,'(2a40)')'0%--------------------------------------', &
-         & '------------------------------------100%'
+    !WRITE(numout,'(2a40)')'0%--------------------------------------', &
+    !     & '------------------------------------100%'
 #endif
     !
     !   Now we take each grid point and find out which values from the forcing we need to average

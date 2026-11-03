@@ -356,21 +356,21 @@ subroutine crop_bmalloc(in_cycle,         &
            bm_alloc(isapabove) = 0.
            bm_alloc(icarbres) = 0.
        endif
-!       biomass(ifruit) =  biomass(ifruit) - c_reserve   !max(grainrem, 0.); 
+!      biomass(ifruit) =  biomass(ifruit) - c_reserve   !max(grainrem, 0.); 
        bm_alloc(ifruit) = -c_reserve
        bm_alloc(icarbres) = bm_alloc(icarbres) + c_reserve
-       DO ipart = 1,nparts
-           IF (bm_alloc(ipart)<0) THEN
-               WRITE(numout,*) 'ipart :',ipart
-               WRITE(numout,*) 'bm_alloc < 0 :',bm_alloc(ipart)
-               WRITE(numout,*) 'biomass :', biomass(ipart)
-           ENDIF
-       ENDDO
+!       DO ipart = 1,nparts
+!           IF (bm_alloc(ipart)<0) THEN
+!               WRITE(numout,*) 'ipart :',ipart
+!               WRITE(numout,*) 'bm_alloc < 0 :',bm_alloc(ipart)
+!               WRITE(numout,*) 'biomass :', biomass(ipart)
+!           ENDIF
+!       ENDDO
     else
 !        write(numout,*) 'growth stage not recognized'
-        write(numout,*) 'no allocation occurred in tday_counter: ', tday_counter
-        write(numout,*) 'nger, nlev, ndrp, nmat, nrec'
-        write(numout,*) nger, nlev, ndrp, nmat, nrec
+!        write(numout,*) 'no allocation occurred in tday_counter: ', tday_counter
+!        write(numout,*) 'nger, nlev, ndrp, nmat, nrec'
+!        write(numout,*) nger, nlev, ndrp, nmat, nrec
 !        STOP
     endif
 

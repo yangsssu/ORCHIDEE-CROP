@@ -13,7 +13,7 @@
 #set -eu
 #set -vx
 
-libIGCM=/home/orchidee03/xhwang/ORC_cropPerso/libIGCM
+libIGCM=/home/orchidee03/ssdeng/ORCHIDEE-CROP/libIGCM
 
 #D- Task type (computing or post-processing)
 TaskType=post-processing

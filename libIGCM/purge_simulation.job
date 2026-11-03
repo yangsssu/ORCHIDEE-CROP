@@ -1,0 +1,189 @@
+#!/bin/ksh
+#**************************************************************
+# Author: Sebastien Denvil
+# Contact: Sebastien.Denvil__at__ipsl.jussieu.fr
+# $Revision:: 1633                                     $ Revision of last commit
+# $Author:: ssenesi                                    $ Author of last commit
+# $Date:: 2024-03-11 10:37:15 +0100 (Mon, 11 Mar 2024) $ Date of last commit
+# IPSL (2006)
+#  This software is governed by the CeCILL licence see libIGCM/libIGCM_CeCILL.LIC
+#
+#**************************************************************
+# ID of your genci project. Curie only : post-processing jobs need it to run properly
+
+#set -eu
+#set -vx
+
+libIGCM=/home/scratch01/ssdeng/ORCHIDEE_3/modipsl/libIGCM
+
+#D- Task type DO NOT CHANGE (computing, post-processing or checking)
+TaskType=checking
+
+#D--------------------------------------------------------------------==
+#D-                   -1. User modification place
+#D--------------------------------------------------------------------==
+
+#D- Increased verbosity (1, 2, 3)
+Verbosity=3
+
+#D- Low level debug : to perform lib test checks, stack construction and IO functions instrumentation
+#D- Default=true
+DEBUG_debug=true
+
+#D- Messaging : all activities and call stacks will be sent to ipsl servers
+#D- If true will imply DEBUG_debug=true
+#D- Default=false
+#D-
+BigBrother=false
+
+
+#D--------------------------------------------------------------------==
+
+echo "purge an entire simulation :"
+echo "Script used to purge a simulation from the IGCM_OUT directory !"
+echo "This script will completely wipe out your simulation and will erase all files !!!"
+echo "Be careful and read all informations !"
+echo "----"
+echo "It must be called in Experience directory (so-called SUBMIT_DIR)."
+echo "----"
+
+#D--------------------------------------------------------------------==
+
+. ${libIGCM}/libIGCM_debug/libIGCM_debug.ksh
+. ${libIGCM}/libIGCM_card/libIGCM_card.ksh
+. ${libIGCM}/libIGCM_date/libIGCM_date.ksh
+#-------
+SUBMIT_DIR=$( pwd )
+. ${libIGCM}/libIGCM_sys/libIGCM_sys.ksh
+. ${libIGCM}/libIGCM_config/libIGCM_config.ksh
+#-------
+( ${DEBUG_debug} ) && IGCM_debug_Check
+( ${DEBUG_debug} ) && IGCM_card_Check
+( ${DEBUG_debug} ) && IGCM_date_Check
+
+if [ ! -f ${SUBMIT_DIR}/config.card ] ; then
+  echo "A config.card is needed to proceed"
+  exit
+fi
+
+if [ ! -f ${SUBMIT_DIR}/run.card ] ; then
+  echo "A run.card is needed to proceed"
+  exit
+fi
+
+#==================================
+# First of all
+#
+# Read libIGCM compatibility version in config.card
+# Read UserChoices section
+# Read Ensemble section
+# Read Post section
+# Define all netcdf output directories
+#==================================
+IGCM_config_CommonConfiguration ${SUBMIT_DIR}/config.card
+
+# ------------------------------------------------------------------
+# Activate BigBrother so as to supervise this simulation
+# ------------------------------------------------------------------
+IGCM_debug_BigBro_Initialize
+
+# List whats need to be done
+echo "Search directories in ${R_SAVE}"
+set +A ListDirectories -- $( IGCM_sys_RshArchive "find ${R_SAVE} ${R_BUFR} ${R_FIGR} -type d | sort | uniq" )
+CountListDirectories=${#ListDirectories[@]}
+
+# And proceed
+if [ ${CountListDirectories} -gt 0 ] ; then
+  for dir in ${ListDirectories[@]} ; do
+    IGCM_debug_Print 2 -e "\033[1;31m ${dir}\033[m"
+  done
+  IGCM_debug_Print 2 -e "\033[1;31m ${SUBMIT_DIR}/run.card\033[m"
+  IGCM_debug_Print 2 -e "\033[1;31m ${SUBMIT_DIR}/Debug\033[m"
+  IGCM_debug_Print 2 -e "\033[1;31m ${SUBMIT_DIR}/Script_Output_*.??????\033[m"
+
+  echo -e "\033[1;32mDo you REALLY want to erase all those directories and files?\033[m"
+  echo -n " Your answer (y/n) :"
+  read reponse
+  case ${reponse} in
+
+  oui|OUI|o|y|yes|YES)
+
+    ERASE=FALSE
+    if [ X${config_UserChoices_SpaceName} = XTEST ] ; then
+      ERASE=TRUE
+    else
+      echo -e "\033[1;32mPlease type in the exact Job Name of the simulation to erase?\033[m"
+      read jobname
+      if [ X${config_UserChoices_JobName} = X${jobname} ] ; then
+        ERASE=TRUE
+      else
+        echo "JobName you gave and the one from config.card do not match. Stop here."
+      fi
+    fi
+
+    if [ X${ERASE} = XTRUE ] ; then
+      echo "OK. It will be erased."
+      for dir in ${ListDirectories[@]} ; do
+        IGCM_sys_RshArchive rm -rf ${dir}
+      done
+      if [ ! X${config_UserChoices_SpaceName} = XTEST ] ; then
+        # Remove dods hardlink
+        IGCM_sys_Dods_Rm
+      fi
+      # Remove run.card
+      rm -f ${SUBMIT_DIR}/run.card
+      # Remove Script_Output
+      rm -f ${SUBMIT_DIR}/Script_Output_*.??????
+      # Remove the Debug directory
+      rm -rf ${SUBMIT_DIR}/Debug
+      # Send a message telling we want to purge
+      IGCM_debug_sendAMQP_Purge 
+      echo "done."
+
+      # Add reset of counter for Script_Output in the main Job
+      Script_Output_Prefix=${config_UserChoices_Script_Output_Prefix:='Script_Output'}
+      Script_Output_Job=${Script_Output_Prefix}_${config_UserChoices_JobName}
+      Script_Output=${Script_Output_Prefix}_${config_UserChoices_JobName}.000001
+
+      echo -e "\033[1;32mDo you want to change the number in Script_Output? (${Script_Output} into Job) ?"
+      echo -n -e " Your answer (y/n) : \033[m"
+      read reponse
+      case ${reponse} in
+	  
+	  oui|OUI|o|y|yes|YES)
+              cp ${SUBMIT_DIR}/Job_${config_UserChoices_JobName} ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}_SAVED_$$
+              sed -e"s/${Script_Output_Job}.[0-9][0-9][0-9][0-9][0-9][0-9]/${Script_Output}/"  ${SUBMIT_DIR}/Job_${config_UserChoices_JobName}_SAVED_$$  >${SUBMIT_DIR}/Job_${config_UserChoices_JobName}
+              echo "Job : Job_${config_UserChoices_JobName} modified."
+              echo "Old job saved here : Job_${config_UserChoices_JobName}_SAVED_$$"
+              ;;
+	  non|NON|n|no|NO)
+              echo "Nothing done in Job_${config_UserChoices_JobName} !"
+              ;;
+      esac
+
+    fi
+    ;;
+  non|NON|n|no|NO)
+    echo "Nothing to do !"
+    ;;
+  esac
+fi
+
+IGCM_card_DefineVariableFromOption ${prefix}config.card Post Cesmep
+if ( [ X${config_Post_Cesmep} = X${NULL_STR} ] || [ X${config_Post_Cesmep} = XNONE ] || \
+	 [ X${config_Post_Cesmep} = X ] ) ; then
+    config_Post_Cesmep=FALSE
+fi
+
+if [ ${config_Post_Cesmep} != FALSE -a -d $SUBMIT_DIR/cesmep_lite ]; then
+    echo -e "\033[1;32mDo you want to erase the CESMEP atlas and dedicated CliMAF cache) ?"
+    echo -n -e " Your answer (y/n) : \033[m"
+    read reponse
+    case ${reponse} in
+	oui|OUI|o|y|yes|YES)
+	    $SUBMIT_DIR/cesmep_lite/libIGCM_clean.sh
+	    ;;
+    esac
+fi
+
+exit 0
