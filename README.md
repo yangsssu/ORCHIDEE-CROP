@@ -12,6 +12,6 @@ Our model runs on the Obelix server at LSCE. You can check the environment setup
 
 After installing the necessary environment, navigate to the util folder and run ins_make to install the Makefiles. Then navigate to config/ORCHIDEE_OL/ and use make_without_xios to compile the model.
 
-The folder inside config/ORCHIDEE_OL/ contains the simulation configuration for the winter wheat HAS experiment at FR-Gri.
+The folder inside config/ORCHIDEE_OL/ contains the simulation configuration for the wheat HAS experiment at FR-Gri.
 
 The model has no specific hardware requirements and can be run in a Linux environment with the required packages and dependencies correctly installed. All necessary information can be found in the User Guide mentioned above (see "Install and compile ORCHIDEE for offline use"). For further questions, please contact the ORCHIDEE support team at https://orchidee.ipsl.fr/contact/.
